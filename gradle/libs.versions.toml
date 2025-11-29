@@ -15,7 +15,6 @@ compose-material3-adaptative = "1.1.1"
 coil = "3.0.3"
 kotlinx-datetime = "0.6.1"
 kotlinpoet = "2.2.0"
-ksp = "2.2.21-2.0.4"
 
 [libraries]
 
@@ -53,9 +52,6 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
 
-# Ksp
-ksp = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
-
 # Kotlinpoet
 kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
 kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
@@ -68,4 +64,3 @@ vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

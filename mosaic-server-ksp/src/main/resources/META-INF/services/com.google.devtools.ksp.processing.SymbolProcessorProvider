@@ -1,4 +1,0 @@
-dev.catbit.mosaic.server.ksp.processors.EventModelProcessorProvider
-dev.catbit.mosaic.server.ksp.processors.InternalEventModelProcessorProvider
-dev.catbit.mosaic.server.ksp.processors.TileModelProcessorProvider
-dev.catbit.mosaic.server.ksp.processors.InternalTileModelProcessorProvider

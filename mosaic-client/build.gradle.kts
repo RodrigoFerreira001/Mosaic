@@ -11,7 +11,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose.multiplatform)
-    alias(libs.plugins.ksp)
 }
 
 group = "dev.catbit.mosaic-core"
@@ -59,21 +58,5 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
         }
-    }
-}
-
-dependencies {
-    add("kspCommonMainMetadata", project(":mosaic-client-ksp"))
-    add("kspAndroid", project(":mosaic-client-ksp"))
-    add("kspJvm", project(":mosaic-client-ksp"))
-    add("kspIosX64", project(":mosaic-client-ksp"))
-    add("kspIosArm64", project(":mosaic-client-ksp"))
-    add("kspIosSimulatorArm64", project(":mosaic-client-ksp"))
-    add("kspWasmJs", project(":mosaic-client-ksp"))
-}
-
-afterEvaluate {
-    tasks.named("extractAndroidMainAnnotations") {
-        dependsOn(tasks.named("kspAndroidMain"))
     }
 }

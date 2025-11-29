@@ -7,4 +7,9 @@ interface TileModel {
     val id: String
     val events: List<EventModel>?
     val style: StyleModel
+    val visibility: Visibility
+
+    enum class Visibility {
+        VISIBLE, INVISIBLE, GONE
+    }
 }

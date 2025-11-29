@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.vanniktech.mavenPublish)
     alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.ksp)
 }
 
 group = "dev.catbit"
@@ -57,21 +56,5 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
-    }
-}
-
-dependencies {
-    add("kspCommonMainMetadata", project(":mosaic-server-ksp"))
-    add("kspAndroid", project(":mosaic-server-ksp"))
-    add("kspJvm", project(":mosaic-server-ksp"))
-    add("kspIosX64", project(":mosaic-server-ksp"))
-    add("kspIosArm64", project(":mosaic-server-ksp"))
-    add("kspIosSimulatorArm64", project(":mosaic-server-ksp"))
-    add("kspWasmJs", project(":mosaic-server-ksp"))
-}
-
-afterEvaluate {
-    tasks.named("extractAndroidMainAnnotations") {
-        dependsOn(tasks.named("kspAndroidMain"))
     }
 }
