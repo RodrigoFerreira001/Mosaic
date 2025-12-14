@@ -13,7 +13,7 @@ class Mapper(
         val mappingHolder = mappings.firstOrNull { it.match(sourceInstance::class, target) }
             ?: throw RuntimeException("No mapping of ${sourceInstance::class} to $target found")
 
-        return mappingHolder.mapping(this, sourceInstance) as T
+        return (mappingHolder as MappingHolder<S, T>).mapping(sourceInstance, this)
     }
 }
 

@@ -8,10 +8,10 @@ import androidx.compose.ui.text.font.FontVariation
 import dev.catbit.mosaic.client.material_symbols.LocalMaterialSymbolFonts
 import dev.catbit.mosaic.client.material_symbols.MaterialSymbolFonts
 import dev.catbit.mosaic.client.material_symbols.MaterialSymbolFontsConfig
-import dev.catbit.mosaic_core.mosaic_client.generated.resources.Res
-import dev.catbit.mosaic_core.mosaic_client.generated.resources.materialSymbolsOutlined
-import dev.catbit.mosaic_core.mosaic_client.generated.resources.materialSymbolsRounded
-import dev.catbit.mosaic_core.mosaic_client.generated.resources.materialSymbolsSharp
+import dev.catbit.mosaic_client.generated.resources.Res
+import dev.catbit.mosaic_client.generated.resources.materialSymbolsOutlined
+import dev.catbit.mosaic_client.generated.resources.materialSymbolsRounded
+import dev.catbit.mosaic_client.generated.resources.materialSymbolsSharp
 import org.jetbrains.compose.resources.Font
 
 @Composable

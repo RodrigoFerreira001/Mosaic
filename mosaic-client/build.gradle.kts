@@ -13,7 +13,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
 }
 
-group = "dev.catbit.mosaic-core"
+group = "dev.catbit"
 version = "1.0.0"
 
 kotlin {
@@ -57,6 +57,16 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+
+            // Koin
+            implementation(libs.koin.core)
+
+            // Kotlin serialization
+            implementation(libs.kotlinx.serialization.json)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
     }
 }

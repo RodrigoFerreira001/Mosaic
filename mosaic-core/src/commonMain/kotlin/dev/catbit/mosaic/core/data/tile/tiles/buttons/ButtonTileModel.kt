@@ -22,5 +22,6 @@ data class ButtonTileModel(
     @SerialName("events") override val events: List<EventModel>?,
     @SerialName("style") override val style: StyleModel,
     @SerialName("visibility") override val visibility: TileModel.Visibility,
-    @SerialName("text") val text: String
+    @SerialName("text") val text: String,
+    @SerialName("loading") val loading: Boolean
 ) : TileModel
