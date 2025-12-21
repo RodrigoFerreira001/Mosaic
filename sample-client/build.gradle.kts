@@ -26,6 +26,10 @@ kotlin {
 
             // Kotlin serialization
             implementation(libs.kotlinx.serialization.json)
+
+            // Coroutines
+            implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.kotlinx.coroutines.swing)
         }
 
         jvmMain.dependencies {

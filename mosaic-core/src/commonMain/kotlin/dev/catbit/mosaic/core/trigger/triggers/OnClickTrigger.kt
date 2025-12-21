@@ -1,5 +1,5 @@
 package dev.catbit.mosaic.core.trigger.triggers
 
-import dev.catbit.mosaic.core.trigger.Trigger
+import dev.catbit.mosaic.core.trigger.EventTrigger
 
-object OnClickTrigger : Trigger("onClick")
+object OnClickTrigger : EventTrigger("onClick")

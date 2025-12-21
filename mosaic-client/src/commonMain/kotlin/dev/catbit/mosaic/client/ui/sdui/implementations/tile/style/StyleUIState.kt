@@ -1,0 +1,75 @@
+package dev.catbit.mosaic.client.ui.sdui.implementations.tile.style
+
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Stable
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
+import dev.catbit.mosaic.client.ui.sdui.foundation.models.ColorUIModel
+import dev.catbit.mosaic.client.ui.sdui.foundation.models.WindowInsetsUIModel
+import dev.catbit.mosaic.client.ui.sdui.foundation.state.UIState
+
+@Stable
+data class StyleUIState(
+    val size: SizeUIState,
+    val margin: PaddingValues? = null,
+    val padding: PaddingValues? = null,
+    val background: ColorUIModel? = null,
+    val border: BorderUIState? = null,
+    val clip: ClipUIState? = null,
+    val windowInsets: WindowInsetsUIModel? = null
+) : UIState
+
+@Stable
+data class ClipUIState(
+    val shape: Shape
+) : UIState
+
+@Stable
+data class RadiusUIState(
+    val topStart: Dp,
+    val topEnd: Dp,
+    val bottomStart: Dp,
+    val bottomEnd: Dp
+) : UIState {
+
+    fun toShape() = RoundedCornerShape(
+        topStart = topStart,
+        topEnd = topEnd,
+        bottomStart = bottomStart,
+        bottomEnd = bottomEnd
+    )
+}
+
+@Stable
+data class SizeUIState(
+    val width: Behavior.Horizontal,
+    val height: Behavior.Vertical
+) : UIState {
+    sealed interface Behavior {
+
+        sealed interface Horizontal : Behavior {
+
+            data object Fill : Horizontal
+            data object Wrap : Horizontal
+            data class Fixed(val value: Dp) : Horizontal
+            data class Weight(val value: Float) : Horizontal
+            data class Span(val value: Int) : Horizontal
+        }
+
+        sealed interface Vertical : Behavior {
+
+            data object Fill : Vertical
+            data object Wrap : Vertical
+            data class Fixed(val value: Dp) : Vertical
+            data class Weight(val value: Float) : Vertical
+        }
+    }
+}
+
+@Stable
+data class BorderUIState(
+    val color: ColorUIModel,
+    val thickness: Dp,
+    val radius: RadiusUIState?
+) : UIState

@@ -4,6 +4,7 @@ include(":mosaic-client")
 include(":mosaic-server")
 include(":mosaic-core")
 include(":sample-client")
+include(":sample-server")
 
 pluginManagement {
     repositories {

@@ -1,18 +1,19 @@
 [versions]
 agp = "8.13.0"
 androidx-lifecycle = "2.9.0"
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 android-minSdk = "24"
 android-compileSdk = "36"
-vanniktechMavenPublish = "0.34.0"
-compose = "1.9.3"
+vanniktechMavenPublish = "0.35.0"
+compose = "1.11.0-alpha01"
 kotlinx-coroutines = "1.10.2"
 kotlinx-serialization = "1.9.0"
 koin = "4.1.1"
-ktor = "3.3.2"
+ktor = "3.3.3"
+logback = "1.5.22"
 compose-navigation = "2.9.1"
-compose-material3-adaptative = "1.1.1"
-coil = "3.0.3"
+compose-material3-adaptative = "1.2.0"
+coil = "3.3.0"
 kotlinx-datetime = "0.6.1"
 kotlinpoet = "2.2.0"
 
@@ -38,6 +39,7 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 
 # Koin
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
+koin-core-viewmodel = { module = "io.insert-koin:koin-core-viewmodel", version.ref = "koin" }
 koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 
@@ -48,9 +50,13 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-js = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", version.ref = "ktor" }
-ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
+ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+
+# Logback
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
 # Kotlinpoet
 kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
@@ -60,6 +66,7 @@ kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlin
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+ktor = { id = "io.ktor.plugin", version.ref = "ktor" }
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktechMavenPublish" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
