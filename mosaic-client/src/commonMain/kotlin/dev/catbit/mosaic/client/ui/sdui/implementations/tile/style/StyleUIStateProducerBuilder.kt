@@ -16,8 +16,6 @@ import dev.catbit.mosaic.core.data.tile.style.WindowInsetsModel
 object StyleUIStateProducerBuilder :
     UIStateProducerBuilder<StyleModel, StyleUIStateProducer> {
 
-    override fun canBuild(data: Any) = data is StyleModel
-
     override fun UIStateProducerBuilderScope.build(data: StyleModel) = with(data) {
         StyleUIStateProducer(
             size = size.mapTo(),

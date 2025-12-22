@@ -7,7 +7,7 @@ data class EventRunningScope(
     val triggerOwnerId: String,
     val incomingData: Any? = null,
     val onTrigger: (trigger: EventTrigger, data: Any?) -> Unit,
-    val koinScope: Scope
+    val koinScope: Scope, // TODO vou precisar de manipular a UI, receber aqui alguma UIBridge sei lá
 ) {
     fun triggerEvent(
         eventTrigger: EventTrigger,

@@ -11,7 +11,6 @@ import dev.catbit.mosaic.core.data.tile.tiles.grouping.ColumnTileModel
 
 object ColumnTileUIStateProducerBuilder :
     GroupingTileUIStateProducerBuilder<ColumnTileModel, ColumnTileUIStateProducer> {
-    override fun canBuild(data: Any) = data is ColumnTileModel
 
     override fun UIStateProducerBuilderScope.buildTile(data: ColumnTileModel) = with(data) {
         ColumnTileUIStateProducer(

@@ -5,18 +5,18 @@ import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.extensions.toJsonElement
 import dev.catbit.mosaic.core.mapping.Mapper
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
-import kotlin.reflect.KClass
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 import org.koin.core.scope.Scope
+import kotlin.reflect.KClass
 
 class UIStateProducerBuilderScope(
-    private val producers: List<UIStateProducerBuilder<*, *>>,
+    private val uiStateProducerBuilders: Map<KClass<*>, UIStateProducerBuilder<*, *>>,
     private val mapper: Mapper,
     private val serializer: MosaicSerializer,
     val koinScope: Scope,
-    val registerEvents: (eventsOwnerId: String, events: List<EventModel>) -> Unit,
-    val unregisterEvents: (eventsOwnerId: String) -> Unit
+    val registerEvents: (eventsOwnerId: String, events: List<EventModel>) -> Unit, // TODO utilizar uma interface
+    val unregisterEvents: (eventsOwnerId: String) -> Unit // TODO utilizar uma interface, algo como EventBridge, sei lá
 ) {
     inline fun <reified T : Any> Any.mapTo() = map(this, T::class)
 
@@ -39,9 +39,8 @@ class UIStateProducerBuilderScope(
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T : UIStateProducer<*>> buildProducer(data: Any): T = producers
-        .firstOrNull { it.canBuild(data) }
-        ?.let { uIStateBuilderProducer ->
+    fun <T : UIStateProducer<*>> buildProducer(data: Any): T =
+        uiStateProducerBuilders[data::class]?.let { uIStateBuilderProducer ->
             with(uIStateBuilderProducer) {
                 build(data)
             } as T

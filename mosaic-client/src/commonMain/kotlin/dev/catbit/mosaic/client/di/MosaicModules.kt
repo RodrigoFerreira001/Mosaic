@@ -18,12 +18,14 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.butto
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.tile.style.StyleModel
 import dev.catbit.mosaic.core.mapping.Mapper
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
+import kotlin.reflect.KClass
 
 class MosaicModules(
     tileDefinitions: List<TileDefinition<out TileModel, out TileUIState>> = emptyList(),
@@ -69,13 +71,21 @@ class MosaicModules(
 
     private val renderingModule = module {
         single {
-            TileRendererManager((baseTilesDefinitions + tileDefinitions).map { it.tileRenderer })
+            TileRendererManager(
+                tileRenderers = (baseTilesDefinitions + tileDefinitions).associate { definition ->
+                    definition.tileUIStateClass to definition.tileRenderer
+                }
+            )
         }
     }
 
     private val eventModule = module {
         single {
-            EventRunnerManager((baseEventsDefinitions + eventDefinitions).map { it.eventRunner })
+            EventRunnerManager(
+                eventRunners = (baseEventsDefinitions + eventDefinitions).associate { definition ->
+                    definition.eventModelClass to definition.eventRunner
+                }
+            )
         }
     }
 
@@ -84,14 +94,14 @@ class MosaicModules(
     }
 
     private val stateModule = module {
-        single<List<UIStateProducerBuilder<*, *>>> {
-            mutableListOf<UIStateProducerBuilder<*, *>>().apply {
-                addAll(
-                    (baseTilesDefinitions + tileDefinitions).map {
-                        it.tileUIStateProducerBuilder
+        single<Map<KClass<*>, UIStateProducerBuilder<*, *>>> {
+            mutableMapOf<KClass<*>, UIStateProducerBuilder<*, *>>().apply {
+                putAll(
+                    (baseTilesDefinitions + tileDefinitions).associate { definition ->
+                        definition.tileModelClass to definition.tileUIStateProducerBuilder
                     }
                 )
-                add(StyleUIStateProducerBuilder)
+                put(StyleModel::class, StyleUIStateProducerBuilder)
             }
         }
     }

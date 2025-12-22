@@ -17,9 +17,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import org.koin.core.scope.Scope
+import kotlin.reflect.KClass
 
 class TilesUIStateManager(
-    uiStateProducerBuilders: List<UIStateProducerBuilder<*, *>>,
+    uiStateProducerBuilders: Map<KClass<*>, UIStateProducerBuilder<*, *>>,
     mapper: Mapper,
     serializer: MosaicSerializer,
     koinScope: Scope,
@@ -32,7 +33,7 @@ class TilesUIStateManager(
     private val tileUIStateProducers = mutableListOf<TileUIStateProducer<*>>()
 
     private val uiStateProducerBuilderScope = UIStateProducerBuilderScope(
-        producers = uiStateProducerBuilders,
+        uiStateProducerBuilders = uiStateProducerBuilders,
         mapper = mapper,
         serializer = serializer,
         koinScope = koinScope,

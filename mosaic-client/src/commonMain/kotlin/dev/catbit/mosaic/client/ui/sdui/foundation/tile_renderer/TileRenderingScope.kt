@@ -3,6 +3,7 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer
 import androidx.compose.runtime.Composable
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTileRendererManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 import dev.catbit.mosaic.core.trigger.EventTrigger
 

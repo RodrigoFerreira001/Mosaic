@@ -13,7 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.LocalTileRendererManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTileRendererManager
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 

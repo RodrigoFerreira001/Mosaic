@@ -9,6 +9,7 @@ import kotlin.reflect.KClass
 
 interface TileDefinition <Model: TileModel, UIState: TileUIState> {
     val tileModelClass: KClass<Model>
+    val tileUIStateClass: KClass<UIState>
     val tileRenderer: TileRenderer<UIState>
     val tileUIStateProducerBuilder: TileUIStateProducerBuilder<Model, TileUIStateProducer<UIState>>
 }

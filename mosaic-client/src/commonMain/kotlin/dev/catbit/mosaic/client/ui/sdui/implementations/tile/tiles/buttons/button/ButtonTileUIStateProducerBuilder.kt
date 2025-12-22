@@ -8,7 +8,6 @@ import dev.catbit.mosaic.core.data.tile.tiles.buttons.ButtonTileModel
 
 object ButtonTileUIStateProducerBuilder :
     TileUIStateProducerBuilder<ButtonTileModel, ButtonTileUIStateProducer> {
-    override fun canBuild(data: Any) = data is ButtonTileModel
 
     override fun UIStateProducerBuilderScope.buildTile(
         data: ButtonTileModel
