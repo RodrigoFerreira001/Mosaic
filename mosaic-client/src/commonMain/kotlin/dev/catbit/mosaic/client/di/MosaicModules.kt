@@ -109,18 +109,20 @@ class MosaicModules(
     private val stateHolder = module {
         viewModel { (screenId: String, navigationData: Map<String, Any>?) ->
 
-            val eventManager = EventManager(
-                eventRunnerManager = get(),
-                koinScope = this
-            )
-
             val tilesUIStateManager = TilesUIStateManager(
                 uiStateProducerBuilders = get(),
                 mapper = get(),
                 serializer = get(),
                 koinScope = this,
-                eventManager = eventManager
             )
+
+            val eventManager = EventManager(
+                eventRunnerManager = get(),
+                koinScope = this
+            )
+
+            tilesUIStateManager.attachEventRegister(eventManager)
+            eventManager.attachTilesEditor(tilesUIStateManager)
 
             MosaicScreenStateHolder(
                 screenId = screenId,
@@ -129,7 +131,9 @@ class MosaicModules(
                 tilesUIStateManager = tilesUIStateManager,
                 eventManager = eventManager,
                 tileRendererManager = get(),
-            )
+            ).also {
+                eventManager.attachScreenBehaviors(it)
+            }
         }
     }
 

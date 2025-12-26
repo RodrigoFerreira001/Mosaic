@@ -21,7 +21,10 @@ internal class MosaicScreenStateHolder(
     private val tilesUIStateManager: TilesUIStateManager,
     private val eventManager: EventManager,
     val tileRendererManager: TileRendererManager
-) : ScreenStateHolder<State, Event, Effect>() {
+) : ScreenStateHolder<State, Event, Effect>(), ScreenBehaviors {
+
+    private val formData: Map<String, Any> = mutableMapOf()
+    private val uiData: Map<String, Any> = mutableMapOf()
 
     override val internalUIState = MutableStateFlow<State>(State.Loading)
 
@@ -79,5 +82,77 @@ internal class MosaicScreenStateHolder(
 
     private fun onTryAgainClick() {
 
+    }
+
+    override fun refresh() {
+        TODO("Not yet implemented")
+    }
+
+    override fun navigate() {
+        TODO("Not yet implemented")
+    }
+
+    override fun goBack() {
+        TODO("Not yet implemented")
+    }
+
+    override fun displayDialog() {
+        TODO("Not yet implemented")
+    }
+
+    override fun closeDialog() {
+        TODO("Not yet implemented")
+    }
+
+    override fun displayBottomSheet() {
+        TODO("Not yet implemented")
+    }
+
+    override fun closeBottomSheet() {
+        TODO("Not yet implemented")
+    }
+
+    override fun displaySnackbar() {
+        TODO("Not yet implemented")
+    }
+
+    override fun closeSnackbar() {
+        TODO("Not yet implemented")
+    }
+
+    override fun displayDrawer() {
+        TODO("Not yet implemented")
+    }
+
+    override fun closeDrawer() {
+        TODO("Not yet implemented")
+    }
+
+    override fun displayMenu() {
+        TODO("Not yet implemented")
+    }
+
+    override fun closeMenu() {
+        TODO("Not yet implemented")
+    }
+
+    override fun requestPermission() {
+        TODO("Not yet implemented")
+    }
+
+    override fun sendNotification() {
+        TODO("Not yet implemented")
+    }
+
+    override fun getData() {
+        TODO("Not yet implemented")
+    }
+
+    override fun setData() {
+        TODO("Not yet implemented")
+    }
+
+    override fun removeData() {
+        TODO("Not yet implemented")
     }
 }

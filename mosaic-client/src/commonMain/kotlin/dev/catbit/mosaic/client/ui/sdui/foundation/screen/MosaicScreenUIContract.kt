@@ -5,7 +5,9 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 
 sealed interface State {
     data object Loading : State
-    data class Displaying(val tiles: List<TileUIState>): State
+    data class Displaying(
+        val tiles: List<TileUIState>
+    ): State
     data object Failure : State
 }
 

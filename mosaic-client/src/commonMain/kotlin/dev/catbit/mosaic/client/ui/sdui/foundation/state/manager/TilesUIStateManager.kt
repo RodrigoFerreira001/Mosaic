@@ -1,6 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.state.manager
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRegister
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.InsertionPosition
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.builder.UIStateProducerBuilder
@@ -23,36 +23,41 @@ class TilesUIStateManager(
     uiStateProducerBuilders: Map<KClass<*>, UIStateProducerBuilder<*, *>>,
     mapper: Mapper,
     serializer: MosaicSerializer,
-    koinScope: Scope,
-    eventManager: EventManager
-) {
+    koinScope: Scope
+) : TilesEditor {
+    private lateinit var eventRegister: EventRegister
+
+    fun attachEventRegister(eventRegister: EventRegister) {
+        this.eventRegister = eventRegister
+    }
 
     private val internalUIState = MutableStateFlow<List<TileUIState>>(listOf())
     val uiState get() = internalUIState.asStateFlow()
 
     private val tileUIStateProducers = mutableListOf<TileUIStateProducer<*>>()
 
-    private val uiStateProducerBuilderScope = UIStateProducerBuilderScope(
-        uiStateProducerBuilders = uiStateProducerBuilders,
-        mapper = mapper,
-        serializer = serializer,
-        koinScope = koinScope,
-        registerEvents = eventManager::registerEvents,
-        unregisterEvents = eventManager::unregisterEvents,
-    )
+    private val uiStateProducerBuilderScope by lazy {
+        UIStateProducerBuilderScope(
+            uiStateProducerBuilders = uiStateProducerBuilders,
+            mapper = mapper,
+            serializer = serializer,
+            koinScope = koinScope,
+            eventRegister = eventRegister
+        )
+    }
 
     fun setup(tiles: List<TileModel>) {
-//        runCatching {
-        tileUIStateProducers.apply {
-            clear()
-            addAll(
-                tiles.map { tile ->
-                    uiStateProducerBuilderScope.buildProducer(tile)
-                }
-            )
+        runCatching {
+            tileUIStateProducers.apply {
+                clear()
+                addAll(
+                    tiles.map { tile ->
+                        uiStateProducerBuilderScope.buildProducer(tile)
+                    }
+                )
+            }
+            updateState()
         }
-        updateState()
-//        }
     }
 
     private fun updateState() {
@@ -69,71 +74,71 @@ class TilesUIStateManager(
         else null
     }
 
-    fun addTile(
+    override fun addTile(
         tileModel: TileModel,
-        where: InsertionPosition = InsertionPosition.End
+        where: InsertionPosition
     ) {
-//        runCatching {
-        tileUIStateProducers.add(
-            element = uiStateProducerBuilderScope.buildProducer(tileModel),
-            index = where.toIndex(tileUIStateProducers)
-        )
-
-        updateState()
-//        }
-    }
-
-    fun addTiles(
-        tileModels: List<TileModel>,
-        where: InsertionPosition = InsertionPosition.End
-    ) {
-//        runCatching {
-        tileUIStateProducers.addAll(
-            elements = tileModels.map { tileModel ->
-                uiStateProducerBuilderScope.buildProducer(tileModel)
-            },
-            index = where.toIndex(tileUIStateProducers)
-        )
-        updateState()
-//        }
-    }
-
-    fun addTile(
-        tileModel: TileModel,
-        groupingTileId: String,
-        where: InsertionPosition = InsertionPosition.End
-    ) {
-//        runCatching {
-        (getTile(groupingTileId) as? GroupingTileUIStateProducer)
-            ?.addChild(
-                child = uiStateProducerBuilderScope.buildProducer(tileModel),
-                where = where
+        runCatching {
+            tileUIStateProducers.add(
+                element = uiStateProducerBuilderScope.buildProducer(tileModel),
+                index = where.toIndex(tileUIStateProducers)
             )
 
-        updateState()
-//        }
+            updateState()
+        }
     }
 
-    fun addTiles(
+    override fun addTiles(
         tileModels: List<TileModel>,
-        groupingTileId: String,
-        where: InsertionPosition = InsertionPosition.End
+        where: InsertionPosition
     ) {
-//        runCatching {
-        withNotNull(getTile(groupingTileId) as? GroupingTileUIStateProducer) {
-            addChildren(
-                children = tileModels.map { tileModel ->
+        runCatching {
+            tileUIStateProducers.addAll(
+                elements = tileModels.map { tileModel ->
                     uiStateProducerBuilderScope.buildProducer(tileModel)
                 },
-                where = where
+                index = where.toIndex(tileUIStateProducers)
             )
+            updateState()
         }
-
-        updateState()
-//        }
     }
 
-    fun updateTile(
+    override fun addTile(
+        tileModel: TileModel,
+        groupingTileId: String,
+        where: InsertionPosition
+    ) {
+        runCatching {
+            (getTile(groupingTileId) as? GroupingTileUIStateProducer)
+                ?.addChild(
+                    child = uiStateProducerBuilderScope.buildProducer(tileModel),
+                    where = where
+                )
+
+            updateState()
+        }
+    }
+
+    override fun addTiles(
+        tileModels: List<TileModel>,
+        groupingTileId: String,
+        where: InsertionPosition
+    ) {
+        runCatching {
+            withNotNull(getTile(groupingTileId) as? GroupingTileUIStateProducer) {
+                addChildren(
+                    children = tileModels.map { tileModel ->
+                        uiStateProducerBuilderScope.buildProducer(tileModel)
+                    },
+                    where = where
+                )
+            }
+
+            updateState()
+        }
+    }
+
+    override fun updateTile(
         id: String,
         updateData: Map<String, Any?>
     ) {
@@ -141,7 +146,7 @@ class TilesUIStateManager(
         updateState()
     }
 
-    fun removeTile(
+    override fun removeTile(
         id: String
     ) {
         if (tileUIStateProducers.any { it.id == id }) {
@@ -155,7 +160,7 @@ class TilesUIStateManager(
         updateState()
     }
 
-    fun removeTiles(
+    override fun removeTiles(
         ids: List<String>
     ) {
         tileUIStateProducers.forEach { producer ->
@@ -168,12 +173,12 @@ class TilesUIStateManager(
         updateState()
     }
 
-    fun wipeTiles() {
+    override fun wipeTiles() {
         tileUIStateProducers.clear()
         updateState()
     }
 
-    fun wipeTiles(
+    override fun wipeTiles(
         groupingTileId: String
     ) {
         (getTile(groupingTileId) as? GroupingTileUIStateProducer)?.wipeChildren()

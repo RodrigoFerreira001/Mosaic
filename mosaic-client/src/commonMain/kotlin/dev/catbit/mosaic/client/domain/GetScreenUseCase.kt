@@ -40,7 +40,7 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
                                 loading = false,
                                 style = StyleModel(
                                     size = SizeModel(
-                                        width = SizeModel.Behavior.Horizontal.Fill,
+                                        width = SizeModel.Behavior.Horizontal.Wrap,
                                         height = SizeModel.Behavior.Vertical.Wrap
                                     )
                                 )
@@ -55,7 +55,7 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
                         ),
                         visibility = TileModel.Visibility.VISIBLE,
                         arrangement = ArrangementModel.Vertical.Top,
-                        alignment = AlignmentModel.Horizontal.Start,
+                        alignment = AlignmentModel.Horizontal.Center,
                     )
                 ),
                 events = null
