@@ -5,6 +5,7 @@ import dev.catbit.mosaic.core.trigger.triggers.OnFailureTrigger
 import dev.catbit.mosaic.core.trigger.triggers.OnLongPressTrigger
 import dev.catbit.mosaic.core.trigger.triggers.OnStartTrigger
 import dev.catbit.mosaic.core.trigger.triggers.OnSuccessTrigger
+import dev.catbit.mosaic.core.trigger.triggers.OnTextChangedTrigger
 
 object EventTriggers {
     val OnClick = OnClickTrigger
@@ -12,4 +13,5 @@ object EventTriggers {
     val OnLongPress = OnLongPressTrigger
     val OnStart = OnStartTrigger
     val OnSuccess = OnSuccessTrigger
+    val OnTextChanged = OnTextChangedTrigger
 }

@@ -19,6 +19,7 @@ class ButtonTileUIStateProducer(
         text != lastState.text
                 || loading != lastState.loading
                 || visibility != lastState.visibility
+                || style.shouldProduce()
     }
 
     override fun produce() = ButtonTileUIState(

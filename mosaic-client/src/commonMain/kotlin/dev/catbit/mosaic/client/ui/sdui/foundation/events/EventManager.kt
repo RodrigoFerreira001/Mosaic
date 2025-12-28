@@ -63,10 +63,9 @@ class EventManager(
         trigger: EventTrigger,
         data: Any? = null
     ) {
-        events
-            .getValue(eventOwnerId)
-            .filter { it.trigger == trigger }
-            .forEach { eventModel ->
+        events[eventOwnerId]
+            ?.filter { it.trigger == trigger }
+            ?.forEach { eventModel ->
                 with(eventRunnerManager) {
                     EventRunningScope(
                         triggerOwnerId = eventModel.id,

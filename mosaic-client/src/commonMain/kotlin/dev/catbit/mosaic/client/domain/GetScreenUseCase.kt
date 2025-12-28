@@ -10,6 +10,7 @@ import dev.catbit.mosaic.core.data.tile.style.SizeModel
 import dev.catbit.mosaic.core.data.tile.style.StyleModel
 import dev.catbit.mosaic.core.data.tile.tiles.buttons.ButtonTileModel
 import dev.catbit.mosaic.core.data.tile.tiles.grouping.ColumnTileModel
+import dev.catbit.mosaic.core.data.tile.tiles.inputs.TextFieldTileModel
 import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.core.trigger.EventTriggers
 import kotlinx.coroutines.delay
@@ -44,6 +45,25 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
                                         height = SizeModel.Behavior.Vertical.Wrap
                                     )
                                 )
+                            ),
+                            TextFieldTileModel(
+                                id = randomUuid(),
+                                visibility = TileModel.Visibility.VISIBLE,
+                                style = StyleModel(
+                                    size = SizeModel(
+                                        width = SizeModel.Behavior.Horizontal.Wrap,
+                                        height = SizeModel.Behavior.Vertical.Wrap
+                                    )
+                                ),
+                                events = listOf(
+                                    NavigateEventModel(
+                                        id = randomUuid(),
+                                        url = "http://",
+                                        trigger = EventTriggers.OnTextChanged,
+                                        events = null
+                                    )
+                                ),
+                                value = null
                             )
                         ),
                         events = null,

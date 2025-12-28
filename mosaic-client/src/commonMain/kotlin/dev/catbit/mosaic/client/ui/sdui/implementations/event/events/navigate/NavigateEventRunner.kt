@@ -7,6 +7,7 @@ import dev.catbit.mosaic.core.data.event.events.NavigateEventModel
 class NavigateEventRunner : EventRunner<NavigateEventModel> {
 
     override fun EventRunningScope.runEvent(event: NavigateEventModel) {
+        incomingData?.let { println(it) }
         print("Rodou")
     }
 }

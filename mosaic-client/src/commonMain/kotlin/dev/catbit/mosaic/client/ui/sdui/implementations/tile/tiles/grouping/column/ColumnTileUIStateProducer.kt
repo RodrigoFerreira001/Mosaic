@@ -22,6 +22,7 @@ class ColumnTileUIStateProducer(
     override fun shouldProduce() = shouldProduceWithLastState { lastState ->
         arrangement != lastState.arrangement
                 || alignment != lastState.alignment
+                || style.shouldProduce()
                 || super.shouldProduce()
     }
 

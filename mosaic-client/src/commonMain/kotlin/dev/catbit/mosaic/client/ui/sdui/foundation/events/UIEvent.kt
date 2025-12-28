@@ -5,7 +5,8 @@ import dev.catbit.mosaic.core.trigger.EventTrigger
 sealed interface UIEvent {
     data class TriggerHolderUIEvent(
         val eventOwnerId: String,
-        val trigger: EventTrigger
+        val trigger: EventTrigger,
+        val data: Any?
     ) : UIEvent
 
     data class TileEventHolderUIEvent(

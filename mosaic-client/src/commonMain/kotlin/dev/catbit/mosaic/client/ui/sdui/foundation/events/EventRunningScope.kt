@@ -4,6 +4,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviors
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEditor
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.trigger.EventTrigger
+import kotlinx.coroutines.CoroutineScope
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 import org.koin.core.scope.Scope
@@ -17,6 +18,8 @@ data class EventRunningScope(
     val tilesEditor: TilesEditor,
     val screenBehaviors: ScreenBehaviors
 ) {
+
+    // TODO executar eventos de forma suspensa
 
     fun triggerEvent(
         eventTrigger: EventTrigger,

@@ -25,6 +25,19 @@ internal fun MosaicScreen(
         parametersOf(screenId, navigationData)
     }
 ) {
+
+    // TODO Utilizar aqui o conceito de behavior
+
+    /*
+    * interface Behavior {
+    *   @Composable
+    *   fun execute() {
+    *
+    *   }
+    * */
+
+    //
+
     stateHolder.bindScreenLifecycle()
 
     val uiState by stateHolder.uiState.collectAsState()

@@ -23,6 +23,9 @@ internal class MosaicScreenStateHolder(
     val tileRendererManager: TileRendererManager
 ) : ScreenStateHolder<State, Event, Effect>(), ScreenBehaviors {
 
+    // TODO introduzir o sistema de brodcast
+    // que será responsável por coisas como um evento dizer para uma column fazer scroll
+
     private val formData: Map<String, Any> = mutableMapOf()
     private val uiData: Map<String, Any> = mutableMapOf()
 
@@ -58,7 +61,6 @@ internal class MosaicScreenStateHolder(
         }
     }
 
-
     override fun onEvent(event: Event) {
         when (event) {
             is Event.OnUIEvent -> onUIEvent(event)
@@ -75,7 +77,8 @@ internal class MosaicScreenStateHolder(
 
             is UIEvent.TriggerHolderUIEvent -> eventManager.triggerEvent(
                 eventOwnerId = event.event.eventOwnerId,
-                trigger = event.event.trigger
+                trigger = event.event.trigger,
+                data = event.event.data
             )
         }
     }

@@ -15,8 +15,11 @@ class TileRenderingScope(
         onEvent(UIEvent.TileEventHolderUIEvent(tileId, tileEvent))
     }
 
-    fun triggerEvent(trigger: EventTrigger) {
-        onEvent(UIEvent.TriggerHolderUIEvent(tileId, trigger))
+    fun triggerEvent(
+        trigger: EventTrigger,
+        data: Any? = null
+    ) {
+        onEvent(UIEvent.TriggerHolderUIEvent(tileId, trigger, data))
     }
 
     @Composable

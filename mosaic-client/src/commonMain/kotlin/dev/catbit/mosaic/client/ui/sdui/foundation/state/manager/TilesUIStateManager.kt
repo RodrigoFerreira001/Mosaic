@@ -24,7 +24,7 @@ class TilesUIStateManager(
     mapper: Mapper,
     serializer: MosaicSerializer,
     koinScope: Scope
-) : TilesEditor {
+) : TilesEditor, TilesStateUpdater {
     private lateinit var eventRegister: EventRegister
 
     fun attachEventRegister(eventRegister: EventRegister) {
@@ -46,6 +46,14 @@ class TilesUIStateManager(
         )
     }
 
+    private val tileUIStateProducerScope by lazy {
+        TileUIStateProducerScope(
+            tilesEditor = this,
+            tilesStateUpdater = this,
+        )
+    }
+
+
     fun setup(tiles: List<TileModel>) {
         runCatching {
             tileUIStateProducers.apply {
@@ -60,7 +68,7 @@ class TilesUIStateManager(
         }
     }
 
-    private fun updateState() {
+    override fun updateState() {
         internalUIState.update {
             tileUIStateProducers.map { it.state }
         }
@@ -190,7 +198,7 @@ class TilesUIStateManager(
         event: TileEvent
     ) {
         withNotNull(getTile(tileId)) {
-            TileUIStateProducerScope().onEvent(event)
+            tileUIStateProducerScope.onEvent(event)
         }
     }
 }

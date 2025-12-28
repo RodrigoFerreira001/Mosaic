@@ -16,6 +16,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_networ
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.StyleUIStateProducerBuilder
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.button.ButtonTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.tile.TileModel
 import dev.catbit.mosaic.core.data.tile.style.StyleModel
@@ -34,7 +35,8 @@ class MosaicModules(
 
     private val baseTilesDefinitions = listOf(
         ColumnTileDefinition,
-        ButtonTileDefinition
+        ButtonTileDefinition,
+        TextFieldTileDefinition
     )
 
     private val baseEventsDefinitions = listOf(
