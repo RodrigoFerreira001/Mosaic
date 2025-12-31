@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.mappings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.ColorUIModel
@@ -17,6 +18,8 @@ import dev.catbit.mosaic.core.data.tile.placement.AlignmentModel
 import dev.catbit.mosaic.core.data.tile.placement.ArrangementModel
 import dev.catbit.mosaic.core.data.tile.style.BorderModel
 import dev.catbit.mosaic.core.data.tile.style.ClipModel
+import dev.catbit.mosaic.core.data.tile.style.MarginModel
+import dev.catbit.mosaic.core.data.tile.style.PaddingModel
 import dev.catbit.mosaic.core.data.tile.style.RadiusModel
 import dev.catbit.mosaic.core.data.tile.style.SizeModel
 import dev.catbit.mosaic.core.data.tile.style.StyleModel
@@ -192,6 +195,22 @@ object BaseUIMappings {
                     color = color.mapTo(mapper),
                     thickness = thickness.dp,
                     radius = radius?.mapTo(mapper)
+                )
+            },
+            mapping<MarginModel, PaddingValues> {
+                PaddingValues(
+                    start = start.dp,
+                    top = top.dp,
+                    end = end.dp,
+                    bottom = bottom.dp,
+                )
+            },
+            mapping<PaddingModel, PaddingValues> {
+                PaddingValues(
+                    start = start.dp,
+                    top = top.dp,
+                    end = end.dp,
+                    bottom = bottom.dp,
                 )
             },
             mapping<StyleModel, StyleUIState> { mapper ->

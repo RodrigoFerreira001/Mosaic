@@ -80,7 +80,7 @@ internal abstract class ScreenStateHolder<State, Event, Effect> : ViewModel() {
     )
 
     fun MutableSharedFlow<Effect>.dispatch(effect: Effect) {
-        viewModelScope.launch {
+        stateHolderScope.launch {
             emit(effect)
         }
     }

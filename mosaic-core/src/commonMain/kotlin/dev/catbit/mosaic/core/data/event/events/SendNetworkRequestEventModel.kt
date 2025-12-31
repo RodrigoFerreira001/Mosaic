@@ -6,6 +6,7 @@ import dev.catbit.mosaic.core.trigger.EventTrigger
 import dev.catbit.mosaic.core.trigger.triggers.OnFailureTrigger
 import dev.catbit.mosaic.core.trigger.triggers.OnStartTrigger
 import dev.catbit.mosaic.core.trigger.triggers.OnSuccessTrigger
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Triggers(
@@ -16,6 +17,7 @@ import kotlinx.serialization.Serializable
     ]
 )
 @Serializable
+@SerialName("SendNetworkRequest")
 data class SendNetworkRequestEventModel(
     val url: String,
     val method: HttpMethod,

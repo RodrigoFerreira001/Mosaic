@@ -12,11 +12,13 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.builder.UIStat
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRendererManager
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigate.NavigateEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column.ScrollTileColumnEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.StyleUIStateProducerBuilder
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.button.ButtonTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text.TextTileDefinition
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.tile.TileModel
 import dev.catbit.mosaic.core.data.tile.style.StyleModel
@@ -36,12 +38,14 @@ class MosaicModules(
     private val baseTilesDefinitions = listOf(
         ColumnTileDefinition,
         ButtonTileDefinition,
-        TextFieldTileDefinition
+        TextFieldTileDefinition,
+        TextTileDefinition
     )
 
     private val baseEventsDefinitions = listOf(
         SendNetworkRequestEventDefinition,
-        NavigateEventDefinition
+        NavigateEventDefinition,
+        ScrollTileColumnEventDefinition
     )
 
     val modules by lazy {

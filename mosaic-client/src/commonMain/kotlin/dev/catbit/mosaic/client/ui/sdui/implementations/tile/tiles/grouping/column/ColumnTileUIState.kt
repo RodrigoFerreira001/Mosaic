@@ -11,6 +11,8 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.StyleUIState
 data class ColumnTileUIState(
     val arrangement: Arrangement.Vertical,
     val alignment: Alignment.Horizontal,
+    val isScrollable: Boolean,
+    val lazyRender: Boolean,
     override val id: String,
     override val style: StyleUIState,
     override val visibility: TileUIState.Visibility,

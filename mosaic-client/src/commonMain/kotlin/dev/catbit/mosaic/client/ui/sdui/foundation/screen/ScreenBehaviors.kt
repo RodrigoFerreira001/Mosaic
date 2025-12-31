@@ -1,5 +1,7 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
+import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
+
 interface ScreenBehaviors {
     fun refresh() // TODO Implement
     fun navigate() // TODO Implement
@@ -19,4 +21,5 @@ interface ScreenBehaviors {
     fun getData()
     fun setData()
     fun removeData()
+    fun broadcastData(data: BroadcastData)
 }

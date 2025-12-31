@@ -3,6 +3,7 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.events
 import dev.catbit.mosaic.core.data.event.EventModel
 import kotlin.reflect.KClass
 
+// TODO executar os eventos de forma suspensa?
 class EventRunnerManager(
     private val eventRunners: Map<KClass<out EventModel>, EventRunner<*>>
 ) {

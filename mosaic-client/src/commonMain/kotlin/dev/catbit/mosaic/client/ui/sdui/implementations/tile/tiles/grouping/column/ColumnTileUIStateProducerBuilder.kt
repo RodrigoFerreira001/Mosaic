@@ -20,6 +20,8 @@ object ColumnTileUIStateProducerBuilder :
             tiles = tiles.map { buildProducer<TileUIStateProducer<*>>(it) }.toMutableList(),
             arrangement = arrangement.mapTo(),
             alignment = alignment.mapTo(),
+            isScrollable = isScrollable,
+            lazyRender = lazyRender,
             updater = { updateData ->
                 mutableMapOf<String, Any?>().apply {
                     extractAndPutIfPresent(ColumnTileModel::arrangement.name, updateData) {
@@ -27,6 +29,12 @@ object ColumnTileUIStateProducerBuilder :
                     }
                     extractAndPutIfPresent(ColumnTileModel::alignment.name, updateData) {
                         decode<AlignmentModel.Horizontal>(it).mapTo()
+                    }
+                    extractAndPutIfPresent(ColumnTileModel::isScrollable.name, updateData) {
+                        decode<Boolean>(it).mapTo()
+                    }
+                    extractAndPutIfPresent(ColumnTileModel::lazyRender.name, updateData) {
+                        decode<Boolean>(it).mapTo()
                     }
                     extractAndPutIfPresent(ColumnTileModel::visibility.name, updateData) {
                         decode<TileModel.Visibility>(it).mapTo()

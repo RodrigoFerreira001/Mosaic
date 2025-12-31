@@ -8,6 +8,8 @@ import kotlin.reflect.KClass
 class TileRendererManager(
     private val tileRenderers: Map<KClass<out TileUIState>, TileRenderer<*>>
 ) {
+
+    // TODO, de alguma forma, encapsular aqui coisas padrões, como style, Visibility.GONE e afins
     @Composable
     fun Render(
         uiState: TileUIState,

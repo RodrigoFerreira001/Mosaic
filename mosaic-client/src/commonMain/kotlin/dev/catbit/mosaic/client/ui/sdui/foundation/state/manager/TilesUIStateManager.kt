@@ -10,6 +10,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.tile.TileUISta
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.tile.TileUIStateProducerScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.extensions.runSafely
 import dev.catbit.mosaic.core.extensions.withNotNull
 import dev.catbit.mosaic.core.mapping.Mapper
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
@@ -55,7 +56,7 @@ class TilesUIStateManager(
 
 
     fun setup(tiles: List<TileModel>) {
-        runCatching {
+        runSafely {
             tileUIStateProducers.apply {
                 clear()
                 addAll(
@@ -86,7 +87,7 @@ class TilesUIStateManager(
         tileModel: TileModel,
         where: InsertionPosition
     ) {
-        runCatching {
+        runSafely {
             tileUIStateProducers.add(
                 element = uiStateProducerBuilderScope.buildProducer(tileModel),
                 index = where.toIndex(tileUIStateProducers)
@@ -100,7 +101,7 @@ class TilesUIStateManager(
         tileModels: List<TileModel>,
         where: InsertionPosition
     ) {
-        runCatching {
+        runSafely {
             tileUIStateProducers.addAll(
                 elements = tileModels.map { tileModel ->
                     uiStateProducerBuilderScope.buildProducer(tileModel)
@@ -116,7 +117,7 @@ class TilesUIStateManager(
         groupingTileId: String,
         where: InsertionPosition
     ) {
-        runCatching {
+        runSafely {
             (getTile(groupingTileId) as? GroupingTileUIStateProducer)
                 ?.addChild(
                     child = uiStateProducerBuilderScope.buildProducer(tileModel),
@@ -132,7 +133,7 @@ class TilesUIStateManager(
         groupingTileId: String,
         where: InsertionPosition
     ) {
-        runCatching {
+        runSafely {
             withNotNull(getTile(groupingTileId) as? GroupingTileUIStateProducer) {
                 addChildren(
                     children = tileModels.map { tileModel ->

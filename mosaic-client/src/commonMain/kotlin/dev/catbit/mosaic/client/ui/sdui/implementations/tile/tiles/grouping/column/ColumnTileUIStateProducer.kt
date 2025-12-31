@@ -2,16 +2,18 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.col
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.Alignment
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.StyleUIStateProducer
 import dev.catbit.mosaic.client.extensions.valueIfPresent
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.tile.GroupingTileUIStateProducer
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.tile.TileUIStateProducer
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.updater.UIStateProducerUpdater
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.StyleUIStateProducer
 
 class ColumnTileUIStateProducer(
     private var arrangement: Arrangement.Vertical,
     private var alignment: Alignment.Horizontal,
+    private var isScrollable: Boolean,
+    private var lazyRender: Boolean,
     override val id: String,
     override var visibility: TileUIState.Visibility,
     override val style: StyleUIStateProducer,
@@ -22,12 +24,16 @@ class ColumnTileUIStateProducer(
     override fun shouldProduce() = shouldProduceWithLastState { lastState ->
         arrangement != lastState.arrangement
                 || alignment != lastState.alignment
+                || isScrollable != lastState.isScrollable
+                || lazyRender != lastState.lazyRender
                 || style.shouldProduce()
                 || super.shouldProduce()
     }
 
     override fun update(updateData: Map<String, Any?>) {
         with(updater.getUpdatedData(updateData)) {
+            valueIfPresent<Boolean>(::isScrollable.name) { isScrollable = it }
+            valueIfPresent<Boolean>(::lazyRender.name) { lazyRender = it }
             valueIfPresent<Arrangement.Vertical>(::arrangement.name) { arrangement = it }
             valueIfPresent<Alignment.Horizontal>(::alignment.name) { alignment = it }
             valueIfPresent<TileUIState.Visibility>(::visibility.name) { visibility = it }
@@ -42,5 +48,7 @@ class ColumnTileUIStateProducer(
         tiles = tiles.map { it.state },
         arrangement = arrangement,
         alignment = alignment,
+        isScrollable = isScrollable,
+        lazyRender = lazyRender,
     )
 }

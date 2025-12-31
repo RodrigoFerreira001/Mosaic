@@ -1,12 +1,15 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
 import dev.catbit.mosaic.client.domain.GetScreenUseCase
+import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesUIStateManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRendererManager
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
@@ -28,6 +31,9 @@ internal class MosaicScreenStateHolder(
 
     private val formData: Map<String, Any> = mutableMapOf()
     private val uiData: Map<String, Any> = mutableMapOf()
+
+    private val internalBroadcastChannel = MutableSharedFlow<BroadcastData>()
+    val broadcastChannel get() = internalBroadcastChannel.asSharedFlow()
 
     override val internalUIState = MutableStateFlow<State>(State.Loading)
 
@@ -157,5 +163,11 @@ internal class MosaicScreenStateHolder(
 
     override fun removeData() {
         TODO("Not yet implemented")
+    }
+
+    override fun broadcastData(data: BroadcastData) {
+        stateHolderScope.launch {
+            internalBroadcastChannel.emit(data)
+        }
     }
 }

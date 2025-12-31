@@ -27,5 +27,7 @@ data class ColumnTileModel(
     @SerialName("style") override val style: StyleModel,
     @SerialName("visibility") override val visibility: TileModel.Visibility,
     @SerialName("arrangement") val arrangement: ArrangementModel.Vertical,
-    @SerialName("alignment") val alignment: AlignmentModel.Horizontal
+    @SerialName("alignment") val alignment: AlignmentModel.Horizontal,
+    @SerialName("isScrollable") val isScrollable: Boolean,
+    @SerialName("lazyRender") val lazyRender: Boolean,
 ) : GroupingTileModel

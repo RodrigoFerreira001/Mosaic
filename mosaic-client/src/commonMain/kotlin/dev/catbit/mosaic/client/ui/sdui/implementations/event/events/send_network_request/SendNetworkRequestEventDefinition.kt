@@ -5,5 +5,5 @@ import dev.catbit.mosaic.core.data.event.events.SendNetworkRequestEventModel
 
 object SendNetworkRequestEventDefinition : EventDefinition<SendNetworkRequestEventModel> {
     override val eventModelClass = SendNetworkRequestEventModel::class
-    override val eventRunner = SendNetworkRequestEventRunner()
+    override val eventRunner = SendNetworkRequestEventRunner
 }

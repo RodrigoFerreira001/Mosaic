@@ -10,3 +10,4 @@
 - Complete ScreenBehaviors
 - Pagination
 - UIData / NavigationData, FormData
+- For every Compose, make the title as close as possible, it means, bring to the tile every Compose property

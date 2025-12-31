@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalBroadcastChannel
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTileRendererManager
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -43,7 +44,8 @@ internal fun MosaicScreen(
     val uiState by stateHolder.uiState.collectAsState()
 
     CompositionLocalProvider(
-        LocalTileRendererManager provides stateHolder.tileRendererManager
+        LocalTileRendererManager provides stateHolder.tileRendererManager,
+        LocalBroadcastChannel provides stateHolder.broadcastChannel
     ) {
         ControlHomeScreenContent(
             uiState = uiState,
