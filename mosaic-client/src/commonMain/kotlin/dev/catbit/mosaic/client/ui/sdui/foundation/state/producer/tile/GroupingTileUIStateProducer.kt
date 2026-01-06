@@ -26,6 +26,11 @@ abstract class GroupingTileUIStateProducer<out T : TileUIState> : TileUIStatePro
         hasChildrenCountChanged = true
     }
 
+    fun removeChildren(ids: List<String>) {
+        tiles.removeAll { it.id in ids }
+        hasChildrenCountChanged = true
+    }
+
     fun addChild(
         child: TileUIStateProducer<*>,
         where: InsertionPosition = InsertionPosition.End

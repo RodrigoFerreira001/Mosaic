@@ -33,14 +33,19 @@ interface TilesEditor {
     )
 
     fun removeTile(
-        id: String
+        tileId: String,
+        groupingTileId: String? = null
     )
 
     fun removeTiles(
-        ids: List<String>
+        tileIds: List<String>,
+        groupingTileId: String?
     )
 
-    fun wipeTiles()
+    fun replaceTiles(
+        tileModels: List<TileModel>,
+        groupingTileId: String?
+    )
 
     fun wipeTiles(
         groupingTileId: String

@@ -58,6 +58,13 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
 
+            // Navigation
+            implementation(libs.compose.navigation3.ui)
+            implementation(libs.compose.navigation3.adaptiveNavigation3)
+            implementation(libs.compose.navigation3.viewmodelNavigation3)
+            implementation(libs.compose.viewmodel)
+            implementation(libs.compose.material3.adaptative)
+
             // Koin
             implementation(libs.koin.core)
             implementation(libs.koin.core.viewmodel)

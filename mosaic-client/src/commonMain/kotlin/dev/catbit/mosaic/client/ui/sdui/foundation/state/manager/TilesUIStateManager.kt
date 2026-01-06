@@ -14,9 +14,6 @@ import dev.catbit.mosaic.core.extensions.runSafely
 import dev.catbit.mosaic.core.extensions.withNotNull
 import dev.catbit.mosaic.core.mapping.Mapper
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import org.koin.core.scope.Scope
 import kotlin.reflect.KClass
 
@@ -26,14 +23,13 @@ class TilesUIStateManager(
     serializer: MosaicSerializer,
     koinScope: Scope
 ) : TilesEditor, TilesStateUpdater {
+
     private lateinit var eventRegister: EventRegister
+    private var onUpdateRequest: (List<TileUIState>) -> Unit = {}
 
     fun attachEventRegister(eventRegister: EventRegister) {
         this.eventRegister = eventRegister
     }
-
-    private val internalUIState = MutableStateFlow<List<TileUIState>>(listOf())
-    val uiState get() = internalUIState.asStateFlow()
 
     private val tileUIStateProducers = mutableListOf<TileUIStateProducer<*>>()
 
@@ -55,7 +51,12 @@ class TilesUIStateManager(
     }
 
 
-    fun setup(tiles: List<TileModel>) {
+    fun setup(
+        tiles: List<TileModel>,
+        onUpdateStateRequest: (List<TileUIState>) -> Unit
+    ) {
+        this.onUpdateRequest = onUpdateStateRequest
+
         runSafely {
             tileUIStateProducers.apply {
                 clear()
@@ -70,9 +71,7 @@ class TilesUIStateManager(
     }
 
     override fun updateState() {
-        internalUIState.update {
-            tileUIStateProducers.map { it.state }
-        }
+        onUpdateRequest(tileUIStateProducers.map { it.state })
     }
 
     private fun getTile(
@@ -156,35 +155,58 @@ class TilesUIStateManager(
     }
 
     override fun removeTile(
-        id: String
+        tileId: String,
+        groupingTileId: String?
     ) {
-        if (tileUIStateProducers.any { it.id == id }) {
-            tileUIStateProducers.removeAll { it.id == id }
-        } else {
-            tileUIStateProducers.firstNotNullOfOrNull {
-                (it as? GroupingTileUIStateProducer)?.getParentOf(id)
-            }?.removeChild(id)
+        groupingTileId?.let {
+            (getTile(groupingTileId) as? GroupingTileUIStateProducer)?.removeChild(tileId)
+        } ?: run {
+            tileUIStateProducers.removeAll { it.id == tileId }
         }
 
         updateState()
     }
 
     override fun removeTiles(
-        ids: List<String>
+        tileIds: List<String>,
+        groupingTileId: String?
     ) {
-        tileUIStateProducers.forEach { producer ->
-            ids.forEach { id ->
-                (producer as? GroupingTileUIStateProducer)?.getParentOf(id)?.removeChild(id)
-            }
+        groupingTileId?.let {
+            (getTile(groupingTileId) as? GroupingTileUIStateProducer)?.removeChildren(tileIds)
+        } ?: run {
+            tileUIStateProducers.removeAll { it.id in tileIds }
         }
-        tileUIStateProducers.removeAll { it.id in ids }
 
         updateState()
     }
 
-    override fun wipeTiles() {
-        tileUIStateProducers.clear()
-        updateState()
+    override fun replaceTiles(
+        tileModels: List<TileModel>,
+        groupingTileId: String?
+    ) {
+        runSafely {
+            groupingTileId?.let {
+                (getTile(groupingTileId) as? GroupingTileUIStateProducer)?.apply {
+                    wipeChildren()
+                    addChildren(
+                        children = tileModels.map { tileModel ->
+                            uiStateProducerBuilderScope.buildProducer(tileModel)
+                        }
+                    )
+                }
+            } ?: run {
+                tileUIStateProducers.apply {
+                    clear()
+                    addAll(
+                        tileModels.map { tileModel ->
+                            uiStateProducerBuilderScope.buildProducer(tileModel)
+                        }
+                    )
+                }
+            }
+
+            updateState()
+        }
     }
 
     override fun wipeTiles(

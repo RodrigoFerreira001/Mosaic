@@ -1,6 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.local_providers
 
-import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.compositionLocalOf
 
-val LocalRowScopeProvider = compositionLocalOf<RowScope?> { null }
+val LocalColumnScope = compositionLocalOf<ColumnScope?> { null }

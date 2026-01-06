@@ -1,6 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.events
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviors
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEditor
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.trigger.EventTrigger
@@ -14,14 +14,14 @@ class EventManager(
     private val events = mutableMapOf<String, List<EventModel>>()
 
     private lateinit var tilesEditor: TilesEditor
-    private lateinit var screenBehaviors: ScreenBehaviors
+    private lateinit var screenBehaviorsHolder: ScreenBehaviorsHolder
 
     fun attachTilesEditor(tilesEditor: TilesEditor) {
         this.tilesEditor = tilesEditor
     }
 
-    fun attachScreenBehaviors(screenBehaviors: ScreenBehaviors) {
-        this.screenBehaviors = screenBehaviors
+    fun attachScreenBehaviors(screenBehaviorsHolder: ScreenBehaviorsHolder) {
+        this.screenBehaviorsHolder = screenBehaviorsHolder
     }
 
     override fun registerEvents(
@@ -51,7 +51,7 @@ class EventManager(
                         incomingData = data,
                         eventManager = this@EventManager,
                         tilesEditor = tilesEditor,
-                        screenBehaviors = screenBehaviors,
+                        screenBehaviorsHolder = screenBehaviorsHolder,
                         koinScope = koinScope
                     ).runEvent(eventModel)
                 }
@@ -72,7 +72,7 @@ class EventManager(
                         incomingData = data,
                         eventManager = this@EventManager,
                         tilesEditor = tilesEditor,
-                        screenBehaviors = screenBehaviors,
+                        screenBehaviorsHolder = screenBehaviorsHolder,
                         koinScope = koinScope
                     ).runEvent(eventModel)
                 }
@@ -89,7 +89,7 @@ class EventManager(
                 incomingData = data,
                 eventManager = this@EventManager,
                 tilesEditor = tilesEditor,
-                screenBehaviors = screenBehaviors,
+                screenBehaviorsHolder = screenBehaviorsHolder,
                 koinScope = koinScope
             ).runEvent(eventModel)
         }

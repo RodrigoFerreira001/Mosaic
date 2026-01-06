@@ -13,10 +13,9 @@ import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.observeBroadcastChannel
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.modifiers.thenIf
-import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScopeProvider
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderingScope
-
 
 // TODO Separar em um plugin LazyColumn
 object ColumnTileRenderer : TileRenderer<ColumnTileUIState> {
@@ -78,7 +77,7 @@ object ColumnTileRenderer : TileRenderer<ColumnTileUIState> {
                         verticalArrangement = arrangement,
                         horizontalAlignment = alignment,
                     ) {
-                        CompositionLocalProvider(LocalColumnScopeProvider provides this) {
+                        CompositionLocalProvider(LocalColumnScope provides this) {
                             RenderChildren(uiState.tiles)
                         }
                     }

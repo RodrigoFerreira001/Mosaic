@@ -9,9 +9,9 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScopeProvider
-import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalRowScopeProvider
-import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalSharedHorizontalAreaProvider
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalRowScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalSharedHorizontalArea
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.SharedHorizontalArea
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.SizeUIState
 
@@ -23,7 +23,7 @@ fun Modifier.size(size: SizeUIState): Modifier {
             SizeUIState.Behavior.Horizontal.Wrap -> Modifier.wrapContentWidth()
             is SizeUIState.Behavior.Horizontal.Fixed -> Modifier.width(width.value)
             is SizeUIState.Behavior.Horizontal.Weight -> {
-                LocalRowScopeProvider.current?.let { rowScope ->
+                LocalRowScope.current?.let { rowScope ->
                     with(rowScope) {
                         Modifier.weight(width.value)
                     }
@@ -31,7 +31,7 @@ fun Modifier.size(size: SizeUIState): Modifier {
             }
 
             is SizeUIState.Behavior.Horizontal.Span -> {
-                when (val sharedArea = LocalSharedHorizontalAreaProvider.current) {
+                when (val sharedArea = LocalSharedHorizontalArea.current) {
                     is SharedHorizontalArea.Defined -> {
                         val totalGutters = sharedArea.gutter * (sharedArea.columns - 1)
                         val internalGutters = (width.value - 1) * sharedArea.gutter
@@ -54,7 +54,7 @@ fun Modifier.size(size: SizeUIState): Modifier {
                 is SizeUIState.Behavior.Vertical.Fixed -> Modifier.height(height.value)
                 SizeUIState.Behavior.Vertical.Wrap -> Modifier.wrapContentHeight()
                 is SizeUIState.Behavior.Vertical.Weight -> {
-                    LocalColumnScopeProvider.current?.let { columnScope ->
+                    LocalColumnScope.current?.let { columnScope ->
                         with(columnScope) {
                             Modifier.weight(height.value)
                         }

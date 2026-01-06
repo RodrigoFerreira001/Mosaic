@@ -6,14 +6,17 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesUIStateManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRendererManager
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.bottom_sheet.BottomSheetTileModel
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.bottom_sheet.BottomSheetTileUIState
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.dialog.DialogTileModel
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.dialog.DialogTileUIState
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.navigation_drawer.NavigationDrawerTileUIState
+import dev.catbit.mosaic.core.data.tile.TileModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -24,10 +27,7 @@ internal class MosaicScreenStateHolder(
     private val tilesUIStateManager: TilesUIStateManager,
     private val eventManager: EventManager,
     val tileRendererManager: TileRendererManager
-) : ScreenStateHolder<State, Event, Effect>(), ScreenBehaviors {
-
-    // TODO introduzir o sistema de brodcast
-    // que será responsável por coisas como um evento dizer para uma column fazer scroll
+) : ScreenStateHolder<State, Event, Effect>(), ScreenBehaviorsHolder {
 
     private val formData: Map<String, Any> = mutableMapOf()
     private val uiData: Map<String, Any> = mutableMapOf()
@@ -38,32 +38,31 @@ internal class MosaicScreenStateHolder(
     override val internalUIState = MutableStateFlow<State>(State.Loading)
 
     override fun onFirstDisplay() {
+        fetchScreen()
+    }
+
+    private fun fetchScreen() {
         stateHolderScope.launch {
-            flow {
-                getScreenUseCase(
-                    GetScreenUseCase.Params(screenId, navigationData)
-                ).fold(
-                    onFailure = {
-                        emit(State.Failure)
-                    },
-                    onSuccess = { screen ->
-                        screen.events?.let { events ->
-                            eventManager.registerEvents(
-                                eventOwnerId = screenId,
-                                eventList = events
-                            )
-                        }
-                        tilesUIStateManager.setup(screen.tiles)
-                        emitAll(
-                            tilesUIStateManager.uiState.map { tiles ->
-                                State.Displaying(tiles)
-                            }
+            internalUIState.update { State.Loading }
+            getScreenUseCase(
+                GetScreenUseCase.Params(screenId, navigationData)
+            ).fold(
+                onFailure = {
+                    internalUIState.update { State.Failure }
+                },
+                onSuccess = { screen ->
+                    screen.events?.let { events ->
+                        eventManager.registerEvents(
+                            eventOwnerId = screenId,
+                            eventList = events
                         )
                     }
-                )
-            }.collectLatest { newState ->
-                internalUIState.update { newState }
-            }
+                    tilesUIStateManager.setup(
+                        tiles = screen.tiles,
+                        onUpdateStateRequest = ::onUpdateStateRequest
+                    )
+                }
+            )
         }
     }
 
@@ -71,6 +70,8 @@ internal class MosaicScreenStateHolder(
         when (event) {
             is Event.OnUIEvent -> onUIEvent(event)
             Event.OnTryAgainClick -> onTryAgainClick()
+            Event.OnCloseBottomSheetFinished -> onCloseBottomSheetFinished()
+            Event.OnCloseDialogRequested -> closeDialog()
         }
     }
 
@@ -89,36 +90,98 @@ internal class MosaicScreenStateHolder(
         }
     }
 
-    private fun onTryAgainClick() {
+    private fun onUpdateStateRequest(tiles: List<TileUIState>) {
+        internalUIState.update { currentState ->
+            when (currentState) {
+                State.Failure, State.Loading -> State.Displaying(tiles)
+                is State.Displaying -> {
 
+                    val bottomSheetTile = tiles.firstOrNull { it.id == "MOSAIC_BOTTOM_SHEET" }
+                    val dialogTile = tiles.firstOrNull { it.id == "MOSAIC_DIALOG" }
+                    val navigationDrawerTile = tiles.firstOrNull { it.id == "MOSAIC_NAVIGATION_DRAWER" }
+
+                    currentState.copy(
+                        screenTiles = tiles.filter {
+                            it != bottomSheetTile
+                                    && it != dialogTile
+                                    && it != navigationDrawerTile
+                        },
+                        bottomSheetUIState = (bottomSheetTile as? BottomSheetTileUIState)?.let {
+                            currentState.bottomSheetUIState?.copy(
+                                tiles = bottomSheetTile.tiles
+                            ) ?: State.Displaying.BottomSheetUIState(
+                                isCancellable = bottomSheetTile.isCancellable,
+                                tiles = bottomSheetTile.tiles,
+                            )
+                        },
+                        dialogUIState = (dialogTile as? DialogTileUIState)?.let {
+                            currentState.dialogUIState?.copy(
+                                tiles = dialogTile.tiles
+                            ) ?: State.Displaying.DialogUIState(
+                                isCancellable = dialogTile.isCancellable,
+                                usePlatformDefaultWidth = dialogTile.usePlatformDefaultWidth,
+                                tiles = dialogTile.tiles,
+                            )
+                        },
+                        navigationDrawerUIState = (navigationDrawerTile as? NavigationDrawerTileUIState)?.let {
+                            currentState.navigationDrawerUIState?.copy(
+                                tiles = navigationDrawerTile.tiles
+                            ) ?: State.Displaying.NavigationDrawerUIState(
+                                tiles = navigationDrawerTile.tiles,
+                            )
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    private fun onTryAgainClick() {
+        fetchScreen()
     }
 
     override fun refresh() {
-        TODO("Not yet implemented")
+        fetchScreen()
     }
 
-    override fun navigate() {
-        TODO("Not yet implemented")
-    }
-
-    override fun goBack() {
-        TODO("Not yet implemented")
-    }
-
-    override fun displayDialog() {
-        TODO("Not yet implemented")
+    override fun displayDialog(
+        isCancellable: Boolean,
+        usePlatformDefaultWidth: Boolean,
+        tiles: List<TileModel>
+    ) {
+        tilesUIStateManager.addTile(
+            DialogTileModel(
+                id = "MOSAIC_DIALOG",
+                isCancellable = isCancellable,
+                usePlatformDefaultWidth = usePlatformDefaultWidth,
+                tiles = tiles
+            )
+        )
     }
 
     override fun closeDialog() {
-        TODO("Not yet implemented")
+        tilesUIStateManager.removeTile("MOSAIC_DIALOG")
     }
 
-    override fun displayBottomSheet() {
-        TODO("Not yet implemented")
+    override fun displayBottomSheet(
+        isCancellable: Boolean,
+        tiles: List<TileModel>
+    ) {
+        tilesUIStateManager.addTile(
+            BottomSheetTileModel(
+                id = "MOSAIC_BOTTOM_SHEET",
+                isCancellable = isCancellable,
+                tiles = tiles
+            )
+        )
     }
 
     override fun closeBottomSheet() {
-        TODO("Not yet implemented")
+        internalEffects.dispatch(Effect.OnCloseBottomSheetRequested)
+    }
+
+    private fun onCloseBottomSheetFinished() {
+        tilesUIStateManager.removeTile("MOSAIC_DIALOG")
     }
 
     override fun displaySnackbar() {
@@ -138,6 +201,7 @@ internal class MosaicScreenStateHolder(
     }
 
     override fun displayMenu() {
+        // TODO, o menu pode ser um tile, que escuta um broadcast e envelopa outros tiles
         TODO("Not yet implemented")
     }
 

@@ -1,8 +1,9 @@
 package dev.catbit.mosaic.client.domain
 
 import dev.catbit.mosaic.client.domain.base.UseCase
-import dev.catbit.mosaic.core.data.event.events.NavigateEventModel
-import dev.catbit.mosaic.core.data.event.events.scroll.column.ScrollTileColumnEventModel
+import dev.catbit.mosaic.core.data.event.events.navigation.NavigateEventModel
+import dev.catbit.mosaic.core.data.event.events.navigation.NavigateUpEventModel
+import dev.catbit.mosaic.core.data.event.events.tiles.AddTilesEventModel
 import dev.catbit.mosaic.core.data.screen.ScreenModel
 import dev.catbit.mosaic.core.data.tile.TileModel
 import dev.catbit.mosaic.core.data.tile.placement.AlignmentModel
@@ -21,118 +22,172 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
 
     override suspend fun execute(params: Params): Result<ScreenModel> {
         return Result.success(
-            ScreenModel(
-                tiles = listOf(
-                    ColumnTileModel(
-                        id = "COLUNA",
-                        tiles = listOf(
-                            TextTileModel(
-                                id = randomUuid(),
-                                events = null,
-                                style = StyleModel(
-                                    size = SizeModel(
-                                        width = SizeModel.Behavior.Horizontal.Fill,
-                                        height = SizeModel.Behavior.Vertical.Wrap
+            when (params.screenId) {
+                "home" -> ScreenModel(
+                    tiles = listOf(
+                        ColumnTileModel(
+                            id = "COLUNA",
+                            tiles = listOf(
+                                TextTileModel(
+                                    id = randomUuid(),
+                                    events = null,
+                                    style = StyleModel(
+                                        size = SizeModel(
+                                            width = SizeModel.Behavior.Horizontal.Fill,
+                                            height = SizeModel.Behavior.Vertical.Wrap
+                                        ),
+                                        margin = MarginModel(
+                                            start = 24,
+                                            end = 24,
+                                            top = 0,
+                                            bottom = 0
+                                        )
                                     ),
-                                    margin = MarginModel(
-                                        start = 24,
-                                        end = 24,
-                                        top = 0,
-                                        bottom = 0
+                                    visibility = TileModel.Visibility.VISIBLE,
+                                    text = "Bem vindo à tela ${params.screenId}"
+                                ),
+                                ButtonTileModel(
+                                    id = randomUuid(),
+                                    text = "Ir para segunda tela",
+                                    visibility = TileModel.Visibility.VISIBLE,
+                                    loading = false,
+                                    style = StyleModel(
+                                        size = SizeModel(
+                                            width = SizeModel.Behavior.Horizontal.Wrap,
+                                            height = SizeModel.Behavior.Vertical.Wrap
+                                        )
+                                    ),
+                                    events = listOf(
+                                        NavigateEventModel(
+                                            id = randomUuid(),
+                                            destination = "second",
+                                            navigatorId = "root",
+                                            popUpTo = null,
+                                            data = null,
+                                            trigger = EventTriggers.OnClick,
+                                            events = null
+                                        )
                                     )
                                 ),
-                                visibility = TileModel.Visibility.VISIBLE,
-                                text = "Isso é um texto"
-                            ),
-                            ButtonTileModel(
-                                id = randomUuid(),
-                                events = listOf(
-                                    ScrollTileColumnEventModel(
-                                        tileId = "COLUNA",
-                                        where = ScrollTileColumnEventModel.Where.Bottom,
-                                        id = randomUuid(),
-                                        trigger = EventTriggers.OnClick,
-                                        events = null,
-                                        smooth = false
+                                TextFieldTileModel(
+                                    id = randomUuid(),
+                                    visibility = TileModel.Visibility.VISIBLE,
+                                    style = StyleModel(
+                                        size = SizeModel(
+                                            width = SizeModel.Behavior.Horizontal.Fill,
+                                            height = SizeModel.Behavior.Vertical.Wrap
+                                        ),
+                                        margin = MarginModel(
+                                            start = 24,
+                                            end = 24,
+                                            top = 0,
+                                            bottom = 0
+                                        )
                                     ),
-                                    NavigateEventModel(
-                                        id = randomUuid(),
-                                        url = "http://",
-                                        trigger = EventTriggers.OnClick,
-                                        events = null
+                                    events = null,
+                                    value = null
+                                ),
+                                ButtonTileModel(
+                                    id = randomUuid(),
+                                    text = "Adicionar tile",
+                                    visibility = TileModel.Visibility.VISIBLE,
+                                    loading = false,
+                                    style = StyleModel(
+                                        size = SizeModel(
+                                            width = SizeModel.Behavior.Horizontal.Wrap,
+                                            height = SizeModel.Behavior.Vertical.Wrap
+                                        )
+                                    ),
+                                    events = listOf(
+                                        AddTilesEventModel(
+                                            id = randomUuid(),
+                                            groupingTileId = "CONTAINER",
+                                            tiles = listOf(
+                                                TextTileModel(
+                                                    id = randomUuid(),
+                                                    events = null,
+                                                    style = StyleModel(
+                                                        size = SizeModel(
+                                                            width = SizeModel.Behavior.Horizontal.Fill,
+                                                            height = SizeModel.Behavior.Vertical.Wrap
+                                                        ),
+                                                        margin = MarginModel(
+                                                            start = 24,
+                                                            end = 24,
+                                                            top = 0,
+                                                            bottom = 0
+                                                        )
+                                                    ),
+                                                    visibility = TileModel.Visibility.VISIBLE,
+                                                    text = "Fui adicionado"
+                                                ),
+                                            ),
+                                            position = AddTilesEventModel.InsertionPosition.End,
+                                            trigger = EventTriggers.OnClick,
+                                            events = null
+                                        )
                                     )
                                 ),
-                                text = "Rolar para o fim",
-                                visibility = TileModel.Visibility.VISIBLE,
-                                loading = false,
-                                style = StyleModel(
-                                    size = SizeModel(
-                                        width = SizeModel.Behavior.Horizontal.Wrap,
-                                        height = SizeModel.Behavior.Vertical.Wrap
-                                    )
+                                ColumnTileModel(
+                                    id = "CONTAINER",
+                                    tiles = listOf(),
+                                    events = null,
+                                    style = StyleModel(
+                                        size = SizeModel(
+                                            width = SizeModel.Behavior.Horizontal.Fill,
+                                            height = SizeModel.Behavior.Vertical.Fill
+                                        )
+                                    ),
+                                    visibility = TileModel.Visibility.VISIBLE,
+                                    arrangement = ArrangementModel.Vertical.Top,
+                                    alignment = AlignmentModel.Horizontal.Center,
+                                    isScrollable = false,
+                                    lazyRender = false
                                 )
                             ),
-                            TextFieldTileModel(
-                                id = randomUuid(),
-                                visibility = TileModel.Visibility.VISIBLE,
-                                style = StyleModel(
-                                    size = SizeModel(
-                                        width = SizeModel.Behavior.Horizontal.Fill,
-                                        height = SizeModel.Behavior.Vertical.Wrap
-                                    ),
-                                    margin = MarginModel(
-                                        start = 24,
-                                        end = 24,
-                                        top = 0,
-                                        bottom = 0
-                                    )
-                                ),
-                                events = listOf(
-                                    NavigateEventModel(
-                                        id = randomUuid(),
-                                        url = "http://",
-                                        trigger = EventTriggers.OnTextChanged,
-                                        events = null
-                                    )
-                                ),
-                                value = null
+                            events = null,
+                            style = StyleModel(
+                                size = SizeModel(
+                                    width = SizeModel.Behavior.Horizontal.Fill,
+                                    height = SizeModel.Behavior.Vertical.Fill
+                                )
+                            ),
+                            visibility = TileModel.Visibility.VISIBLE,
+                            arrangement = ArrangementModel.Vertical.Top,
+                            alignment = AlignmentModel.Horizontal.Center,
+                            isScrollable = true,
+                            lazyRender = false
+                        )
+                    ),
+                    events = null
+                )
+
+                else -> ScreenModel(
+                    tiles = listOf(
+                        ButtonTileModel(
+                            id = randomUuid(),
+                            text = "Voltar",
+                            visibility = TileModel.Visibility.VISIBLE,
+                            loading = false,
+                            style = StyleModel(
+                                size = SizeModel(
+                                    width = SizeModel.Behavior.Horizontal.Wrap,
+                                    height = SizeModel.Behavior.Vertical.Wrap
+                                )
+                            ),
+                            events = listOf(
+                                NavigateUpEventModel(
+                                    id = randomUuid(),
+                                    navigatorId = "root",
+                                    trigger = EventTriggers.OnClick,
+                                    events = null
+                                )
                             )
-                        ) + (0..25).map {
-                            TextTileModel(
-                                id = randomUuid(),
-                                events = null,
-                                style = StyleModel(
-                                    size = SizeModel(
-                                        width = SizeModel.Behavior.Horizontal.Fill,
-                                        height = SizeModel.Behavior.Vertical.Wrap
-                                    ),
-                                    margin = MarginModel(
-                                        start = 24,
-                                        end = 24,
-                                        top = 0,
-                                        bottom = 0
-                                    )
-                                ),
-                                visibility = TileModel.Visibility.VISIBLE,
-                                text = "Número $it"
-                            )
-                        },
-                        events = null,
-                        style = StyleModel(
-                            size = SizeModel(
-                                width = SizeModel.Behavior.Horizontal.Fill,
-                                height = SizeModel.Behavior.Vertical.Fill
-                            )
-                        ),
-                        visibility = TileModel.Visibility.VISIBLE,
-                        arrangement = ArrangementModel.Vertical.Top,
-                        alignment = AlignmentModel.Horizontal.Center,
-                        isScrollable = true,
-                        lazyRender = false
-                    )
-                ),
-                events = null
-            )
+                        )
+                    ),
+                    events = null
+                )
+            }
         )
     }
 

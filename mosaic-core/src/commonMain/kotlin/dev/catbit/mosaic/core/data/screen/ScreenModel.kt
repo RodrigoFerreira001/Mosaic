@@ -5,6 +5,7 @@ import dev.catbit.mosaic.core.data.tile.TileModel
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// TODO ttl, cache, local
 @Serializable
 data class ScreenModel(
     @SerialName("tiles")

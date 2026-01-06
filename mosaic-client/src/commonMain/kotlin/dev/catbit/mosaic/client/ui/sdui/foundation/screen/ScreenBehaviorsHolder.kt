@@ -1,14 +1,20 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
+import dev.catbit.mosaic.core.data.tile.TileModel
 
-interface ScreenBehaviors {
+interface ScreenBehaviorsHolder {
     fun refresh() // TODO Implement
-    fun navigate() // TODO Implement
-    fun goBack() // TODO Implement
-    fun displayDialog() // TODO Implement
+    fun displayDialog(
+        isCancellable: Boolean,
+        usePlatformDefaultWidth: Boolean,
+        tiles: List<TileModel>
+    ) // TODO Implement
     fun closeDialog() // TODO Implement
-    fun displayBottomSheet() // TODO Implement
+    fun displayBottomSheet(
+        isCancellable: Boolean,
+        tiles: List<TileModel>
+    ) // TODO Implement
     fun closeBottomSheet() // TODO Implement
     fun displaySnackbar() // TODO Implement
     fun closeSnackbar() // TODO Implement

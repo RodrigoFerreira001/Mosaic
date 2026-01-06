@@ -1,7 +1,7 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.events
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
-import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviors
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEditor
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.trigger.EventTrigger
@@ -16,7 +16,7 @@ data class EventRunningScope(
     private val koinScope: Scope,
     private val eventManager: EventManager,
     val tilesEditor: TilesEditor,
-    val screenBehaviors: ScreenBehaviors,
+    val screenBehaviorsHolder: ScreenBehaviorsHolder,
 ) {
 
     // TODO Receber uma coroutineScope para executar os eventos, provavelmente a stateHolderScope
@@ -46,7 +46,7 @@ data class EventRunningScope(
     fun broadcastData(
         data: BroadcastData
     ) {
-        screenBehaviors.broadcastData(data)
+        screenBehaviorsHolder.broadcastData(data)
     }
 
     // Scope helpers

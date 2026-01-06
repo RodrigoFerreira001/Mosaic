@@ -1,5 +1,7 @@
 package dev.catbit.mosaic.client.di
 
+import dev.catbit.mosaic.client.application.MosaicApplicationStateHolder
+import dev.catbit.mosaic.client.domain.GetInitialGraphUseCase
 import dev.catbit.mosaic.client.domain.GetScreenUseCase
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
@@ -11,12 +13,20 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesUIStateMan
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.builder.UIStateProducerBuilder
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRendererManager
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigate.NavigateEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_up.NavigateUpEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column.ScrollTileColumnEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_network_request.SendNetworkRequestEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_tiles.AddTilesEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.remove_tiles.RemoveTilesEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.replace_tiles.ReplaceTilesEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.wipe_tiles.WipeTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.StyleUIStateProducerBuilder
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.button.ButtonTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.bottom_sheet.BottomSheetTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.dialog.DialogTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.navigation_drawer.NavigationDrawerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text.TextTileDefinition
 import dev.catbit.mosaic.core.data.event.EventModel
@@ -39,13 +49,21 @@ class MosaicModules(
         ColumnTileDefinition,
         ButtonTileDefinition,
         TextFieldTileDefinition,
-        TextTileDefinition
+        TextTileDefinition,
+        NavigationDrawerTileDefinition,
+        DialogTileDefinition,
+        BottomSheetTileDefinition
     )
 
     private val baseEventsDefinitions = listOf(
         SendNetworkRequestEventDefinition,
         NavigateEventDefinition,
-        ScrollTileColumnEventDefinition
+        NavigateUpEventDefinition,
+        ScrollTileColumnEventDefinition,
+        AddTilesEventDefinition,
+        RemoveTilesEventDefinition,
+        ReplaceTilesEventDefinition,
+        WipeTilesEventDefinition
     )
 
     val modules by lazy {
@@ -113,6 +131,13 @@ class MosaicModules(
     }
 
     private val stateHolder = module {
+
+        viewModel {
+            MosaicApplicationStateHolder(
+                getInitialGraphUseCase = get()
+            )
+        }
+
         viewModel { (screenId: String, navigationData: Map<String, Any>?) ->
 
             val tilesUIStateManager = TilesUIStateManager(
@@ -145,5 +170,6 @@ class MosaicModules(
 
     private val useCaseModule = module {
         factory { GetScreenUseCase() }
+        single { GetInitialGraphUseCase() }
     }
 }

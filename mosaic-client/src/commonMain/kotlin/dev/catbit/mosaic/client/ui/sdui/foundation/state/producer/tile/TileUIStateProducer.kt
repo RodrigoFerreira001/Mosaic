@@ -7,6 +7,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 
 abstract class TileUIStateProducer<out T : TileUIState> : UIStateProducer<T>() {
     // TODO criar alguma abstração para validar o state base do TileUIState shouldProduce
+    // TODO criar callbacks para destruição e afins
     abstract val id: String
     protected abstract var visibility: TileUIState.Visibility
     protected abstract val style: StyleUIStateProducer
