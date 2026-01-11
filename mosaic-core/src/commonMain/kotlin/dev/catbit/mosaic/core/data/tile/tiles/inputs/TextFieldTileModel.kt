@@ -4,12 +4,12 @@ import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.tile.TileModel
 import dev.catbit.mosaic.core.data.tile.style.StyleModel
-import dev.catbit.mosaic.core.trigger.triggers.OnTextChangedTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnTextChangedEventTrigger
 import kotlinx.serialization.Serializable
 
 @Triggers(
     [
-        OnTextChangedTrigger::class
+        OnTextChangedEventTrigger::class
     ]
 )
 @Serializable

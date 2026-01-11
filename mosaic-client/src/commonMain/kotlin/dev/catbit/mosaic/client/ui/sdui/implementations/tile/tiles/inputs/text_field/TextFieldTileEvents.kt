@@ -2,6 +2,6 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 
-sealed interface TextFieldTileEvents {
-    data class OnTextChange(val newValue: String): TileEvent
+sealed interface TextFieldTileEvents : TileEvent{
+    data class OnTextChange(val newValue: String): TextFieldTileEvents
 }

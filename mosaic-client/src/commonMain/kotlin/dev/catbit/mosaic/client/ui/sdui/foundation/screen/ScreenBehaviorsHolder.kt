@@ -4,28 +4,24 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
 import dev.catbit.mosaic.core.data.tile.TileModel
 
 interface ScreenBehaviorsHolder {
-    fun refresh() // TODO Implement
-    fun displayDialog(
+    fun refresh()
+    fun displayDialog( // TODO implementar EventTrigger de ON_DISPLAY
         isCancellable: Boolean,
         usePlatformDefaultWidth: Boolean,
         tiles: List<TileModel>
-    ) // TODO Implement
-    fun closeDialog() // TODO Implement
-    fun displayBottomSheet(
+    )
+    fun dismissDialog() // TODO implementar EventTrigger de ON_DISMISS
+    fun displayBottomSheet( // TODO implementar EventTrigger de ON_DISPLAY
         isCancellable: Boolean,
+        fill: Boolean,
         tiles: List<TileModel>
-    ) // TODO Implement
-    fun closeBottomSheet() // TODO Implement
-    fun displaySnackbar() // TODO Implement
-    fun closeSnackbar() // TODO Implement
-    fun displayDrawer() // TODO Implement
-    fun closeDrawer() // TODO Implement
-    fun displayMenu() // TODO Implement
-    fun closeMenu() // TODO Implement
-    fun requestPermission() // TODO Implement
-    fun sendNotification() // TODO Implement
-    fun getData()
-    fun setData()
-    fun removeData()
+    )
+    fun dismissBottomSheet() // TODO implementar EventTrigger de ON_DISMISS
+    fun displayNavigationDrawer() // TODO implementar EventTrigger de ON_DISPLAY
+    fun dismissNavigationDrawer() // TODO implementar EventTrigger de ON_DISMISS
+    fun displaySnackbar( // TODO Completar com demais coisas
+        message: String
+    )
+    fun closeSnackbar()
     fun broadcastData(data: BroadcastData)
 }

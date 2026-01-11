@@ -1,10 +1,12 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.events
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen.DataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEditor
+import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEventDispatcher
 import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 import org.koin.core.scope.Scope
@@ -16,13 +18,15 @@ data class EventRunningScope(
     private val koinScope: Scope,
     private val eventManager: EventManager,
     val tilesEditor: TilesEditor,
+    val tilesEventDispatcher: TilesEventDispatcher,
+    val dataHolder: DataHolder,
     val screenBehaviorsHolder: ScreenBehaviorsHolder,
 ) {
 
     // TODO Receber uma coroutineScope para executar os eventos, provavelmente a stateHolderScope
     // TODO executar eventos de forma suspensa
 
-    fun triggerEvent(
+    suspend fun triggerEvent(
         eventTrigger: EventTrigger,
         data: Any? = null
     ) {
@@ -33,7 +37,7 @@ data class EventRunningScope(
         )
     }
 
-    fun runEventInline(
+    suspend fun runEventInline(
         eventModel: EventModel,
         data: Any? = null
     ) {

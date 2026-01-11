@@ -16,7 +16,7 @@ import dev.catbit.mosaic.core.data.tile.tiles.grouping.ColumnTileModel
 import dev.catbit.mosaic.core.data.tile.tiles.inputs.TextFieldTileModel
 import dev.catbit.mosaic.core.data.tile.tiles.text.TextTileModel
 import dev.catbit.mosaic.core.extensions.randomUuid
-import dev.catbit.mosaic.core.trigger.EventTriggers
+import dev.catbit.mosaic.core.data.event_trigger.EventTriggers
 
 class GetInitialGraphUseCase : UseCase<GraphModel, Unit>() {
 

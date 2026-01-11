@@ -1,7 +1,7 @@
 package dev.catbit.mosaic.core.data.event.events.scroll.column
 
 import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 data class ScrollTileColumnEventModel(
     val tileId: String,
     val where: Where,
-    val smooth: Boolean,
+    val smoothly: Boolean,
     override val id: String,
     override val trigger: EventTrigger,
     override val events: List<EventModel>?

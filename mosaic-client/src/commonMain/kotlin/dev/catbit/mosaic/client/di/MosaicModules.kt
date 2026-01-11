@@ -13,8 +13,15 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesUIStateMan
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.builder.UIStateProducerBuilder
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRendererManager
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu.ToggleMenuEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_up.NavigateUpEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.DismissBottomSheetEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.DisplayBottomSheetEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.DismissDialogEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.DisplayDialogEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.DismissNavigationDrawerEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.DisplayNavigationDrawerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column.ScrollTileColumnEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_tiles.AddTilesEventDefinition
@@ -28,6 +35,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.inte
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.dialog.DialogTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.navigation_drawer.NavigationDrawerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text.TextTileDefinition
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.tile.TileModel
@@ -52,18 +60,26 @@ class MosaicModules(
         TextTileDefinition,
         NavigationDrawerTileDefinition,
         DialogTileDefinition,
-        BottomSheetTileDefinition
+        BottomSheetTileDefinition,
+        MenuTileDefinition
     )
 
     private val baseEventsDefinitions = listOf(
         SendNetworkRequestEventDefinition,
         NavigateEventDefinition,
         NavigateUpEventDefinition,
+        ToggleMenuEventDefinition,
         ScrollTileColumnEventDefinition,
         AddTilesEventDefinition,
         RemoveTilesEventDefinition,
         ReplaceTilesEventDefinition,
-        WipeTilesEventDefinition
+        WipeTilesEventDefinition,
+        DisplayBottomSheetEventDefinition,
+        DismissBottomSheetEventDefinition,
+        DismissDialogEventDefinition,
+        DisplayDialogEventDefinition,
+        DismissNavigationDrawerEventDefinition,
+        DisplayNavigationDrawerEventDefinition
     )
 
     val modules by lazy {
@@ -153,7 +169,11 @@ class MosaicModules(
             )
 
             tilesUIStateManager.attachEventRegister(eventManager)
-            eventManager.attachTilesEditor(tilesUIStateManager)
+
+            eventManager.apply {
+                attachTilesEditor(tilesUIStateManager)
+                attachTilesEventDispatcher(tilesUIStateManager)
+            }
 
             MosaicScreenStateHolder(
                 screenId = screenId,
@@ -163,7 +183,10 @@ class MosaicModules(
                 eventManager = eventManager,
                 tileRendererManager = get(),
             ).also {
-                eventManager.attachScreenBehaviors(it)
+                eventManager.apply {
+                    attachDataHolder(it)
+                    attachScreenBehaviors(it)
+                }
             }
         }
     }

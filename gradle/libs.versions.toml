@@ -1,5 +1,5 @@
 [versions]
-agp = "8.13.0"
+agp = "8.12.0"
 androidx-lifecycle = "2.9.0"
 kotlin = "2.3.0"
 android-minSdk = "24"
@@ -29,6 +29,8 @@ compose-navigation3-adaptiveNavigation3 = { module = "org.jetbrains.compose.mate
 compose-navigation3-viewmodelNavigation3 = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "compose-lifecycle" }
 compose-viewmodel = { module = "org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "androidx-lifecycle" }
 compose-material3-adaptative = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "compose-material3-adaptative" }
+compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.9.3" }
 
 # Coil
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
@@ -66,6 +68,7 @@ kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
 kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
 
 [plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

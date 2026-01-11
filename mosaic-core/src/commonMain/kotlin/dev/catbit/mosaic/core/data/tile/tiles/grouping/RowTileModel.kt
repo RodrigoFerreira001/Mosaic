@@ -7,15 +7,15 @@ import dev.catbit.mosaic.core.data.tile.TileModel
 import dev.catbit.mosaic.core.data.tile.placement.AlignmentModel
 import dev.catbit.mosaic.core.data.tile.placement.ArrangementModel
 import dev.catbit.mosaic.core.data.tile.style.StyleModel
-import dev.catbit.mosaic.core.trigger.triggers.OnClickTrigger
-import dev.catbit.mosaic.core.trigger.triggers.OnLongPressTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnClickEventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnLongPressEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Triggers(
     [
-        OnClickTrigger::class,
-        OnLongPressTrigger::class
+        OnClickEventTrigger::class,
+        OnLongPressEventTrigger::class
     ]
 )
 @Serializable

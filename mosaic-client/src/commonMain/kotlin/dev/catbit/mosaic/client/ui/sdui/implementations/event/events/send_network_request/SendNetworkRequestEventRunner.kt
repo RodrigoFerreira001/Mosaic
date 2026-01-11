@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
 
 object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventModel> {
 
-    override fun EventRunningScope.runEvent(event: SendNetworkRequestEventModel) {
+    override suspend fun EventRunningScope.runEvent(event: SendNetworkRequestEventModel) {
         print("Rodou")
     }
 }

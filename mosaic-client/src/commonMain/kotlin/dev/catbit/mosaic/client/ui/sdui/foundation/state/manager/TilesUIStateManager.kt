@@ -22,7 +22,7 @@ class TilesUIStateManager(
     mapper: Mapper,
     serializer: MosaicSerializer,
     koinScope: Scope
-) : TilesEditor, TilesStateUpdater {
+) : TilesEditor, TilesStateUpdater, TilesEventDispatcher {
 
     private lateinit var eventRegister: EventRegister
     private var onUpdateRequest: (List<TileUIState>) -> Unit = {}
@@ -216,7 +216,7 @@ class TilesUIStateManager(
         updateState()
     }
 
-    fun onEvent(
+    override fun onEvent(
         tileId: String,
         event: TileEvent
     ) {

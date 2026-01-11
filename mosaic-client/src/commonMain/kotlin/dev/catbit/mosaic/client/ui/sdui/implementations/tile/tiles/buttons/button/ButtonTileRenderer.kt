@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderingScope
-import dev.catbit.mosaic.core.trigger.EventTriggers
+import dev.catbit.mosaic.core.data.event_trigger.EventTriggers
 
 object ButtonTileRenderer : TileRenderer<ButtonTileUIState> {
 
@@ -23,7 +23,7 @@ object ButtonTileRenderer : TileRenderer<ButtonTileUIState> {
                         .visible(isVisible())
                         .styledWith(uiState.style),
                     onClick = {
-                        triggerEvent(EventTriggers.OnClick)
+                        triggerEvent(EventTriggers.onClick())
                     }
                 ) {
                     Text(text)

@@ -8,7 +8,5 @@ data class DialogTileUIState(
     override val id: String,
     override val style: StyleUIState,
     override val visibility: TileUIState.Visibility,
-    override val tiles: List<TileUIState>,
-    val isCancellable: Boolean,
-    val usePlatformDefaultWidth: Boolean
+    override val tiles: List<TileUIState>
 ) : GroupingTileUIState

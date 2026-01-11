@@ -2,18 +2,18 @@ package dev.catbit.mosaic.core.data.event.events
 
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.trigger.EventTrigger
-import dev.catbit.mosaic.core.trigger.triggers.OnFailureTrigger
-import dev.catbit.mosaic.core.trigger.triggers.OnStartTrigger
-import dev.catbit.mosaic.core.trigger.triggers.OnSuccessTrigger
+import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnFailureEventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnStartEventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Triggers(
     [
-        OnStartTrigger::class,
-        OnSuccessTrigger::class,
-        OnFailureTrigger::class
+        OnStartEventTrigger::class,
+        OnSuccessEventTrigger::class,
+        OnFailureEventTrigger::class
     ]
 )
 @Serializable

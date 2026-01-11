@@ -30,6 +30,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.OverlayContainer
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreen
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 import dev.catbit.mosaic.client.ui.theme.MosaicTheme
@@ -122,22 +123,26 @@ private fun MosaicApplicationSuccessContent(
         )
     }
 
-    NavDisplay(
+    OverlayContainer(
         modifier = Modifier.fillMaxSize(),
-        backStack = backStack,
-        entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator()
-        ),
-        entryProvider = entryProvider {
-            entry<ScreenNavKey> {
-                MosaicScreen(
-                    screenId = it.id,
-                    navigationData = it.navigationData
-                )
+    ) {
+        NavDisplay(
+            modifier = Modifier.fillMaxSize(),
+            backStack = backStack,
+            entryDecorators = listOf(
+                rememberSaveableStateHolderNavEntryDecorator(),
+                rememberViewModelStoreNavEntryDecorator()
+            ),
+            entryProvider = entryProvider {
+                entry<ScreenNavKey> {
+                    MosaicScreen(
+                        screenId = it.id,
+                        navigationData = it.navigationData
+                    )
+                }
             }
-        }
-    )
+        )
+    }
 }
 
 @Composable

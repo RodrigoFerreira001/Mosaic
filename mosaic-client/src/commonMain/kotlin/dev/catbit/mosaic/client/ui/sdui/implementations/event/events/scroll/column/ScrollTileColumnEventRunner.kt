@@ -7,23 +7,23 @@ import dev.catbit.mosaic.core.data.event.events.scroll.column.ScrollTileColumnEv
 
 object ScrollTileColumnEventRunner : EventRunner<ScrollTileColumnEventModel> {
 
-    override fun EventRunningScope.runEvent(event: ScrollTileColumnEventModel) {
+    override suspend fun EventRunningScope.runEvent(event: ScrollTileColumnEventModel) {
         broadcastData(
             when (val where = event.where) {
                 ScrollTileColumnEventModel.Where.Top -> ColumnTileBroadcastData.ScrollToTop(
                     tileId = event.tileId,
-                    smooth = event.smooth
+                    smoothly = event.smoothly
                 )
 
                 is ScrollTileColumnEventModel.Where.To -> ColumnTileBroadcastData.ScrollTo(
                     tileId = event.tileId,
                     index = where.index,
-                    smooth = event.smooth
+                    smoothly = event.smoothly
                 )
 
                 ScrollTileColumnEventModel.Where.Bottom -> ColumnTileBroadcastData.ScrollToBottom(
                     tileId = event.tileId,
-                    smooth = event.smooth
+                    smoothly = event.smoothly
                 )
             }
         )

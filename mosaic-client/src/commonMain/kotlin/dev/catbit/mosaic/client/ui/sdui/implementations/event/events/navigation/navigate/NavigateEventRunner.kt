@@ -8,7 +8,7 @@ import dev.catbit.mosaic.core.data.event.events.navigation.NavigateEventModel
 
 object NavigateEventRunner : EventRunner<NavigateEventModel> {
 
-    override fun EventRunningScope.runEvent(event: NavigateEventModel) {
+    override suspend fun EventRunningScope.runEvent(event: NavigateEventModel) {
         NavigatorHolder[event.navigatorId]?.add(
             ScreenNavKey(
                 id = event.destination,

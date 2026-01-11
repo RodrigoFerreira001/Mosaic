@@ -11,9 +11,7 @@ class DialogTileUIStateProducer(
     override var visibility: TileUIState.Visibility,
     override val style: StyleUIStateProducer,
     override val tiles: MutableList<TileUIStateProducer<*>>,
-    override val updater: UIStateProducerUpdater,
-    val isCancellable: Boolean,
-    val usePlatformDefaultWidth: Boolean
+    override val updater: UIStateProducerUpdater
 ) : GroupingTileUIStateProducer<DialogTileUIState>() {
 
     override fun update(updateData: Map<String, Any?>) = Unit
@@ -22,8 +20,6 @@ class DialogTileUIStateProducer(
         id = id,
         style = style.state,
         visibility = visibility,
-        tiles = tiles.map { it.state },
-        isCancellable = isCancellable,
-        usePlatformDefaultWidth = usePlatformDefaultWidth
+        tiles = tiles.map { it.state }
     )
 }

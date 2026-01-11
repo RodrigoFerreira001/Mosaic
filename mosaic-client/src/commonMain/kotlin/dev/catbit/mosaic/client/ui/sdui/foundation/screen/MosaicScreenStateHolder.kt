@@ -12,6 +12,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.inte
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.bottom_sheet.BottomSheetTileUIState
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.dialog.DialogTileModel
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.dialog.DialogTileUIState
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.navigation_drawer.NavigationDrawerTileModel
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.navigation_drawer.NavigationDrawerTileUIState
 import dev.catbit.mosaic.core.data.tile.TileModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -27,10 +28,9 @@ internal class MosaicScreenStateHolder(
     private val tilesUIStateManager: TilesUIStateManager,
     private val eventManager: EventManager,
     val tileRendererManager: TileRendererManager
-) : ScreenStateHolder<State, Event, Effect>(), ScreenBehaviorsHolder {
-
-    private val formData: Map<String, Any> = mutableMapOf()
-    private val uiData: Map<String, Any> = mutableMapOf()
+) : ScreenStateHolder<State, Event, Effect>(),
+    ScreenBehaviorsHolder,
+    DataHolder by DefaultDataHolder() {
 
     private val internalBroadcastChannel = MutableSharedFlow<BroadcastData>()
     val broadcastChannel get() = internalBroadcastChannel.asSharedFlow()
@@ -58,7 +58,16 @@ internal class MosaicScreenStateHolder(
                         )
                     }
                     tilesUIStateManager.setup(
-                        tiles = screen.tiles,
+                        tiles = screen.tiles.toMutableList().apply {
+                            screen.navigationDrawer?.let { navigationDrawerTiles ->
+                                add(
+                                    NavigationDrawerTileModel(
+                                        id = "MOSAIC_NAVIGATION_DRAWER",
+                                        tiles = navigationDrawerTiles
+                                    )
+                                )
+                            }
+                        },
                         onUpdateStateRequest = ::onUpdateStateRequest
                     )
                 }
@@ -71,7 +80,7 @@ internal class MosaicScreenStateHolder(
             is Event.OnUIEvent -> onUIEvent(event)
             Event.OnTryAgainClick -> onTryAgainClick()
             Event.OnCloseBottomSheetFinished -> onCloseBottomSheetFinished()
-            Event.OnCloseDialogRequested -> closeDialog()
+            Event.OnCloseDialogFinished -> onCloseDialogFinished()
         }
     }
 
@@ -82,11 +91,15 @@ internal class MosaicScreenStateHolder(
                 event = event.event.event,
             )
 
-            is UIEvent.TriggerHolderUIEvent -> eventManager.triggerEvent(
-                eventOwnerId = event.event.eventOwnerId,
-                trigger = event.event.trigger,
-                data = event.event.data
-            )
+            is UIEvent.TriggerHolderUIEvent -> {
+                stateHolderScope.launch {
+                    eventManager.triggerEvent(
+                        eventOwnerId = event.event.eventOwnerId,
+                        trigger = event.event.trigger,
+                        data = event.event.data
+                    )
+                }
+            }
         }
     }
 
@@ -110,7 +123,6 @@ internal class MosaicScreenStateHolder(
                             currentState.bottomSheetUIState?.copy(
                                 tiles = bottomSheetTile.tiles
                             ) ?: State.Displaying.BottomSheetUIState(
-                                isCancellable = bottomSheetTile.isCancellable,
                                 tiles = bottomSheetTile.tiles,
                             )
                         },
@@ -118,9 +130,7 @@ internal class MosaicScreenStateHolder(
                             currentState.dialogUIState?.copy(
                                 tiles = dialogTile.tiles
                             ) ?: State.Displaying.DialogUIState(
-                                isCancellable = dialogTile.isCancellable,
-                                usePlatformDefaultWidth = dialogTile.usePlatformDefaultWidth,
-                                tiles = dialogTile.tiles,
+                                tiles = dialogTile.tiles
                             )
                         },
                         navigationDrawerUIState = (navigationDrawerTile as? NavigationDrawerTileUIState)?.let {
@@ -152,81 +162,72 @@ internal class MosaicScreenStateHolder(
         tilesUIStateManager.addTile(
             DialogTileModel(
                 id = "MOSAIC_DIALOG",
+                tiles = tiles
+            )
+        )
+        internalEffects.dispatch(
+            Effect.OnDisplayDialogRequested(
                 isCancellable = isCancellable,
                 usePlatformDefaultWidth = usePlatformDefaultWidth,
-                tiles = tiles
             )
         )
     }
 
-    override fun closeDialog() {
+    override fun dismissDialog() {
+        internalEffects.dispatch(Effect.OnCloseDialogRequested)
+    }
+
+    fun onCloseDialogFinished() {
         tilesUIStateManager.removeTile("MOSAIC_DIALOG")
     }
 
     override fun displayBottomSheet(
         isCancellable: Boolean,
+        fill: Boolean,
         tiles: List<TileModel>
     ) {
         tilesUIStateManager.addTile(
             BottomSheetTileModel(
                 id = "MOSAIC_BOTTOM_SHEET",
-                isCancellable = isCancellable,
                 tiles = tiles
+            )
+        )
+        internalEffects.dispatch(
+            Effect.OnDisplayBottomSheetRequested(
+                isCancellable = isCancellable,
+                fill = fill
             )
         )
     }
 
-    override fun closeBottomSheet() {
+    override fun dismissBottomSheet() {
         internalEffects.dispatch(Effect.OnCloseBottomSheetRequested)
     }
 
     private fun onCloseBottomSheetFinished() {
-        tilesUIStateManager.removeTile("MOSAIC_DIALOG")
+        tilesUIStateManager.removeTile("MOSAIC_BOTTOM_SHEET")
     }
 
-    override fun displaySnackbar() {
-        TODO("Not yet implemented")
+    override fun displaySnackbar(
+        message: String
+    ) {
+        internalEffects.dispatch(
+            Effect.OnDisplaySnackbar(
+                message = message
+            )
+        )
     }
 
     override fun closeSnackbar() {
-        TODO("Not yet implemented")
+        internalEffects.dispatch(Effect.OnCloseSnackbarRequested)
     }
 
-    override fun displayDrawer() {
-        TODO("Not yet implemented")
+    override fun displayNavigationDrawer() {
+        internalEffects.dispatch(Effect.OnDisplayNavigationDrawerSheetRequested)
     }
 
-    override fun closeDrawer() {
-        TODO("Not yet implemented")
-    }
-
-    override fun displayMenu() {
-        // TODO, o menu pode ser um tile, que escuta um broadcast e envelopa outros tiles
-        TODO("Not yet implemented")
-    }
-
-    override fun closeMenu() {
-        TODO("Not yet implemented")
-    }
-
-    override fun requestPermission() {
-        TODO("Not yet implemented")
-    }
-
-    override fun sendNotification() {
-        TODO("Not yet implemented")
-    }
-
-    override fun getData() {
-        TODO("Not yet implemented")
-    }
-
-    override fun setData() {
-        TODO("Not yet implemented")
-    }
-
-    override fun removeData() {
-        TODO("Not yet implemented")
+    override fun dismissNavigationDrawer() {
+        internalEffects.dispatch(Effect.OnCloseNavigationDrawerSheetRequested)
     }
 
     override fun broadcastData(data: BroadcastData) {

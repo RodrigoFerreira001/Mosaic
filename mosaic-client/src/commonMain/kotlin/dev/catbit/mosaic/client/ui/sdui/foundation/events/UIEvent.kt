@@ -1,6 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.events
 
-import dev.catbit.mosaic.core.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 
 sealed interface UIEvent {
     data class TriggerHolderUIEvent(

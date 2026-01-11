@@ -1,7 +1,7 @@
 package dev.catbit.mosaic.core.data.event.events.tiles
 
 import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

@@ -13,13 +13,10 @@ sealed interface State {
     ) : State {
 
         data class DialogUIState(
-            val isCancellable: Boolean,
-            val usePlatformDefaultWidth: Boolean,
             val tiles: List<TileUIState>
         )
 
         data class BottomSheetUIState(
-            val isCancellable: Boolean,
             val tiles: List<TileUIState>
         )
 
@@ -33,16 +30,32 @@ sealed interface State {
 
 sealed interface Event {
     data class OnUIEvent(val event: UIEvent) : Event
-    data object OnCloseDialogRequested: Event
     data object OnCloseBottomSheetFinished : Event
+    data object OnCloseDialogFinished : Event
     data object OnTryAgainClick : Event
 }
 
 sealed interface Effect {
-    // TODO Add more info and behaviors, like click
     data class OnDisplaySnackbar(
         val message: String
     ) : Effect
+
+    data object OnCloseSnackbarRequested : Effect
+
+    data class OnDisplayBottomSheetRequested(
+        val isCancellable: Boolean,
+        val fill: Boolean,
+    ) : Effect
+
     data object OnCloseBottomSheetRequested : Effect
+
+    data class OnDisplayDialogRequested(
+        val isCancellable: Boolean,
+        val usePlatformDefaultWidth: Boolean
+    ) : Effect
+
+    data object OnCloseDialogRequested : Effect
+
+    data object OnDisplayNavigationDrawerSheetRequested : Effect
     data object OnCloseNavigationDrawerSheetRequested : Effect
 }

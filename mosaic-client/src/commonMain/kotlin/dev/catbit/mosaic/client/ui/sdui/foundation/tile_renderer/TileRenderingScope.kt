@@ -5,7 +5,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTileRendererManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
-import dev.catbit.mosaic.core.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 
 class TileRenderingScope(
     private val tileId: String,

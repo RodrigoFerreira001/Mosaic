@@ -20,7 +20,5 @@ internal data class DialogTileModel(
         )
     ),
     override val visibility: TileModel.Visibility = TileModel.Visibility.VISIBLE,
-    override val tiles: List<TileModel>,
-    val isCancellable: Boolean,
-    val usePlatformDefaultWidth: Boolean
+    override val tiles: List<TileModel>
 ) : GroupingTileModel

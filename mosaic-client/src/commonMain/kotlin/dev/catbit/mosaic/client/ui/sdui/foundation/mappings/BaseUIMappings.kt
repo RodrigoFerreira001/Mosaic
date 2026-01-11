@@ -4,7 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbolStyle
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.ColorUIModel
+import dev.catbit.mosaic.client.ui.sdui.foundation.models.IconUIModel
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.WindowInsetsUIModel
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.BorderUIState
@@ -13,6 +15,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.RadiusUIState
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.SizeUIState
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.StyleUIState
 import dev.catbit.mosaic.core.data.color.ColorModel
+import dev.catbit.mosaic.core.data.icon.IconModel
 import dev.catbit.mosaic.core.data.tile.TileModel
 import dev.catbit.mosaic.core.data.tile.placement.AlignmentModel
 import dev.catbit.mosaic.core.data.tile.placement.ArrangementModel
@@ -226,6 +229,18 @@ object BaseUIMappings {
             },
             mapping<TileModel.Visibility, TileUIState.Visibility> {
                 TileUIState.Visibility.valueOf(name)
+            },
+            mapping<IconModel, IconUIModel> { mapper ->
+                IconUIModel(
+                    name = name,
+                    color = color?.mapTo(mapper),
+                    size = size?.dp,
+                    style = when(style) {
+                        IconModel.Style.OUTLINED -> MaterialSymbolStyle.OUTLINED
+                        IconModel.Style.ROUNDED -> MaterialSymbolStyle.ROUNDED
+                        IconModel.Style.SHARP -> MaterialSymbolStyle.SHARP
+                    }
+                )
             }
         )
     }

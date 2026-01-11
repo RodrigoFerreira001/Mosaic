@@ -1,6 +1,14 @@
 package dev.catbit.mosaic.core.serialization
 
 import dev.catbit.mosaic.core.data.event.EventModel
+import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnClickEventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnFailureEventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnLongPressEventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnMenuItemClickEventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnStartEventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.data.event_trigger.triggers.OnTextChangedEventTrigger
 import dev.catbit.mosaic.core.data.tile.TileModel
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
@@ -14,7 +22,8 @@ import kotlin.reflect.KClass
 
 class MosaicSerializer(
     tileSerializers: Map<KClass<out TileModel>, KSerializer<out TileModel>>,
-    eventSerializers: Map<KClass<out EventModel>, KSerializer<out EventModel>>
+    eventSerializers: Map<KClass<out EventModel>, KSerializer<out EventModel>>,
+    eventTriggerSerializers: Map<KClass<out EventTrigger>, KSerializer<out EventTrigger>> = mapOf()
 ) {
 
     @Suppress("UNCHECKED_CAST")
@@ -34,6 +43,23 @@ class MosaicSerializer(
                     subclass(
                         kClass as KClass<EventModel>,
                         serializer as KSerializer<EventModel>
+                    )
+                }
+            }
+
+            polymorphic(EventTrigger::class) {
+                (mapOf(
+                    OnClickEventTrigger::class to OnClickEventTrigger.serializer(),
+                    OnFailureEventTrigger::class to OnFailureEventTrigger.serializer(),
+                    OnLongPressEventTrigger::class to OnLongPressEventTrigger.serializer(),
+                    OnStartEventTrigger::class to OnStartEventTrigger.serializer(),
+                    OnSuccessEventTrigger::class to OnSuccessEventTrigger.serializer(),
+                    OnTextChangedEventTrigger::class to OnTextChangedEventTrigger.serializer(),
+                    OnMenuItemClickEventTrigger::class to OnMenuItemClickEventTrigger.serializer()
+                ) + eventTriggerSerializers).forEach { (kClass, serializer) ->
+                    subclass(
+                        kClass as KClass<EventTrigger>,
+                        serializer as KSerializer<EventTrigger>
                     )
                 }
             }

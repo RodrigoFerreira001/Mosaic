@@ -6,7 +6,7 @@ import dev.catbit.mosaic.core.data.event.events.tiles.RemoveTilesEventModel
 import dev.catbit.mosaic.core.data.event.events.tiles.WipeTilesEventModel
 
 object WipeTilesEventRunner : EventRunner<WipeTilesEventModel> {
-    override fun EventRunningScope.runEvent(event: WipeTilesEventModel) {
+    override suspend fun EventRunningScope.runEvent(event: WipeTilesEventModel) {
         tilesEditor.wipeTiles(
             groupingTileId = event.groupingTileId,
         )

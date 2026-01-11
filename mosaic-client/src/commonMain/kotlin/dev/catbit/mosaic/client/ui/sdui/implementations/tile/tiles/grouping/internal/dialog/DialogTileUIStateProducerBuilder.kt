@@ -13,9 +13,7 @@ internal object DialogTileUIStateProducerBuilder :
             visibility = visibility.mapTo(),
             style = buildProducer(style),
             tiles = tiles.map { buildProducer<TileUIStateProducer<*>>(it) }.toMutableList(),
-            updater = { it },
-            isCancellable = isCancellable,
-            usePlatformDefaultWidth = usePlatformDefaultWidth
+            updater = { it }
         )
     }
 }

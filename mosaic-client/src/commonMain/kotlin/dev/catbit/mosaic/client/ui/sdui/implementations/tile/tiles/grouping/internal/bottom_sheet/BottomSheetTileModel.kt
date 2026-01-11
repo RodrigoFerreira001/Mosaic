@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("BottomSheet")
-internal data class BottomSheetTileModel(
+internal data class BottomSheetTileModel( // TODO ter aqui um identificador real para a BS, para fins de eventos de dismiss
     override val id: String,
     override val events: List<EventModel>? = null,
     override val style: StyleModel = StyleModel(
@@ -20,6 +20,5 @@ internal data class BottomSheetTileModel(
         )
     ),
     override val visibility: TileModel.Visibility = TileModel.Visibility.VISIBLE,
-    override val tiles: List<TileModel>,
-    val isCancellable: Boolean,
+    override val tiles: List<TileModel>
 ) : GroupingTileModel

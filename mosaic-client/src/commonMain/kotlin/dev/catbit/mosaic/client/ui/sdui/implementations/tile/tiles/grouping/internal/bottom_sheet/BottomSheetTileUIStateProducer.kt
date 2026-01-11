@@ -11,8 +11,7 @@ class BottomSheetTileUIStateProducer(
     override var visibility: TileUIState.Visibility,
     override val style: StyleUIStateProducer,
     override val tiles: MutableList<TileUIStateProducer<*>>,
-    override val updater: UIStateProducerUpdater,
-    val isCancellable: Boolean
+    override val updater: UIStateProducerUpdater
 ) : GroupingTileUIStateProducer<BottomSheetTileUIState>() {
 
     override fun update(updateData: Map<String, Any?>) = Unit
@@ -21,7 +20,6 @@ class BottomSheetTileUIStateProducer(
         id = id,
         style = style.state,
         visibility = visibility,
-        tiles = tiles.map { it.state },
-        isCancellable = isCancellable
+        tiles = tiles.map { it.state }
     )
 }
