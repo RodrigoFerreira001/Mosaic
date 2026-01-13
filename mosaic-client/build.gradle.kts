@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalWasmDsl::class)
+@file:Suppress("UnstableApiUsage")
 
-import org.gradle.kotlin.dsl.android
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -19,8 +19,8 @@ version = "1.0.0"
 kotlin {
     applyDefaultHierarchyTemplate()
 
-    android {
-        namespace = "dev.catbit.mosaic-client"
+    androidLibrary {
+        namespace = "dev.catbit.mosaic.client"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
@@ -31,6 +31,8 @@ kotlin {
                 compilerOptions.jvmTarget = JvmTarget.JVM_11
             }
         }
+
+        androidResources.enable = true
     }
     iosX64()
     iosArm64()
@@ -78,5 +80,12 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
         }
+    }
+}
+
+compose {
+    resources {
+        publicResClass = true
+        packageOfResClass = "dev.catbit.mosaic.client.generated.resources"
     }
 }

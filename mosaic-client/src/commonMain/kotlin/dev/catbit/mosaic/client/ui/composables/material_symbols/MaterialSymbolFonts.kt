@@ -8,10 +8,10 @@ import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
-import dev.catbit.mosaic_client.generated.resources.Res
-import dev.catbit.mosaic_client.generated.resources.materialSymbolsOutlined
-import dev.catbit.mosaic_client.generated.resources.materialSymbolsRounded
-import dev.catbit.mosaic_client.generated.resources.materialSymbolsSharp
+import dev.catbit.mosaic.client.generated.resources.Res
+import dev.catbit.mosaic.client.generated.resources.materialSymbolsOutlined
+import dev.catbit.mosaic.client.generated.resources.materialSymbolsRounded
+import dev.catbit.mosaic.client.generated.resources.materialSymbolsSharp
 import org.jetbrains.compose.resources.Font
 
 internal val LocalMaterialSymbolFonts = staticCompositionLocalOf<MaterialSymbolFonts> {
@@ -54,7 +54,7 @@ fun loadMaterialSymbolFonts(
         FontVariation.Setting("FILL", if (filled) 1f else 0f),
         FontVariation.grade(grade),
         FontVariation.Setting("opsz", opticalSize.value),
-        FontVariation.weight(weight.weight),
+        FontVariation.weight(weight.weight)
     )
 
     MaterialSymbolFonts(

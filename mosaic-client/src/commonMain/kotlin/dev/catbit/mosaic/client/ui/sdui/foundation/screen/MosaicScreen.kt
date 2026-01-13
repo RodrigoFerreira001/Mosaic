@@ -44,7 +44,7 @@ internal fun MosaicScreen(
 
     val uiState by stateHolder.uiState.collectAsState()
 
-    ControlHomeScreenContent(
+    MosaicScreenContent(
         uiState = uiState,
         uiEffects = stateHolder.effects,
         broadcastChannel = stateHolder.broadcastChannel,
@@ -54,7 +54,7 @@ internal fun MosaicScreen(
 }
 
 @Composable
-private fun ControlHomeScreenContent(
+private fun MosaicScreenContent(
     uiState: State,
     uiEffects: SharedFlow<Effect>,
     broadcastChannel: BroadcastChannel,

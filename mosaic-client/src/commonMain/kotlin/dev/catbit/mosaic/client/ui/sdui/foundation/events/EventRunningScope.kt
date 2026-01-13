@@ -23,9 +23,6 @@ data class EventRunningScope(
     val screenBehaviorsHolder: ScreenBehaviorsHolder,
 ) {
 
-    // TODO Receber uma coroutineScope para executar os eventos, provavelmente a stateHolderScope
-    // TODO executar eventos de forma suspensa
-
     suspend fun triggerEvent(
         eventTrigger: EventTrigger,
         data: Any? = null
