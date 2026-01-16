@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.ui.composables.icon
 
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -17,5 +18,6 @@ fun Icon(
             size = icon.size ?: 24.dp,
             style = style
         )
+         // TODO utilizar Icon() do compose
     }
 }

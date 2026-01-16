@@ -13,3 +13,6 @@
 - For every Compose, make the title as close as possible, it means, bring to the tile every Compose property
 - Navigation3 popUpTo
 - Offline Screens
+- AnimatedTile
+- CountDownStepperEvent
+- Triggers Globais (OnDeviceNetworkChange)
