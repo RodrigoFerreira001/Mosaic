@@ -14,6 +14,7 @@ data class GraphModel(
     val startEntryId: String
 ) {
 
+    // TODO Definir animações
     @Serializable
     data class Entry(
         @SerialName("screenId")

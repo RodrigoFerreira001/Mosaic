@@ -6,6 +6,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEditor
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEventDispatcher
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import kotlinx.coroutines.supervisorScope
 import org.koin.core.scope.Scope
 
 class EventManager(
@@ -57,10 +58,12 @@ class EventManager(
             .flatMap { it.value }
             .filter { it.trigger == trigger }
             .forEach { eventModel ->
-                runEvent(
-                    eventModel = eventModel,
-                    data = data
-                )
+                supervisorScope {
+                    runEvent(
+                        eventModel = eventModel,
+                        data = data
+                    )
+                }
             }
     }
 

@@ -13,9 +13,11 @@ import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -29,6 +31,7 @@ import dev.catbit.mosaic.client.ui.effects.SingleEffect
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
+import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigationController
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.OverlayContainer
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreen
@@ -116,10 +119,15 @@ private fun MosaicApplicationSuccessContent(
         ScreenNavKey(uiState.graph.startEntryId)
     )
 
+    @Suppress("UNCHECKED_CAST")
+    val navigationController = remember {
+        NavigationController(backStack as NavBackStack<ScreenNavKey>)
+    }
+
     SingleEffect {
         NavigatorHolder.registerNavigator(
             navigatorId = uiState.graph.id,
-            backStack = backStack
+            navigationController = navigationController
         )
     }
 

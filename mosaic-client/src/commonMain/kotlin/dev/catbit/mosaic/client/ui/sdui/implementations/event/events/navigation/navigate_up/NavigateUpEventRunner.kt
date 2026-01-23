@@ -8,6 +8,6 @@ import dev.catbit.mosaic.core.data.event.events.navigation.NavigateUpEventModel
 object NavigateUpEventRunner : EventRunner<NavigateUpEventModel> {
 
     override suspend fun EventRunningScope.runEvent(event: NavigateUpEventModel) {
-        NavigatorHolder[event.navigatorId]?.removeLastOrNull()
+        NavigatorHolder[event.navigatorId]?.goBack()
     }
 }

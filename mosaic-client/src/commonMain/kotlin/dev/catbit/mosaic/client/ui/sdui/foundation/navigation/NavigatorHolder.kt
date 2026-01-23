@@ -1,16 +1,13 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.navigation
 
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
-
 object NavigatorHolder {
-    private val navigators = mutableMapOf<String, NavBackStack<NavKey>>()
+    private val navigators = mutableMapOf<String, NavigationController>()
 
     fun registerNavigator(
         navigatorId: String,
-        backStack: NavBackStack<NavKey>
+        navigationController: NavigationController
     ) {
-        navigators[navigatorId] = backStack
+        navigators[navigatorId] = navigationController
     }
 
     fun unregisterNavigator(

@@ -7,6 +7,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEditor
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEventDispatcher
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 import org.koin.core.scope.Scope
@@ -73,4 +74,7 @@ data class EventRunningScope(
         qualifier: Qualifier? = null,
         parameters: ParametersDefinition? = null
     ): T? = koinScope.getOrNull(clazz, qualifier, parameters)
+
+    @Suppress("UNCHECKED_CAST")
+    fun Any?.asMapAny() = this as? Map<String, AnySerializable>
 }
