@@ -4,12 +4,14 @@ import androidx.compose.runtime.Composable
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTileRendererManager
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
+import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import dev.catbit.mosaic.core.data.tile.TileModel
 
 class TileRenderingScope(
     private val tileId: String,
-    private val onEvent: (UIEvent) -> Unit
+    private val events: List<EventModel>?,
+    val onEvent: (UIEvent) -> Unit
 ) {
     fun dispatchEvent(tileEvent: TileEvent) {
         onEvent(UIEvent.TileEventHolderUIEvent(tileId, tileEvent))
@@ -19,16 +21,25 @@ class TileRenderingScope(
         trigger: EventTrigger,
         data: Any? = null
     ) {
-        onEvent(UIEvent.TriggerHolderUIEvent(tileId, trigger, data))
+        events
+            ?.filter { it.trigger == trigger }
+            ?.let {
+                onEvent(
+                    UIEvent.EventModelHolderUIEvent(
+                        events = it,
+                        data = data
+                    )
+                )
+            }
     }
 
     @Composable
     fun RenderChild(
-        uiState: TileUIState,
+        tileModel: TileModel,
     ) {
         with(LocalTileRendererManager.current) {
             Render(
-                uiState = uiState,
+                tileModel = tileModel,
                 onEvent = onEvent
             )
         }
@@ -36,12 +47,12 @@ class TileRenderingScope(
 
     @Composable
     fun RenderChildren(
-        uiStates: List<TileUIState>,
+        tileModels: List<TileModel>,
     ) {
         with(LocalTileRendererManager.current) {
-            uiStates.forEach { uiState ->
+            tileModels.forEach { tileModel ->
                 Render(
-                    uiState = uiState,
+                    tileModel = tileModel,
                     onEvent = onEvent
                 )
             }

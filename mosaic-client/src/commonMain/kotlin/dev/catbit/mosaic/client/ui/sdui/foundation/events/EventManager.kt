@@ -4,6 +4,8 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.screen.DataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEditor
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEventDispatcher
+import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEventHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesOverlaysEditor
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 import kotlinx.coroutines.supervisorScope
@@ -12,17 +14,27 @@ import org.koin.core.scope.Scope
 class EventManager(
     private val eventRunnerManager: EventRunnerManager,
     private val koinScope: Scope
-) : EventRegister {
+) {
 
-    private val events = mutableMapOf<String, List<EventModel>>()
+    private val runningEvents = mutableMapOf<String, EventModel>()
 
     private lateinit var tilesEditor: TilesEditor
+    private lateinit var tilesOverlaysEditor: TilesOverlaysEditor
     private lateinit var tilesEventDispatcher: TilesEventDispatcher
+    private lateinit var tilesEventHolder: TilesEventHolder
     private lateinit var screenBehaviorsHolder: ScreenBehaviorsHolder
     private lateinit var dataHolder: DataHolder
 
     fun attachTilesEditor(tilesEditor: TilesEditor) {
         this.tilesEditor = tilesEditor
+    }
+
+    fun attachTilesOverlaysEditor(tilesOverlaysEditor: TilesOverlaysEditor) {
+        this.tilesOverlaysEditor = tilesOverlaysEditor
+    }
+
+    fun attachTilesEventHolder(tilesEventHolder: TilesEventHolder) {
+        this.tilesEventHolder = tilesEventHolder
     }
 
     fun attachScreenBehaviors(screenBehaviorsHolder: ScreenBehaviorsHolder) {
@@ -37,27 +49,13 @@ class EventManager(
         this.tilesEventDispatcher = tilesEventDispatcher
     }
 
-    override fun registerEvents(
-        eventOwnerId: String,
-        eventList: List<EventModel>
-    ) {
-        events[eventOwnerId] = eventList
-    }
-
-    override fun unregisterEvents(
-        eventOwnerId: String,
-    ) {
-        events.remove(eventOwnerId)
-    }
-
     suspend fun triggerEvents(
         trigger: EventTrigger,
         data: Any? = null
     ) {
-        events
-            .flatMap { it.value }
-            .filter { it.trigger == trigger }
-            .forEach { eventModel ->
+        tilesEventHolder
+            .getEventsByTrigger(trigger)
+            ?.forEach { eventModel ->
                 supervisorScope {
                     runEvent(
                         eventModel = eventModel,
@@ -67,12 +65,13 @@ class EventManager(
             }
     }
 
-    suspend fun triggerEvent(
+    suspend fun onTrigger(
         eventOwnerId: String,
         trigger: EventTrigger,
         data: Any? = null
     ) {
-        events[eventOwnerId]
+        runningEvents[eventOwnerId]
+            ?.events
             ?.filter { it.trigger == trigger }
             ?.forEach { eventModel ->
                 runEvent(
@@ -82,25 +81,36 @@ class EventManager(
             }
     }
 
+    suspend fun runEvents(
+        eventModels: List<EventModel>,
+        data: Any? = null
+    ) {
+        eventModels.forEach { eventModel ->
+            runEvent(
+                eventModel = eventModel,
+                data = data
+            )
+        }
+    }
+
     suspend fun runEvent(
         eventModel: EventModel,
         data: Any? = null
     ) {
-        eventModel.events?.let {
-            events[eventModel.id] = it
-        }
+        runningEvents[eventModel.id] = eventModel
         with(eventRunnerManager) {
             EventRunningScope(
                 triggerOwnerId = eventModel.id,
                 incomingData = data,
                 eventManager = this@EventManager,
                 tilesEditor = tilesEditor,
+                tilesOverlaysEditor = tilesOverlaysEditor,
                 tilesEventDispatcher = tilesEventDispatcher,
                 dataHolder = dataHolder,
                 screenBehaviorsHolder = screenBehaviorsHolder,
                 koinScope = koinScope
             ).runEvent(eventModel)
         }
-        events.remove(eventModel.id)
+        runningEvents.remove(eventModel.id)
     }
 }

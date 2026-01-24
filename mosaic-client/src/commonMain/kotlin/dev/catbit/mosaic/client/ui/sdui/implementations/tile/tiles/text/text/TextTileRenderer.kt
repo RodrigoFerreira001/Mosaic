@@ -7,20 +7,21 @@ import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderingScope
+import dev.catbit.mosaic.core.data.tile.tiles.text.TextTileModel
 
-object TextTileRenderer : TileRenderer<TextTileUIState> {
+object TextTileRenderer : TileRenderer<TextTileModel> {
 
     @Composable
     override fun TileRenderingScope.Render(
-        uiState: TextTileUIState,
+        tileModel: TextTileModel,
     ) {
-        with(uiState) {
+        with(tileModel) {
             if (!isGone()) {
                 Text(
                     text = text,
                     modifier = Modifier
                         .visible(isVisible())
-                        .styledWith(uiState.style)
+                        .styledWith(tileModel.style)
                 )
             }
         }

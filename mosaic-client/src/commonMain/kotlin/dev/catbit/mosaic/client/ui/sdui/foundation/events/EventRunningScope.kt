@@ -5,6 +5,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.screen.DataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEditor
 import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEventDispatcher
+import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesOverlaysEditor
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
@@ -20,15 +21,16 @@ data class EventRunningScope(
     private val eventManager: EventManager,
     val tilesEditor: TilesEditor,
     val tilesEventDispatcher: TilesEventDispatcher,
+    val tilesOverlaysEditor: TilesOverlaysEditor,
     val dataHolder: DataHolder,
     val screenBehaviorsHolder: ScreenBehaviorsHolder,
 ) {
 
-    suspend fun triggerEvent(
+    suspend fun onTrigger(
         eventTrigger: EventTrigger,
         data: Any? = null
     ) {
-        eventManager.triggerEvent(
+        eventManager.onTrigger(
             eventOwnerId = triggerOwnerId,
             trigger = eventTrigger,
             data = data,

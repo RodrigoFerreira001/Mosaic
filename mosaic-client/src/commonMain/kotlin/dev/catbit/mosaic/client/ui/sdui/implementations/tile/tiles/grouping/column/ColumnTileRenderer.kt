@@ -11,31 +11,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.observeBroadcastChannel
+import dev.catbit.mosaic.client.extensions.toAlignment
+import dev.catbit.mosaic.client.extensions.toArrangement
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.modifiers.thenIf
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderingScope
+import dev.catbit.mosaic.core.data.tile.tiles.grouping.ColumnTileModel
 
 // TODO Separar em um plugin LazyColumn
-object ColumnTileRenderer : TileRenderer<ColumnTileUIState> {
+object ColumnTileRenderer : TileRenderer<ColumnTileModel> {
 
     @Composable
     override fun TileRenderingScope.Render(
-        uiState: ColumnTileUIState,
+        tileModel: ColumnTileModel
     ) {
-        with(uiState) {
+        with(tileModel) {
             if (!isGone()) {
-                if (uiState.lazyRender) {
+                if (lazyRender) {
 
                     val lazyListState = rememberLazyListState()
 
                     observeBroadcastChannel<ColumnTileBroadcastData> { data ->
-                        if (data.tileId == uiState.id) {
+                        if (data.tileId == id) {
                             when (data) {
                                 is ColumnTileBroadcastData.ScrollToTop -> lazyListState.scrollToItem(0)
                                 is ColumnTileBroadcastData.ScrollTo -> lazyListState.scrollToItem(data.index)
-                                is ColumnTileBroadcastData.ScrollToBottom -> lazyListState.scrollToItem(uiState.tiles.size)
+                                is ColumnTileBroadcastData.ScrollToBottom -> lazyListState.scrollToItem(tileModel.tiles.size)
                             }
                         }
                     }
@@ -43,14 +46,14 @@ object ColumnTileRenderer : TileRenderer<ColumnTileUIState> {
                     LazyColumn(
                         modifier = Modifier
                             .visible(isVisible())
-                            .styledWith(uiState.style),
+                            .styledWith(tileModel.style),
                         state = lazyListState,
-                        verticalArrangement = arrangement,
-                        horizontalAlignment = alignment,
-                        userScrollEnabled = uiState.isScrollable
+                        verticalArrangement = arrangement.toArrangement(),
+                        horizontalAlignment = alignment.toAlignment(),
+                        userScrollEnabled = tileModel.isScrollable
                     ) {
-                        items(uiState.tiles) { uiState ->
-                            RenderChild(uiState)
+                        items(tiles) { tileModel ->
+                            RenderChild(tileModel)
                         }
                     }
                 } else {
@@ -58,7 +61,7 @@ object ColumnTileRenderer : TileRenderer<ColumnTileUIState> {
                     val scrollState = rememberScrollState()
 
                     observeBroadcastChannel<ColumnTileBroadcastData> { data ->
-                        if (data.tileId == uiState.id) {
+                        if (data.tileId == tileModel.id) {
                             when (data) {
                                 is ColumnTileBroadcastData.ScrollToTop -> scrollState.scrollTo(0)
                                 is ColumnTileBroadcastData.ScrollTo -> scrollState.scrollTo(data.index)
@@ -70,15 +73,15 @@ object ColumnTileRenderer : TileRenderer<ColumnTileUIState> {
                     Column(
                         modifier = Modifier
                             .visible(isVisible())
-                            .styledWith(uiState.style)
-                            .thenIf(uiState.isScrollable) {
+                            .styledWith(style)
+                            .thenIf(isScrollable) {
                                 verticalScroll(scrollState)
                             },
-                        verticalArrangement = arrangement,
-                        horizontalAlignment = alignment,
+                        verticalArrangement = arrangement.toArrangement(),
+                        horizontalAlignment = alignment.toAlignment(),
                     ) {
                         CompositionLocalProvider(LocalColumnScope provides this) {
-                            RenderChildren(uiState.tiles)
+                            RenderChildren(tiles)
                         }
                     }
                 }

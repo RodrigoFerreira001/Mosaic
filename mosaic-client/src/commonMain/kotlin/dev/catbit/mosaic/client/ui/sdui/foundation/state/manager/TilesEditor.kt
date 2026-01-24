@@ -28,7 +28,7 @@ interface TilesEditor {
     )
 
     fun updateTile(
-        id: String,
+        tileId: String,
         updateData: Map<String, Any?>
     )
 

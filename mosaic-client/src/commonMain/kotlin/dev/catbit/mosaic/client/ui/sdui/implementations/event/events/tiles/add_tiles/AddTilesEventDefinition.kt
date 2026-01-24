@@ -6,4 +6,5 @@ import dev.catbit.mosaic.core.data.event.events.tiles.AddTilesEventModel
 object AddTilesEventDefinition : EventDefinition<AddTilesEventModel> {
     override val eventModelClass = AddTilesEventModel::class
     override val eventRunner = AddTilesEventRunner
+    override val eventHolderBuilder = AddTilesEventHolderBuilder
 }

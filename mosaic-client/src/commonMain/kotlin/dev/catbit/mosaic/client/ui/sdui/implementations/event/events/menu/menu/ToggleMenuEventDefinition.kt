@@ -6,4 +6,5 @@ import dev.catbit.mosaic.core.data.event.events.menu.ToggleMenuEventModel
 object ToggleMenuEventDefinition : EventDefinition<ToggleMenuEventModel> {
     override val eventModelClass = ToggleMenuEventModel::class
     override val eventRunner = ToggleMenuEventRunner
+    override val eventHolderBuilder = ToggleMenuEventHolderBuilder
 }

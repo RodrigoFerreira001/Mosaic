@@ -10,8 +10,8 @@ import kotlinx.serialization.Serializable
 data class ScreenModel(
     @SerialName("tiles")
     val tiles: List<TileModel>,
-    @SerialName("navigationDrawer")
-    val navigationDrawer: List<TileModel>?,
+    @SerialName("navigationDrawerTiles")
+    val navigationDrawerTiles: List<TileModel>?,
     @SerialName("events")
     val events: List<EventModel>?
 )

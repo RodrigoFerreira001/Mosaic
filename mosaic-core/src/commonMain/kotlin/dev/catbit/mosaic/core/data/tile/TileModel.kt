@@ -12,4 +12,7 @@ interface TileModel {
     enum class Visibility {
         VISIBLE, INVISIBLE, GONE
     }
+
+    fun isVisible() = visibility == Visibility.VISIBLE
+    fun isGone() = visibility == Visibility.GONE
 }

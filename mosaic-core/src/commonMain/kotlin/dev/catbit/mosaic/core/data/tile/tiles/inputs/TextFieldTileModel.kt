@@ -18,5 +18,5 @@ data class TextFieldTileModel(
     override val events: List<EventModel>?,
     override val style: StyleModel,
     override val visibility: TileModel.Visibility,
-    val value: String?,
+    val value: String,
 ): TileModel

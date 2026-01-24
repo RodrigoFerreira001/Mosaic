@@ -7,11 +7,10 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunnerManager
-import dev.catbit.mosaic.client.ui.sdui.foundation.mappings.BaseUIMappings
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreenStateHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesUIStateManager
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.builder.UIStateProducerBuilder
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
+import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.event.EventHolderBuilderManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.tile.TileHolderBuilderManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRendererManager
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu.ToggleMenuEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
@@ -28,39 +27,31 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_t
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.remove_tiles.RemoveTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.replace_tiles.ReplaceTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.wipe_tiles.WipeTilesEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.StyleUIStateProducerBuilder
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.button.ButtonTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.bottom_sheet.BottomSheetTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.dialog.DialogTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.navigation_drawer.NavigationDrawerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text.TextTileDefinition
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.tile.TileModel
-import dev.catbit.mosaic.core.data.tile.style.StyleModel
-import dev.catbit.mosaic.core.mapping.Mapper
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
-import kotlin.reflect.KClass
 
 class MosaicModules(
-    tileDefinitions: List<TileDefinition<out TileModel, out TileUIState>> = emptyList(),
+    tileDefinitions: List<TileDefinition<out TileModel>> = emptyList(),
     eventDefinitions: List<EventDefinition<out EventModel>> = emptyList()
 ) {
 
     private val baseTilesDefinitions = listOf(
+        ScreenTileDefinition,
         ColumnTileDefinition,
         ButtonTileDefinition,
         TextFieldTileDefinition,
         TextTileDefinition,
-        NavigationDrawerTileDefinition,
-        DialogTileDefinition,
-        BottomSheetTileDefinition,
         MenuTileDefinition
     )
 
@@ -87,8 +78,6 @@ class MosaicModules(
             serializerModule,
             renderingModule,
             eventModule,
-            mappingModule,
-            stateModule,
             stateHolder,
             useCaseModule
         )
@@ -113,7 +102,15 @@ class MosaicModules(
         single {
             TileRendererManager(
                 tileRenderers = (baseTilesDefinitions + tileDefinitions).associate { definition ->
-                    definition.tileUIStateClass to definition.tileRenderer
+                    definition.tileModelClass to definition.tileRenderer
+                }
+            )
+        }
+
+        single {
+            TileHolderBuilderManager(
+                builders = (baseTilesDefinitions + tileDefinitions).associate { definition ->
+                    definition.tileModelClass to definition.tileHolderBuilder
                 }
             )
         }
@@ -127,22 +124,13 @@ class MosaicModules(
                 }
             )
         }
-    }
 
-    private val mappingModule = module {
-        single { Mapper(BaseUIMappings.mappings) }
-    }
-
-    private val stateModule = module {
-        single<Map<KClass<*>, UIStateProducerBuilder<*, *>>> {
-            mutableMapOf<KClass<*>, UIStateProducerBuilder<*, *>>().apply {
-                putAll(
-                    (baseTilesDefinitions + tileDefinitions).associate { definition ->
-                        definition.tileModelClass to definition.tileUIStateProducerBuilder
-                    }
-                )
-                put(StyleModel::class, StyleUIStateProducerBuilder)
-            }
+        single {
+            EventHolderBuilderManager(
+                builders = (baseEventsDefinitions + eventDefinitions).associate { definition ->
+                    definition.eventModelClass to definition.eventHolderBuilder
+                }
+            )
         }
     }
 
@@ -156,9 +144,9 @@ class MosaicModules(
 
         viewModel { (screenId: String, navigationData: Map<String, Any>?) ->
 
-            val tilesUIStateManager = TilesUIStateManager(
-                uiStateProducerBuilders = get(),
-                mapper = get(),
+            val tilesUIStateManager = TilesManager(
+                tileHolderBuilderManager = get(),
+                eventHolderBuilderManager = get(),
                 serializer = get(),
                 koinScope = this,
             )
@@ -168,10 +156,10 @@ class MosaicModules(
                 koinScope = this
             )
 
-            tilesUIStateManager.attachEventRegister(eventManager)
-
             eventManager.apply {
                 attachTilesEditor(tilesUIStateManager)
+                attachTilesOverlaysEditor(tilesUIStateManager)
+                attachTilesEventHolder(tilesUIStateManager)
                 attachTilesEventDispatcher(tilesUIStateManager)
             }
 

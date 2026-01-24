@@ -6,4 +6,5 @@ import dev.catbit.mosaic.core.data.event.events.overlays.DismissBottomSheetEvent
 object DismissBottomSheetEventDefinition : EventDefinition<DismissBottomSheetEventModel> {
     override val eventModelClass = DismissBottomSheetEventModel::class
     override val eventRunner = DismissBottomSheetEventRunner
+    override val eventHolderBuilder = DismissBottomSheetEventHolderBuilder
 }

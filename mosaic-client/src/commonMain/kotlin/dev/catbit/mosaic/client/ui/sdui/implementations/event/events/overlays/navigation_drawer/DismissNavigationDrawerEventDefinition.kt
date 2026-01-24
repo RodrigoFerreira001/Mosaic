@@ -6,4 +6,5 @@ import dev.catbit.mosaic.core.data.event.events.overlays.DismissNavigationDrawer
 object DismissNavigationDrawerEventDefinition : EventDefinition<DismissNavigationDrawerEventModel> {
     override val eventModelClass = DismissNavigationDrawerEventModel::class
     override val eventRunner = DismissNavigationDrawerEventRunner
+    override val eventHolderBuilder = DismissNavigationDrawerEventHolderBuilder
 }

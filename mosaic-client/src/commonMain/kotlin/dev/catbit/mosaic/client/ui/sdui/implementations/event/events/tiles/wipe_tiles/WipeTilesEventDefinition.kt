@@ -6,4 +6,5 @@ import dev.catbit.mosaic.core.data.event.events.tiles.WipeTilesEventModel
 object WipeTilesEventDefinition : EventDefinition<WipeTilesEventModel> {
     override val eventModelClass = WipeTilesEventModel::class
     override val eventRunner = WipeTilesEventRunner
+    override val eventHolderBuilder = WipeTilesEventHolderBuilder
 }

@@ -1,23 +1,25 @@
 package dev.catbit.mosaic.client.ui.composables.icon
 
-import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbol
-import dev.catbit.mosaic.client.ui.sdui.foundation.models.IconUIModel
+import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbolStyle
 
 @Composable
 fun Icon(
-    icon: IconUIModel
+    name: String,
+    tint: Color = Color.Unspecified,
+    size: Dp = 24.dp,
+    style: MaterialSymbolStyle = MaterialSymbolStyle.OUTLINED
 ) {
-    with(icon) {
-        MaterialSymbol(
-            iconName = name,
-            tint = color?.toComposeColor() ?: Color.Unspecified,
-            size = icon.size ?: 24.dp,
-            style = style
-        )
-         // TODO utilizar Icon() do compose
-    }
+    MaterialSymbol(
+        iconName = name,
+        tint = tint,
+        size = size,
+        style = style
+    )
+
+    // TODO utilizar Icon() do compose
 }

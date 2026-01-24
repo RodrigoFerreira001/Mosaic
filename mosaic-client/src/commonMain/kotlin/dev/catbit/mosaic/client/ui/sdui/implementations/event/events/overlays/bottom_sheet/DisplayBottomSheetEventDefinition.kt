@@ -6,4 +6,5 @@ import dev.catbit.mosaic.core.data.event.events.overlays.DisplayBottomSheetEvent
 object DisplayBottomSheetEventDefinition : EventDefinition<DisplayBottomSheetEventModel> {
     override val eventModelClass = DisplayBottomSheetEventModel::class
     override val eventRunner = DisplayBottomSheetEventRunner
+    override val eventHolderBuilder = DisplayBottomSheetEventHolderBuilder
 }

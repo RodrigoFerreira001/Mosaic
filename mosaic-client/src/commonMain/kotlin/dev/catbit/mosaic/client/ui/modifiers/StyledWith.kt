@@ -9,29 +9,34 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.style.StyleUIState
+import androidx.compose.ui.unit.dp
+import dev.catbit.mosaic.client.extensions.toComposeColor
+import dev.catbit.mosaic.client.extensions.toComposeWindowInsets
+import dev.catbit.mosaic.client.extensions.toPaddingValues
+import dev.catbit.mosaic.client.extensions.toShape
+import dev.catbit.mosaic.core.data.tile.style.StyleModel
 
 @Composable
 fun Modifier.styledWith(
-    style: StyleUIState,
+    style: StyleModel,
     onClick: (() -> Unit)? = null
 ): Modifier =
     thenIfNotNull(style.windowInsets) { windowInsets ->
         Modifier.windowInsetsPadding(windowInsets.toComposeWindowInsets())
     }
         .thenIfNotNull(style.margin) { margin ->
-            Modifier.padding(margin)
+            Modifier.padding(margin.toPaddingValues())
         }
         .then(Modifier.size(style.size))
         .thenIfNotNull(style.clip) { clip ->
-            Modifier.clip(clip.shape)
+            Modifier.clip(clip.shape.toShape())
         }
         .thenIfNotNull(style.background) { color ->
             background(color.toComposeColor())
         }
         .thenIfNotNull(style.border) { border ->
             Modifier.border(
-                width = border.thickness,
+                width = border.thickness.dp,
                 color = border.color.toComposeColor(),
                 shape = border.radius?.toShape() ?: RectangleShape
             )
@@ -39,6 +44,6 @@ fun Modifier.styledWith(
         .thenIfNotNull(onClick) {
             Modifier.clickable { it() }
         }
-        .thenIfNotNull(style.padding) { paddingValues ->
-            Modifier.padding(paddingValues)
+        .thenIfNotNull(style.padding) { padding ->
+            Modifier.padding(padding.toPaddingValues())
         }

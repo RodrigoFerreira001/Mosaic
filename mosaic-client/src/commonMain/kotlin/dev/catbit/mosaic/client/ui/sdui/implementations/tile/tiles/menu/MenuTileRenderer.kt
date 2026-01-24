@@ -9,33 +9,36 @@ import dev.catbit.mosaic.client.ui.composables.icon.Icon
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.event_trigger.EventTriggers
+import dev.catbit.mosaic.core.data.tile.tiles.menu.MenuTileModel
 
-object MenuTileRenderer : TileRenderer<MenuTileUIState> {
+object MenuTileRenderer : TileRenderer<MenuTileModel> {
 
     @Composable
-    override fun TileRenderingScope.Render(uiState: MenuTileUIState) {
-        Box {
-            RenderChildren(uiState.tiles)
+    override fun TileRenderingScope.Render(tileModel: MenuTileModel) {
+        with(tileModel) {
+            Box {
+                RenderChildren(tiles)
 
-            DropdownMenu(
-                expanded = uiState.expanded,
-                onDismissRequest = { dispatchEvent(MenuTileEvent.OnToggleMenu) }
-            ) {
-                uiState.items.forEach { item ->
-                    DropdownMenuItem(
-                        text = {
-                            Text(item.label)
-                        },
-                        onClick = {
-                            triggerEvent(EventTriggers.onMenuItemClick(item.id))
-                        },
-                        leadingIcon = item.leadingIcon?.let { icon ->
-                            { Icon(icon) }
-                        },
-                        trailingIcon = item.trailingIcon?.let { icon ->
-                            { Icon(icon) }
-                        }
-                    )
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { dispatchEvent(MenuTileEvents.OnToggleMenu) }
+                ) {
+                    items.forEach { item ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(item.label)
+                            },
+                            onClick = {
+                                triggerEvent(EventTriggers.onMenuItemClick(item.id))
+                            },
+                            leadingIcon = item.leadingIcon?.let { icon ->
+                                { Icon(icon.name) }
+                            },
+                            trailingIcon = item.trailingIcon?.let { icon ->
+                                { Icon(icon.name) }
+                            }
+                        )
+                    }
                 }
             }
         }

@@ -9,19 +9,20 @@ import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.event_trigger.EventTriggers
+import dev.catbit.mosaic.core.data.tile.tiles.buttons.ButtonTileModel
 
-object ButtonTileRenderer : TileRenderer<ButtonTileUIState> {
+object ButtonTileRenderer : TileRenderer<ButtonTileModel> {
 
     @Composable
     override fun TileRenderingScope.Render(
-        uiState: ButtonTileUIState,
+        tileModel: ButtonTileModel,
     ) {
-        with(uiState) {
+        with(tileModel) {
             if (!isGone()) {
                 Button(
                     modifier = Modifier
                         .visible(isVisible())
-                        .styledWith(uiState.style),
+                        .styledWith(tileModel.style),
                     onClick = {
                         triggerEvent(EventTriggers.onClick())
                     }

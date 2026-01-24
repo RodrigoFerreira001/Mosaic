@@ -6,4 +6,5 @@ import dev.catbit.mosaic.core.data.event.events.scroll.column.ScrollTileColumnEv
 object ScrollTileColumnEventDefinition : EventDefinition<ScrollTileColumnEventModel> {
     override val eventModelClass = ScrollTileColumnEventModel::class
     override val eventRunner = ScrollTileColumnEventRunner
+    override val eventHolderBuilder = ScrollTileColumnEventHolderBuilder
 }

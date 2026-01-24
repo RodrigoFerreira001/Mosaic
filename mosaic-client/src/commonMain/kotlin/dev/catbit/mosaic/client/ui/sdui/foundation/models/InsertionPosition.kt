@@ -1,6 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.models
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.producer.tile.TileUIStateProducer
+import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.tile.TileHolder
 
 sealed interface InsertionPosition {
     data object Start : InsertionPosition
@@ -9,7 +9,7 @@ sealed interface InsertionPosition {
     data class AfterTile(val tileId: String) : InsertionPosition
     data class AtIndex(val index: Int) : InsertionPosition
 
-    fun toIndex(target: List<TileUIStateProducer<*>>) = when (this) {
+    fun toIndex(target: List<TileHolder<*>>) = when (this) {
         Start -> 0
         End -> target.size
         is AtIndex -> index.coerceIn(0..target.size)

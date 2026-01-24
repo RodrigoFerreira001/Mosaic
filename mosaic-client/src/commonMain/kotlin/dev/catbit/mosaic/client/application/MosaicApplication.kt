@@ -3,13 +3,7 @@ package dev.catbit.mosaic.client.application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ColorScheme
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Shapes
-import androidx.compose.material3.Text
-import androidx.compose.material3.Typography
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -17,11 +11,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.entryProvider
-import androidx.navigation3.runtime.rememberNavBackStack
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.runtime.*
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import dev.catbit.mosaic.client.di.MosaicModules
@@ -35,7 +25,6 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigationControll
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.OverlayContainer
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreen
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
 import dev.catbit.mosaic.client.ui.theme.MosaicTheme
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.tile.TileModel
@@ -46,7 +35,7 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MosaicApplication(
-    tileDefinitions: List<TileDefinition<out TileModel, out TileUIState>> = emptyList(),
+    tileDefinitions: List<TileDefinition<out TileModel>> = emptyList(),
     eventDefinitions: List<EventDefinition<out EventModel>> = emptyList(),
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     shapes: Shapes = MaterialTheme.shapes,

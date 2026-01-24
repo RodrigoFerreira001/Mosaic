@@ -13,7 +13,16 @@ data class StyleModel(
     @SerialName("border") val border: BorderModel? = null,
     @SerialName("clip") val clip: ClipModel? = null,
     @SerialName("windowInsets") val windowInsets: WindowInsetsModel? = null
-)
+) {
+    companion object {
+        fun default() = StyleModel(
+            size = SizeModel (
+                width = SizeModel.Behavior.Horizontal.Fill,
+                height = SizeModel.Behavior.Vertical.Fill
+            )
+        )
+    }
+}
 
 
 

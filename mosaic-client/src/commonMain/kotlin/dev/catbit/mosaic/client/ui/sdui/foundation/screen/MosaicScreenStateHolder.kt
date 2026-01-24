@@ -5,15 +5,8 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesUIStateManager
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.tile.TileUIState
+import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRendererManager
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.bottom_sheet.BottomSheetTileModel
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.bottom_sheet.BottomSheetTileUIState
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.dialog.DialogTileModel
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.dialog.DialogTileUIState
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.navigation_drawer.NavigationDrawerTileModel
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.internal.navigation_drawer.NavigationDrawerTileUIState
 import dev.catbit.mosaic.core.data.tile.TileModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +18,7 @@ internal class MosaicScreenStateHolder(
     private val screenId: String,
     private val navigationData: Map<String, Any>?,
     private val getScreenUseCase: GetScreenUseCase,
-    private val tilesUIStateManager: TilesUIStateManager,
+    private val tilesUIStateManager: TilesManager,
     private val eventManager: EventManager,
     val tileRendererManager: TileRendererManager
 ) : ScreenStateHolder<State, Event, Effect>(),
@@ -51,23 +44,10 @@ internal class MosaicScreenStateHolder(
                     internalUIState.update { State.Failure }
                 },
                 onSuccess = { screen ->
-                    screen.events?.let { events ->
-                        eventManager.registerEvents(
-                            eventOwnerId = screenId,
-                            eventList = events
-                        )
-                    }
                     tilesUIStateManager.setup(
-                        tiles = screen.tiles.toMutableList().apply {
-                            screen.navigationDrawer?.let { navigationDrawerTiles ->
-                                add(
-                                    NavigationDrawerTileModel(
-                                        id = "MOSAIC_NAVIGATION_DRAWER",
-                                        tiles = navigationDrawerTiles
-                                    )
-                                )
-                            }
-                        },
+                        tiles = screen.tiles,
+                        navigationDrawerTiles = screen.navigationDrawerTiles,
+                        events = screen.events,
                         onUpdateStateRequest = ::onUpdateStateRequest
                     )
                 }
@@ -79,8 +59,6 @@ internal class MosaicScreenStateHolder(
         when (event) {
             is Event.OnUIEvent -> onUIEvent(event)
             Event.OnTryAgainClick -> onTryAgainClick()
-            Event.OnCloseBottomSheetFinished -> onCloseBottomSheetFinished()
-            Event.OnCloseDialogFinished -> onCloseDialogFinished()
         }
     }
 
@@ -91,11 +69,10 @@ internal class MosaicScreenStateHolder(
                 event = event.event.event,
             )
 
-            is UIEvent.TriggerHolderUIEvent -> {
+            is UIEvent.EventModelHolderUIEvent -> {
                 stateHolderScope.launch {
-                    eventManager.triggerEvent(
-                        eventOwnerId = event.event.eventOwnerId,
-                        trigger = event.event.trigger,
+                    eventManager.runEvents(
+                        eventModels = event.event.events,
                         data = event.event.data
                     )
                 }
@@ -103,44 +80,12 @@ internal class MosaicScreenStateHolder(
         }
     }
 
-    private fun onUpdateStateRequest(tiles: List<TileUIState>) {
+    private fun onUpdateStateRequest(rootTile: TileModel) {
         internalUIState.update { currentState ->
             when (currentState) {
-                State.Failure, State.Loading -> State.Displaying(tiles)
+                State.Failure, State.Loading -> State.Displaying(rootTile)
                 is State.Displaying -> {
-
-                    val bottomSheetTile = tiles.firstOrNull { it.id == "MOSAIC_BOTTOM_SHEET" }
-                    val dialogTile = tiles.firstOrNull { it.id == "MOSAIC_DIALOG" }
-                    val navigationDrawerTile = tiles.firstOrNull { it.id == "MOSAIC_NAVIGATION_DRAWER" }
-
-                    currentState.copy(
-                        screenTiles = tiles.filter {
-                            it != bottomSheetTile
-                                    && it != dialogTile
-                                    && it != navigationDrawerTile
-                        },
-                        bottomSheetUIState = (bottomSheetTile as? BottomSheetTileUIState)?.let {
-                            currentState.bottomSheetUIState?.copy(
-                                tiles = bottomSheetTile.tiles
-                            ) ?: State.Displaying.BottomSheetUIState(
-                                tiles = bottomSheetTile.tiles,
-                            )
-                        },
-                        dialogUIState = (dialogTile as? DialogTileUIState)?.let {
-                            currentState.dialogUIState?.copy(
-                                tiles = dialogTile.tiles
-                            ) ?: State.Displaying.DialogUIState(
-                                tiles = dialogTile.tiles
-                            )
-                        },
-                        navigationDrawerUIState = (navigationDrawerTile as? NavigationDrawerTileUIState)?.let {
-                            currentState.navigationDrawerUIState?.copy(
-                                tiles = navigationDrawerTile.tiles
-                            ) ?: State.Displaying.NavigationDrawerUIState(
-                                tiles = navigationDrawerTile.tiles,
-                            )
-                        }
-                    )
+                    currentState.copy(rootTile = rootTile)
                 }
             }
         }
@@ -152,82 +97,6 @@ internal class MosaicScreenStateHolder(
 
     override fun refresh() {
         fetchScreen()
-    }
-
-    override fun displayDialog(
-        isCancellable: Boolean,
-        usePlatformDefaultWidth: Boolean,
-        tiles: List<TileModel>
-    ) {
-        tilesUIStateManager.addTile(
-            DialogTileModel(
-                id = "MOSAIC_DIALOG",
-                tiles = tiles
-            )
-        )
-        internalEffects.dispatch(
-            Effect.OnDisplayDialogRequested(
-                isCancellable = isCancellable,
-                usePlatformDefaultWidth = usePlatformDefaultWidth,
-            )
-        )
-    }
-
-    override fun dismissDialog() {
-        internalEffects.dispatch(Effect.OnCloseDialogRequested)
-    }
-
-    fun onCloseDialogFinished() {
-        tilesUIStateManager.removeTile("MOSAIC_DIALOG")
-    }
-
-    override fun displayBottomSheet(
-        isCancellable: Boolean,
-        fill: Boolean,
-        tiles: List<TileModel>
-    ) {
-        tilesUIStateManager.addTile(
-            BottomSheetTileModel(
-                id = "MOSAIC_BOTTOM_SHEET",
-                tiles = tiles
-            )
-        )
-        internalEffects.dispatch(
-            Effect.OnDisplayBottomSheetRequested(
-                isCancellable = isCancellable,
-                fill = fill
-            )
-        )
-    }
-
-    override fun dismissBottomSheet() {
-        internalEffects.dispatch(Effect.OnCloseBottomSheetRequested)
-    }
-
-    private fun onCloseBottomSheetFinished() {
-        tilesUIStateManager.removeTile("MOSAIC_BOTTOM_SHEET")
-    }
-
-    override fun displaySnackbar(
-        message: String
-    ) {
-        internalEffects.dispatch(
-            Effect.OnDisplaySnackbar(
-                message = message
-            )
-        )
-    }
-
-    override fun closeSnackbar() {
-        internalEffects.dispatch(Effect.OnCloseSnackbarRequested)
-    }
-
-    override fun displayNavigationDrawer() {
-        internalEffects.dispatch(Effect.OnDisplayNavigationDrawerSheetRequested)
-    }
-
-    override fun dismissNavigationDrawer() {
-        internalEffects.dispatch(Effect.OnCloseNavigationDrawerSheetRequested)
     }
 
     override fun broadcastData(data: BroadcastData) {

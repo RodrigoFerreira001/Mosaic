@@ -5,9 +5,7 @@ import dev.catbit.mosaic.core.data.color.ColorModel
 import dev.catbit.mosaic.core.data.event.events.menu.ToggleMenuEventModel
 import dev.catbit.mosaic.core.data.event.events.navigation.NavigateEventModel
 import dev.catbit.mosaic.core.data.event.events.navigation.NavigateUpEventModel
-import dev.catbit.mosaic.core.data.event.events.overlays.DismissBottomSheetEventModel
 import dev.catbit.mosaic.core.data.event.events.overlays.DismissDialogEventModel
-import dev.catbit.mosaic.core.data.event.events.overlays.DisplayBottomSheetEventModel
 import dev.catbit.mosaic.core.data.event.events.overlays.DisplayDialogEventModel
 import dev.catbit.mosaic.core.data.event.events.tiles.AddTilesEventModel
 import dev.catbit.mosaic.core.data.screen.ScreenModel
@@ -80,6 +78,7 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
                                 ),
                                 MenuTileModel(
                                     id = "MENU",
+                                    expanded = false,
                                     events = listOf(
                                         AddTilesEventModel(
                                             id = randomUuid(),
@@ -206,7 +205,7 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
                                                         )
                                                     ),
                                                     events = null,
-                                                    value = null
+                                                    value = ""
                                                 ),
                                                 ButtonTileModel(
                                                     id = randomUuid(),
@@ -290,7 +289,7 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
                                         )
                                     ),
                                     events = null,
-                                    value = null
+                                    value = ""
                                 ),
                                 ButtonTileModel(
                                     id = randomUuid(),
@@ -365,7 +364,7 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
                             lazyRender = false
                         )
                     ),
-                    navigationDrawer = null,
+                    navigationDrawerTiles = null,
                     events = null
                 )
 
@@ -392,7 +391,7 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
                             )
                         )
                     ),
-                    navigationDrawer = null,
+                    navigationDrawerTiles = null,
                     events = null
                 )
             }

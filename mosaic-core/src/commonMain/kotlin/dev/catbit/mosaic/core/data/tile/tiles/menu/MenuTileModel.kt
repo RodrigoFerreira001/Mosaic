@@ -11,12 +11,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("Menu")
 data class MenuTileModel(
-    override val id: String,
-    override val events: List<EventModel>?,
-    override val style: StyleModel,
-    override val visibility: TileModel.Visibility,
-    override val tiles: List<TileModel>,
-    val items: List<MenuItem>
+    @SerialName("id") override val id: String,
+    @SerialName("events") override val events: List<EventModel>?,
+    @SerialName("style") override val style: StyleModel,
+    @SerialName("visibility") override val visibility: TileModel.Visibility,
+    @SerialName("tiles") override val tiles: List<TileModel>,
+    @SerialName("items") val items: List<MenuItem>,
+    @SerialName("expanded") val expanded: Boolean
 ) : GroupingTileModel {
 
     @Serializable

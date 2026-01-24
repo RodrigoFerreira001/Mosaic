@@ -10,5 +10,5 @@ import kotlinx.serialization.Serializable
 data class DisplayNavigationDrawerEventModel(
     override val trigger: EventTrigger,
     override val id: String,
-    override val events: List<EventModel>?,
+    override val events: List<EventModel>?
 ) : EventModel

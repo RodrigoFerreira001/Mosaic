@@ -6,4 +6,5 @@ import dev.catbit.mosaic.core.data.event.events.overlays.DisplayNavigationDrawer
 object DisplayNavigationDrawerEventDefinition : EventDefinition<DisplayNavigationDrawerEventModel> {
     override val eventModelClass = DisplayNavigationDrawerEventModel::class
     override val eventRunner = DisplayNavigationDrawerEventRunner
+    override val eventHolderBuilder = DisplayNavigationDrawerEventHolderBuilder
 }
