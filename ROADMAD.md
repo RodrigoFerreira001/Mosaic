@@ -17,3 +17,4 @@
 - CountDownStepperEvent
 - Triggers Globais (OnDeviceNetworkChange)
 - Criar um Modifier clickable que coloca Pointer.Hand
+- Mecanismo de permissão
