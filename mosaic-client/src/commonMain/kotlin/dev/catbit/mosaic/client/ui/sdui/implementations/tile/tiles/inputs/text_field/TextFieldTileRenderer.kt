@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderer
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderingScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.event_trigger.triggers.OnTextChangedEventTrigger
 import dev.catbit.mosaic.core.data.tile.tiles.inputs.TextFieldTileModel
 

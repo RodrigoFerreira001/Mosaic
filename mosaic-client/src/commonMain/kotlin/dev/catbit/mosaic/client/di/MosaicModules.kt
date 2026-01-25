@@ -8,10 +8,10 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunnerManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreenStateHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesManager
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.event.EventHolderBuilderManager
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.tile.TileHolderBuilderManager
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRendererManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilderManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilderManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu.ToggleMenuEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_up.NavigateUpEventDefinition
@@ -26,9 +26,11 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_networ
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_tiles.AddTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.remove_tiles.RemoveTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.replace_tiles.ReplaceTilesEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.update_tiles.UpdateTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.wipe_tiles.WipeTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.button.ButtonTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.row.RowTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
@@ -49,6 +51,7 @@ class MosaicModules(
     private val baseTilesDefinitions = listOf(
         ScreenTileDefinition,
         ColumnTileDefinition,
+        RowTileDefinition,
         ButtonTileDefinition,
         TextFieldTileDefinition,
         TextTileDefinition,
@@ -64,6 +67,7 @@ class MosaicModules(
         AddTilesEventDefinition,
         RemoveTilesEventDefinition,
         ReplaceTilesEventDefinition,
+        UpdateTilesEventDefinition,
         WipeTilesEventDefinition,
         DisplayBottomSheetEventDefinition,
         DismissBottomSheetEventDefinition,

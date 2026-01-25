@@ -1,8 +1,8 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.event.EventHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.tile.TileHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.tile.tiles.menu.MenuTileModel
 
 class MenuTileHolder(

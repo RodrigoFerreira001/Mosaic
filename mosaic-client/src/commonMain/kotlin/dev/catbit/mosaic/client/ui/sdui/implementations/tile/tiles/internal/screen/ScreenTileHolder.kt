@@ -1,8 +1,8 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.event.EventHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.tile.TileHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 
@@ -16,13 +16,16 @@ class ScreenTileHolder(
     private var currentDialogSheetTiles: List<TileHolder<*>>? = null
 ) : TileHolder<ScreenTileModel>() {
 
-    override fun getTileHolder(tileId: String): TileHolder<*>? =
+    override fun getTileHolder(
+        tileId: String,
+        includeEventsOnSearch: Boolean
+    ): TileHolder<*>? =
         if (tileId == id) this
-        else currentBottomSheetTiles?.firstNotNullOfOrNull { it.getTileHolder(tileId) }
-            ?: currentDialogSheetTiles?.firstNotNullOfOrNull { it.getTileHolder(tileId) }
-            ?: navigationDrawerTiles?.firstNotNullOfOrNull { it.getTileHolder(tileId) }
-            ?: tiles.firstNotNullOfOrNull { it.getTileHolder(tileId) }
-            ?: events?.firstNotNullOfOrNull { it.getTileHolder(tileId) }
+        else currentBottomSheetTiles?.firstNotNullOfOrNull { it.getTileHolder(tileId, includeEventsOnSearch) }
+            ?: currentDialogSheetTiles?.firstNotNullOfOrNull { it.getTileHolder(tileId, includeEventsOnSearch) }
+            ?: navigationDrawerTiles?.firstNotNullOfOrNull { it.getTileHolder(tileId, includeEventsOnSearch) }
+            ?: tiles.firstNotNullOfOrNull { it.getTileHolder(tileId, includeEventsOnSearch) }
+            ?: if (includeEventsOnSearch) events?.firstNotNullOfOrNull { it.getTileHolder(tileId) } else null
 
     override fun getEventHolder(eventId: String): EventHolder<*>? =
         currentBottomSheetTiles?.firstNotNullOfOrNull { it.getEventHolder(eventId) }

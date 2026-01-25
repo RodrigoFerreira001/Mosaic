@@ -12,9 +12,9 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.basic_dialog.LocalDi
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.bottom_sheet.LocalBottomSheetState
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.navigation_drawer.LocalNavigationDrawerState
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.snackbar.LocalSnackBarState
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderer
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRendererManager
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderingScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.tile.TileModel
 
 object ScreenTileRenderer : TileRenderer<ScreenTileModel> {

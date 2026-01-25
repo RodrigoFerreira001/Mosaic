@@ -8,8 +8,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 @SerialName("NavigateUp")
 data class NavigateUpEventModel(
-    val navigatorId: String,
-    override val trigger: EventTrigger,
-    override val id: String,
-    override val events: List<EventModel>?,
+    @SerialName("id") override val id: String,
+    @SerialName("trigger") override val trigger: EventTrigger,
+    @SerialName("events") override val events: List<EventModel>?,
+    val navigatorId: String
 ) : EventModel

@@ -3,7 +3,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_netwo
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.event.events.SendNetworkRequestEventModel
+import dev.catbit.mosaic.core.data.event.events.networking.SendNetworkRequestEventModel
 import kotlin.reflect.KClass
 
 object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventModel> {

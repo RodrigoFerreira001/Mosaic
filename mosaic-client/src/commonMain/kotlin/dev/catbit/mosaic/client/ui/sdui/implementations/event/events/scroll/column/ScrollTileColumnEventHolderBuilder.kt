@@ -1,14 +1,14 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.BuilderScope
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.scroll.column.ScrollTileColumnEventModel
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
+import dev.catbit.mosaic.core.data.event.events.scroll.column.ScrollColumnTileEventModel
 
 object ScrollTileColumnEventHolderBuilder :
-    EventHolderBuilder<ScrollTileColumnEventModel, ScrollTileColumnEventHolder> {
+    EventHolderBuilder<ScrollColumnTileEventModel, ScrollTileColumnEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: ScrollTileColumnEventModel
+        eventModel: ScrollColumnTileEventModel
     ) = with(eventModel) {
         ScrollTileColumnEventHolder(
             id = id,

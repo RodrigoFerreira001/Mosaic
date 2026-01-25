@@ -5,8 +5,8 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesManager
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRendererManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
 import dev.catbit.mosaic.core.data.tile.TileModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow

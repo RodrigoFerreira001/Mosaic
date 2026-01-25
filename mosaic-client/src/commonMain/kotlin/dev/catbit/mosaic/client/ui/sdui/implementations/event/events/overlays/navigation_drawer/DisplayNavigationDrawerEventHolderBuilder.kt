@@ -1,8 +1,8 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.BuilderScope
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.overlays.DisplayNavigationDrawerEventModel
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
+import dev.catbit.mosaic.core.data.event.events.overlays.navigation_drawer.DisplayNavigationDrawerEventModel
 
 object DisplayNavigationDrawerEventHolderBuilder : EventHolderBuilder<DisplayNavigationDrawerEventModel, DisplayNavigationDrawerEventHolder> {
 

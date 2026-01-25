@@ -18,3 +18,7 @@
 - Triggers Globais (OnDeviceNetworkChange)
 - Criar um Modifier clickable que coloca Pointer.Hand
 - Mecanismo de permissão
+- Ajustar update/onEvent para evitar falsos positivos
+- Focar na dsl do backend
+- Implementar mais triggers para os events e tiles
+- LocalStorage (separado por buckets)

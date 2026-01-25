@@ -11,7 +11,7 @@ object NavigateEventRunner : EventRunner<NavigateEventModel> {
     override suspend fun EventRunningScope.runEvent(event: NavigateEventModel) {
         NavigatorHolder[event.navigatorId]?.navigate(
             destination = event.destination,
-            navigationData = event.data.orEmpty() + incomingData.asMapAny().orEmpty(),
+            navigationData = incomingData.asMapAny().orEmpty() + event.data.orEmpty(),
             poppingUpTo = event.popUpTo?.let { popUpTo ->
                 poppingUpTo(
                     target = popUpTo.destination,

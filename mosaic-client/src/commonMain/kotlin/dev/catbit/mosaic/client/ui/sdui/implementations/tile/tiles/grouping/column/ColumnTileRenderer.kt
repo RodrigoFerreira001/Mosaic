@@ -16,9 +16,9 @@ import dev.catbit.mosaic.client.extensions.toArrangement
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.modifiers.thenIf
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderer
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_renderer.TileRenderingScope
-import dev.catbit.mosaic.core.data.tile.tiles.grouping.ColumnTileModel
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
+import dev.catbit.mosaic.core.data.tile.tiles.containers.ColumnTileModel
 
 // TODO Separar em um plugin LazyColumn
 object ColumnTileRenderer : TileRenderer<ColumnTileModel> {

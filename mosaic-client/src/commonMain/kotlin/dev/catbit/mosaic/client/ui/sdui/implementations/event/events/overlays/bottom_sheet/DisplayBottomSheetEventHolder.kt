@@ -1,8 +1,8 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.event.EventHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.tile.TileHolder
-import dev.catbit.mosaic.core.data.event.events.overlays.DisplayBottomSheetEventModel
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
+import dev.catbit.mosaic.core.data.event.events.overlays.bottom_sheet.DisplayBottomSheetEventModel
 import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 
 class DisplayBottomSheetEventHolder(

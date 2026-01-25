@@ -1,7 +1,7 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.BuilderScope
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.tile.TileHolderBuilder
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilder
 import dev.catbit.mosaic.core.data.tile.tiles.text.TextTileModel
 
 object TextTileHolderBuilder : TileHolderBuilder<TextTileModel, TextTileHolder> {

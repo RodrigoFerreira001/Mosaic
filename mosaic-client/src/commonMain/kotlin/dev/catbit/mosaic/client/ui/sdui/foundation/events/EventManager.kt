@@ -2,10 +2,10 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.events
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.DataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEditor
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEventDispatcher
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesEventHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.state.manager.TilesOverlaysEditor
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEditor
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventDispatcher
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesOverlaysEditor
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 import kotlinx.coroutines.supervisorScope

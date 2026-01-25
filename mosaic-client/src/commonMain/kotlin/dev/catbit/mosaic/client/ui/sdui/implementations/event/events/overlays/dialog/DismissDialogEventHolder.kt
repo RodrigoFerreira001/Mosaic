@@ -1,8 +1,8 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.event.EventHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.tile.TileHolder
-import dev.catbit.mosaic.core.data.event.events.overlays.DismissDialogEventModel
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
+import dev.catbit.mosaic.core.data.event.events.overlays.dialog.DismissDialogEventModel
 import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
 
 class DismissDialogEventHolder(

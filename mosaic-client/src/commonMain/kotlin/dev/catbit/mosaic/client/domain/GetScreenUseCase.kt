@@ -5,8 +5,8 @@ import dev.catbit.mosaic.core.data.color.ColorModel
 import dev.catbit.mosaic.core.data.event.events.menu.ToggleMenuEventModel
 import dev.catbit.mosaic.core.data.event.events.navigation.NavigateEventModel
 import dev.catbit.mosaic.core.data.event.events.navigation.NavigateUpEventModel
-import dev.catbit.mosaic.core.data.event.events.overlays.DismissDialogEventModel
-import dev.catbit.mosaic.core.data.event.events.overlays.DisplayDialogEventModel
+import dev.catbit.mosaic.core.data.event.events.overlays.dialog.DismissDialogEventModel
+import dev.catbit.mosaic.core.data.event.events.overlays.dialog.DisplayDialogEventModel
 import dev.catbit.mosaic.core.data.event.events.tiles.AddTilesEventModel
 import dev.catbit.mosaic.core.data.screen.ScreenModel
 import dev.catbit.mosaic.core.data.tile.TileModel
@@ -17,7 +17,7 @@ import dev.catbit.mosaic.core.data.tile.style.SizeModel
 import dev.catbit.mosaic.core.data.tile.style.StyleModel
 import dev.catbit.mosaic.core.data.tile.style.WindowInsetsModel
 import dev.catbit.mosaic.core.data.tile.tiles.buttons.ButtonTileModel
-import dev.catbit.mosaic.core.data.tile.tiles.grouping.ColumnTileModel
+import dev.catbit.mosaic.core.data.tile.tiles.containers.ColumnTileModel
 import dev.catbit.mosaic.core.data.tile.tiles.inputs.TextFieldTileModel
 import dev.catbit.mosaic.core.data.tile.tiles.text.TextTileModel
 import dev.catbit.mosaic.core.extensions.randomUuid

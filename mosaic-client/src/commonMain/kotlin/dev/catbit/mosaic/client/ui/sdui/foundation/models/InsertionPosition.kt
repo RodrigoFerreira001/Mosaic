@@ -1,6 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.models
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.tile_holder.tile.TileHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 
 sealed interface InsertionPosition {
     data object Start : InsertionPosition
