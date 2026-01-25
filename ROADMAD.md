@@ -22,3 +22,4 @@
 - Focar na dsl do backend
 - Implementar mais triggers para os events e tiles
 - LocalStorage (separado por buckets)
+- NextPageEvent (Pager e afins)
