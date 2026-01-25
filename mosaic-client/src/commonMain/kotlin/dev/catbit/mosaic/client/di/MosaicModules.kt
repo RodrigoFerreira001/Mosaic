@@ -15,12 +15,12 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererMa
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu.ToggleMenuEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_up.NavigateUpEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.DismissBottomSheetEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.DisplayBottomSheetEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.DismissDialogEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.DisplayDialogEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.DismissNavigationDrawerEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.DisplayNavigationDrawerEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.dismiss.DismissBottomSheetEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.display.DisplayBottomSheetEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.dismiss.DismissDialogEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.display.DisplayDialogEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.dismiss.DismissNavigationDrawerEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.display.DisplayNavigationDrawerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column.ScrollTileColumnEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_tiles.AddTilesEventDefinition
@@ -35,6 +35,14 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_f
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text.TextTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.check_for_received_data.CheckForReceivedDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.get_data.GetDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.process_data.ProcessDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.remove_data.RemoveDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.send_data.SendDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.update_data.UpdateDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trigger_event.TriggerEventEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.security.request_permission.RequestPermissionEventDefinition
 import dev.catbit.mosaic.core.data.event.EventModel
 import dev.catbit.mosaic.core.data.tile.TileModel
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
@@ -74,7 +82,15 @@ class MosaicModules(
         DismissDialogEventDefinition,
         DisplayDialogEventDefinition,
         DismissNavigationDrawerEventDefinition,
-        DisplayNavigationDrawerEventDefinition
+        DisplayNavigationDrawerEventDefinition,
+        CheckForReceivedDataEventDefinition,
+        GetDataEventDefinition,
+        ProcessDataEventDefinition,
+        RemoveDataEventDefinition,
+        SendDataEventDefinition,
+        UpdateDataEventDefinition,
+        TriggerEventEventDefinition,
+        RequestPermissionEventDefinition
     )
 
     val modules by lazy {
