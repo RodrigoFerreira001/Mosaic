@@ -12,6 +12,7 @@ application {
 }
 
 dependencies {
+    implementation(project(":mosaic-core"))
     implementation(project(":mosaic-server"))
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)

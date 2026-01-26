@@ -1,9 +1,9 @@
-package dev.catbit.mosaic.server.builders
+package dev.catbit.mosaic.server.builder
 
 abstract class GenericBuilderScope <Model, Builder: GenericBuilder<Model>>  {
     private val builders = mutableListOf<Builder>()
 
-    fun addBuilder(builder: Builder) {
+    internal fun addBuilder(builder: Builder) {
         builders.add(builder)
     }
 

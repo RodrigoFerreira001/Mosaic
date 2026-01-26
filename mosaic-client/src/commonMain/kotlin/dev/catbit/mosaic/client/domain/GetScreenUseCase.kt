@@ -31,6 +31,7 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
         return Result.success(
             when (params.screenId) {
                 "home" -> ScreenModel(
+                    id = "home",
                     tiles = listOf(
                         ColumnTileModel(
                             id = "COLUNA",
@@ -369,6 +370,7 @@ class GetScreenUseCase : UseCase<ScreenModel, GetScreenUseCase.Params>() {
                 )
 
                 else -> ScreenModel(
+                    id = "second",
                     tiles = listOf(
                         ButtonTileModel(
                             id = randomUuid(),

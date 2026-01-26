@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 // TODO ttl, cache, local
 @Serializable
 data class ScreenModel(
+    @SerialName("id")
+    val id: String,
     @SerialName("tiles")
     val tiles: List<TileModel>,
     @SerialName("navigationDrawerTiles")
