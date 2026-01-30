@@ -3,25 +3,25 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.col
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileBroadcastData
-import dev.catbit.mosaic.core.data.event.events.scroll.column.ScrollColumnTileEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.scroll.column.ScrollColumnTileEventSchema
 
-object ScrollTileColumnEventRunner : EventRunner<ScrollColumnTileEventModel> {
+object ScrollTileColumnEventRunner : EventRunner<ScrollColumnTileEventSchema> {
 
-    override suspend fun EventRunningScope.runEvent(event: ScrollColumnTileEventModel) {
+    override suspend fun EventRunningScope.runEvent(event: ScrollColumnTileEventSchema) {
         broadcastData(
             when (val where = event.where) {
-                ScrollColumnTileEventModel.Where.Top -> ColumnTileBroadcastData.ScrollToTop(
+                ScrollColumnTileEventSchema.Where.Top -> ColumnTileBroadcastData.ScrollToTop(
                     tileId = event.tileId,
                     smoothly = event.smoothly
                 )
 
-                is ScrollColumnTileEventModel.Where.To -> ColumnTileBroadcastData.ScrollTo(
+                is ScrollColumnTileEventSchema.Where.To -> ColumnTileBroadcastData.ScrollTo(
                     tileId = event.tileId,
                     index = where.index,
                     smoothly = event.smoothly
                 )
 
-                ScrollColumnTileEventModel.Where.Bottom -> ColumnTileBroadcastData.ScrollToBottom(
+                ScrollColumnTileEventSchema.Where.Bottom -> ColumnTileBroadcastData.ScrollToBottom(
                     tileId = event.tileId,
                     smoothly = event.smoothly
                 )

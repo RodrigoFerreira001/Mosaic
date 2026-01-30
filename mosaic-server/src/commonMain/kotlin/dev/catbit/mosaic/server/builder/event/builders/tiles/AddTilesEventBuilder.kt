@@ -1,40 +1,39 @@
 package dev.catbit.mosaic.server.builder.event.builders.tiles
 
-import dev.catbit.mosaic.core.data.event.events.tiles.AddTilesEventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomUuid
-import dev.catbit.mosaic.server.builder.event.EventModelBuilder
-import dev.catbit.mosaic.server.builder.event.EventModelBuilderScope
-import dev.catbit.mosaic.server.builder.tile.TileModelBuilderScope
+import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
+import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 
 class AddTilesEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val groupingTileId: String,
-    private val position: AddTilesEventModel.InsertionPosition,
-    private val events: EventModelBuilderScope.() -> Unit = {},
-    private val tiles: TileModelBuilderScope.() -> Unit = {},
-) : EventModelBuilder<AddTilesEventModel> {
+    private val position: dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchema.InsertionPosition,
+    private val events: EventSchemaBuilderScope.() -> Unit = {},
+    private val tiles: TileSchemaBuilderScope.() -> Unit = {},
+) : EventSchemaBuilder<dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchema> {
 
-    override fun build(): AddTilesEventModel {
-        return AddTilesEventModel(
+    override fun build(): dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchema {
+        return dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchema(
             id = id,
             trigger = trigger,
-            events = EventModelBuilderScope().apply(events).build(),
+            events = EventSchemaBuilderScope().apply(events).build(),
             groupingTileId = groupingTileId,
-            tiles = TileModelBuilderScope().apply(tiles).build(),
+            tiles = TileSchemaBuilderScope().apply(tiles).build(),
             position = position
         )
     }
 }
 
-fun EventModelBuilderScope.AddTiles(
+fun EventSchemaBuilderScope.AddTiles(
     id: String = randomUuid(),
     trigger: EventTrigger,
     groupingTileId: String,
-    position: AddTilesEventModel.InsertionPosition,
-    events: EventModelBuilderScope.() -> Unit = {},
-    tiles: TileModelBuilderScope.() -> Unit = {},
+    position: dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchema.InsertionPosition,
+    events: EventSchemaBuilderScope.() -> Unit = {},
+    tiles: TileSchemaBuilderScope.() -> Unit = {},
 ) {
     addBuilder(
         AddTilesEventBuilder(

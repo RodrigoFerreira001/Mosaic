@@ -3,10 +3,10 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scr
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilder
 
-object ScreenTileHolderBuilder : TileHolderBuilder<ScreenTileModel, ScreenTileHolder> {
+object ScreenTileHolderBuilder : TileHolderBuilder<ScreenTileSchema, ScreenTileHolder> {
 
     override fun BuilderScope.build(
-        tileModel: ScreenTileModel
+        tileModel: ScreenTileSchema
     ) = with(tileModel) {
         ScreenTileHolder(
             id = id,

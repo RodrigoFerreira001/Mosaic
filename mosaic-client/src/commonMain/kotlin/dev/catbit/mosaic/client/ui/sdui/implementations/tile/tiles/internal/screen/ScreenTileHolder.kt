@@ -3,18 +3,18 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scr
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 
 class ScreenTileHolder(
     override val id: String,
-    override var tile: ScreenTileModel,
+    override var tile: ScreenTileSchema,
     override val events: MutableList<EventHolder<*>>?,
     override val tiles: MutableList<TileHolder<*>>,
     private val navigationDrawerTiles: List<TileHolder<*>>?,
     private var currentBottomSheetTiles: List<TileHolder<*>>? = null,
     private var currentDialogSheetTiles: List<TileHolder<*>>? = null
-) : TileHolder<ScreenTileModel>() {
+) : TileHolder<ScreenTileSchema>() {
 
     override fun getTileHolder(
         tileId: String,
@@ -36,7 +36,7 @@ class ScreenTileHolder(
 
     override fun getEventsByTrigger(
         eventTrigger: EventTrigger
-    ): List<EventModel>? = events
+    ): List<EventSchema>? = events
         ?.asSequence()
         ?.map { it.get() }
         ?.plus(tiles.mapNotNull { it.getEventsByTrigger(eventTrigger) }.flatten())

@@ -2,10 +2,10 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.updat
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
-import dev.catbit.mosaic.core.data.event.events.data.UpdateDataEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema
 
-object UpdateDataEventRunner : EventRunner<UpdateDataEventModel> {
-    override suspend fun EventRunningScope.runEvent(event: UpdateDataEventModel) {
+object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
+    override suspend fun EventRunningScope.runEvent(event: UpdateDataEventSchema) {
         println("executed UpdateDataEventModel")
     }
 }

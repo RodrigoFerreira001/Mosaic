@@ -8,21 +8,21 @@ import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
-import dev.catbit.mosaic.core.data.event_trigger.EventTriggers
-import dev.catbit.mosaic.core.data.tile.tiles.buttons.ButtonTileModel
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.buttons.ButtonTileSchema
 
-object ButtonTileRenderer : TileRenderer<ButtonTileModel> {
+object ButtonTileRenderer : TileRenderer<ButtonTileSchema> {
 
     @Composable
     override fun TileRenderingScope.Render(
-        tileModel: ButtonTileModel,
+        tileSchema: ButtonTileSchema,
     ) {
-        with(tileModel) {
+        with(tileSchema) {
             if (!isGone()) {
                 Button(
                     modifier = Modifier
                         .visible(isVisible())
-                        .styledWith(tileModel.style),
+                        .styledWith(tileSchema.style),
                     onClick = {
                         triggerEvent(EventTriggers.onClick())
                     }

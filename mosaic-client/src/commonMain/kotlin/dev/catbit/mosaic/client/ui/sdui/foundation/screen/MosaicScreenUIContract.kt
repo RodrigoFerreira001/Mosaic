@@ -1,12 +1,12 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 
 sealed interface State {
     data object Loading : State
     data class Displaying(
-        val rootTile: TileModel
+        val rootTile: TileSchema
     ) : State
 
     data object Failure : State

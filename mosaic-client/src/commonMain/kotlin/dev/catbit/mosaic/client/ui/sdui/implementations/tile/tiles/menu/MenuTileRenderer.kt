@@ -8,14 +8,14 @@ import androidx.compose.runtime.Composable
 import dev.catbit.mosaic.client.ui.composables.icon.Icon
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
-import dev.catbit.mosaic.core.data.event_trigger.EventTriggers
-import dev.catbit.mosaic.core.data.tile.tiles.menu.MenuTileModel
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.menu.MenuTileSchema
 
-object MenuTileRenderer : TileRenderer<MenuTileModel> {
+object MenuTileRenderer : TileRenderer<MenuTileSchema> {
 
     @Composable
-    override fun TileRenderingScope.Render(tileModel: MenuTileModel) {
-        with(tileModel) {
+    override fun TileRenderingScope.Render(tileSchema: MenuTileSchema) {
+        with(tileSchema) {
             Box {
                 RenderChildren(tiles)
 

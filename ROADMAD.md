@@ -23,3 +23,4 @@
 - Implementar mais triggers para os events e tiles
 - LocalStorage (separado por buckets)
 - NextPageEvent (Pager e afins)
+- Send platform info on network calls

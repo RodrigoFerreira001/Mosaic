@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.send_
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.data.SendDataEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.data.SendDataEventSchema
 
-object SendDataEventHolderBuilder : EventHolderBuilder<SendDataEventModel, SendDataEventHolder> {
+object SendDataEventHolderBuilder : EventHolderBuilder<SendDataEventSchema, SendDataEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: SendDataEventModel
-    ) = with(eventModel) {
+        eventSchema: SendDataEventSchema
+    ) = with(eventSchema) {
         SendDataEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

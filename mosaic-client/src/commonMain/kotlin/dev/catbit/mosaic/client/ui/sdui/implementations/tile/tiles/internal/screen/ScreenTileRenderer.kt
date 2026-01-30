@@ -15,13 +15,13 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.snackbar.LocalSnackB
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 
-object ScreenTileRenderer : TileRenderer<ScreenTileModel> {
+object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
 
     @Composable
-    override fun TileRenderingScope.Render(tileModel: ScreenTileModel) {
-        with(tileModel) {
+    override fun TileRenderingScope.Render(tileSchema: ScreenTileSchema) {
+        with(tileSchema) {
 
             val snackbarState = LocalSnackBarState.current
             val bottomSheetState = LocalBottomSheetState.current
@@ -106,7 +106,7 @@ object ScreenTileRenderer : TileRenderer<ScreenTileModel> {
 
     @Composable
     private fun BaseTileScope(
-        tiles: List<TileModel>,
+        tiles: List<TileSchema>,
         broadcastChannel: BroadcastChannel,
         tileRendererManager: TileRendererManager,
         onEvent: (UIEvent) -> Unit
@@ -117,7 +117,7 @@ object ScreenTileRenderer : TileRenderer<ScreenTileModel> {
         ) {
             tiles.forEach { state ->
                 tileRendererManager.Render(
-                    tileModel = state,
+                    tileSchema = state,
                     onEvent = onEvent
                 )
             }

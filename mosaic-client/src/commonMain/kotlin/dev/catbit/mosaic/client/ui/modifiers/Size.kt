@@ -8,16 +8,16 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnSc
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalRowScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalSharedHorizontalArea
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.SharedHorizontalArea
-import dev.catbit.mosaic.core.data.tile.style.SizeModel
+import dev.catbit.mosaic.core.data.schemas.tile.style.SizeSchema
 
 @Composable
-fun Modifier.size(size: SizeModel): Modifier {
+fun Modifier.size(size: SizeSchema): Modifier {
     return this then then {
         when (val width = size.width) {
-            SizeModel.Behavior.Horizontal.Fill -> Modifier.fillMaxWidth()
-            SizeModel.Behavior.Horizontal.Wrap -> Modifier.wrapContentWidth()
-            is SizeModel.Behavior.Horizontal.Fixed -> Modifier.width(width.value.dp)
-            is SizeModel.Behavior.Horizontal.Weight -> {
+            SizeSchema.Behavior.Horizontal.Fill -> Modifier.fillMaxWidth()
+            SizeSchema.Behavior.Horizontal.Wrap -> Modifier.wrapContentWidth()
+            is SizeSchema.Behavior.Horizontal.Fixed -> Modifier.width(width.value.dp)
+            is SizeSchema.Behavior.Horizontal.Weight -> {
                 LocalRowScope.current?.let { rowScope ->
                     with(rowScope) {
                         Modifier.weight(width.value)
@@ -25,7 +25,7 @@ fun Modifier.size(size: SizeModel): Modifier {
                 } ?: Modifier
             }
 
-            is SizeModel.Behavior.Horizontal.Span -> {
+            is SizeSchema.Behavior.Horizontal.Span -> {
                 when (val sharedArea = LocalSharedHorizontalArea.current) {
                     is SharedHorizontalArea.Defined -> {
                         val totalGutters = sharedArea.gutter * (sharedArea.columns - 1)
@@ -45,10 +45,10 @@ fun Modifier.size(size: SizeModel): Modifier {
     }
         .then {
             when (val height = size.height) {
-                SizeModel.Behavior.Vertical.Fill -> Modifier.fillMaxHeight()
-                is SizeModel.Behavior.Vertical.Fixed -> Modifier.height(height.value.dp)
-                SizeModel.Behavior.Vertical.Wrap -> Modifier.wrapContentHeight()
-                is SizeModel.Behavior.Vertical.Weight -> {
+                SizeSchema.Behavior.Vertical.Fill -> Modifier.fillMaxHeight()
+                is SizeSchema.Behavior.Vertical.Fixed -> Modifier.height(height.value.dp)
+                SizeSchema.Behavior.Vertical.Wrap -> Modifier.wrapContentHeight()
+                is SizeSchema.Behavior.Vertical.Weight -> {
                     LocalColumnScope.current?.let { columnScope ->
                         with(columnScope) {
                             Modifier.weight(height.value)

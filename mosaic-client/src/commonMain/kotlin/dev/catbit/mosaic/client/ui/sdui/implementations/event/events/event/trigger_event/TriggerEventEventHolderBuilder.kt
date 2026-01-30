@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trig
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.event.TriggerEventEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.event.TriggerEventEventSchema
 
-object TriggerEventEventHolderBuilder : EventHolderBuilder<TriggerEventEventModel, TriggerEventEventHolder> {
+object TriggerEventEventHolderBuilder : EventHolderBuilder<TriggerEventEventSchema, TriggerEventEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: TriggerEventEventModel
-    ) = with(eventModel) {
+        eventSchema: TriggerEventEventSchema
+    ) = with(eventSchema) {
         TriggerEventEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

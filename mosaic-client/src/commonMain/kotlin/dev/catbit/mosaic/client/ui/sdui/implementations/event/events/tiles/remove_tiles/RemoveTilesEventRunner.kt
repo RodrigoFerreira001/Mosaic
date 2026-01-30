@@ -2,10 +2,10 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.remo
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
-import dev.catbit.mosaic.core.data.event.events.tiles.RemoveTilesEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.tiles.RemoveTilesEventSchema
 
-object RemoveTilesEventRunner : EventRunner<RemoveTilesEventModel> {
-    override suspend fun EventRunningScope.runEvent(event: RemoveTilesEventModel) {
+object RemoveTilesEventRunner : EventRunner<RemoveTilesEventSchema> {
+    override suspend fun EventRunningScope.runEvent(event: RemoveTilesEventSchema) {
         tilesEditor.removeTiles(
             groupingTileId = event.groupingTileId,
             tileIds = event.tileIds

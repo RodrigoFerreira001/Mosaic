@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.wipe
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.tiles.WipeTilesEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.tiles.WipeTilesEventSchema
 
-object WipeTilesEventHolderBuilder : EventHolderBuilder<WipeTilesEventModel, WipeTilesEventHolder> {
+object WipeTilesEventHolderBuilder : EventHolderBuilder<WipeTilesEventSchema, WipeTilesEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: WipeTilesEventModel
-    ) = with(eventModel) {
+        eventSchema: WipeTilesEventSchema
+    ) = with(eventSchema) {
         WipeTilesEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

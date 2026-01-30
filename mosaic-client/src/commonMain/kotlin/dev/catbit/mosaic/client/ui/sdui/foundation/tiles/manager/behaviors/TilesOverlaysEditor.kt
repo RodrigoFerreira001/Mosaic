@@ -1,8 +1,8 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors
 
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 
 interface TilesOverlaysEditor {
-    fun setBottomSheetTiles(tileModels: List<TileModel>)
-    fun setDialogTiles(tileModels: List<TileModel>)
+    fun setBottomSheetTiles(tileSchemas: List<TileSchema>)
+    fun setDialogTiles(tileSchemas: List<TileSchema>)
 }

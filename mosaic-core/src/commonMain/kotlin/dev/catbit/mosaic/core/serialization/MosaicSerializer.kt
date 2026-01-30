@@ -1,15 +1,8 @@
 package dev.catbit.mosaic.core.serialization
 
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
-import dev.catbit.mosaic.core.data.event_trigger.triggers.OnClickEventTrigger
-import dev.catbit.mosaic.core.data.event_trigger.triggers.OnFailureEventTrigger
-import dev.catbit.mosaic.core.data.event_trigger.triggers.OnLongPressEventTrigger
-import dev.catbit.mosaic.core.data.event_trigger.triggers.OnMenuItemClickEventTrigger
-import dev.catbit.mosaic.core.data.event_trigger.triggers.OnStartEventTrigger
-import dev.catbit.mosaic.core.data.event_trigger.triggers.OnSuccessEventTrigger
-import dev.catbit.mosaic.core.data.event_trigger.triggers.OnTextChangedEventTrigger
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationStrategy
@@ -21,41 +14,41 @@ import kotlinx.serialization.serializer
 import kotlin.reflect.KClass
 
 class MosaicSerializer(
-    tileSerializers: Map<KClass<out TileModel>, KSerializer<out TileModel>>,
-    eventSerializers: Map<KClass<out EventModel>, KSerializer<out EventModel>>,
+    tileSerializers: Map<KClass<out TileSchema>, KSerializer<out TileSchema>>,
+    eventSerializers: Map<KClass<out EventSchema>, KSerializer<out EventSchema>>,
     eventTriggerSerializers: Map<KClass<out EventTrigger>, KSerializer<out EventTrigger>> = mapOf()
 ) {
 
     @Suppress("UNCHECKED_CAST")
     private val json = Json {
         serializersModule = SerializersModule {
-            polymorphic(TileModel::class) {
+            polymorphic(TileSchema::class) {
                 tileSerializers.forEach { (kClass, serializer) ->
                     subclass(
-                        kClass as KClass<TileModel>,
-                        serializer as KSerializer<TileModel>
+                        kClass as KClass<TileSchema>,
+                        serializer as KSerializer<TileSchema>
                     )
                 }
             }
 
-            polymorphic(EventModel::class) {
+            polymorphic(EventSchema::class) {
                 eventSerializers.forEach { (kClass, serializer) ->
                     subclass(
-                        kClass as KClass<EventModel>,
-                        serializer as KSerializer<EventModel>
+                        kClass as KClass<EventSchema>,
+                        serializer as KSerializer<EventSchema>
                     )
                 }
             }
 
             polymorphic(EventTrigger::class) {
                 (mapOf(
-                    OnClickEventTrigger::class to OnClickEventTrigger.serializer(),
-                    OnFailureEventTrigger::class to OnFailureEventTrigger.serializer(),
-                    OnLongPressEventTrigger::class to OnLongPressEventTrigger.serializer(),
-                    OnStartEventTrigger::class to OnStartEventTrigger.serializer(),
-                    OnSuccessEventTrigger::class to OnSuccessEventTrigger.serializer(),
-                    OnTextChangedEventTrigger::class to OnTextChangedEventTrigger.serializer(),
-                    OnMenuItemClickEventTrigger::class to OnMenuItemClickEventTrigger.serializer()
+                    dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger::class to dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger.serializer(),
+                    dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger::class to dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger.serializer(),
+                    dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger::class to dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger.serializer(),
+                    dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger::class to dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger.serializer(),
+                    dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger::class to dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger.serializer(),
+                    dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTextChangedEventTrigger::class to dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTextChangedEventTrigger.serializer(),
+                    dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger::class to dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger.serializer()
                 ) + eventTriggerSerializers).forEach { (kClass, serializer) ->
                     subclass(
                         kClass as KClass<EventTrigger>,

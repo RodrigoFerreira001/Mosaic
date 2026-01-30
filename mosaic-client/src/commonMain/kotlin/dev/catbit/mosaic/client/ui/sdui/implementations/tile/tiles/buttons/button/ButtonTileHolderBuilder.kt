@@ -2,12 +2,12 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.butt
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilder
-import dev.catbit.mosaic.core.data.tile.tiles.buttons.ButtonTileModel
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.buttons.ButtonTileSchema
 
-object ButtonTileHolderBuilder : TileHolderBuilder<ButtonTileModel, ButtonTileHolder> {
+object ButtonTileHolderBuilder : TileHolderBuilder<ButtonTileSchema, ButtonTileHolder> {
 
     override fun BuilderScope.build(
-        tileModel: ButtonTileModel
+        tileModel: ButtonTileSchema
     ): ButtonTileHolder = with(tileModel) {
         ButtonTileHolder(
             id = id,

@@ -1,7 +1,6 @@
 package dev.catbit.mosaic
 
-import dev.catbit.mosaic.core.data.event.events.tiles.AddTilesEventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTriggers
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.server.builder.event.builders.tiles.AddTiles
 import dev.catbit.mosaic.server.builder.screen.ScreenBuilder
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
@@ -21,7 +20,7 @@ fun Application.configureRouting() {
                             AddTiles(
                                 trigger = EventTriggers.onClick(),
                                 groupingTileId = "Teste",
-                                position = AddTilesEventModel.InsertionPosition.Start,
+                                position = dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchema.InsertionPosition.Start,
                                 tiles = {
 
                                 },

@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.b
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.overlays.bottom_sheet.DismissBottomSheetEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DismissBottomSheetEventSchema
 
-object DismissBottomSheetEventHolderBuilder : EventHolderBuilder<DismissBottomSheetEventModel, DismissBottomSheetEventHolder> {
+object DismissBottomSheetEventHolderBuilder : EventHolderBuilder<DismissBottomSheetEventSchema, DismissBottomSheetEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: DismissBottomSheetEventModel
-    ) = with(eventModel) {
+        eventSchema: DismissBottomSheetEventSchema
+    ) = with(eventSchema) {
         DismissBottomSheetEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

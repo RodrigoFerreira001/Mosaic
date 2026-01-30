@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.d
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.overlays.dialog.DisplayDialogEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DisplayDialogEventSchema
 
-object DisplayDialogEventHolderBuilder : EventHolderBuilder<DisplayDialogEventModel, DisplayDialogEventHolder> {
+object DisplayDialogEventHolderBuilder : EventHolderBuilder<DisplayDialogEventSchema, DisplayDialogEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: DisplayDialogEventModel
-    ) = with(eventModel) {
+        eventSchema: DisplayDialogEventSchema
+    ) = with(eventSchema) {
         DisplayDialogEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) },
             tiles = tiles.map { tileModel -> buildTileHolder(tileModel) }

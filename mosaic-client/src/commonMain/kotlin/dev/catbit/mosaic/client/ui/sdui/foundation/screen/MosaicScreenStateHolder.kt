@@ -1,13 +1,13 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
-import dev.catbit.mosaic.client.domain.GetScreenUseCase
+import dev.catbit.mosaic.client.domain.screen.GetScreenUseCase
 import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -69,10 +69,10 @@ internal class MosaicScreenStateHolder(
                 event = event.event.event,
             )
 
-            is UIEvent.EventModelHolderUIEvent -> {
+            is UIEvent.EventSchemaHolderUIEvent -> {
                 stateHolderScope.launch {
                     eventManager.runEvents(
-                        eventModels = event.event.events,
+                        eventSchemas = event.event.events,
                         data = event.event.data
                     )
                 }
@@ -80,7 +80,7 @@ internal class MosaicScreenStateHolder(
         }
     }
 
-    private fun onUpdateStateRequest(rootTile: TileModel) {
+    private fun onUpdateStateRequest(rootTile: TileSchema) {
         internalUIState.update { currentState ->
             when (currentState) {
                 State.Failure, State.Loading -> State.Displaying(rootTile)

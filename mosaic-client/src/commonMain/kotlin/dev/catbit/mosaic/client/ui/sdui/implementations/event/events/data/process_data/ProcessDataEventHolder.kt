@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.proce
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
-import dev.catbit.mosaic.core.data.event.events.data.ProcessDataEventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.events.data.ProcessDataEventSchema
 
 class ProcessDataEventHolder(
     override val id: String,
-    override var event: ProcessDataEventModel,
+    override var event: ProcessDataEventSchema,
     override val trigger: EventTrigger,
     override val events: List<EventHolder<*>>?,
     override val tiles: List<TileHolder<*>>? = null
-) : EventHolder<ProcessDataEventModel>() {
+) : EventHolder<ProcessDataEventSchema>() {
 
     override fun get() = event.copy(
         events = events?.map { it.get() }

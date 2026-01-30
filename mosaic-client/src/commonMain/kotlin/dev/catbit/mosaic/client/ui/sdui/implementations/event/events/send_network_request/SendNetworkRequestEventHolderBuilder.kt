@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_netwo
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.networking.SendNetworkRequestEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendNetworkRequestEventSchema
 
-object SendNetworkRequestEventHolderBuilder : EventHolderBuilder<SendNetworkRequestEventModel, SendNetworkRequestEventHolder> {
+object SendNetworkRequestEventHolderBuilder : EventHolderBuilder<SendNetworkRequestEventSchema, SendNetworkRequestEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: SendNetworkRequestEventModel
-    ) = with(eventModel) {
+        eventSchema: SendNetworkRequestEventSchema
+    ) = with(eventSchema) {
         SendNetworkRequestEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

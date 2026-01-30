@@ -2,14 +2,14 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.col
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
-import dev.catbit.mosaic.core.data.tile.tiles.containers.ColumnTileModel
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.ColumnTileSchema
 
 class ColumnTileHolder(
     override val id: String,
-    override var tile: ColumnTileModel,
+    override var tile: ColumnTileSchema,
     override val events: MutableList<EventHolder<*>>?,
     override val tiles: MutableList<TileHolder<*>>
-) : TileHolder<ColumnTileModel>() {
+) : TileHolder<ColumnTileSchema>() {
 
     override fun get() = tile.copy(
         tiles = tiles.map { it.get() },

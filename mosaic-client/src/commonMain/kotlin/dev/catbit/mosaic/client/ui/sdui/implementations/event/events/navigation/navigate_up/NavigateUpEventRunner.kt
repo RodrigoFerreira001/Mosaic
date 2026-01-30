@@ -3,11 +3,11 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorHolder
-import dev.catbit.mosaic.core.data.event.events.navigation.NavigateUpEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateUpEventSchema
 
-object NavigateUpEventRunner : EventRunner<NavigateUpEventModel> {
+object NavigateUpEventRunner : EventRunner<NavigateUpEventSchema> {
 
-    override suspend fun EventRunningScope.runEvent(event: NavigateUpEventModel) {
+    override suspend fun EventRunningScope.runEvent(event: NavigateUpEventSchema) {
         NavigatorHolder[event.navigatorId]?.goBack()
     }
 }

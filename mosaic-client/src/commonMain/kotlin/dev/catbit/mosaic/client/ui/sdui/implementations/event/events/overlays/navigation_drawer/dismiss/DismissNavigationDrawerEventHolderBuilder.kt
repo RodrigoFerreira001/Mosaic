@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.n
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.overlays.navigation_drawer.DismissNavigationDrawerEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer.DismissNavigationDrawerEventSchema
 
-object DismissNavigationDrawerEventHolderBuilder : EventHolderBuilder<DismissNavigationDrawerEventModel, DismissNavigationDrawerEventHolder> {
+object DismissNavigationDrawerEventHolderBuilder : EventHolderBuilder<DismissNavigationDrawerEventSchema, DismissNavigationDrawerEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: DismissNavigationDrawerEventModel
-    ) = with(eventModel) {
+        eventSchema: DismissNavigationDrawerEventSchema
+    ) = with(eventSchema) {
         DismissNavigationDrawerEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

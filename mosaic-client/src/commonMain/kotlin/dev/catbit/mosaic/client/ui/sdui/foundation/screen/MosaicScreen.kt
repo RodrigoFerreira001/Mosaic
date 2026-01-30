@@ -64,7 +64,7 @@ private fun MosaicScreenDisplayingContent(
     onEvent: (Event) -> Unit
 ) {
     LocalTileRendererManager.current.Render(
-        tileModel = uiState.rootTile,
+        tileSchema = uiState.rootTile,
         onEvent = { onEvent(Event.OnUIEvent(it)) }
     )
 }

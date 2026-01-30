@@ -1,7 +1,7 @@
 package dev.catbit.mosaic.client.application
 
-import dev.catbit.mosaic.client.domain.GetInitialGraphUseCase
-import dev.catbit.mosaic.client.domain.base.invoke
+import dev.catbit.mosaic.client.domain.graph.GetInitialGraphUseCase
+import dev.catbit.mosaic.core.domain.base.invoke
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.GraphUIState
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +27,6 @@ internal class MosaicApplicationStateHolder(
                         State.Displaying(
                             graph = with(graphModel) {
                                 GraphUIState(
-                                    id = id,
                                     entries = entries.map { entry ->
                                         GraphUIState.Entry(entry.screenId)
                                     },

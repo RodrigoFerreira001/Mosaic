@@ -1,10 +1,10 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.remove_data
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
-import dev.catbit.mosaic.core.data.event.events.data.RemoveDataEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.data.RemoveDataEventSchema
 
-object RemoveDataEventDefinition : EventDefinition<RemoveDataEventModel> {
-    override val eventModelClass = RemoveDataEventModel::class
+object RemoveDataEventDefinition : EventDefinition<RemoveDataEventSchema> {
+    override val eventSchemaClass = RemoveDataEventSchema::class
     override val eventRunner = RemoveDataEventRunner
     override val eventHolderBuilder = RemoveDataEventHolderBuilder
 }

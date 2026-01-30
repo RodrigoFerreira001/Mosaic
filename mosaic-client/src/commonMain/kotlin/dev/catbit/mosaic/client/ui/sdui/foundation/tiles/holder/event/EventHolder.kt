@@ -2,8 +2,8 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.UpdateScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.runSafely
 import dev.catbit.mosaic.core.extensions.toJsonElement
 import kotlinx.serialization.InternalSerializationApi
@@ -13,7 +13,7 @@ import kotlinx.serialization.serializer
 import kotlin.collections.component1
 import kotlin.collections.component2
 
-abstract class EventHolder<T : EventModel> {
+abstract class EventHolder<T : EventSchema> {
     abstract val id: String
     protected abstract var event: T
     protected abstract val trigger: EventTrigger

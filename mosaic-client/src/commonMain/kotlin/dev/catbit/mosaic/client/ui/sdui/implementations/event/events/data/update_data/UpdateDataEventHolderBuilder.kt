@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.updat
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.data.UpdateDataEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema
 
-object UpdateDataEventHolderBuilder : EventHolderBuilder<UpdateDataEventModel, UpdateDataEventHolder> {
+object UpdateDataEventHolderBuilder : EventHolderBuilder<UpdateDataEventSchema, UpdateDataEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: UpdateDataEventModel
-    ) = with(eventModel) {
+        eventSchema: UpdateDataEventSchema
+    ) = with(eventSchema) {
         UpdateDataEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

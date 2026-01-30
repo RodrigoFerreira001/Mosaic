@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.menu.ToggleMenuEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.menu.ToggleMenuEventSchema
 
-object ToggleMenuEventHolderBuilder : EventHolderBuilder<ToggleMenuEventModel, ToggleMenuEventHolder> {
+object ToggleMenuEventHolderBuilder : EventHolderBuilder<ToggleMenuEventSchema, ToggleMenuEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: ToggleMenuEventModel
-    ) = with(eventModel) {
+        eventSchema: ToggleMenuEventSchema
+    ) = with(eventSchema) {
         ToggleMenuEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

@@ -92,6 +92,7 @@ fun OverlayContainer(
                 drawerState = navigationDrawerState.drawerState,
                 gesturesEnabled = true
             ) {
+                //Usar um BottomSheetScaffold para o comportamento de NonModalBottomSheet
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     snackbarHost = { SnackbarHost(snackbarState.snackbarHostState) }

@@ -18,16 +18,16 @@ import dev.catbit.mosaic.client.ui.modifiers.thenIf
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
-import dev.catbit.mosaic.core.data.tile.tiles.containers.ColumnTileModel
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.ColumnTileSchema
 
 // TODO Separar em um plugin LazyColumn
-object ColumnTileRenderer : TileRenderer<ColumnTileModel> {
+object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
 
     @Composable
     override fun TileRenderingScope.Render(
-        tileModel: ColumnTileModel
+        tileSchema: ColumnTileSchema
     ) {
-        with(tileModel) {
+        with(tileSchema) {
             if (!isGone()) {
                 if (lazyRender) {
 
@@ -38,7 +38,7 @@ object ColumnTileRenderer : TileRenderer<ColumnTileModel> {
                             when (data) {
                                 is ColumnTileBroadcastData.ScrollToTop -> lazyListState.scrollToItem(0)
                                 is ColumnTileBroadcastData.ScrollTo -> lazyListState.scrollToItem(data.index)
-                                is ColumnTileBroadcastData.ScrollToBottom -> lazyListState.scrollToItem(tileModel.tiles.size)
+                                is ColumnTileBroadcastData.ScrollToBottom -> lazyListState.scrollToItem(tileSchema.tiles.size)
                             }
                         }
                     }
@@ -46,14 +46,14 @@ object ColumnTileRenderer : TileRenderer<ColumnTileModel> {
                     LazyColumn(
                         modifier = Modifier
                             .visible(isVisible())
-                            .styledWith(tileModel.style),
+                            .styledWith(tileSchema.style),
                         state = lazyListState,
                         verticalArrangement = arrangement.toArrangement(),
                         horizontalAlignment = alignment.toAlignment(),
-                        userScrollEnabled = tileModel.isScrollable
+                        userScrollEnabled = tileSchema.isScrollable
                     ) {
-                        items(tiles) { tileModel ->
-                            RenderChild(tileModel)
+                        items(tiles) { tileSchema ->
+                            RenderChild(tileSchema)
                         }
                     }
                 } else {
@@ -61,7 +61,7 @@ object ColumnTileRenderer : TileRenderer<ColumnTileModel> {
                     val scrollState = rememberScrollState()
 
                     observeBroadcastChannel<ColumnTileBroadcastData> { data ->
-                        if (data.tileId == tileModel.id) {
+                        if (data.tileId == tileSchema.id) {
                             when (data) {
                                 is ColumnTileBroadcastData.ScrollToTop -> scrollState.scrollTo(0)
                                 is ColumnTileBroadcastData.ScrollTo -> scrollState.scrollTo(data.index)

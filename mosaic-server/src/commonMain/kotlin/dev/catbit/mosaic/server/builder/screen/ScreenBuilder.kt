@@ -1,21 +1,21 @@
 package dev.catbit.mosaic.server.builder.screen
 
-import dev.catbit.mosaic.core.data.screen.ScreenModel
+import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
 import dev.catbit.mosaic.server.builder.GenericBuilder
-import dev.catbit.mosaic.server.builder.event.EventModelBuilderScope
-import dev.catbit.mosaic.server.builder.tile.TileModelBuilderScope
+import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 
 class ScreenBuilder(
     private val id: String,
-    private val events: EventModelBuilderScope.() -> Unit = {},
-    private val navigationDrawerTiles: (TileModelBuilderScope.() -> Unit)? = null,
-    private val tiles: TileModelBuilderScope.() -> Unit = {},
-) : GenericBuilder<ScreenModel> {
+    private val events: EventSchemaBuilderScope.() -> Unit = {},
+    private val navigationDrawerTiles: (TileSchemaBuilderScope.() -> Unit)? = null,
+    private val tiles: TileSchemaBuilderScope.() -> Unit = {},
+) : GenericBuilder<ScreenResponse> {
 
-    override fun build() = ScreenModel(
+    override fun build() = ScreenResponse(
         id = id,
-        events = EventModelBuilderScope().apply(events).build(),
-        tiles = TileModelBuilderScope().apply(tiles).build(),
-        navigationDrawerTiles = navigationDrawerTiles?.let { TileModelBuilderScope().apply(it).build() }
+        events = EventSchemaBuilderScope().apply(events).build(),
+        tiles = TileSchemaBuilderScope().apply(tiles).build(),
+        navigationDrawerTiles = navigationDrawerTiles?.let { TileSchemaBuilderScope().apply(it).build() }
     )
 }

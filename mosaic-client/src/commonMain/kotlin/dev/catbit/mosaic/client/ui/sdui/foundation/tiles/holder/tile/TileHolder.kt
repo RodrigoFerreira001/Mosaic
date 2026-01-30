@@ -4,9 +4,9 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.InsertionPosition
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.UpdateScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.extensions.runSafely
 import dev.catbit.mosaic.core.extensions.toJsonElement
 import kotlinx.serialization.InternalSerializationApi
@@ -14,7 +14,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.serializer
 
-abstract class TileHolder<T : TileModel> {
+abstract class TileHolder<T : TileSchema> {
     abstract val id: String
     protected abstract var tile: T
 
@@ -35,7 +35,7 @@ abstract class TileHolder<T : TileModel> {
 
     open fun getEventsByTrigger(
         eventTrigger: EventTrigger
-    ): List<EventModel>? = events
+    ): List<EventSchema>? = events
         ?.map { it.get() }
         ?.plus(tiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
 

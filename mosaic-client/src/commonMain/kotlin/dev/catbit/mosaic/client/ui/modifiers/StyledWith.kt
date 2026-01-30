@@ -14,11 +14,11 @@ import dev.catbit.mosaic.client.extensions.toComposeColor
 import dev.catbit.mosaic.client.extensions.toComposeWindowInsets
 import dev.catbit.mosaic.client.extensions.toPaddingValues
 import dev.catbit.mosaic.client.extensions.toShape
-import dev.catbit.mosaic.core.data.tile.style.StyleModel
+import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 
 @Composable
 fun Modifier.styledWith(
-    style: StyleModel,
+    style: StyleSchema,
     onClick: (() -> Unit)? = null
 ): Modifier =
     thenIfNotNull(style.windowInsets) { windowInsets ->

@@ -1,12 +1,12 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer
 
 import androidx.compose.runtime.Composable
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 
-interface TileRenderer<out T : TileModel> {
+interface TileRenderer<out T : TileSchema> {
 
     @Composable
     fun TileRenderingScope.Render(
-        tileModel: @UnsafeVariance T
+        tileSchema: @UnsafeVariance T
     )
 }

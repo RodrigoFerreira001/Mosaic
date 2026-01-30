@@ -13,14 +13,13 @@ import androidx.compose.ui.text.input.TextFieldValue
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
-import dev.catbit.mosaic.core.data.event_trigger.triggers.OnTextChangedEventTrigger
-import dev.catbit.mosaic.core.data.tile.tiles.inputs.TextFieldTileModel
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema
 
-object TextFieldTileRenderer : TileRenderer<TextFieldTileModel> {
+object TextFieldTileRenderer : TileRenderer<TextFieldTileSchema> {
 
     @Composable
-    override fun TileRenderingScope.Render(tileModel: TextFieldTileModel) {
-        with(tileModel) {
+    override fun TileRenderingScope.Render(tileSchema: TextFieldTileSchema) {
+        with(tileSchema) {
             var inputState by remember {
                 mutableStateOf(TextFieldValue(text = value))
             }
@@ -44,7 +43,7 @@ object TextFieldTileRenderer : TileRenderer<TextFieldTileModel> {
                     if (value != newValue.text) {
                         dispatchEvent(TextFieldTileEvents.OnTextChange(newValue.text))
                         triggerEvent(
-                            trigger = OnTextChangedEventTrigger,
+                            trigger = dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTextChangedEventTrigger,
                             data = newValue.text
                         )
                     }

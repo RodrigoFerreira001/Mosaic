@@ -4,13 +4,13 @@ import androidx.compose.runtime.Composable
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTileRendererManager
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 
 class TileRenderingScope(
     private val tileId: String,
-    private val events: List<EventModel>?,
+    private val events: List<EventSchema>?,
     val onEvent: (UIEvent) -> Unit
 ) {
     fun dispatchEvent(tileEvent: TileEvent) {
@@ -25,7 +25,7 @@ class TileRenderingScope(
             ?.filter { it.trigger == trigger }
             ?.let {
                 onEvent(
-                    UIEvent.EventModelHolderUIEvent(
+                    UIEvent.EventSchemaHolderUIEvent(
                         events = it,
                         data = data
                     )
@@ -35,11 +35,11 @@ class TileRenderingScope(
 
     @Composable
     fun RenderChild(
-        tileModel: TileModel,
+        tileSchema: TileSchema,
     ) {
         with(LocalTileRendererManager.current) {
             Render(
-                tileModel = tileModel,
+                tileSchema = tileSchema,
                 onEvent = onEvent
             )
         }
@@ -47,12 +47,12 @@ class TileRenderingScope(
 
     @Composable
     fun RenderChildren(
-        tileModels: List<TileModel>,
+        tileSchemas: List<TileSchema>,
     ) {
         with(LocalTileRendererManager.current) {
-            tileModels.forEach { tileModel ->
+            tileSchemas.forEach { tileModel ->
                 Render(
-                    tileModel = tileModel,
+                    tileSchema = tileModel,
                     onEvent = onEvent
                 )
             }

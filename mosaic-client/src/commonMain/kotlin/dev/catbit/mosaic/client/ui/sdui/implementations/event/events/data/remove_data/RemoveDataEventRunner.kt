@@ -2,10 +2,10 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.remov
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
-import dev.catbit.mosaic.core.data.event.events.data.RemoveDataEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.data.RemoveDataEventSchema
 
-object RemoveDataEventRunner : EventRunner<RemoveDataEventModel> {
-    override suspend fun EventRunningScope.runEvent(event: RemoveDataEventModel) {
+object RemoveDataEventRunner : EventRunner<RemoveDataEventSchema> {
+    override suspend fun EventRunningScope.runEvent(event: RemoveDataEventSchema) {
         println("executed RemoveDataEventModel")
     }
 }

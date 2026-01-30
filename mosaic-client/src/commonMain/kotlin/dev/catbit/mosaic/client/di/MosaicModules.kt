@@ -1,8 +1,8 @@
 package dev.catbit.mosaic.client.di
 
 import dev.catbit.mosaic.client.application.MosaicApplicationStateHolder
-import dev.catbit.mosaic.client.domain.GetInitialGraphUseCase
-import dev.catbit.mosaic.client.domain.GetScreenUseCase
+import dev.catbit.mosaic.client.domain.graph.GetInitialGraphUseCase
+import dev.catbit.mosaic.client.domain.screen.GetScreenUseCase
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
@@ -43,8 +43,8 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.send_d
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.update_data.UpdateDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trigger_event.TriggerEventEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.security.request_permission.RequestPermissionEventDefinition
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
@@ -52,8 +52,8 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 class MosaicModules(
-    tileDefinitions: List<TileDefinition<out TileModel>> = emptyList(),
-    eventDefinitions: List<EventDefinition<out EventModel>> = emptyList()
+    tileDefinitions: List<TileDefinition<out TileSchema>> = emptyList(),
+    eventDefinitions: List<EventDefinition<out EventSchema>> = emptyList()
 ) {
 
     private val baseTilesDefinitions = listOf(
@@ -109,10 +109,10 @@ class MosaicModules(
         single {
             MosaicSerializer(
                 tileSerializers = (baseTilesDefinitions + tileDefinitions).associate { def ->
-                    def.tileModelClass to def.tileModelClass.serializer()
+                    def.tileSchemaClass to def.tileSchemaClass.serializer()
                 },
                 eventSerializers = (baseEventsDefinitions + eventDefinitions).associate { def ->
-                    def.eventModelClass to def.eventModelClass.serializer()
+                    def.eventSchemaClass to def.eventSchemaClass.serializer()
                 }
             )
         }
@@ -122,7 +122,7 @@ class MosaicModules(
         single {
             TileRendererManager(
                 tileRenderers = (baseTilesDefinitions + tileDefinitions).associate { definition ->
-                    definition.tileModelClass to definition.tileRenderer
+                    definition.tileSchemaClass to definition.tileRenderer
                 }
             )
         }
@@ -130,7 +130,7 @@ class MosaicModules(
         single {
             TileHolderBuilderManager(
                 builders = (baseTilesDefinitions + tileDefinitions).associate { definition ->
-                    definition.tileModelClass to definition.tileHolderBuilder
+                    definition.tileSchemaClass to definition.tileHolderBuilder
                 }
             )
         }
@@ -140,7 +140,7 @@ class MosaicModules(
         single {
             EventRunnerManager(
                 eventRunners = (baseEventsDefinitions + eventDefinitions).associate { definition ->
-                    definition.eventModelClass to definition.eventRunner
+                    definition.eventSchemaClass to definition.eventRunner
                 }
             )
         }
@@ -148,7 +148,7 @@ class MosaicModules(
         single {
             EventHolderBuilderManager(
                 builders = (baseEventsDefinitions + eventDefinitions).associate { definition ->
-                    definition.eventModelClass to definition.eventHolderBuilder
+                    definition.eventSchemaClass to definition.eventHolderBuilder
                 }
             )
         }

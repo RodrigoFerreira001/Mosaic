@@ -2,29 +2,29 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer
 
 import androidx.compose.runtime.Composable
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlin.reflect.KClass
 
 class TileRendererManager(
-    private val tileRenderers: Map<KClass<out TileModel>, TileRenderer<*>>
+    private val tileRenderers: Map<KClass<out TileSchema>, TileRenderer<*>>
 ) {
 
     // TODO, de alguma forma, encapsular aqui coisas padrões, como style, Visibility.GONE e afins
     @Composable
     fun Render(
-        tileModel: TileModel,
+        tileSchema: TileSchema,
         onEvent: (UIEvent) -> Unit
     ) {
-        tileRenderers[tileModel::class]?.let { renderer ->
+        tileRenderers[tileSchema::class]?.let { renderer ->
             with(renderer) {
                 TileRenderingScope(
-                    tileId = tileModel.id,
-                    events = tileModel.events,
+                    tileId = tileSchema.id,
+                    events = tileSchema.events,
                     onEvent = onEvent
-                ).Render(tileModel)
+                ).Render(tileSchema)
             }
         } ?: run {
-            println("Couldn't find a renderer for $tileModel") // TODO Usar logger
+            println("Couldn't find a renderer for $tileSchema") // TODO Usar logger
         }
     }
 }

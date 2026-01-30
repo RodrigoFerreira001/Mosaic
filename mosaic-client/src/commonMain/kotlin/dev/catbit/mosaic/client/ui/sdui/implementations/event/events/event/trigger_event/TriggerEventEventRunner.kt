@@ -2,10 +2,10 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trig
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
-import dev.catbit.mosaic.core.data.event.events.event.TriggerEventEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.event.TriggerEventEventSchema
 
-object TriggerEventEventRunner : EventRunner<TriggerEventEventModel> {
-    override suspend fun EventRunningScope.runEvent(event: TriggerEventEventModel) {
+object TriggerEventEventRunner : EventRunner<TriggerEventEventSchema> {
+    override suspend fun EventRunningScope.runEvent(event: TriggerEventEventSchema) {
         println("executed TriggerEventEventModel")
     }
 }

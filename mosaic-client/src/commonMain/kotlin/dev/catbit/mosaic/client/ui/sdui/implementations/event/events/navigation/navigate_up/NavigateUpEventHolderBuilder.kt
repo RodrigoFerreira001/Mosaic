@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.navigation.NavigateUpEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateUpEventSchema
 
-object NavigateUpEventHolderBuilder : EventHolderBuilder<NavigateUpEventModel, NavigateUpEventHolder> {
+object NavigateUpEventHolderBuilder : EventHolderBuilder<NavigateUpEventSchema, NavigateUpEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: NavigateUpEventModel
-    ) = with(eventModel) {
+        eventSchema: NavigateUpEventSchema
+    ) = with(eventSchema) {
         NavigateUpEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

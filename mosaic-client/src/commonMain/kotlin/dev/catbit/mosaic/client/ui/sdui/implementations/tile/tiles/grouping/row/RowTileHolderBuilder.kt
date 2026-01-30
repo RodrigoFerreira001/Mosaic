@@ -2,12 +2,12 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.row
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilder
-import dev.catbit.mosaic.core.data.tile.tiles.containers.RowTileModel
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.RowTileSchema
 
-object RowTileHolderBuilder : TileHolderBuilder<RowTileModel, RowTileHolder> {
+object RowTileHolderBuilder : TileHolderBuilder<RowTileSchema, RowTileHolder> {
 
     override fun BuilderScope.build(
-        tileModel: RowTileModel
+        tileModel: RowTileSchema
     ) = with(tileModel) {
         RowTileHolder(
             id = id,

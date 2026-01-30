@@ -2,8 +2,8 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilderManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilderManager
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.extensions.toJsonElement
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import kotlinx.serialization.KSerializer
@@ -20,8 +20,8 @@ class BuilderScope(
     private val koinScope: Scope
 ) {
 
-    fun buildTileHolder(tileModel: TileModel) = with(tileHolderBuilderManager) { build(tileModel) }
-    fun buildEventHolder(eventModel: EventModel) = with(eventHolderBuilderManager) { build(eventModel) }
+    fun buildTileHolder(tileSchema: TileSchema) = with(tileHolderBuilderManager) { build(tileSchema) }
+    fun buildEventHolder(eventSchema: EventSchema) = with(eventHolderBuilderManager) { build(eventSchema) }
 
     // Serializer helpers
 

@@ -12,10 +12,10 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.Tiles
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesOverlaysEditor
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesStateUpdater
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileHolder
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileModel
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileSchema
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.extensions.runSafely
 import dev.catbit.mosaic.core.extensions.withNotNull
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
@@ -34,7 +34,7 @@ class TilesManager(
 
     private val screenTileHolerId = "mosaic::root"
 
-    private var onUpdateRequest: (TileModel) -> Unit = {}
+    private var onUpdateRequest: (TileSchema) -> Unit = {}
     private lateinit var screenTileHolder: ScreenTileHolder
 
     private val builderScope by lazy {
@@ -53,16 +53,16 @@ class TilesManager(
     }
 
     fun setup(
-        tiles: List<TileModel>,
-        navigationDrawerTiles: List<TileModel>?,
-        events: List<EventModel>?,
-        onUpdateStateRequest: (TileModel) -> Unit
+        tiles: List<TileSchema>,
+        navigationDrawerTiles: List<TileSchema>?,
+        events: List<EventSchema>?,
+        onUpdateStateRequest: (TileSchema) -> Unit
     ) {
         runSafely {
             onUpdateRequest = onUpdateStateRequest
             screenTileHolder = with(tileHolderBuilderManager) {
                 builderScope.build(
-                    ScreenTileModel(
+                    ScreenTileSchema(
                         id = screenTileHolerId,
                         tiles = tiles,
                         navigationDrawerTiles = navigationDrawerTiles,
@@ -79,13 +79,13 @@ class TilesManager(
     }
 
     override fun addTile(
-        tileModel: TileModel,
+        tileSchema: TileSchema,
         where: InsertionPosition
     ) {
         runSafely {
             screenTileHolder.addChild(
                 child = with(tileHolderBuilderManager) {
-                    builderScope.build(tileModel)
+                    builderScope.build(tileSchema)
                 },
                 where = where
             )
@@ -94,14 +94,14 @@ class TilesManager(
     }
 
     override fun addTiles(
-        tileModels: List<TileModel>,
+        tileSchemas: List<TileSchema>,
         where: InsertionPosition
     ) {
         runSafely {
             screenTileHolder.addChildren(
                 children = with(tileHolderBuilderManager) {
-                    tileModels.map { tileModel ->
-                        builderScope.build(tileModel)
+                    tileSchemas.map { tileSchema ->
+                        builderScope.build(tileSchema)
                     }
                 },
                 where = where
@@ -111,14 +111,14 @@ class TilesManager(
     }
 
     override fun addTile(
-        tileModel: TileModel,
+        tileSchema: TileSchema,
         groupingTileId: String,
         where: InsertionPosition
     ) {
         runSafely {
             screenTileHolder.getTileHolder(groupingTileId)?.addChild(
                 child = with(tileHolderBuilderManager) {
-                    builderScope.build(tileModel)
+                    builderScope.build(tileSchema)
                 },
                 where = where
             )
@@ -127,15 +127,15 @@ class TilesManager(
     }
 
     override fun addTiles(
-        tileModels: List<TileModel>,
+        tileSchemas: List<TileSchema>,
         groupingTileId: String,
         where: InsertionPosition
     ) {
         runSafely {
             screenTileHolder.getTileHolder(groupingTileId)?.addChildren(
                 children = with(tileHolderBuilderManager) {
-                    tileModels.map { tileModel ->
-                        builderScope.build(tileModel)
+                    tileSchemas.map { tileSchema ->
+                        builderScope.build(tileSchema)
                     }
                 },
                 where = where
@@ -169,7 +169,7 @@ class TilesManager(
     }
 
     override fun replaceTiles(
-        tileModels: List<TileModel>,
+        tileSchemas: List<TileSchema>,
         groupingTileId: String?
     ) {
         runSafely {
@@ -179,8 +179,8 @@ class TilesManager(
                 wipeChildren()
                 addChildren(
                     children = with(tileHolderBuilderManager) {
-                        tileModels.map { tileModel ->
-                            builderScope.build(tileModel)
+                        tileSchemas.map { tileSchema ->
+                            builderScope.build(tileSchema)
                         }
                     }
                 )
@@ -225,13 +225,13 @@ class TilesManager(
     }
 
     override fun setBottomSheetTiles(
-        tileModels: List<TileModel>
+        tileSchemas: List<TileSchema>
     ) {
         runSafely {
             screenTileHolder.setBottomSheetTiles(
                 with(tileHolderBuilderManager) {
-                    tileModels.map { tileModel ->
-                        builderScope.build(tileModel)
+                    tileSchemas.map { tileSchema ->
+                        builderScope.build(tileSchema)
                     }
                 }
             )
@@ -240,13 +240,13 @@ class TilesManager(
     }
 
     override fun setDialogTiles(
-        tileModels: List<TileModel>
+        tileSchemas: List<TileSchema>
     ) {
         runSafely {
             screenTileHolder.setDialogTiles(
                 with(tileHolderBuilderManager) {
-                    tileModels.map { tileModel ->
-                        builderScope.build(tileModel)
+                    tileSchemas.map { tileSchema ->
+                        builderScope.build(tileSchema)
                     }
                 }
             )
@@ -256,5 +256,5 @@ class TilesManager(
 
     override fun getEventsByTrigger(
         eventTrigger: EventTrigger
-    ): List<EventModel>? = screenTileHolder.getEventsByTrigger(eventTrigger)
+    ): List<EventSchema>? = screenTileHolder.getEventsByTrigger(eventTrigger)
 }

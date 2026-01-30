@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.proce
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.data.ProcessDataEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.data.ProcessDataEventSchema
 
-object ProcessDataEventHolderBuilder : EventHolderBuilder<ProcessDataEventModel, ProcessDataEventHolder> {
+object ProcessDataEventHolderBuilder : EventHolderBuilder<ProcessDataEventSchema, ProcessDataEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: ProcessDataEventModel
-    ) = with(eventModel) {
+        eventSchema: ProcessDataEventSchema
+    ) = with(eventSchema) {
         ProcessDataEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

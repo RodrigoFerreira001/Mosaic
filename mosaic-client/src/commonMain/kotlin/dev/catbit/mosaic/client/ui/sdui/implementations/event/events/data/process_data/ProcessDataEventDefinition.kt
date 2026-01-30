@@ -1,10 +1,10 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.process_data
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
-import dev.catbit.mosaic.core.data.event.events.data.ProcessDataEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.data.ProcessDataEventSchema
 
-object ProcessDataEventDefinition : EventDefinition<ProcessDataEventModel> {
-    override val eventModelClass = ProcessDataEventModel::class
+object ProcessDataEventDefinition : EventDefinition<ProcessDataEventSchema> {
+    override val eventSchemaClass = ProcessDataEventSchema::class
     override val eventRunner = ProcessDataEventRunner
     override val eventHolderBuilder = ProcessDataEventHolderBuilder
 }

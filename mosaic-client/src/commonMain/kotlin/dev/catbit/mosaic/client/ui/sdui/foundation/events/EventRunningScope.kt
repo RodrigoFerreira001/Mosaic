@@ -6,8 +6,8 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEditor
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventDispatcher
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesOverlaysEditor
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
@@ -38,11 +38,11 @@ data class EventRunningScope(
     }
 
     suspend fun runEventInline(
-        eventModel: EventModel,
+        eventSchema: EventSchema,
         data: Any? = null
     ) {
         eventManager.runEvent(
-            eventModel = eventModel,
+            eventSchema = eventSchema,
             data = data
         )
     }

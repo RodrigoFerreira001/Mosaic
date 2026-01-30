@@ -26,8 +26,8 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.OverlayContainer
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreen
 import dev.catbit.mosaic.client.ui.theme.MosaicTheme
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.KoinApplication
@@ -35,8 +35,8 @@ import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun MosaicApplication(
-    tileDefinitions: List<TileDefinition<out TileModel>> = emptyList(),
-    eventDefinitions: List<EventDefinition<out EventModel>> = emptyList(),
+    tileDefinitions: List<TileDefinition<out TileSchema>> = emptyList(),
+    eventDefinitions: List<EventDefinition<out EventSchema>> = emptyList(),
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     shapes: Shapes = MaterialTheme.shapes,
     typography: Typography = MaterialTheme.typography,
@@ -115,7 +115,7 @@ private fun MosaicApplicationSuccessContent(
 
     SingleEffect {
         NavigatorHolder.registerNavigator(
-            navigatorId = uiState.graph.id,
+            navigatorId = "root",
             navigationController = navigationController
         )
     }

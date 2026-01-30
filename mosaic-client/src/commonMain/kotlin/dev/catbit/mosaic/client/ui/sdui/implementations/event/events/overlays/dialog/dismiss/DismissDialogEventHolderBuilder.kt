@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.d
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.overlays.dialog.DismissDialogEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DismissDialogEventSchema
 
-object DismissDialogEventHolderBuilder : EventHolderBuilder<DismissDialogEventModel, DismissDialogEventHolder> {
+object DismissDialogEventHolderBuilder : EventHolderBuilder<DismissDialogEventSchema, DismissDialogEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: DismissDialogEventModel
-    ) = with(eventModel) {
+        eventSchema: DismissDialogEventSchema
+    ) = with(eventSchema) {
         DismissDialogEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) }
         )

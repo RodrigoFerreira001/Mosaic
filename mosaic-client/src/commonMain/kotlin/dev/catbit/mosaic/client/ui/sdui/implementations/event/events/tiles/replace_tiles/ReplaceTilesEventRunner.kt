@@ -2,13 +2,13 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.repl
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
-import dev.catbit.mosaic.core.data.event.events.tiles.ReplaceTilesEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.tiles.ReplaceTilesEventSchema
 
-object ReplaceTilesEventRunner : EventRunner<ReplaceTilesEventModel> {
-    override suspend fun EventRunningScope.runEvent(event: ReplaceTilesEventModel) {
+object ReplaceTilesEventRunner : EventRunner<ReplaceTilesEventSchema> {
+    override suspend fun EventRunningScope.runEvent(event: ReplaceTilesEventSchema) {
         tilesEditor.replaceTiles(
             groupingTileId = event.groupingTileId,
-            tileModels = event.tiles
+            tileSchemas = event.tiles
         )
     }
 }

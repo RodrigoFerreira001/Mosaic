@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.tiles.AddTilesEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchema
 
-object AddTilesEventHolderBuilder : EventHolderBuilder<AddTilesEventModel, AddTilesEventHolder> {
+object AddTilesEventHolderBuilder : EventHolderBuilder<AddTilesEventSchema, AddTilesEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: AddTilesEventModel
-    ) = with(eventModel) {
+        eventSchema: AddTilesEventSchema
+    ) = with(eventSchema) {
         AddTilesEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) },
             tiles = tiles.map { tileModel -> buildTileHolder(tileModel) }

@@ -1,6 +1,5 @@
 @file:OptIn(ExperimentalWasmDsl::class)
 
-import org.gradle.kotlin.dsl.kotlin
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -49,6 +48,17 @@ kotlin {
 
             // Kotlin serialization
             implementation(libs.kotlinx.serialization.json)
+
+            // Coroutines
+            implementation(libs.kotlinx.coroutines.core)
+        }
+        androidMain.dependencies {
+            // Coroutines
+            implementation(libs.kotlinx.coroutines.android)
+        }
+        jvmMain.dependencies {
+            // Coroutines
+            implementation(libs.kotlinx.coroutines.swing)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

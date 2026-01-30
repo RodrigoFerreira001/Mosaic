@@ -2,16 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.repl
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.event.events.tiles.ReplaceTilesEventModel
+import dev.catbit.mosaic.core.data.schemas.event.events.tiles.ReplaceTilesEventSchema
 
-object ReplaceTilesEventHolderBuilder : EventHolderBuilder<ReplaceTilesEventModel, ReplaceTilesEventHolder> {
+object ReplaceTilesEventHolderBuilder : EventHolderBuilder<ReplaceTilesEventSchema, ReplaceTilesEventHolder> {
 
     override fun BuilderScope.build(
-        eventModel: ReplaceTilesEventModel
-    ) = with(eventModel) {
+        eventSchema: ReplaceTilesEventSchema
+    ) = with(eventSchema) {
         ReplaceTilesEventHolder(
             id = id,
-            event = eventModel,
+            event = eventSchema,
             trigger = trigger,
             events = events?.map { eventModel -> buildEventHolder(eventModel) },
             tiles = tiles.map { tileModel -> buildTileHolder(tileModel) }

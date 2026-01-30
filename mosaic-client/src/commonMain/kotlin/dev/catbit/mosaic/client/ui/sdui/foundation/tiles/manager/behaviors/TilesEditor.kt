@@ -1,28 +1,28 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.InsertionPosition
-import dev.catbit.mosaic.core.data.tile.TileModel
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 
 interface TilesEditor {
 
     fun addTile(
-        tileModel: TileModel,
+        tileSchema: TileSchema,
         where: InsertionPosition = InsertionPosition.End
     )
 
     fun addTiles(
-        tileModels: List<TileModel>,
+        tileSchemas: List<TileSchema>,
         where: InsertionPosition = InsertionPosition.End
     )
 
     fun addTile(
-        tileModel: TileModel,
+        tileSchema: TileSchema,
         groupingTileId: String,
         where: InsertionPosition = InsertionPosition.End
     )
 
     fun addTiles(
-        tileModels: List<TileModel>,
+        tileSchemas: List<TileSchema>,
         groupingTileId: String,
         where: InsertionPosition = InsertionPosition.End
     )
@@ -38,7 +38,7 @@ interface TilesEditor {
     )
 
     fun replaceTiles(
-        tileModels: List<TileModel>,
+        tileSchemas: List<TileSchema>,
         groupingTileId: String?
     )
 

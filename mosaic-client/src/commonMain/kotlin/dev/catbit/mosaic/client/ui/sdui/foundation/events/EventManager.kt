@@ -6,8 +6,8 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.Tiles
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventDispatcher
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesOverlaysEditor
-import dev.catbit.mosaic.core.data.event.EventModel
-import dev.catbit.mosaic.core.data.event_trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import kotlinx.coroutines.supervisorScope
 import org.koin.core.scope.Scope
 
@@ -16,7 +16,7 @@ class EventManager(
     private val koinScope: Scope
 ) {
 
-    private val runningEvents = mutableMapOf<String, EventModel>()
+    private val runningEvents = mutableMapOf<String, EventSchema>()
 
     private lateinit var tilesEditor: TilesEditor
     private lateinit var tilesOverlaysEditor: TilesOverlaysEditor
@@ -55,10 +55,10 @@ class EventManager(
     ) {
         tilesEventHolder
             .getEventsByTrigger(trigger)
-            ?.forEach { eventModel ->
+            ?.forEach { eventSchema ->
                 supervisorScope {
                     runEvent(
-                        eventModel = eventModel,
+                        eventSchema = eventSchema,
                         data = data
                     )
                 }
@@ -73,34 +73,34 @@ class EventManager(
         runningEvents[eventOwnerId]
             ?.events
             ?.filter { it.trigger == trigger }
-            ?.forEach { eventModel ->
+            ?.forEach { eventSchema ->
                 runEvent(
-                    eventModel = eventModel,
+                    eventSchema = eventSchema,
                     data = data
                 )
             }
     }
 
     suspend fun runEvents(
-        eventModels: List<EventModel>,
+        eventSchemas: List<EventSchema>,
         data: Any? = null
     ) {
-        eventModels.forEach { eventModel ->
+        eventSchemas.forEach { eventSchema ->
             runEvent(
-                eventModel = eventModel,
+                eventSchema = eventSchema,
                 data = data
             )
         }
     }
 
     suspend fun runEvent(
-        eventModel: EventModel,
+        eventSchema: EventSchema,
         data: Any? = null
     ) {
-        runningEvents[eventModel.id] = eventModel
+        runningEvents[eventSchema.id] = eventSchema
         with(eventRunnerManager) {
             EventRunningScope(
-                triggerOwnerId = eventModel.id,
+                triggerOwnerId = eventSchema.id,
                 incomingData = data,
                 eventManager = this@EventManager,
                 tilesEditor = tilesEditor,
@@ -109,8 +109,8 @@ class EventManager(
                 dataHolder = dataHolder,
                 screenBehaviorsHolder = screenBehaviorsHolder,
                 koinScope = koinScope
-            ).runEvent(eventModel)
+            ).runEvent(eventSchema)
         }
-        runningEvents.remove(eventModel.id)
+        runningEvents.remove(eventSchema.id)
     }
 }
