@@ -1,6 +1,17 @@
 package dev.catbit.mosaic.client.di
 
 import dev.catbit.mosaic.client.application.MosaicApplicationStateHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenExtrasHolder
+import dev.catbit.mosaic.client.data.data_sources.database.MosaicDatabase
+import dev.catbit.mosaic.client.data.data_sources.database.MosaicDatabaseImpl
+import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
+import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystemImpl
+import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetwork
+import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetworkImpl
+import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorage
+import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorageImpl
+import dev.catbit.mosaic.client.data.repository.MosaicRepository
+import dev.catbit.mosaic.client.data.repository.MosaicRepositoryImpl
 import dev.catbit.mosaic.client.domain.graph.GetInitialGraphUseCase
 import dev.catbit.mosaic.client.domain.screen.GetScreenUseCase
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
@@ -8,10 +19,17 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunnerManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreenStateHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilderManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilderManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.check_for_received_data.CheckForReceivedDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.get_data.GetDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.process_data.ProcessDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.remove_data.RemoveDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.send_data.SendDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.update_data.UpdateDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trigger_event.TriggerEventEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu.ToggleMenuEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_up.NavigateUpEventDefinition
@@ -22,6 +40,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.di
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.dismiss.DismissNavigationDrawerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.display.DisplayNavigationDrawerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column.ScrollTileColumnEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.security.request_permission.RequestPermissionEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_tiles.AddTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.remove_tiles.RemoveTilesEventDefinition
@@ -35,72 +54,84 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_f
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text.TextTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.check_for_received_data.CheckForReceivedDataEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.get_data.GetDataEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.process_data.ProcessDataEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.remove_data.RemoveDataEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.send_data.SendDataEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.update_data.UpdateDataEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trigger_event.TriggerEventEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.security.request_permission.RequestPermissionEventDefinition
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.serialization.kotlinx.json.json
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
+import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
-class MosaicModules(
+internal class MosaicModules(
+    baseUrl: String,
+    additionalModule: Module = module { },
     tileDefinitions: List<TileDefinition<out TileSchema>> = emptyList(),
     eventDefinitions: List<EventDefinition<out EventSchema>> = emptyList()
 ) {
 
-    private val baseTilesDefinitions = listOf(
-        ScreenTileDefinition,
-        ColumnTileDefinition,
-        RowTileDefinition,
-        ButtonTileDefinition,
-        TextFieldTileDefinition,
-        TextTileDefinition,
-        MenuTileDefinition
-    )
-
-    private val baseEventsDefinitions = listOf(
-        SendNetworkRequestEventDefinition,
-        NavigateEventDefinition,
-        NavigateUpEventDefinition,
-        ToggleMenuEventDefinition,
-        ScrollTileColumnEventDefinition,
-        AddTilesEventDefinition,
-        RemoveTilesEventDefinition,
-        ReplaceTilesEventDefinition,
-        UpdateTilesEventDefinition,
-        WipeTilesEventDefinition,
-        DisplayBottomSheetEventDefinition,
-        DismissBottomSheetEventDefinition,
-        DismissDialogEventDefinition,
-        DisplayDialogEventDefinition,
-        DismissNavigationDrawerEventDefinition,
-        DisplayNavigationDrawerEventDefinition,
-        CheckForReceivedDataEventDefinition,
-        GetDataEventDefinition,
-        ProcessDataEventDefinition,
-        RemoveDataEventDefinition,
-        SendDataEventDefinition,
-        UpdateDataEventDefinition,
-        TriggerEventEventDefinition,
-        RequestPermissionEventDefinition
-    )
-
     val modules by lazy {
         listOf(
+            additionalModule,
+            applicationModule,
+            dataModule,
             serializerModule,
             renderingModule,
             eventModule,
             stateHolder,
-            useCaseModule
+            useCaseModule,
+            platformModule
         )
+    }
+
+    private val applicationModule = module {
+        single { ScreenExtrasHolder() }
+    }
+
+    private val dataModule = module {
+
+        single<MosaicObjectStorage> {
+            MosaicObjectStorageImpl(
+                dataChest = get(),
+                serializer = get()
+            )
+        }
+
+        single<MosaicNetwork> {
+            MosaicNetworkImpl(
+                baseUrl = baseUrl,
+                httpClient = get<HttpClient>().config {
+                    install(HttpTimeout) {
+                        requestTimeoutMillis = 20.seconds.inWholeMilliseconds
+                    }
+                    install(ContentNegotiation) {
+                        json(get<MosaicSerializer>().json)
+                    }
+                }
+            )
+        }
+
+        single<MosaicDatabase> {
+            MosaicDatabaseImpl()
+        }
+
+        single<MosaicFileSystem> {
+            MosaicFileSystemImpl()
+        }
+
+        single<MosaicRepository> {
+            MosaicRepositoryImpl(
+                network = get(),
+                database = get(),
+                objectStorage = get(),
+                fileSystem = get()
+            )
+        }
     }
 
     @OptIn(InternalSerializationApi::class)
@@ -108,10 +139,10 @@ class MosaicModules(
 
         single {
             MosaicSerializer(
-                tileSerializers = (baseTilesDefinitions + tileDefinitions).associate { def ->
+                tileSerializers = tileDefinitions.associate { def ->
                     def.tileSchemaClass to def.tileSchemaClass.serializer()
                 },
-                eventSerializers = (baseEventsDefinitions + eventDefinitions).associate { def ->
+                eventSerializers = eventDefinitions.associate { def ->
                     def.eventSchemaClass to def.eventSchemaClass.serializer()
                 }
             )
@@ -158,7 +189,8 @@ class MosaicModules(
 
         viewModel {
             MosaicApplicationStateHolder(
-                getInitialGraphUseCase = get()
+                getInitialGraphUseCase = get(),
+                screenExtrasHolder = get()
             )
         }
 
@@ -172,6 +204,7 @@ class MosaicModules(
             )
 
             val eventManager = EventManager(
+                screenId = screenId,
                 eventRunnerManager = get(),
                 koinScope = this
             )
@@ -183,10 +216,14 @@ class MosaicModules(
                 attachTilesEventDispatcher(tilesUIStateManager)
             }
 
+            val screenExtras = get<ScreenExtrasHolder>().getExtra(screenId)
+
             MosaicScreenStateHolder(
-                screenId = screenId,
+                loadingTiles = screenExtras.loadingTiles,
+                loadingEvents = screenExtras.loadingEvents,
+                failureTiles = screenExtras.failureTiles,
+                failureEvents = screenExtras.failureEvents,
                 navigationData = navigationData,
-                getScreenUseCase = get(),
                 tilesUIStateManager = tilesUIStateManager,
                 eventManager = eventManager,
                 tileRendererManager = get(),
@@ -200,7 +237,46 @@ class MosaicModules(
     }
 
     private val useCaseModule = module {
-        factory { GetScreenUseCase() }
-        single { GetInitialGraphUseCase() }
+        factory { GetScreenUseCase(get()) }
+        single { GetInitialGraphUseCase(get()) }
     }
+
+    private val baseTilesDefinitions = listOf(
+        ScreenTileDefinition,
+        ColumnTileDefinition,
+        RowTileDefinition,
+        ButtonTileDefinition,
+        TextFieldTileDefinition,
+        TextTileDefinition,
+        MenuTileDefinition
+    )
+
+    private val baseEventsDefinitions = listOf(
+        SendNetworkRequestEventDefinition,
+        NavigateEventDefinition,
+        NavigateUpEventDefinition,
+        ToggleMenuEventDefinition,
+        ScrollTileColumnEventDefinition,
+        AddTilesEventDefinition,
+        RemoveTilesEventDefinition,
+        ReplaceTilesEventDefinition,
+        UpdateTilesEventDefinition,
+        WipeTilesEventDefinition,
+        DisplayBottomSheetEventDefinition,
+        DismissBottomSheetEventDefinition,
+        DismissDialogEventDefinition,
+        DisplayDialogEventDefinition,
+        DismissNavigationDrawerEventDefinition,
+        DisplayNavigationDrawerEventDefinition,
+        CheckForReceivedDataEventDefinition,
+        GetDataEventDefinition,
+        ProcessDataEventDefinition,
+        RemoveDataEventDefinition,
+        SendDataEventDefinition,
+        UpdateDataEventDefinition,
+        TriggerEventEventDefinition,
+        RequestPermissionEventDefinition
+    )
 }
+
+internal expect val platformModule: Module

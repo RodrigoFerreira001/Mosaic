@@ -51,6 +51,9 @@ kotlin {
 
             // Coroutines
             implementation(libs.kotlinx.coroutines.core)
+
+            // Kotlinx Datetime
+            implementation(libs.kotlinx.datetime)
         }
         androidMain.dependencies {
             // Coroutines

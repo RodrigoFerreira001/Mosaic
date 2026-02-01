@@ -7,6 +7,8 @@ import dev.catbit.mosaic.sample.ui.theme.lightColorScheme
 @Composable
 fun App() {
     MosaicApplication(
+        applicationId = "MosaicSample",
+        baseUrl = "0.0.0.0:8080",
         colorScheme = lightColorScheme
     )
 }

@@ -1,21 +1,39 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.screen.DataHolder.Source
-
 interface DataHolder {
 
-    fun addData(
+    fun addPlainData(
         data: Any,
-        source: Source
+        dataId: String
     )
 
-    fun getData(
-        source: Source
+    fun addSegmentedData(
+        data: Any,
+        segmentId: String,
+        dataId: String
+    )
+
+    fun removePlainData(
+        dataId: String
+    )
+
+    fun removeSegmentedData(
+        segmentId: String,
+        dataId: String
+    )
+
+    fun getPlainData(
+        dataId: String
     ): Any?
 
-    fun removeData(
-        source: Source
-    )
+    fun getSegmentedData(
+        dataId: String,
+        segmentId: String
+    ): Any?
+
+    fun getNavigationData(
+        dataId: String
+    ): Any?
 
     fun wipePlainData()
 
@@ -24,49 +42,49 @@ interface DataHolder {
     )
 
     fun wipeSegmentedData()
-
-    sealed interface Source {
-        data class Plain(
-            val dataId: String
-        ) : Source
-
-        data class Segmented(
-            val segmentId: String,
-            val dataId: String
-        ) : Source
-    }
 }
 
-class DefaultDataHolder : DataHolder {
+class DefaultDataHolder(
+    private val navigationData: Map<String, Any>
+) : DataHolder {
 
     private val plainData: MutableMap<String, Any> = mutableMapOf()
     private val segmentedData: MutableMap<String, MutableMap<String, Any>> = mutableMapOf()
 
-    override fun addData(
+    override fun addPlainData(
         data: Any,
-        source: Source
+        dataId: String
     ) {
-        when (source) {
-            is Source.Plain -> plainData[source.dataId] = data
-            is Source.Segmented -> segmentedData.getOrPut(source.segmentId) { mutableMapOf() }[source.dataId] = data
-        }
+        plainData[dataId] = data
     }
 
-    override fun getData(
-        source: Source
-    ): Any? = when (source) {
-        is Source.Plain -> plainData[source.dataId]
-        is Source.Segmented -> segmentedData[source.segmentId]?.get(source.dataId)
+    override fun addSegmentedData(
+        data: Any,
+        segmentId: String,
+        dataId: String
+    ) {
+        segmentedData.getOrPut(segmentId) { mutableMapOf() }[dataId] = data
     }
 
-    override fun removeData(
-        source: Source
-    ) {
-        when (source) {
-            is Source.Plain -> plainData.remove(source.dataId)
-            is Source.Segmented -> segmentedData[source.segmentId]?.remove(source.dataId)
-        }
+    override fun removePlainData(dataId: String) {
+        plainData.remove(dataId)
     }
+
+    override fun removeSegmentedData(
+        segmentId: String,
+        dataId: String
+    ) {
+        segmentedData[segmentId]?.remove(dataId)
+    }
+
+    override fun getPlainData(dataId: String): Any? =
+        plainData[dataId]
+
+    override fun getSegmentedData(dataId: String, segmentId: String): Any? =
+        segmentedData[segmentId]?.get(dataId)
+
+    override fun getNavigationData(dataId: String): Any? =
+        navigationData[dataId]
 
     override fun wipePlainData() {
         plainData.clear()

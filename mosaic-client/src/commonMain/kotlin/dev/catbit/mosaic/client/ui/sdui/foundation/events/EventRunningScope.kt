@@ -15,6 +15,7 @@ import org.koin.core.scope.Scope
 import kotlin.reflect.KClass
 
 data class EventRunningScope(
+    val screenId: String,
     val triggerOwnerId: String,
     val incomingData: Any? = null,
     private val koinScope: Scope,

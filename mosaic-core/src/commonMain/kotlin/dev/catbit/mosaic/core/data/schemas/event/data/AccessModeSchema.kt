@@ -14,5 +14,6 @@ sealed interface AccessModeSchema {
     data class Batch(
         @SerialName("dataIds") val dataIds: List<String>,
         @SerialName("allowMissingData") val allowMissingData: Boolean,
+        @SerialName("unwrapValuesToList") val unwrapValuesToList: Boolean,
     ) : AccessModeSchema
 }

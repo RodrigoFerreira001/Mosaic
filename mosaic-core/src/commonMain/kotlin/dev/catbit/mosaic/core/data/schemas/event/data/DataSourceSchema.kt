@@ -7,10 +7,14 @@ import kotlinx.serialization.Serializable
 sealed interface DataSourceSchema {
 
     @Serializable
-    @SerialName("LocalStorage")
-    data class LocalStorage(
-        @SerialName("bucketIt") val bucketIt: String
+    @SerialName("SegmentedDataBase")
+    data class SegmentedDataBase(
+        @SerialName("segmentId") val bucketIt: String
     ) : DataSourceSchema
+
+    @Serializable
+    @SerialName("PlainDataBase")
+    data object PlainDataBase : DataSourceSchema
 
     @Serializable
     @SerialName("ScreenNavigationData")

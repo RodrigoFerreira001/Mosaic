@@ -42,10 +42,6 @@ kotlin {
         browser()
         nodejs()
     }
-    js(IR) {
-        browser()
-        nodejs()
-    }
 
     sourceSets {
         commonMain.dependencies {
@@ -81,23 +77,31 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.serialization)
             implementation(libs.ktor.serialization.kotlinx.json)
+
+            // Datetime
+            implementation(libs.kotlinx.datetime)
         }
 
         androidMain.dependencies {
+            // Ktor
             implementation(libs.ktor.client.okhttp)
         }
 
-        webMain.dependencies {
-            implementation(libs.ktor.client.js)
-        }
-
         iosMain.dependencies {
+            // Ktor
             implementation(libs.ktor.client.darwin)
         }
 
         jvmMain.dependencies {
+            // Ktor
             implementation(libs.ktor.client.okhttp)
         }
+
+        wasmJsMain.dependencies {
+            // Ktor
+            implementation(libs.ktor.client.js)
+        }
+
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)

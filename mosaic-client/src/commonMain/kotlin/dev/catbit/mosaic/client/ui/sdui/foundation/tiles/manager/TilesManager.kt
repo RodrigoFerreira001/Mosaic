@@ -54,7 +54,7 @@ class TilesManager(
 
     fun setup(
         tiles: List<TileSchema>,
-        navigationDrawerTiles: List<TileSchema>?,
+        navigationDrawerTiles: List<TileSchema>? = null,
         events: List<EventSchema>?,
         onUpdateStateRequest: (TileSchema) -> Unit
     ) {

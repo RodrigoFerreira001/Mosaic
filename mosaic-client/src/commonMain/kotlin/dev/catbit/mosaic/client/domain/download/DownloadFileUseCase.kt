@@ -16,7 +16,7 @@ class DownloadFileUseCase(
             onProgress = onProgress,
             onBytesReceived = onBytesReceived,
             onDownloadFinished = onDownloadFinished,
-            onDownloadFailure = onDownloadFailure,
+            onDownloadFailure = onDownloadFailure
         )
     }
 

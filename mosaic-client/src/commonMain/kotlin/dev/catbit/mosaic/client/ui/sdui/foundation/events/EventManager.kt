@@ -12,6 +12,7 @@ import kotlinx.coroutines.supervisorScope
 import org.koin.core.scope.Scope
 
 class EventManager(
+    private val screenId: String,
     private val eventRunnerManager: EventRunnerManager,
     private val koinScope: Scope
 ) {
@@ -100,6 +101,7 @@ class EventManager(
         runningEvents[eventSchema.id] = eventSchema
         with(eventRunnerManager) {
             EventRunningScope(
+                screenId = screenId,
                 triggerOwnerId = eventSchema.id,
                 incomingData = data,
                 eventManager = this@EventManager,

@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.responses.graph
 
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -21,7 +22,11 @@ data class GraphResponse(
         val screenId: String,
         @SerialName("loadingTiles")
         val loadingTiles: List<TileSchema>,
-        @SerialName("errorTiles")
-        val errorTiles: List<TileSchema>
+        @SerialName("loadingEvents")
+        val loadingEvents: List<EventSchema>,
+        @SerialName("failureTiles")
+        val failureTiles: List<TileSchema>,
+        @SerialName("failureEvents")
+        val failureEvents: List<EventSchema>,
     )
 }

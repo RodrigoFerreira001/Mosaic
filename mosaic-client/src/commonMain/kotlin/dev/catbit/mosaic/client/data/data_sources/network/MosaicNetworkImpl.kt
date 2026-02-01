@@ -1,8 +1,14 @@
-package dev.catbit.mosaic.client.data.data_sources
+package dev.catbit.mosaic.client.data.data_sources.network
 
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
+import dev.catbit.mosaic.client.extensions.safeNetworkCall
+import dev.catbit.mosaic.client.extensions.safeResult
+import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
+import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
 import io.ktor.client.HttpClient
+import io.ktor.client.call.body
 import io.ktor.client.plugins.onDownload
+import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.prepareRequest
 import io.ktor.client.request.request
@@ -21,24 +27,46 @@ import io.ktor.utils.io.readAvailable
 import kotlinx.io.readByteArray
 
 class MosaicNetworkImpl(
+    private val baseUrl: String,
     private val httpClient: HttpClient
 ) : MosaicNetwork {
+
+    override suspend fun getInitialGraph(): Result<GraphResponse> = safeNetworkCall {
+        httpClient.get(urlString = "$baseUrl/initialGraph")
+    }.map { httpResponse ->
+        httpResponse.body()
+    }
+
+    override suspend fun getScreen(
+        screenId: String,
+        headers: Map<String, String>?,
+    ): Result<ScreenResponse> = safeNetworkCall {
+        httpClient.get(urlString = "$baseUrl/screen/$screenId") {
+            headers?.forEach { (key, value) ->
+                header(key, value)
+            }
+        }
+    }.map { httpResponse ->
+        httpResponse.body()
+    }
 
     override suspend fun sendHttpRequest(
         url: String,
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod
-    ) = httpClient.request(
-        urlString = url
-    ) {
-        method = httpMethod
-        body?.let {
-            header(HttpHeaders.ContentType, ContentType.Application.Json)
-            setBody(body)
-        }
-        headers?.forEach { (key, value) ->
-            header(key, value)
+    ) = safeNetworkCall {
+        httpClient.request(
+            urlString = url
+        ) {
+            method = httpMethod
+            body?.let {
+                header(HttpHeaders.ContentType, ContentType.Application.Json)
+                setBody(body)
+            }
+            headers?.forEach { (key, value) ->
+                header(key, value)
+            }
         }
     }
 
@@ -50,7 +78,7 @@ class MosaicNetworkImpl(
         onBytesReceived: (ByteArray) -> Unit,
         onDownloadFinished: (ByteArray) -> Unit,
         onDownloadFailure: (Throwable) -> Unit
-    ) {
+    ) = safeResult {
         try {
             httpClient.prepareRequest(urlString = url) {
                 method = httpMethod

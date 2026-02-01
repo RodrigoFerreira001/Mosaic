@@ -24,3 +24,4 @@
 - LocalStorage (separado por buckets)
 - NextPageEvent (Pager e afins)
 - Send platform info on network calls
+- Actions: GetFile, SaveFile, DeleteFile

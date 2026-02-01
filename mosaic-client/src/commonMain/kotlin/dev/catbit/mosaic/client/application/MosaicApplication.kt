@@ -3,7 +3,13 @@ package dev.catbit.mosaic.client.application
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
+import androidx.compose.material3.Text
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -11,7 +17,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
-import androidx.navigation3.runtime.*
+import androidx.navigation3.runtime.NavBackStack
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.rememberNavBackStack
+import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import dev.catbit.mosaic.client.di.MosaicModules
@@ -32,9 +42,14 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.KoinApplication
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.module.Module
+import org.koin.dsl.module
 
 @Composable
 fun MosaicApplication(
+    applicationId: String,
+    baseUrl: String,
+    additionalKoinModule: Module = module { },
     tileDefinitions: List<TileDefinition<out TileSchema>> = emptyList(),
     eventDefinitions: List<EventDefinition<out EventSchema>> = emptyList(),
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
@@ -42,33 +57,40 @@ fun MosaicApplication(
     typography: Typography = MaterialTheme.typography,
     materialSymbolFontsConfig: MaterialSymbolFontsConfig = MaterialSymbolFontsConfig(),
 ) {
-    KoinApplication(
-        application = {
-            modules(
-                MosaicModules(
-                    tileDefinitions = tileDefinitions,
-                    eventDefinitions = eventDefinitions
-                ).modules
-            )
-        }
-    ) {
 
-        val stateHolder = koinViewModel<MosaicApplicationStateHolder>()
+    ApplicationIdentifierHolder.applicationId = applicationId
 
-        stateHolder.bindScreenLifecycle()
-
-        MosaicTheme(
-            colorScheme = colorScheme,
-            shapes = shapes,
-            typography = typography,
-            materialSymbolFontsConfig = materialSymbolFontsConfig
+    PlatformDecorator {
+        KoinApplication(
+            application = {
+                modules(
+                    MosaicModules(
+                        baseUrl = baseUrl,
+                        additionalModule = additionalKoinModule,
+                        tileDefinitions = tileDefinitions,
+                        eventDefinitions = eventDefinitions
+                    ).modules
+                )
+            }
         ) {
-            val uiState by stateHolder.uiState.collectAsState()
 
-            MosaicApplicationContent(
-                uiState = uiState,
-                onEvent = { stateHolder.onEvent(it) }
-            )
+            val stateHolder = koinViewModel<MosaicApplicationStateHolder>()
+
+            stateHolder.bindScreenLifecycle()
+
+            MosaicTheme(
+                colorScheme = colorScheme,
+                shapes = shapes,
+                typography = typography,
+                materialSymbolFontsConfig = materialSymbolFontsConfig
+            ) {
+                val uiState by stateHolder.uiState.collectAsState()
+
+                MosaicApplicationContent(
+                    uiState = uiState,
+                    onEvent = { stateHolder.onEvent(it) }
+                )
+            }
         }
     }
 }

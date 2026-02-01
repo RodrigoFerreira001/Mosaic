@@ -1,12 +1,12 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
-import dev.catbit.mosaic.client.domain.screen.GetScreenUseCase
 import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
+import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,50 +15,58 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal class MosaicScreenStateHolder(
-    private val screenId: String,
+    private val loadingTiles: List<TileSchema>,
+    private val loadingEvents: List<EventSchema>,
+    private val failureTiles: List<TileSchema>,
+    private val failureEvents: List<EventSchema>,
     private val navigationData: Map<String, Any>?,
-    private val getScreenUseCase: GetScreenUseCase,
     private val tilesUIStateManager: TilesManager,
     private val eventManager: EventManager,
     val tileRendererManager: TileRendererManager
 ) : ScreenStateHolder<State, Event, Effect>(),
     ScreenBehaviorsHolder,
-    DataHolder by DefaultDataHolder() {
+    DataHolder by DefaultDataHolder(navigationData.orEmpty()) {
 
     private val internalBroadcastChannel = MutableSharedFlow<BroadcastData>()
     val broadcastChannel get() = internalBroadcastChannel.asSharedFlow()
 
-    override val internalUIState = MutableStateFlow<State>(State.Loading)
+    override val internalUIState = MutableStateFlow<State>(State.Loading())
 
-    override fun onFirstDisplay() {
-        fetchScreen()
-    }
+    override fun setState(state: ScreenBehaviorsHolder.State) {
+        when (state) {
+            is ScreenBehaviorsHolder.State.Success -> {
+                internalUIState.update { State.Displaying() }
+                tilesUIStateManager.setup(
+                    tiles = state.screenModel.tiles,
+                    navigationDrawerTiles = state.screenModel.navigationDrawerTiles,
+                    events = state.screenModel.events,
+                    onUpdateStateRequest = ::onUpdateStateRequest
+                )
+            }
 
-    private fun fetchScreen() {
-        stateHolderScope.launch {
-            internalUIState.update { State.Loading }
-            getScreenUseCase(
-                GetScreenUseCase.Params(screenId, navigationData)
-            ).fold(
-                onFailure = {
-                    internalUIState.update { State.Failure }
-                },
-                onSuccess = { screen ->
-                    tilesUIStateManager.setup(
-                        tiles = screen.tiles,
-                        navigationDrawerTiles = screen.navigationDrawerTiles,
-                        events = screen.events,
-                        onUpdateStateRequest = ::onUpdateStateRequest
-                    )
-                }
-            )
+            ScreenBehaviorsHolder.State.Failure -> {
+                internalUIState.update { State.Failure() }
+                tilesUIStateManager.setup(
+                    tiles = failureTiles,
+                    events = failureEvents,
+                    onUpdateStateRequest = ::onUpdateStateRequest
+                )
+            }
+
+            ScreenBehaviorsHolder.State.Loading -> {
+                internalUIState.update { State.Loading() }
+                tilesUIStateManager.setup(
+                    tiles = loadingTiles,
+                    events = loadingEvents,
+                    onUpdateStateRequest = ::onUpdateStateRequest
+                )
+            }
         }
     }
 
     override fun onEvent(event: Event) {
         when (event) {
             is Event.OnUIEvent -> onUIEvent(event)
-            Event.OnTryAgainClick -> onTryAgainClick()
         }
     }
 
@@ -83,20 +91,11 @@ internal class MosaicScreenStateHolder(
     private fun onUpdateStateRequest(rootTile: TileSchema) {
         internalUIState.update { currentState ->
             when (currentState) {
-                State.Failure, State.Loading -> State.Displaying(rootTile)
-                is State.Displaying -> {
-                    currentState.copy(rootTile = rootTile)
-                }
+                is State.Displaying -> currentState.copy(rootTile = rootTile)
+                is State.Failure -> currentState.copy(rootTile = rootTile)
+                is State.Loading -> currentState.copy(rootTile = rootTile)
             }
         }
-    }
-
-    private fun onTryAgainClick() {
-        fetchScreen()
-    }
-
-    override fun refresh() {
-        fetchScreen()
     }
 
     override fun broadcastData(data: BroadcastData) {

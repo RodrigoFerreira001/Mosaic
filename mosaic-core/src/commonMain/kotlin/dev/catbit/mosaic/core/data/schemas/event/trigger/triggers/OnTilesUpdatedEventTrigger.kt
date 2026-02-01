@@ -5,5 +5,5 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@SerialName("OnTilesAdded")
+@SerialName("OnTilesUpdated")
 object OnTilesUpdatedEventTrigger : EventTrigger
