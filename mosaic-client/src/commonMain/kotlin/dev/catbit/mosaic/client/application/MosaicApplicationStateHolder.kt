@@ -62,8 +62,8 @@ internal class MosaicApplicationStateHolder(
             with(entry) {
                 screenExtrasHolder.registerExtra(
                     screenId = screenId,
-                    loadingTiles = loadingTiles,
-                    loadingEvents = loadingEvents,
+                    initialTiles = initialTiles,
+                    initialEvents = initialEvents,
                     failureTiles = failureTiles,
                     failureEvents = failureEvents
                 )

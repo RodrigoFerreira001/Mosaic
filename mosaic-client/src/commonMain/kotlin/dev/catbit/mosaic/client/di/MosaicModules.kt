@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.client.di
 
 import dev.catbit.mosaic.client.application.MosaicApplicationStateHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenExtrasHolder
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicDatabase
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicDatabaseImpl
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
@@ -19,6 +18,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunnerManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreenStateHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenExtrasHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilderManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilderManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
@@ -66,9 +66,11 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.serializer
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 internal class MosaicModules(
+    applicationId: String,
     baseUrl: String,
     additionalModule: Module = module { },
     tileDefinitions: List<TileDefinition<out TileSchema>> = emptyList(),
@@ -90,6 +92,7 @@ internal class MosaicModules(
     }
 
     private val applicationModule = module {
+        single(named("APPLICATION_ID")) { applicationId }
         single { ScreenExtrasHolder() }
     }
 
@@ -219,8 +222,8 @@ internal class MosaicModules(
             val screenExtras = get<ScreenExtrasHolder>().getExtra(screenId)
 
             MosaicScreenStateHolder(
-                loadingTiles = screenExtras.loadingTiles,
-                loadingEvents = screenExtras.loadingEvents,
+                initialTiles = screenExtras.initialTiles,
+                initialEvents = screenExtras.initialEvents,
                 failureTiles = screenExtras.failureTiles,
                 failureEvents = screenExtras.failureEvents,
                 navigationData = navigationData,

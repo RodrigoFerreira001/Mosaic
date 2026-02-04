@@ -6,10 +6,24 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-@SerialName("GetScreen")
+@SerialName("ChangeScreenState")
 data class ChangeScreenStateEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: List<EventSchema>?,
-    @SerialName("eventId") val eventId: String
-) : EventSchema
+    @SerialName("state") val state: State
+) : EventSchema {
+
+    @Serializable
+    sealed interface State {
+
+        @SerialName("Success")
+        data object Success : State
+
+        @SerialName("Failure")
+        data object Failure : State
+
+        @SerialName("Initial")
+        data object Initial : State
+    }
+}

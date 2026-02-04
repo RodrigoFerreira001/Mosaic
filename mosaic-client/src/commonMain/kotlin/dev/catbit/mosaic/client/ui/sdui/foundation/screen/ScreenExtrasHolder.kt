@@ -9,14 +9,14 @@ class ScreenExtrasHolder {
 
     fun registerExtra(
         screenId: String,
-        loadingTiles: List<TileSchema>,
-        loadingEvents: List<EventSchema>,
+        initialTiles: List<TileSchema>,
+        initialEvents: List<EventSchema>,
         failureTiles: List<TileSchema>,
         failureEvents: List<EventSchema>,
     ) {
         extras[screenId] = Extra(
-            loadingTiles = loadingTiles,
-            loadingEvents = loadingEvents,
+            initialTiles = initialTiles,
+            initialEvents = initialEvents,
             failureTiles = failureTiles,
             failureEvents = failureEvents
         )
@@ -29,8 +29,8 @@ class ScreenExtrasHolder {
     }
 
     data class Extra(
-        val loadingTiles: List<TileSchema>,
-        val loadingEvents: List<EventSchema>,
+        val initialTiles: List<TileSchema>,
+        val initialEvents: List<EventSchema>,
         val failureTiles: List<TileSchema>,
         val failureEvents: List<EventSchema>,
     )

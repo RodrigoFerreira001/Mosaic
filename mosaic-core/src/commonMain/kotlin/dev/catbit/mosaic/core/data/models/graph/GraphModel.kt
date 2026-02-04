@@ -19,10 +19,10 @@ data class GraphModel(
     data class Entry(
         @SerialName("screenId")
         val screenId: String,
-        @SerialName("loadingTiles")
-        val loadingTiles: List<TileSchema>,
-        @SerialName("loadingEvents")
-        val loadingEvents: List<EventSchema>,
+        @SerialName("initialTiles")
+        val initialTiles: List<TileSchema>,
+        @SerialName("initialEvents")
+        val initialEvents: List<EventSchema>,
         @SerialName("failureTiles")
         val failureTiles: List<TileSchema>,
         @SerialName("failureEvents")
@@ -38,8 +38,8 @@ data class GraphModel(
                 with(entry) {
                     Entry(
                         screenId = screenId,
-                        loadingTiles = loadingTiles,
-                        loadingEvents = loadingEvents,
+                        initialTiles = initialTiles,
+                        initialEvents = initialEvents,
                         failureTiles = failureTiles,
                         failureEvents = failureEvents
                     )

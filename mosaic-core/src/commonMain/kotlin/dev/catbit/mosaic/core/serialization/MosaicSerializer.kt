@@ -19,6 +19,8 @@ import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DismissD
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DisplayDialogEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer.DismissNavigationDrawerEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer.DisplayNavigationDrawerEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.screen.ChangeScreenStateEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.screen.GetScreenEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.column.ScrollColumnTileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.row.ScrollRowTileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.security.RequestPermissionEventSchema
@@ -149,76 +151,81 @@ class MosaicSerializer(
         string: String
     ): T = decodeFromString(serializer(), string)
 
-    private val defaultEventTriggerSerializers get() = mapOf(
-        OnBottomSheetDismissedEventTrigger::class to OnBottomSheetDismissedEventTrigger.serializer(),
-        OnClickEventTrigger::class to OnClickEventTrigger.serializer(),
-        OnDataReceivedEventTrigger::class to OnDataReceivedEventTrigger.serializer(),
-        OnDataRemovedEventTrigger::class to OnDataRemovedEventTrigger.serializer(),
-        OnDataSentEventTrigger::class to OnDataSentEventTrigger.serializer(),
-        OnDataUpdatedEventTrigger::class to OnDataUpdatedEventTrigger.serializer(),
-        OnDialogDismissedEventTrigger::class to OnDialogDismissedEventTrigger.serializer(),
-        OnDownloadFailureEventTrigger::class to OnDownloadFailureEventTrigger.serializer(),
-        OnDownloadFinishEventTrigger::class to OnDownloadFinishEventTrigger.serializer(),
-        OnDownloadProgressEventTrigger::class to OnDownloadProgressEventTrigger.serializer(),
-        OnFailureEventTrigger::class to OnFailureEventTrigger.serializer(),
-        OnLongPressEventTrigger::class to OnLongPressEventTrigger.serializer(),
-        OnMenuItemClickEventTrigger::class to OnMenuItemClickEventTrigger.serializer(),
-        OnNavigationDrawerDismissedEventTrigger::class to OnNavigationDrawerDismissedEventTrigger.serializer(),
-        OnNavigationEventTrigger::class to OnNavigationEventTrigger.serializer(),
-        OnNetworkResponseTrigger::class to OnNetworkResponseTrigger.serializer(),
-        OnPermissionsAcquiredEventTrigger::class to OnPermissionsAcquiredEventTrigger.serializer(),
-        OnPermissionsDeniedEventTrigger::class to OnPermissionsDeniedEventTrigger.serializer(),
-        OnScrolledEventTrigger::class to OnScrolledEventTrigger.serializer(),
-        OnStartEventTrigger::class to OnStartEventTrigger.serializer(),
-        OnSuccessEventTrigger::class to OnSuccessEventTrigger.serializer(),
-        OnTextChangedEventTrigger::class to OnTextChangedEventTrigger.serializer(),
-        OnTilesAddedEventTrigger::class to OnTilesAddedEventTrigger.serializer(),
-        OnTilesRemovedEventTrigger::class to OnTilesRemovedEventTrigger.serializer(),
-        OnTilesReplacedEventTrigger::class to OnTilesReplacedEventTrigger.serializer(),
-        OnTilesUpdatedEventTrigger::class to OnTilesUpdatedEventTrigger.serializer(),
-        OnTilesWipedEventTrigger::class to OnTilesWipedEventTrigger.serializer()
-    )
+    private val defaultEventTriggerSerializers
+        get() = mapOf(
+            OnBottomSheetDismissedEventTrigger::class to OnBottomSheetDismissedEventTrigger.serializer(),
+            OnClickEventTrigger::class to OnClickEventTrigger.serializer(),
+            OnDataReceivedEventTrigger::class to OnDataReceivedEventTrigger.serializer(),
+            OnDataRemovedEventTrigger::class to OnDataRemovedEventTrigger.serializer(),
+            OnDataSentEventTrigger::class to OnDataSentEventTrigger.serializer(),
+            OnDataUpdatedEventTrigger::class to OnDataUpdatedEventTrigger.serializer(),
+            OnDialogDismissedEventTrigger::class to OnDialogDismissedEventTrigger.serializer(),
+            OnDownloadFailureEventTrigger::class to OnDownloadFailureEventTrigger.serializer(),
+            OnDownloadFinishEventTrigger::class to OnDownloadFinishEventTrigger.serializer(),
+            OnDownloadProgressEventTrigger::class to OnDownloadProgressEventTrigger.serializer(),
+            OnFailureEventTrigger::class to OnFailureEventTrigger.serializer(),
+            OnLongPressEventTrigger::class to OnLongPressEventTrigger.serializer(),
+            OnMenuItemClickEventTrigger::class to OnMenuItemClickEventTrigger.serializer(),
+            OnNavigationDrawerDismissedEventTrigger::class to OnNavigationDrawerDismissedEventTrigger.serializer(),
+            OnNavigationEventTrigger::class to OnNavigationEventTrigger.serializer(),
+            OnNetworkResponseTrigger::class to OnNetworkResponseTrigger.serializer(),
+            OnPermissionsAcquiredEventTrigger::class to OnPermissionsAcquiredEventTrigger.serializer(),
+            OnPermissionsDeniedEventTrigger::class to OnPermissionsDeniedEventTrigger.serializer(),
+            OnScrolledEventTrigger::class to OnScrolledEventTrigger.serializer(),
+            OnStartEventTrigger::class to OnStartEventTrigger.serializer(),
+            OnSuccessEventTrigger::class to OnSuccessEventTrigger.serializer(),
+            OnTextChangedEventTrigger::class to OnTextChangedEventTrigger.serializer(),
+            OnTilesAddedEventTrigger::class to OnTilesAddedEventTrigger.serializer(),
+            OnTilesRemovedEventTrigger::class to OnTilesRemovedEventTrigger.serializer(),
+            OnTilesReplacedEventTrigger::class to OnTilesReplacedEventTrigger.serializer(),
+            OnTilesUpdatedEventTrigger::class to OnTilesUpdatedEventTrigger.serializer(),
+            OnTilesWipedEventTrigger::class to OnTilesWipedEventTrigger.serializer()
+        )
 
-    private val defaultTileSerializers get() = mapOf(
-        ButtonTileSchema::class to ButtonTileSchema.serializer(),
-        BoxTileSchema::class to BoxTileSchema.serializer(),
-        CardTileSchema::class to CardTileSchema.serializer(),
-        CarouselTileSchema::class to CarouselTileSchema.serializer(),
-        ColumnTileSchema::class to ColumnTileSchema.serializer(),
-        GridTileSchema::class to GridTileSchema.serializer(),
-        PagerTileSchema::class to PagerTileSchema.serializer(),
-        RowTileSchema::class to RowTileSchema.serializer(),
-        TextFieldTileSchema::class to TextFieldTileSchema.serializer(),
-        MenuTileSchema::class to MenuTileSchema.serializer(),
-        TextTileSchema::class to TextTileSchema.serializer(),
-    )
+    private val defaultTileSerializers
+        get() = mapOf(
+            ButtonTileSchema::class to ButtonTileSchema.serializer(),
+            BoxTileSchema::class to BoxTileSchema.serializer(),
+            CardTileSchema::class to CardTileSchema.serializer(),
+            CarouselTileSchema::class to CarouselTileSchema.serializer(),
+            ColumnTileSchema::class to ColumnTileSchema.serializer(),
+            GridTileSchema::class to GridTileSchema.serializer(),
+            PagerTileSchema::class to PagerTileSchema.serializer(),
+            RowTileSchema::class to RowTileSchema.serializer(),
+            TextFieldTileSchema::class to TextFieldTileSchema.serializer(),
+            MenuTileSchema::class to MenuTileSchema.serializer(),
+            TextTileSchema::class to TextTileSchema.serializer(),
+        )
 
-    private val defaultEventSerializers get() = mapOf(
-        CheckForReceivedDataEventSchema::class to CheckForReceivedDataEventSchema.serializer(),
-        GetDataEventSchema::class to GetDataEventSchema.serializer(),
-        ProcessDataEventSchema::class to ProcessDataEventSchema.serializer(),
-        RemoveDataEventSchema::class to RemoveDataEventSchema.serializer(),
-        SendDataEventSchema::class to SendDataEventSchema.serializer(),
-        UpdateDataEventSchema::class to UpdateDataEventSchema.serializer(),
-        TriggerEventEventSchema::class to TriggerEventEventSchema.serializer(),
-        ToggleMenuEventSchema::class to ToggleMenuEventSchema.serializer(),
-        NavigateEventSchema::class to NavigateEventSchema.serializer(),
-        NavigateUpEventSchema::class to NavigateUpEventSchema.serializer(),
-        DownloadFileEventSchema::class to DownloadFileEventSchema.serializer(),
-        SendNetworkRequestEventSchema::class to SendNetworkRequestEventSchema.serializer(),
-        DismissBottomSheetEventSchema::class to DismissBottomSheetEventSchema.serializer(),
-        DisplayBottomSheetEventSchema::class to DisplayBottomSheetEventSchema.serializer(),
-        DismissDialogEventSchema::class to DismissDialogEventSchema.serializer(),
-        DisplayDialogEventSchema::class to DisplayDialogEventSchema.serializer(),
-        DismissNavigationDrawerEventSchema::class to DismissNavigationDrawerEventSchema.serializer(),
-        DisplayNavigationDrawerEventSchema::class to DisplayNavigationDrawerEventSchema.serializer(),
-        ScrollColumnTileEventSchema::class to ScrollColumnTileEventSchema.serializer(),
-        ScrollRowTileEventSchema::class to ScrollRowTileEventSchema.serializer(),
-        RequestPermissionEventSchema::class to RequestPermissionEventSchema.serializer(),
-        AddTilesEventSchema::class to AddTilesEventSchema.serializer(),
-        RemoveTilesEventSchema::class to RemoveTilesEventSchema.serializer(),
-        ReplaceTilesEventSchema::class to ReplaceTilesEventSchema.serializer(),
-        UpdateTilesEventSchema::class to UpdateTilesEventSchema.serializer(),
-        WipeTilesEventSchema::class to WipeTilesEventSchema.serializer(),
-    )
+    private val defaultEventSerializers
+        get() = mapOf(
+            CheckForReceivedDataEventSchema::class to CheckForReceivedDataEventSchema.serializer(),
+            GetDataEventSchema::class to GetDataEventSchema.serializer(),
+            ProcessDataEventSchema::class to ProcessDataEventSchema.serializer(),
+            RemoveDataEventSchema::class to RemoveDataEventSchema.serializer(),
+            SendDataEventSchema::class to SendDataEventSchema.serializer(),
+            UpdateDataEventSchema::class to UpdateDataEventSchema.serializer(),
+            TriggerEventEventSchema::class to TriggerEventEventSchema.serializer(),
+            ToggleMenuEventSchema::class to ToggleMenuEventSchema.serializer(),
+            NavigateEventSchema::class to NavigateEventSchema.serializer(),
+            NavigateUpEventSchema::class to NavigateUpEventSchema.serializer(),
+            DownloadFileEventSchema::class to DownloadFileEventSchema.serializer(),
+            SendNetworkRequestEventSchema::class to SendNetworkRequestEventSchema.serializer(),
+            DismissBottomSheetEventSchema::class to DismissBottomSheetEventSchema.serializer(),
+            DisplayBottomSheetEventSchema::class to DisplayBottomSheetEventSchema.serializer(),
+            DismissDialogEventSchema::class to DismissDialogEventSchema.serializer(),
+            DisplayDialogEventSchema::class to DisplayDialogEventSchema.serializer(),
+            DismissNavigationDrawerEventSchema::class to DismissNavigationDrawerEventSchema.serializer(),
+            DisplayNavigationDrawerEventSchema::class to DisplayNavigationDrawerEventSchema.serializer(),
+            ChangeScreenStateEventSchema::class to ChangeScreenStateEventSchema.serializer(),
+            GetScreenEventSchema::class to GetScreenEventSchema.serializer(),
+            ScrollColumnTileEventSchema::class to ScrollColumnTileEventSchema.serializer(),
+            ScrollRowTileEventSchema::class to ScrollRowTileEventSchema.serializer(),
+            RequestPermissionEventSchema::class to RequestPermissionEventSchema.serializer(),
+            AddTilesEventSchema::class to AddTilesEventSchema.serializer(),
+            RemoveTilesEventSchema::class to RemoveTilesEventSchema.serializer(),
+            ReplaceTilesEventSchema::class to ReplaceTilesEventSchema.serializer(),
+            UpdateTilesEventSchema::class to UpdateTilesEventSchema.serializer(),
+            WipeTilesEventSchema::class to WipeTilesEventSchema.serializer()
+        )
 }

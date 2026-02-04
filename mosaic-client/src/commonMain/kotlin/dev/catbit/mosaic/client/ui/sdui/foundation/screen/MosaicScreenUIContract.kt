@@ -7,7 +7,7 @@ sealed interface State {
 
     val rootTile: TileSchema?
 
-    data class Loading(
+    data class Initial(
         override val rootTile: TileSchema? = null
     ) : State
 

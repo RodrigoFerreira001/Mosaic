@@ -15,8 +15,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal class MosaicScreenStateHolder(
-    private val loadingTiles: List<TileSchema>,
-    private val loadingEvents: List<EventSchema>,
+    private val initialTiles: List<TileSchema>,
+    private val initialEvents: List<EventSchema>,
     private val failureTiles: List<TileSchema>,
     private val failureEvents: List<EventSchema>,
     private val navigationData: Map<String, Any>?,
@@ -30,7 +30,7 @@ internal class MosaicScreenStateHolder(
     private val internalBroadcastChannel = MutableSharedFlow<BroadcastData>()
     val broadcastChannel get() = internalBroadcastChannel.asSharedFlow()
 
-    override val internalUIState = MutableStateFlow<State>(State.Loading())
+    override val internalUIState = MutableStateFlow<State>(State.Initial())
 
     override fun setState(state: ScreenBehaviorsHolder.State) {
         when (state) {
@@ -53,11 +53,11 @@ internal class MosaicScreenStateHolder(
                 )
             }
 
-            ScreenBehaviorsHolder.State.Loading -> {
-                internalUIState.update { State.Loading() }
+            ScreenBehaviorsHolder.State.Initial -> {
+                internalUIState.update { State.Initial() }
                 tilesUIStateManager.setup(
-                    tiles = loadingTiles,
-                    events = loadingEvents,
+                    tiles = initialTiles,
+                    events = initialEvents,
                     onUpdateStateRequest = ::onUpdateStateRequest
                 )
             }
@@ -93,7 +93,7 @@ internal class MosaicScreenStateHolder(
             when (currentState) {
                 is State.Displaying -> currentState.copy(rootTile = rootTile)
                 is State.Failure -> currentState.copy(rootTile = rootTile)
-                is State.Loading -> currentState.copy(rootTile = rootTile)
+                is State.Initial -> currentState.copy(rootTile = rootTile)
             }
         }
     }

@@ -40,11 +40,14 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
-import org.koin.compose.KoinApplication
+import org.koin.compose.KoinMultiplatformApplication
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.module.Module
+import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
 fun MosaicApplication(
     applicationId: String,
@@ -57,40 +60,36 @@ fun MosaicApplication(
     typography: Typography = MaterialTheme.typography,
     materialSymbolFontsConfig: MaterialSymbolFontsConfig = MaterialSymbolFontsConfig(),
 ) {
+    KoinMultiplatformApplication(
+        config = koinConfiguration {
+            modules(
+                MosaicModules(
+                    applicationId = applicationId,
+                    baseUrl = baseUrl,
+                    additionalModule = additionalKoinModule,
+                    tileDefinitions = tileDefinitions,
+                    eventDefinitions = eventDefinitions
+                ).modules
+            )
+        }
+    ) {
 
-    ApplicationIdentifierHolder.applicationId = applicationId
+        val stateHolder = koinViewModel<MosaicApplicationStateHolder>()
 
-    PlatformDecorator {
-        KoinApplication(
-            application = {
-                modules(
-                    MosaicModules(
-                        baseUrl = baseUrl,
-                        additionalModule = additionalKoinModule,
-                        tileDefinitions = tileDefinitions,
-                        eventDefinitions = eventDefinitions
-                    ).modules
-                )
-            }
+        stateHolder.bindScreenLifecycle()
+
+        MosaicTheme(
+            colorScheme = colorScheme,
+            shapes = shapes,
+            typography = typography,
+            materialSymbolFontsConfig = materialSymbolFontsConfig
         ) {
+            val uiState by stateHolder.uiState.collectAsState()
 
-            val stateHolder = koinViewModel<MosaicApplicationStateHolder>()
-
-            stateHolder.bindScreenLifecycle()
-
-            MosaicTheme(
-                colorScheme = colorScheme,
-                shapes = shapes,
-                typography = typography,
-                materialSymbolFontsConfig = materialSymbolFontsConfig
-            ) {
-                val uiState by stateHolder.uiState.collectAsState()
-
-                MosaicApplicationContent(
-                    uiState = uiState,
-                    onEvent = { stateHolder.onEvent(it) }
-                )
-            }
+            MosaicApplicationContent(
+                uiState = uiState,
+                onEvent = { stateHolder.onEvent(it) }
+            )
         }
     }
 }

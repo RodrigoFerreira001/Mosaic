@@ -13,6 +13,6 @@ interface ScreenBehaviorsHolder {
         ) : State
 
         data object Failure : State
-        data object Loading : State
+        data object Initial : State
     }
 }
