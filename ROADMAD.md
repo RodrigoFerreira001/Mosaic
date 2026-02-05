@@ -25,3 +25,7 @@
 - NextPageEvent (Pager e afins)
 - Send platform info on network calls
 - Actions: GetFile, SaveFile, DeleteFile
+
+# Prioridades
+- Fazer teste inicial do server + cliente (com actions de GetScreen)
+- Adicionar todos os tiles restantes (pelo menos o contrato)

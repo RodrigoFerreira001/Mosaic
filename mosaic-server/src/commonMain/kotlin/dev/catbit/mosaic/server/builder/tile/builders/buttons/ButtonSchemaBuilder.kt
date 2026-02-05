@@ -8,7 +8,7 @@ import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 
-class ButtonSchemaBuilder(
+internal class ButtonSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},

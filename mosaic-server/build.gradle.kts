@@ -52,6 +52,9 @@ kotlin {
 
             // Kotlin serialization
             implementation(libs.kotlinx.serialization.json)
+
+            // Kotlinx Datetime
+            implementation(libs.kotlinx.datetime)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

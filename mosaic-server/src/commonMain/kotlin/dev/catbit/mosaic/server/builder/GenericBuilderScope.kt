@@ -7,5 +7,5 @@ abstract class GenericBuilderScope <Model, Builder: GenericBuilder<Model>>  {
         builders.add(builder)
     }
 
-    fun build() = builders.map { it.build() }
+    internal fun build() = builders.map { it.build() }
 }
