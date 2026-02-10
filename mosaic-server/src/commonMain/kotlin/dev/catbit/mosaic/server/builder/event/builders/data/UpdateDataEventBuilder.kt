@@ -1,0 +1,68 @@
+package dev.catbit.mosaic.server.builder.event.builders.data
+
+import dev.catbit.mosaic.core.data.schemas.event.data.AccessModeSchema
+import dev.catbit.mosaic.core.data.schemas.event.data.DataSourceSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema.Update
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.server.builder.GenericBuilder
+import dev.catbit.mosaic.server.builder.GenericBuilderScope
+import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
+import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+
+internal class UpdateDataEventBuilder(
+    private val id: String,
+    private val trigger: EventTrigger,
+    private val events: EventSchemaBuilderScope.() -> Unit = {},
+    private val updates: UpdateDataUpdateBuilderScope.() -> Unit
+) : EventSchemaBuilder<UpdateDataEventSchema> {
+
+    override fun build() = UpdateDataEventSchema(
+        id = id,
+        trigger = trigger,
+        events = EventSchemaBuilderScope().apply(events).build(),
+        updates = UpdateDataUpdateBuilderScope().apply(updates).build()
+    )
+}
+
+fun EventSchemaBuilderScope.UpdateData(
+    id: String = randomUuid(),
+    trigger: EventTrigger,
+    events: EventSchemaBuilderScope.() -> Unit = {},
+    updates: UpdateDataUpdateBuilderScope.() -> Unit
+) {
+    addBuilder(
+        UpdateDataEventBuilder(
+            id = id,
+            trigger = trigger,
+            events = events,
+            updates = updates
+        )
+    )
+}
+
+class UpdateDataUpdateBuilder(
+    private val dataSource: DataSourceSchema,
+    private val accessMode: AccessModeSchema
+) : GenericBuilder<Update> {
+
+    override fun build() = Update(
+        dataSource = dataSource,
+        accessMode = accessMode
+    )
+}
+
+class UpdateDataUpdateBuilderScope : GenericBuilderScope<Update, UpdateDataUpdateBuilder>() {
+    fun addUpdate(
+        dataSource: DataSourceSchema,
+        accessMode: AccessModeSchema
+    ) {
+        addBuilder(
+            UpdateDataUpdateBuilder(
+                dataSource = dataSource,
+                accessMode = accessMode,
+            )
+        )
+    }
+}
