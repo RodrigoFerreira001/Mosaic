@@ -10,9 +10,9 @@ import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 internal class AddTilesEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
+    private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val groupingTileId: String,
     private val position: AddTilesEventSchema.InsertionPosition,
-    private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val tiles: TileSchemaBuilderScope.() -> Unit = {},
 ) : EventSchemaBuilder<AddTilesEventSchema> {
 

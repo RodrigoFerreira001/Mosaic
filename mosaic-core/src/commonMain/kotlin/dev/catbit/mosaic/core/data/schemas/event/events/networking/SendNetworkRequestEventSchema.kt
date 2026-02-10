@@ -7,6 +7,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTr
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseTrigger
+import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -29,9 +30,4 @@ data class SendNetworkRequestEventSchema(
     val method: HttpMethod,
     val body: AnySerializable?,
     val headers: Map<String, String>?
-) : EventSchema {
-
-    enum class HttpMethod {
-        GET, POST, PUT, DELETE, UPDATE, PATCH
-    }
-}
+) : EventSchema

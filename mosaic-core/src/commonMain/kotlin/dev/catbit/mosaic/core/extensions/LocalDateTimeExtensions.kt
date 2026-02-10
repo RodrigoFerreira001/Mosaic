@@ -1,6 +1,6 @@
 package dev.catbit.mosaic.core.extensions
 
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 

@@ -39,7 +39,10 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.di
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.display.DisplayDialogEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.dismiss.DismissNavigationDrawerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.display.DisplayNavigationDrawerEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.change_screen_state.ChangeScreenStateEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.get_screen.GetScreenEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column.ScrollTileColumnEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.row.ScrollRowTileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.security.request_permission.RequestPermissionEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_tiles.AddTilesEventDefinition
@@ -260,6 +263,7 @@ internal class MosaicModules(
         NavigateUpEventDefinition,
         ToggleMenuEventDefinition,
         ScrollTileColumnEventDefinition,
+        ScrollRowTileEventDefinition,
         AddTilesEventDefinition,
         RemoveTilesEventDefinition,
         ReplaceTilesEventDefinition,
@@ -278,7 +282,9 @@ internal class MosaicModules(
         SendDataEventDefinition,
         UpdateDataEventDefinition,
         TriggerEventEventDefinition,
-        RequestPermissionEventDefinition
+        RequestPermissionEventDefinition,
+        ChangeScreenStateEventDefinition,
+        GetScreenEventDefinition
     )
 }
 

@@ -2,6 +2,7 @@ package dev.catbit.mosaic.core.data.schemas.event.events.screen
 
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -18,7 +19,19 @@ data class ChangeScreenStateEventSchema(
     sealed interface State {
 
         @SerialName("Success")
-        data object Success : State
+        data class Success(
+            @SerialName("data")
+            val data: ScreenData
+        ) : State {
+            data class ScreenData(
+                @SerialName("tiles")
+                val tiles: List<TileSchema>,
+                @SerialName("navigationDrawerTiles")
+                val navigationDrawerTiles: List<TileSchema>?,
+                @SerialName("events")
+                val events: List<EventSchema>?
+            )
+        }
 
         @SerialName("Failure")
         data object Failure : State

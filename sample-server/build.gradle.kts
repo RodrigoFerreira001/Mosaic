@@ -18,7 +18,7 @@ dependencies {
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.content.negotiation)
     implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.server.network.tls.certificates)
     implementation(libs.kotlinx.datetime)
     implementation(libs.logback.classic)
-    testImplementation("io.ktor:ktor-server-test-host-jvm:3.3.3")
 }

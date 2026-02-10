@@ -48,11 +48,16 @@ kotlin {
             // Coroutines
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.coroutines.swing)
+
+            // Shimmer
+            implementation(libs.shimmer)
+
+            // Kotlinx Datetime
+            implementation(libs.kotlinx.datetime)
         }
 
         jvmMain.dependencies {
             implementation(compose.desktop.currentOs)
-//            implementation(libs.kotlinx.coroutines.swing)
         }
     }
 }

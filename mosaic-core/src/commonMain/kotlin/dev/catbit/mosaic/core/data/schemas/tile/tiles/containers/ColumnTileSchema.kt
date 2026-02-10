@@ -2,6 +2,8 @@ package dev.catbit.mosaic.core.data.schemas.tile.tiles.containers
 
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.GroupingTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.AlignmentSchema
@@ -12,8 +14,8 @@ import kotlinx.serialization.Serializable
 
 @Triggers(
     [
-        dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger::class,
-        dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger::class
+        OnClickEventTrigger::class,
+        OnLongPressEventTrigger::class
     ]
 )
 @Serializable

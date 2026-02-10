@@ -29,6 +29,7 @@ data class RequestPermissionEventSchema(
         STORAGE,
         MICROPHONE,
         LOCATION,
-        NOTIFICATION
+        NOTIFICATION,
+        CONTACTS
     }
 }

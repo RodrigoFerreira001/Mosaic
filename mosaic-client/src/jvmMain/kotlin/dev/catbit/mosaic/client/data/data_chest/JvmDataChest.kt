@@ -54,9 +54,9 @@ class JvmDataChest(
     override fun getString(
         key: String,
         defaultValue: String
-    ): String =  getStringOrNull(key) ?: defaultValue
+    ): String = preferences.get(key, defaultValue)
 
-    override fun getStringOrNull(key: String): String? = preferences.get(key, "")
+    override fun getStringOrNull(key: String): String? = preferences.get(key, null)
 
     override fun putFloat(key: String, value: Float) {
         with(preferences) {

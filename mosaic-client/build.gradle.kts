@@ -78,6 +78,13 @@ kotlin {
             implementation(libs.ktor.client.serialization)
             implementation(libs.ktor.serialization.kotlinx.json)
 
+            // Coil
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network)
+
+            // Shimmer
+            implementation(libs.shimmer)
+
             // Datetime
             implementation(libs.kotlinx.datetime)
         }
@@ -100,11 +107,6 @@ kotlin {
         wasmJsMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.js)
-        }
-
-
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
         }
     }
 }

@@ -46,6 +46,8 @@ internal class MosaicApplicationStateHolder(
                             title = "Erro",
                             details = failure.stackTraceToString()
                         )
+                    }.also {
+                        failure.printStackTrace()
                     }
                 }
         }

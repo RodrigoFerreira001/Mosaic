@@ -32,14 +32,21 @@ internal class MosaicScreenStateHolder(
 
     override val internalUIState = MutableStateFlow<State>(State.Initial())
 
+    init {
+        tilesUIStateManager.setup(
+            tiles = initialTiles,
+            events = initialEvents,
+            onUpdateStateRequest = ::onUpdateStateRequest
+        )
+    }
+
     override fun setState(state: ScreenBehaviorsHolder.State) {
         when (state) {
-            is ScreenBehaviorsHolder.State.Success -> {
-                internalUIState.update { State.Displaying() }
+            ScreenBehaviorsHolder.State.Initial -> {
+                internalUIState.update { State.Initial() }
                 tilesUIStateManager.setup(
-                    tiles = state.screenModel.tiles,
-                    navigationDrawerTiles = state.screenModel.navigationDrawerTiles,
-                    events = state.screenModel.events,
+                    tiles = initialTiles,
+                    events = initialEvents,
                     onUpdateStateRequest = ::onUpdateStateRequest
                 )
             }
@@ -53,11 +60,12 @@ internal class MosaicScreenStateHolder(
                 )
             }
 
-            ScreenBehaviorsHolder.State.Initial -> {
-                internalUIState.update { State.Initial() }
+            is ScreenBehaviorsHolder.State.Success -> {
+                internalUIState.update { State.Displaying() }
                 tilesUIStateManager.setup(
-                    tiles = initialTiles,
-                    events = initialEvents,
+                    tiles = state.screenModel.tiles,
+                    navigationDrawerTiles = state.screenModel.navigationDrawerTiles,
+                    events = state.screenModel.events,
                     onUpdateStateRequest = ::onUpdateStateRequest
                 )
             }

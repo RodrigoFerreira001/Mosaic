@@ -48,6 +48,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEv
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsAcquiredEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPullEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
@@ -65,7 +66,9 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.CarouselTileSch
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.ColumnTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.GridTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.PagerTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.PullToRefreshTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.RowTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.ShimmerTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.menu.MenuTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.text.TextTileSchema
@@ -171,6 +174,7 @@ class MosaicSerializer(
             OnNetworkResponseTrigger::class to OnNetworkResponseTrigger.serializer(),
             OnPermissionsAcquiredEventTrigger::class to OnPermissionsAcquiredEventTrigger.serializer(),
             OnPermissionsDeniedEventTrigger::class to OnPermissionsDeniedEventTrigger.serializer(),
+            OnPullEventTrigger::class to OnPullEventTrigger.serializer(),
             OnScrolledEventTrigger::class to OnScrolledEventTrigger.serializer(),
             OnStartEventTrigger::class to OnStartEventTrigger.serializer(),
             OnSuccessEventTrigger::class to OnSuccessEventTrigger.serializer(),
@@ -191,7 +195,9 @@ class MosaicSerializer(
             ColumnTileSchema::class to ColumnTileSchema.serializer(),
             GridTileSchema::class to GridTileSchema.serializer(),
             PagerTileSchema::class to PagerTileSchema.serializer(),
+            PullToRefreshTileSchema::class to PullToRefreshTileSchema.serializer(),
             RowTileSchema::class to RowTileSchema.serializer(),
+            ShimmerTileSchema::class to ShimmerTileSchema.serializer(),
             TextFieldTileSchema::class to TextFieldTileSchema.serializer(),
             MenuTileSchema::class to MenuTileSchema.serializer(),
             TextTileSchema::class to TextTileSchema.serializer(),

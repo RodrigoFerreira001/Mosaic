@@ -25,6 +25,6 @@ data class UpdateTilesEventSchema(
     @Serializable
     data class Update(
         @SerialName("tileId") val tileId: String,
-        @SerialName("data") val data: Map<String, AnySerializable>
+        @SerialName("data") val data: Map<String, AnySerializable?>
     )
 }

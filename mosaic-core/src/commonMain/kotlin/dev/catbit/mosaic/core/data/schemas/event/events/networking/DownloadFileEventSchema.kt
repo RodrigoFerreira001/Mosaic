@@ -3,10 +3,11 @@ package dev.catbit.mosaic.core.data.schemas.event.events.networking
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
+import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -29,9 +30,4 @@ data class DownloadFileEventSchema(
     val method: HttpMethod,
     val body: AnySerializable?,
     val headers: Map<String, String>?
-) : EventSchema {
-
-    enum class HttpMethod {
-        GET, POST, PUT, DELETE, UPDATE, PATCH
-    }
-}
+) : EventSchema

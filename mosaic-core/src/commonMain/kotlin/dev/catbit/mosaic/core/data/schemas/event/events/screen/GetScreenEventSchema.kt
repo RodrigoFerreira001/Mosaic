@@ -11,5 +11,5 @@ data class GetScreenEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: List<EventSchema>?,
-    @SerialName("eventId") val eventId: String
+    @SerialName("screenId") val screenId: String
 ) : EventSchema
