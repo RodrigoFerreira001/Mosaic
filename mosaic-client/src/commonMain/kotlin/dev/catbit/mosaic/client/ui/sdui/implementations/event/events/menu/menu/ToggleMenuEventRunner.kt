@@ -6,7 +6,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTile
 import dev.catbit.mosaic.core.data.schemas.event.events.menu.ToggleMenuEventSchema
 
 object ToggleMenuEventRunner : EventRunner<ToggleMenuEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: ToggleMenuEventSchema) {
+    override fun EventRunningScope.runEvent(event: ToggleMenuEventSchema) {
         tilesEventDispatcher.onEvent(
             tileId = event.menuId,
             event = MenuTileEvents.OnToggleMenu

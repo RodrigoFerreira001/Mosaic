@@ -5,7 +5,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.core.data.schemas.event.events.data.GetDataEventSchema
 
 object GetDataEventRunner : EventRunner<GetDataEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: GetDataEventSchema) {
+    override fun EventRunningScope.runEvent(event: GetDataEventSchema) {
         println("executed GetDataEventModel")
     }
 }

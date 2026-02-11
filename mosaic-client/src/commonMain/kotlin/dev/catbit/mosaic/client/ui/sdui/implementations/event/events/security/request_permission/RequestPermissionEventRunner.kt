@@ -5,7 +5,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.core.data.schemas.event.events.security.RequestPermissionEventSchema
 
 object RequestPermissionEventRunner : EventRunner<RequestPermissionEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: RequestPermissionEventSchema) {
+    override fun EventRunningScope.runEvent(event: RequestPermissionEventSchema) {
         println("executed RequestPermissionEventModel")
     }
 }

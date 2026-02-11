@@ -5,7 +5,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.core.data.schemas.event.events.data.ProcessDataEventSchema
 
 object ProcessDataEventRunner : EventRunner<ProcessDataEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: ProcessDataEventSchema) {
+    override fun EventRunningScope.runEvent(event: ProcessDataEventSchema) {
         println("executed ProcessDataEventModel")
     }
 }

@@ -20,7 +20,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.ColumnTileSchema
 
-// TODO Separar em um plugin LazyColumn
+// Olhar o escopo lazy e decidir se usa LazyColumn ou Apenas Column
 object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
 
     @Composable

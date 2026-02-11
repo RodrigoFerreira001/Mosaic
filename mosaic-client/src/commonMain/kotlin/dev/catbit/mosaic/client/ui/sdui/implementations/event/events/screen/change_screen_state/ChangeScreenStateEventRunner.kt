@@ -2,10 +2,28 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.cha
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
+import dev.catbit.mosaic.core.data.models.screen.ScreenModel
 import dev.catbit.mosaic.core.data.schemas.event.events.screen.ChangeScreenStateEventSchema
 
 object ChangeScreenStateEventRunner : EventRunner<ChangeScreenStateEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: ChangeScreenStateEventSchema) {
-        println("Running ChangeScreenStateEvent: $event")
+    override fun EventRunningScope.runEvent(event: ChangeScreenStateEventSchema) {
+        screenBehaviorsHolder.setState(
+            when (val eventState = event.state) {
+                ChangeScreenStateEventSchema.State.Failure -> ScreenBehaviorsHolder.State.Failure
+                ChangeScreenStateEventSchema.State.Initial -> ScreenBehaviorsHolder.State.Initial
+                is ChangeScreenStateEventSchema.State.Success -> ScreenBehaviorsHolder.State.Success(
+                    screenModel = eventState.data?.let { data ->
+                        ScreenModel(
+                            tiles = data.tiles,
+                            navigationDrawerTiles = data.navigationDrawerTiles,
+                            events = data.events,
+                        )
+                    }
+                        ?: incomingData as? ScreenModel
+                        ?: throw IllegalArgumentException("ChangeScreenState needs a valid ScreenModel and State is Success")
+                )
+            }
+        )
     }
 }

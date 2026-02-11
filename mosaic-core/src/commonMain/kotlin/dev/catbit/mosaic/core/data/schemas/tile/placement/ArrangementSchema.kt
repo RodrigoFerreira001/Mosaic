@@ -11,15 +11,15 @@ sealed interface ArrangementSchema {
     sealed interface Horizontal : ArrangementSchema {
 
         @Serializable
-        @SerialName("start")
+        @SerialName("Start")
         data object Start : Horizontal
 
         @Serializable
-        @SerialName("end")
+        @SerialName("End")
         data object End : Horizontal
 
         @Serializable
-        @SerialName("spaced_by")
+        @SerialName("SpacedBy")
         data class SpacedBy(
             val space: Int,
             val alignment: AlignmentSchema.Horizontal
@@ -31,15 +31,15 @@ sealed interface ArrangementSchema {
     sealed interface Vertical : ArrangementSchema {
 
         @Serializable
-        @SerialName("top")
+        @SerialName("Top")
         data object Top : Vertical
 
         @Serializable
-        @SerialName("bottom")
+        @SerialName("Bottom")
         data object Bottom : Vertical
 
         @Serializable
-        @SerialName("spaced_by")
+        @SerialName("SpacedBy")
         data class SpacedBy(
             val space: Int,
             val alignment: AlignmentSchema.Vertical
@@ -51,19 +51,19 @@ sealed interface ArrangementSchema {
     sealed interface HorizontalOrVertical : Horizontal, Vertical {
 
         @Serializable
-        @SerialName("center")
+        @SerialName("Center")
         data object Center : HorizontalOrVertical
 
         @Serializable
-        @SerialName("space_evenly")
+        @SerialName("SpaceEvenly")
         data object SpaceEvenly : HorizontalOrVertical
 
         @Serializable
-        @SerialName("space_between")
+        @SerialName("SpaceBetween")
         data object SpaceBetween : HorizontalOrVertical
 
         @Serializable
-        @SerialName("space_around")
+        @SerialName("SpaceAround")
         data object SpaceAround : HorizontalOrVertical
     }
 }

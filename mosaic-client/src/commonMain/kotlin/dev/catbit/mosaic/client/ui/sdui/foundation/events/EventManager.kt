@@ -8,7 +8,8 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.Tiles
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesOverlaysEditor
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import kotlinx.coroutines.supervisorScope
+import dev.catbit.mosaic.core.extensions.runSafely
+import kotlinx.coroutines.CoroutineScope
 import org.koin.core.scope.Scope
 
 class EventManager(
@@ -17,7 +18,8 @@ class EventManager(
     private val koinScope: Scope
 ) {
 
-    private val runningEvents = mutableMapOf<String, EventSchema>()
+    private var stateHolderCoroutineScope: CoroutineScope? = null
+    private var screenCoroutineScope: CoroutineScope? = null
 
     private lateinit var tilesEditor: TilesEditor
     private lateinit var tilesOverlaysEditor: TilesOverlaysEditor
@@ -50,30 +52,24 @@ class EventManager(
         this.tilesEventDispatcher = tilesEventDispatcher
     }
 
-    suspend fun triggerEvents(
+    fun setStateHolderCoroutineScope(
+        coroutineScope: CoroutineScope
+    ) {
+        stateHolderCoroutineScope = coroutineScope
+    }
+
+    fun setScreenCoroutineScope(
+        coroutineScope: CoroutineScope
+    ) {
+        screenCoroutineScope = coroutineScope
+    }
+
+    fun triggerEvents(
         trigger: EventTrigger,
         data: Any? = null
     ) {
         tilesEventHolder
             .getEventsByTrigger(trigger)
-            ?.forEach { eventSchema ->
-                supervisorScope {
-                    runEvent(
-                        eventSchema = eventSchema,
-                        data = data
-                    )
-                }
-            }
-    }
-
-    suspend fun onTrigger(
-        eventOwnerId: String,
-        trigger: EventTrigger,
-        data: Any? = null
-    ) {
-        runningEvents[eventOwnerId]
-            ?.events
-            ?.filter { it.trigger == trigger }
             ?.forEach { eventSchema ->
                 runEvent(
                     eventSchema = eventSchema,
@@ -82,7 +78,7 @@ class EventManager(
             }
     }
 
-    suspend fun runEvents(
+    fun runEvents(
         eventSchemas: List<EventSchema>,
         data: Any? = null
     ) {
@@ -94,25 +90,27 @@ class EventManager(
         }
     }
 
-    suspend fun runEvent(
+    fun runEvent(
         eventSchema: EventSchema,
         data: Any? = null
     ) {
-        runningEvents[eventSchema.id] = eventSchema
-        with(eventRunnerManager) {
-            EventRunningScope(
-                screenId = screenId,
-                triggerOwnerId = eventSchema.id,
-                incomingData = data,
-                eventManager = this@EventManager,
-                tilesEditor = tilesEditor,
-                tilesOverlaysEditor = tilesOverlaysEditor,
-                tilesEventDispatcher = tilesEventDispatcher,
-                dataHolder = dataHolder,
-                screenBehaviorsHolder = screenBehaviorsHolder,
-                koinScope = koinScope
-            ).runEvent(eventSchema)
+        runSafely {
+            with(eventRunnerManager) {
+                EventRunningScope(
+                    screenId = screenId,
+                    triggerOwner = eventSchema,
+                    incomingData = data,
+                    eventManager = this@EventManager,
+                    tilesEditor = tilesEditor,
+                    tilesOverlaysEditor = tilesOverlaysEditor,
+                    tilesEventDispatcher = tilesEventDispatcher,
+                    dataHolder = dataHolder,
+                    screenBehaviorsHolder = screenBehaviorsHolder,
+                    koinScope = koinScope,
+                    stateHolderCoroutineScope = stateHolderCoroutineScope,
+                    screenCoroutineScope = screenCoroutineScope,
+                ).runEvent(eventSchema)
+            }
         }
-        runningEvents.remove(eventSchema.id)
     }
 }

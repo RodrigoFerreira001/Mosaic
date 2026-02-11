@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import dev.catbit.mosaic.client.ui.effects.SingleEffect
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalBroadcastChannel
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTileRendererManager
 import org.koin.compose.viewmodel.koinViewModel
@@ -23,7 +25,12 @@ internal fun MosaicScreen(
 ) {
     stateHolder.bindScreenLifecycle()
 
+    val coroutineScope = rememberCoroutineScope()
     val uiState by stateHolder.uiState.collectAsState()
+
+    SingleEffect {
+        stateHolder.onEvent(Event.OnScreenCoroutineScopeSet(coroutineScope))
+    }
 
     CompositionLocalProvider(
         LocalTileRendererManager provides stateHolder.tileRendererManager,

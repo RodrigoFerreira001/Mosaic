@@ -2,6 +2,7 @@ package dev.catbit.mosaic.server.builder.event.builders.screen
 
 import dev.catbit.mosaic.core.data.schemas.event.events.screen.ChangeScreenStateEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.screen.ChangeScreenStateEventSchema.State
+import dev.catbit.mosaic.core.data.schemas.event.events.screen.ChangeScreenStateEventSchema.State.Success.ScreenData
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
@@ -37,3 +38,9 @@ fun EventSchemaBuilderScope.ChangeScreenState(
         )
     )
 }
+
+fun initialState() = State.Initial
+fun failureState() = State.Failure
+fun successState(
+    data: ScreenData? = null
+) = State.Success(data)

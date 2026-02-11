@@ -8,8 +8,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ScreenModel(
-    @SerialName("id")
-    val id: String,
     @SerialName("tiles")
     val tiles: List<TileSchema>,
     @SerialName("navigationDrawerTiles")
@@ -22,7 +20,6 @@ data class ScreenModel(
         fun fromScreenResponse(
             screenResponse: ScreenResponse
         ) = ScreenModel(
-            id = screenResponse.id,
             tiles = screenResponse.tiles,
             navigationDrawerTiles = screenResponse.navigationDrawerTiles,
             events = screenResponse.events,

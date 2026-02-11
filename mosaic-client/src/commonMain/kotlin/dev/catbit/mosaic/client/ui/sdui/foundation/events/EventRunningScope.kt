@@ -9,17 +9,22 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.Tiles
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
+import kotlin.reflect.KClass
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 import org.koin.core.scope.Scope
-import kotlin.reflect.KClass
 
 data class EventRunningScope(
     val screenId: String,
-    val triggerOwnerId: String,
+    val triggerOwner: EventSchema,
     val incomingData: Any? = null,
     private val koinScope: Scope,
     private val eventManager: EventManager,
+    private val stateHolderCoroutineScope: CoroutineScope?,
+    private val screenCoroutineScope: CoroutineScope?,
     val tilesEditor: TilesEditor,
     val tilesEventDispatcher: TilesEventDispatcher,
     val tilesOverlaysEditor: TilesOverlaysEditor,
@@ -27,18 +32,37 @@ data class EventRunningScope(
     val screenBehaviorsHolder: ScreenBehaviorsHolder,
 ) {
 
-    suspend fun onTrigger(
+    fun runSuspendOnScreenScope(
+        block: suspend () -> Unit
+    ) {
+        screenCoroutineScope?.launch {
+            supervisorScope { block() }
+        }
+    }
+
+    fun runSuspendOnStateHolderScope(
+        block: suspend () -> Unit
+    ) {
+        stateHolderCoroutineScope?.launch {
+            supervisorScope { block() }
+        }
+    }
+
+    fun onTrigger(
         eventTrigger: EventTrigger,
         data: Any? = null
     ) {
-        eventManager.onTrigger(
-            eventOwnerId = triggerOwnerId,
-            trigger = eventTrigger,
-            data = data,
-        )
+        triggerOwner.events
+            ?.filter { it.trigger == eventTrigger }
+            ?.forEach { eventSchema ->
+                eventManager.runEvent(
+                    eventSchema = eventSchema,
+                    data = data
+                )
+            }
     }
 
-    suspend fun runEventInline(
+    fun runEventInline(
         eventSchema: EventSchema,
         data: Any? = null
     ) {

@@ -57,6 +57,13 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_f
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text.TextTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.box.BoxTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.card.CardTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.carousel.CarouselTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.grid.GridTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.pager.PagerTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.pull_to_refresh.PullToRefreshTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.shimmer.ShimmerTileDefinition
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
@@ -252,6 +259,13 @@ internal class MosaicModules(
         ColumnTileDefinition,
         RowTileDefinition,
         ButtonTileDefinition,
+        BoxTileDefinition,
+        CardTileDefinition,
+        CarouselTileDefinition,
+        GridTileDefinition,
+        PagerTileDefinition,
+        PullToRefreshTileDefinition,
+        ShimmerTileDefinition,
         TextFieldTileDefinition,
         TextTileDefinition,
         MenuTileDefinition

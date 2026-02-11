@@ -21,7 +21,7 @@ data class ChangeScreenStateEventSchema(
         @SerialName("Success")
         data class Success(
             @SerialName("data")
-            val data: ScreenData
+            val data: ScreenData?
         ) : State {
             data class ScreenData(
                 @SerialName("tiles")

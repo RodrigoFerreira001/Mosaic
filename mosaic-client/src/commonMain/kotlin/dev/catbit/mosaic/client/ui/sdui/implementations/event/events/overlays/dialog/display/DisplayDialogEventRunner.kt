@@ -6,7 +6,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scre
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DisplayDialogEventSchema
 
 object DisplayDialogEventRunner : EventRunner<DisplayDialogEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: DisplayDialogEventSchema) {
+    override fun EventRunningScope.runEvent(event: DisplayDialogEventSchema) {
 
         tilesOverlaysEditor.setDialogTiles(event.tiles)
 

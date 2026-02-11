@@ -8,6 +8,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asSharedFlow
@@ -33,6 +34,7 @@ internal class MosaicScreenStateHolder(
     override val internalUIState = MutableStateFlow<State>(State.Initial())
 
     init {
+        eventManager.setStateHolderCoroutineScope(stateHolderScope)
         tilesUIStateManager.setup(
             tiles = initialTiles,
             events = initialEvents,
@@ -75,10 +77,13 @@ internal class MosaicScreenStateHolder(
     override fun onEvent(event: Event) {
         when (event) {
             is Event.OnUIEvent -> onUIEvent(event)
+            is Event.OnScreenCoroutineScopeSet -> onScreenCoroutineScopeSet(event.coroutineScope)
         }
     }
 
-    private fun onUIEvent(event: Event.OnUIEvent) {
+    private fun onUIEvent(
+        event: Event.OnUIEvent
+    ) {
         when (event.event) {
             is UIEvent.TileEventHolderUIEvent -> tilesUIStateManager.onEvent(
                 tileId = event.event.tileId,
@@ -86,14 +91,18 @@ internal class MosaicScreenStateHolder(
             )
 
             is UIEvent.EventSchemaHolderUIEvent -> {
-                stateHolderScope.launch {
-                    eventManager.runEvents(
-                        eventSchemas = event.event.events,
-                        data = event.event.data
-                    )
-                }
+                eventManager.runEvents(
+                    eventSchemas = event.event.events,
+                    data = event.event.data
+                )
             }
         }
+    }
+
+    private fun onScreenCoroutineScopeSet(
+        coroutineScope: CoroutineScope
+    ) {
+        eventManager.setScreenCoroutineScope(coroutineScope)
     }
 
     private fun onUpdateStateRequest(rootTile: TileSchema) {

@@ -6,7 +6,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scre
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DismissDialogEventSchema
 
 object DismissDialogEventRunner : EventRunner<DismissDialogEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: DismissDialogEventSchema) {
+    override fun EventRunningScope.runEvent(event: DismissDialogEventSchema) {
         broadcastData(ScreenTileBroadcastData.DismissDialog)
     }
 }

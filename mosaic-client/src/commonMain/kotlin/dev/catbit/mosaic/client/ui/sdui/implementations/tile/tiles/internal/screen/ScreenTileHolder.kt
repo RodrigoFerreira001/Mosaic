@@ -38,6 +38,7 @@ class ScreenTileHolder(
         eventTrigger: EventTrigger
     ): List<EventSchema>? = events
         ?.asSequence()
+        ?.filter { it.trigger == eventTrigger }
         ?.map { it.get() }
         ?.plus(tiles.mapNotNull { it.getEventsByTrigger(eventTrigger) }.flatten())
         ?.plus(currentBottomSheetTiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())

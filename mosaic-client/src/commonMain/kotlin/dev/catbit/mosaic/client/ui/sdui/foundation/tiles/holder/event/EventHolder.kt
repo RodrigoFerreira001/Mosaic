@@ -16,7 +16,7 @@ import kotlin.collections.component2
 abstract class EventHolder<T : EventSchema> {
     abstract val id: String
     protected abstract var event: T
-    protected abstract val trigger: EventTrigger
+    abstract val trigger: EventTrigger
 
     protected abstract val events: List<EventHolder<*>>?
     protected abstract val tiles: List<TileHolder<*>>?

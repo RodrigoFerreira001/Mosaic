@@ -9,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.extensions.runSafely
 import dev.catbit.mosaic.core.extensions.toJsonElement
+import kotlin.sequences.filter
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
@@ -36,6 +37,7 @@ abstract class TileHolder<T : TileSchema> {
     open fun getEventsByTrigger(
         eventTrigger: EventTrigger
     ): List<EventSchema>? = events
+        ?.filter { it.trigger == eventTrigger }
         ?.map { it.get() }
         ?.plus(tiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
 

@@ -8,7 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEvent
 
 object NavigateEventRunner : EventRunner<NavigateEventSchema> {
 
-    override suspend fun EventRunningScope.runEvent(event: NavigateEventSchema) {
+    override fun EventRunningScope.runEvent(event: NavigateEventSchema) {
         NavigatorHolder[event.navigatorId]?.navigate(
             destination = event.destination,
             navigationData = incomingData.asMapAny().orEmpty() + event.data.orEmpty(),

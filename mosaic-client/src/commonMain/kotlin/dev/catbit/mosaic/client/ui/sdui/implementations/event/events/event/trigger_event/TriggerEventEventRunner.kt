@@ -5,7 +5,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.core.data.schemas.event.events.event.TriggerEventEventSchema
 
 object TriggerEventEventRunner : EventRunner<TriggerEventEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: TriggerEventEventSchema) {
+    override fun EventRunningScope.runEvent(event: TriggerEventEventSchema) {
         println("executed TriggerEventEventModel")
     }
 }

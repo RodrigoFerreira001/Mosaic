@@ -6,7 +6,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendNetworkRe
 
 object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventSchema> {
 
-    override suspend fun EventRunningScope.runEvent(event: SendNetworkRequestEventSchema) {
+    override fun EventRunningScope.runEvent(event: SendNetworkRequestEventSchema) {
         print("Rodou")
     }
 }

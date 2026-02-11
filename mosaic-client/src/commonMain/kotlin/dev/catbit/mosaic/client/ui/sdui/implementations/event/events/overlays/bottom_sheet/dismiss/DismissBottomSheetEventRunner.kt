@@ -6,7 +6,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scre
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DismissBottomSheetEventSchema
 
 object DismissBottomSheetEventRunner : EventRunner<DismissBottomSheetEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: DismissBottomSheetEventSchema) {
+    override fun EventRunningScope.runEvent(event: DismissBottomSheetEventSchema) {
         broadcastData(ScreenTileBroadcastData.DismissBottomSheet)
     }
 }

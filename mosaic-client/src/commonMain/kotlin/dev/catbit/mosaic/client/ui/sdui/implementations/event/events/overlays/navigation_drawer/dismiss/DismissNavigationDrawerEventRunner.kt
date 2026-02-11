@@ -6,7 +6,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scre
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer.DismissNavigationDrawerEventSchema
 
 object DismissNavigationDrawerEventRunner : EventRunner<DismissNavigationDrawerEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: DismissNavigationDrawerEventSchema) {
+    override fun EventRunningScope.runEvent(event: DismissNavigationDrawerEventSchema) {
         broadcastData(ScreenTileBroadcastData.DismissNavigationDrawer)
     }
 }

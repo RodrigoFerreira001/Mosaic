@@ -6,7 +6,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scre
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DisplayBottomSheetEventSchema
 
 object DisplayBottomSheetEventRunner : EventRunner<DisplayBottomSheetEventSchema> {
-    override suspend fun EventRunningScope.runEvent(event: DisplayBottomSheetEventSchema) {
+    override fun EventRunningScope.runEvent(event: DisplayBottomSheetEventSchema) {
 
         tilesOverlaysEditor.setBottomSheetTiles(event.tiles)
 

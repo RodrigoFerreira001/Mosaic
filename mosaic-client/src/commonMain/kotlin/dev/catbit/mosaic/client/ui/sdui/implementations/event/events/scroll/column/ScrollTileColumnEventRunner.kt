@@ -7,7 +7,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.scroll.column.ScrollColu
 
 object ScrollTileColumnEventRunner : EventRunner<ScrollColumnTileEventSchema> {
 
-    override suspend fun EventRunningScope.runEvent(event: ScrollColumnTileEventSchema) {
+    override fun EventRunningScope.runEvent(event: ScrollColumnTileEventSchema) {
         broadcastData(
             when (val where = event.where) {
                 ScrollColumnTileEventSchema.Where.Top -> ColumnTileBroadcastData.ScrollToTop(
