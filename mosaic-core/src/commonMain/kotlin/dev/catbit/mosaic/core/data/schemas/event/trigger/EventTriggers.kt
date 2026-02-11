@@ -7,6 +7,11 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedE
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataSentEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataUpdatedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDialogDismissedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadPartialEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger
@@ -28,6 +33,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesWipedEv
 object EventTriggers {
     fun onBottomSheetDismissed() = OnBottomSheetDismissedEventTrigger
     fun onClick() = OnClickEventTrigger
+    fun onDisplay() = OnDisplayEventTrigger
     fun onDataReceived() = OnDataReceivedEventTrigger
     fun onDataRemoved() = OnDataRemovedEventTrigger
     fun onDataSent() = OnDataSentEventTrigger
@@ -50,4 +56,8 @@ object EventTriggers {
     fun onTilesReplaced() = OnTilesReplacedEventTrigger
     fun onTilesUpdated() = OnTilesUpdatedEventTrigger
     fun onTilesWiped() = OnTilesWipedEventTrigger
+    fun onDownloadFailureEventTrigger() = OnDownloadFailureEventTrigger
+    fun onDownloadFinishEventTrigger() = OnDownloadFinishEventTrigger
+    fun onDownloadProgressEventTrigger() = OnDownloadProgressEventTrigger
+    fun onDownloadPartialEventTrigger() = OnDownloadPartialEventTrigger
 }

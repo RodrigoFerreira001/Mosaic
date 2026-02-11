@@ -104,4 +104,8 @@ data class EventRunningScope(
 
     @Suppress("UNCHECKED_CAST")
     fun Any?.asMapAny() = this as? Map<String, AnySerializable>
+
+    @Suppress("UNCHECKED_CAST")
+    fun Any?.asMapString(): Map<String, String>? =
+        asMapAny()?.filterValues { it is String } as? Map<String, String>
 }

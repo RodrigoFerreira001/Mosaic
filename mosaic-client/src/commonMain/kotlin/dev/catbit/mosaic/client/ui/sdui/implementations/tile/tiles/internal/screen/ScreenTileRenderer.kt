@@ -3,7 +3,9 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scr
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.observeBroadcastChannel
+import dev.catbit.mosaic.client.ui.effects.SingleEffect
 import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastChannel
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalBroadcastChannel
@@ -15,12 +17,20 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.snackbar.LocalSnackB
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 
 object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
 
     @Composable
     override fun TileRenderingScope.Render(tileSchema: ScreenTileSchema) {
+
+        SingleEffect {
+            triggerEvent(
+                trigger = EventTriggers.onDisplay()
+            )
+        }
+
         with(tileSchema) {
 
             val snackbarState = LocalSnackBarState.current

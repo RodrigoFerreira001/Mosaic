@@ -11,8 +11,10 @@ import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectSto
 import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorageImpl
 import dev.catbit.mosaic.client.data.repository.MosaicRepository
 import dev.catbit.mosaic.client.data.repository.MosaicRepositoryImpl
+import dev.catbit.mosaic.client.domain.download.DownloadFileUseCase
 import dev.catbit.mosaic.client.domain.graph.GetInitialGraphUseCase
 import dev.catbit.mosaic.client.domain.screen.GetScreenUseCase
+import dev.catbit.mosaic.client.domain.send_request.SendNetworkRequestUseCase
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
@@ -41,10 +43,12 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.na
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.display.DisplayNavigationDrawerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.change_screen_state.ChangeScreenStateEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.get_screen.GetScreenEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.refresh_screen.RefreshScreenEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column.ScrollTileColumnEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.row.ScrollRowTileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.security.request_permission.RequestPermissionEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.send_network_request.SendNetworkRequestEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file.DownloadFileEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_tiles.AddTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.remove_tiles.RemoveTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.replace_tiles.ReplaceTilesEventDefinition
@@ -250,8 +254,10 @@ internal class MosaicModules(
     }
 
     private val useCaseModule = module {
-        factory { GetScreenUseCase(get()) }
         single { GetInitialGraphUseCase(get()) }
+        factory { GetScreenUseCase(get()) }
+        factory { DownloadFileUseCase(get()) }
+        factory { SendNetworkRequestUseCase(get()) }
     }
 
     private val baseTilesDefinitions = listOf(
@@ -272,6 +278,7 @@ internal class MosaicModules(
     )
 
     private val baseEventsDefinitions = listOf(
+        DownloadFileEventDefinition,
         SendNetworkRequestEventDefinition,
         NavigateEventDefinition,
         NavigateUpEventDefinition,
@@ -298,7 +305,8 @@ internal class MosaicModules(
         TriggerEventEventDefinition,
         RequestPermissionEventDefinition,
         ChangeScreenStateEventDefinition,
-        GetScreenEventDefinition
+        GetScreenEventDefinition,
+        RefreshScreenEventDefinition
     )
 }
 

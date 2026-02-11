@@ -20,30 +20,18 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 fun Modifier.styledWith(
     style: StyleSchema,
     onClick: (() -> Unit)? = null
-): Modifier =
-    thenIfNotNull(style.windowInsets) { windowInsets ->
-        Modifier.windowInsetsPadding(windowInsets.toComposeWindowInsets())
+): Modifier = this
+    .thenIfNotNull(style.windowInsets) { Modifier.windowInsetsPadding(it.toComposeWindowInsets()) }
+    .thenIfNotNull(style.margin) { Modifier.padding(it.toPaddingValues()) }
+    .then(Modifier.size(style.size))
+    .thenIfNotNull(style.clip) { Modifier.clip(it.shape.toShape()) }
+    .thenIfNotNull(style.background) { Modifier.background(it.toComposeColor()) }
+    .thenIfNotNull(onClick) { Modifier.clickable { it() } }
+    .thenIfNotNull(style.border) { border ->
+        Modifier.border(
+            width = border.thickness.dp,
+            color = border.color.toComposeColor(),
+            shape = border.radius?.toShape() ?: RectangleShape
+        )
     }
-        .thenIfNotNull(style.margin) { margin ->
-            Modifier.padding(margin.toPaddingValues())
-        }
-        .then(Modifier.size(style.size))
-        .thenIfNotNull(style.clip) { clip ->
-            Modifier.clip(clip.shape.toShape())
-        }
-        .thenIfNotNull(style.background) { color ->
-            background(color.toComposeColor())
-        }
-        .thenIfNotNull(style.border) { border ->
-            Modifier.border(
-                width = border.thickness.dp,
-                color = border.color.toComposeColor(),
-                shape = border.radius?.toShape() ?: RectangleShape
-            )
-        }
-        .thenIfNotNull(onClick) {
-            Modifier.clickable { it() }
-        }
-        .thenIfNotNull(style.padding) { padding ->
-            Modifier.padding(padding.toPaddingValues())
-        }
+    .thenIfNotNull(style.padding) { Modifier.padding(it.toPaddingValues()) }

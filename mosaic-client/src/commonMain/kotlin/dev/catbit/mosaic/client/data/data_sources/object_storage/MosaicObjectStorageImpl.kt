@@ -5,6 +5,7 @@ import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
 import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 
+// Todo Caso ocorra erro de serialização, remover a instância
 class MosaicObjectStorageImpl(
     private val dataChest: DataChest,
     private val serializer: MosaicSerializer

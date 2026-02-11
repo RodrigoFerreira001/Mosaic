@@ -15,8 +15,8 @@ import kotlinx.serialization.Serializable
     ]
 )
 @Serializable
-@SerialName("GetScreen")
-data class GetScreenEventSchema(
+@SerialName("RefreshScreen")
+data class RefreshScreenEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: List<EventSchema>?

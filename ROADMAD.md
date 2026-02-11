@@ -24,7 +24,8 @@
 - LocalStorage (separado por buckets)
 - NextPageEvent (Pager e afins)
 - Send platform info on network calls
-- Actions: GetFile, SaveFile, DeleteFile
+- Events: GetFile, SaveFile, DeleteFile
+- Events: CountDownTimer, StartInfiniteClock, FinishInfiniteClock
 
 # Prioridades
 - Fazer teste inicial do server + cliente (com actions de GetScreen)

@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 import dev.catbit.mosaic.core.data.schemas.tile.placement.ArrangementSchema
 
 fun ArrangementSchema.Vertical.toArrangement(): Arrangement.Vertical = when (this) {
+    is ArrangementSchema.HorizontalOrVertical -> toArrangement()
     ArrangementSchema.Vertical.Bottom -> Arrangement.Bottom
     is ArrangementSchema.Vertical.SpacedBy -> Arrangement.spacedBy(
         space = space.dp, alignment = alignment.toAlignment()
@@ -14,6 +15,7 @@ fun ArrangementSchema.Vertical.toArrangement(): Arrangement.Vertical = when (thi
 }
 
 fun ArrangementSchema.Horizontal.toArrangement(): Arrangement.Horizontal = when (this) {
+    is ArrangementSchema.HorizontalOrVertical -> toArrangement()
     ArrangementSchema.Horizontal.End -> Arrangement.End
     is ArrangementSchema.Horizontal.SpacedBy -> Arrangement.spacedBy(
         space = space.dp,

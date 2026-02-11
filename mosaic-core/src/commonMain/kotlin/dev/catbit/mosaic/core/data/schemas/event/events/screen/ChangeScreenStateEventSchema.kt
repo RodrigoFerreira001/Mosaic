@@ -19,10 +19,12 @@ data class ChangeScreenStateEventSchema(
     sealed interface State {
 
         @SerialName("Success")
+        @Serializable
         data class Success(
             @SerialName("data")
             val data: ScreenData?
         ) : State {
+            @Serializable
             data class ScreenData(
                 @SerialName("tiles")
                 val tiles: List<TileSchema>,
@@ -34,9 +36,11 @@ data class ChangeScreenStateEventSchema(
         }
 
         @SerialName("Failure")
+        @Serializable
         data object Failure : State
 
         @SerialName("Initial")
+        @Serializable
         data object Initial : State
     }
 }

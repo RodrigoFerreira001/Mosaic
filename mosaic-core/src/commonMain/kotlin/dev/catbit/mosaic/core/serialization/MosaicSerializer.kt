@@ -21,6 +21,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_draw
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer.DisplayNavigationDrawerEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.screen.ChangeScreenStateEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.screen.GetScreenEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.screen.RefreshScreenEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.column.ScrollColumnTileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.row.ScrollRowTileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.security.RequestPermissionEventSchema
@@ -37,6 +38,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedE
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataSentEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataUpdatedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDialogDismissedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
@@ -158,6 +160,7 @@ class MosaicSerializer(
         get() = mapOf(
             OnBottomSheetDismissedEventTrigger::class to OnBottomSheetDismissedEventTrigger.serializer(),
             OnClickEventTrigger::class to OnClickEventTrigger.serializer(),
+            OnDisplayEventTrigger::class to OnDisplayEventTrigger.serializer(),
             OnDataReceivedEventTrigger::class to OnDataReceivedEventTrigger.serializer(),
             OnDataRemovedEventTrigger::class to OnDataRemovedEventTrigger.serializer(),
             OnDataSentEventTrigger::class to OnDataSentEventTrigger.serializer(),
@@ -225,6 +228,7 @@ class MosaicSerializer(
             DisplayNavigationDrawerEventSchema::class to DisplayNavigationDrawerEventSchema.serializer(),
             ChangeScreenStateEventSchema::class to ChangeScreenStateEventSchema.serializer(),
             GetScreenEventSchema::class to GetScreenEventSchema.serializer(),
+            RefreshScreenEventSchema::class to RefreshScreenEventSchema.serializer(),
             ScrollColumnTileEventSchema::class to ScrollColumnTileEventSchema.serializer(),
             ScrollRowTileEventSchema::class to ScrollRowTileEventSchema.serializer(),
             RequestPermissionEventSchema::class to RequestPermissionEventSchema.serializer(),
