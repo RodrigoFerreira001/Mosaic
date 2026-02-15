@@ -27,6 +27,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.check_for_received_data.CheckForReceivedDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.get_data.GetDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.evaluate_data.EvaluateDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.process_data.ProcessDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.remove_data.RemoveDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.send_data.SendDataEventDefinition
@@ -35,6 +36,8 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trigg
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu.ToggleMenuEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_up.NavigateUpEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file.DownloadFileEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.dismiss.DismissBottomSheetEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.display.DisplayBottomSheetEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.dismiss.DismissDialogEventDefinition
@@ -47,20 +50,12 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.refr
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column.ScrollTileColumnEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.row.ScrollRowTileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.security.request_permission.RequestPermissionEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file.DownloadFileEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_tiles.AddTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.remove_tiles.RemoveTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.replace_tiles.ReplaceTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.update_tiles.UpdateTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.wipe_tiles.WipeTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.button.ButtonTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.row.RowTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text.TextTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.box.BoxTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.card.CardTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.carousel.CarouselTileDefinition
@@ -68,6 +63,12 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.gr
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.pager.PagerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.pull_to_refresh.PullToRefreshTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.shimmer.ShimmerTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.row.RowTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text.TextTileDefinition
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
@@ -82,6 +83,7 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import dev.catbit.mosaic.client.MosaicDatabase as MosaicSQDelightDatabase
 
 internal class MosaicModules(
     applicationId: String,
@@ -134,7 +136,12 @@ internal class MosaicModules(
         }
 
         single<MosaicDatabase> {
-            MosaicDatabaseImpl()
+            MosaicDatabaseImpl(
+                MosaicSQDelightDatabase(
+                    driver = get()
+                ),
+                serializer = get()
+            )
         }
 
         single<MosaicFileSystem> {
@@ -299,6 +306,7 @@ internal class MosaicModules(
         CheckForReceivedDataEventDefinition,
         GetDataEventDefinition,
         ProcessDataEventDefinition,
+        EvaluateDataEventDefinition,
         RemoveDataEventDefinition,
         SendDataEventDefinition,
         UpdateDataEventDefinition,

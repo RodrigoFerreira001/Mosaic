@@ -55,7 +55,7 @@ class MosaicNetworkImpl(
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod
-    ) = safeNetworkCall {
+    ) = runCatching {
         httpClient.request(
             urlString = url
         ) {

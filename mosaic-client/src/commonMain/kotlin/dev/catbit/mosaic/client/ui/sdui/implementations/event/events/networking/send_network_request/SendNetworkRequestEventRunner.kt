@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_network_request
 
 import dev.catbit.mosaic.client.domain.send_request.SendNetworkRequestUseCase
-import dev.catbit.mosaic.client.exceptions.NetworkResponseException
 import dev.catbit.mosaic.client.extensions.toKtorHttpMethod
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
@@ -12,6 +11,7 @@ import io.ktor.client.call.body
 import io.ktor.client.statement.bodyAsBytes
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.ktor.http.isSuccess
 import kotlinx.serialization.json.JsonElement
 
 object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventSchema> {
@@ -42,7 +42,7 @@ object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventSchema
                             }
 
                             onTrigger(
-                                eventTrigger = EventTriggers.onSuccess(),
+                                eventTrigger = if (response.status.isSuccess()) EventTriggers.onSuccess() else EventTriggers.onFailure(),
                                 data = data
                             )
 
@@ -56,13 +56,6 @@ object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventSchema
                                 eventTrigger = EventTriggers.onFailure(),
                                 data = failure
                             )
-
-                            (failure as? NetworkResponseException)?.let {
-                                onTrigger(
-                                    eventTrigger = EventTriggers.onNetworkResponse(failure.status.value),
-                                    data = failure
-                                )
-                            }
                         }
                 }
             }

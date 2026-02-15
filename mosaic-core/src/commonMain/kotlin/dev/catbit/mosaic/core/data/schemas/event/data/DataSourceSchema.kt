@@ -9,7 +9,7 @@ sealed interface DataSourceSchema {
     @Serializable
     @SerialName("SegmentedDataBase")
     data class SegmentedDataBase(
-        @SerialName("segmentId") val bucketIt: String
+        @SerialName("segmentId") val segmentId: String
     ) : DataSourceSchema
 
     @Serializable

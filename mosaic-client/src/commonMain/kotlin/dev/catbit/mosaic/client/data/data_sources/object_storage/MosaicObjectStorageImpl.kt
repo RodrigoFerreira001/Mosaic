@@ -5,7 +5,6 @@ import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
 import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 
-// Todo Caso ocorra erro de serialização, remover a instância
 class MosaicObjectStorageImpl(
     private val dataChest: DataChest,
     private val serializer: MosaicSerializer
@@ -19,9 +18,14 @@ class MosaicObjectStorageImpl(
     }
 
     override suspend fun getInitialGraph(): GraphResponse? =
-        dataChest.getStringOrNull(
-            key = INITIAL_GRAPH
-        )?.let { serializer.decodeFromString(it) }
+        runCatching {
+            dataChest.getStringOrNull(
+                key = INITIAL_GRAPH
+            )?.let { serializer.decodeFromString<GraphResponse>(it) }
+        }.getOrElse {
+            dataChest.remove(INITIAL_GRAPH)
+            null
+        }
 
     override suspend fun setScreen(screenResponse: ScreenResponse) {
         dataChest.putString(
@@ -31,9 +35,14 @@ class MosaicObjectStorageImpl(
     }
 
     override suspend fun getScreen(screenId: String): ScreenResponse? =
-        dataChest.getStringOrNull(
-            key = screenId
-        )?.let { serializer.decodeFromString(it) }
+        runCatching {
+            dataChest.getStringOrNull(
+                key = screenId
+            )?.let { serializer.decodeFromString<ScreenResponse>(it) }
+        }.getOrElse {
+            dataChest.remove(screenId)
+            null
+        }
 
     private companion object {
         const val INITIAL_GRAPH = "initialGraph"

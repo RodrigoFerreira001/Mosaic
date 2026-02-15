@@ -26,6 +26,7 @@
 - Send platform info on network calls
 - Events: GetFile, SaveFile, DeleteFile
 - Events: CountDownTimer, StartInfiniteClock, FinishInfiniteClock
+- Events: Validate (o de operações), Transformation, CheckIfHasInternetConnection
 
 # Prioridades
 - Fazer teste inicial do server + cliente (com actions de GetScreen)

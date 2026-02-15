@@ -16,4 +16,11 @@ sealed interface AccessModeSchema {
         @SerialName("allowMissingData") val allowMissingData: Boolean,
         @SerialName("unwrapValuesToList") val unwrapValuesToList: Boolean,
     ) : AccessModeSchema
+
+    @Serializable
+    @SerialName("Single")
+    data class Single(
+        @SerialName("dataId") val dataId: String
+    ) : AccessModeSchema
+
 }

@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.sqdelight)
 }
 
 group = "dev.catbit"
@@ -34,9 +35,16 @@ kotlin {
 
         androidResources.enable = true
     }
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach { target ->
+        target.binaries.framework {
+            linkerOpts("-lsqlite3")
+        }
+    }
     jvm()
     wasmJs {
         browser()
@@ -92,21 +100,35 @@ kotlin {
         androidMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.okhttp)
+
+            // SQDelight
+            implementation(libs.sqdelight.android)
         }
 
         iosMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.darwin)
+
+            // SQDelight
+            implementation(libs.sqdelight.native)
         }
 
         jvmMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.okhttp)
+
+            // SQDelight
+            implementation(libs.sqdelight.jvm)
         }
 
         wasmJsMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.js)
+
+            // SQDelight
+            implementation(libs.sqdelight.js)
+            implementation(npm("sql.js", "1.6.2"))
+            implementation(devNpm("copy-webpack-plugin", "9.1.0"))
         }
     }
 }
@@ -115,5 +137,13 @@ compose {
     resources {
         publicResClass = true
         packageOfResClass = "dev.catbit.mosaic.client.generated.resources"
+    }
+}
+
+sqldelight {
+    databases {
+        create("MosaicDatabase") {
+            packageName.set("dev.catbit.mosaic.client")
+        }
     }
 }

@@ -18,6 +18,9 @@ compose-lifecycle = "2.10.0-alpha07"
 coil = "3.3.0"
 kotlinx-datetime = "0.7.1"
 kotlinpoet = "2.2.0"
+sqdelight = "2.2.1"
+sql-js =  "1.6.2"
+copy-webpack-plugin = "9.1.0"
 
 [libraries]
 
@@ -68,6 +71,12 @@ ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx
 # Kotlin Datetime
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
+# SQDelight
+sqdelight-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqdelight" }
+sqdelight-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqdelight" }
+sqdelight-jvm = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqdelight" }
+sqdelight-js = { module = "app.cash.sqldelight:web-worker-driver", version.ref = "sqdelight" }
+
 # Logback
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 
@@ -85,3 +94,4 @@ vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version.ref = "
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
+sqdelight = { id = "app.cash.sqldelight", version.ref = "sqdelight" }

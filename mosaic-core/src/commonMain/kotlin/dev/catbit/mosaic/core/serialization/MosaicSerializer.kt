@@ -2,6 +2,7 @@ package dev.catbit.mosaic.core.serialization
 
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.CheckForReceivedDataEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.data.EvaluateDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.GetDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.ProcessDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.RemoveDataEventSchema
@@ -209,6 +210,7 @@ class MosaicSerializer(
     private val defaultEventSerializers
         get() = mapOf(
             CheckForReceivedDataEventSchema::class to CheckForReceivedDataEventSchema.serializer(),
+            EvaluateDataEventSchema::class to EvaluateDataEventSchema.serializer(),
             GetDataEventSchema::class to GetDataEventSchema.serializer(),
             ProcessDataEventSchema::class to ProcessDataEventSchema.serializer(),
             RemoveDataEventSchema::class to RemoveDataEventSchema.serializer(),

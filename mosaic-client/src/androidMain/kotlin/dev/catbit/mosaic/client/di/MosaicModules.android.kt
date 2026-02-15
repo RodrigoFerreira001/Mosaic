@@ -1,6 +1,9 @@
 package dev.catbit.mosaic.client.di
 
 import android.content.Context
+import app.cash.sqldelight.db.SqlDriver
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import dev.catbit.mosaic.client.MosaicDatabase
 import dev.catbit.mosaic.client.data.data_chest.AndroidDataChest
 import dev.catbit.mosaic.client.data.data_chest.DataChest
 import io.ktor.client.HttpClient
@@ -20,5 +23,13 @@ internal actual val platformModule: Module = module {
                 )
             )
         }
+    }
+
+    single<SqlDriver> {
+        AndroidSqliteDriver(
+            schema = MosaicDatabase.Schema,
+            context = get<Context>(),
+            name = "mosaic_database.db"
+        )
     }
 }

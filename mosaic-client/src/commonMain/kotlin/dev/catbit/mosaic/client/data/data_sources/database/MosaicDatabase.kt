@@ -8,10 +8,10 @@ interface MosaicDatabase {
     )
 
     suspend fun getData(
-        dataId: Any
+        dataId: String
     ): Any?
 
-    suspend fun deleteData(dataId: Any)
+    suspend fun deleteData(dataId: String)
 
     suspend fun setSegmentedData(
         segmentId: String,
@@ -21,12 +21,12 @@ interface MosaicDatabase {
 
     suspend fun getSegmentedData(
         segmentId: String,
-        dataId: Any
+        dataId: String
     ): Any?
 
     suspend fun deleteData(
         segmentId: String,
-        dataId: Any
+        dataId: String
     )
 
     suspend fun deleteSegment(segmentId: String)
