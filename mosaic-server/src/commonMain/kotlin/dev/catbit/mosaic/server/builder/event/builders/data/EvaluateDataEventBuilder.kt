@@ -47,29 +47,13 @@ fun not(
     expression: EvaluateDataEventSchema.Expression
 ) = EvaluateDataEventSchema.Expression.NotExpression(expression)
 
-private fun and(
-    leftExpression: EvaluateDataEventSchema.Expression,
-    rightExpression: EvaluateDataEventSchema.Expression
-) = EvaluateDataEventSchema.Expression.AndExpression(leftExpression, rightExpression)
-
 infix fun EvaluateDataEventSchema.Expression.and(
     otherExpression: EvaluateDataEventSchema.Expression
-) = and(
-    leftExpression = this,
-    rightExpression = otherExpression
-)
-
-private fun or(
-    leftExpression: EvaluateDataEventSchema.Expression,
-    rightExpression: EvaluateDataEventSchema.Expression
-) = EvaluateDataEventSchema.Expression.OrExpression(leftExpression, rightExpression)
+) = EvaluateDataEventSchema.Expression.AndExpression(this, otherExpression)
 
 infix fun EvaluateDataEventSchema.Expression.or(
     otherExpression: EvaluateDataEventSchema.Expression
-) = or(
-    leftExpression = this,
-    rightExpression = otherExpression
-)
+) = EvaluateDataEventSchema.Expression.OrExpression(this, otherExpression)
 
 private fun data(
     data: Data,

@@ -55,6 +55,12 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.remov
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.replace_tiles.ReplaceTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.update_tiles.UpdateTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.wipe_tiles.WipeTilesEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.check_if_has_internet_connection.CheckIfHasInternetConnectionEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.delete_file.DeleteFileEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.get_file.GetFileEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.save_file.SaveFileEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.time.start_countdown_timer.StartCountdownTimerEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.update_events.UpdateEventsEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.button.ButtonTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.box.BoxTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.card.CardTileDefinition
@@ -314,7 +320,13 @@ internal class MosaicModules(
         RequestPermissionEventDefinition,
         ChangeScreenStateEventDefinition,
         GetScreenEventDefinition,
-        RefreshScreenEventDefinition
+        RefreshScreenEventDefinition,
+        CheckIfHasInternetConnectionEventDefinition,
+        DeleteFileEventDefinition,
+        GetFileEventDefinition,
+        SaveFileEventDefinition,
+        StartCountdownTimerEventDefinition,
+        UpdateEventsEventDefinition
     )
 }
 

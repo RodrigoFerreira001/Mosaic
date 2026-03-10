@@ -9,6 +9,10 @@ import dev.catbit.mosaic.core.data.schemas.event.events.data.RemoveDataEventSche
 import dev.catbit.mosaic.core.data.schemas.event.events.data.SendDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.event.TriggerEventEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.event.UpdateEventsEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.file.DeleteFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.file.GetFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.file.SaveFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.menu.ToggleMenuEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateUpEventSchema
@@ -26,6 +30,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.screen.RefreshScreenEven
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.column.ScrollColumnTileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.row.ScrollRowTileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.security.RequestPermissionEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.system.CheckIfHasInternetConnectionEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.RemoveTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.ReplaceTilesEventSchema
@@ -34,6 +39,8 @@ import dev.catbit.mosaic.core.data.schemas.event.events.tiles.WipeTilesEventSche
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnBottomSheetDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTimerFinishEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTimerTickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataReceivedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataSentEventTrigger
@@ -161,6 +168,8 @@ class MosaicSerializer(
         get() = mapOf(
             OnBottomSheetDismissedEventTrigger::class to OnBottomSheetDismissedEventTrigger.serializer(),
             OnClickEventTrigger::class to OnClickEventTrigger.serializer(),
+            OnCountdownTimerTickEventTrigger::class to OnCountdownTimerTickEventTrigger.serializer(),
+            OnCountdownTimerFinishEventTrigger::class to OnCountdownTimerFinishEventTrigger.serializer(),
             OnDisplayEventTrigger::class to OnDisplayEventTrigger.serializer(),
             OnDataReceivedEventTrigger::class to OnDataReceivedEventTrigger.serializer(),
             OnDataRemovedEventTrigger::class to OnDataRemovedEventTrigger.serializer(),
@@ -217,6 +226,10 @@ class MosaicSerializer(
             SendDataEventSchema::class to SendDataEventSchema.serializer(),
             UpdateDataEventSchema::class to UpdateDataEventSchema.serializer(),
             TriggerEventEventSchema::class to TriggerEventEventSchema.serializer(),
+            UpdateEventsEventSchema::class to UpdateEventsEventSchema.serializer(),
+            DeleteFileEventSchema::class to DeleteFileEventSchema.serializer(),
+            GetFileEventSchema::class to GetFileEventSchema.serializer(),
+            SaveFileEventSchema::class to SaveFileEventSchema.serializer(),
             ToggleMenuEventSchema::class to ToggleMenuEventSchema.serializer(),
             NavigateEventSchema::class to NavigateEventSchema.serializer(),
             NavigateUpEventSchema::class to NavigateUpEventSchema.serializer(),
@@ -234,6 +247,7 @@ class MosaicSerializer(
             ScrollColumnTileEventSchema::class to ScrollColumnTileEventSchema.serializer(),
             ScrollRowTileEventSchema::class to ScrollRowTileEventSchema.serializer(),
             RequestPermissionEventSchema::class to RequestPermissionEventSchema.serializer(),
+            CheckIfHasInternetConnectionEventSchema::class to CheckIfHasInternetConnectionEventSchema.serializer(),
             AddTilesEventSchema::class to AddTilesEventSchema.serializer(),
             RemoveTilesEventSchema::class to RemoveTilesEventSchema.serializer(),
             ReplaceTilesEventSchema::class to ReplaceTilesEventSchema.serializer(),

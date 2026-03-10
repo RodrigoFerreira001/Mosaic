@@ -2,6 +2,8 @@ package dev.catbit.mosaic.core.data.schemas.event.trigger
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnBottomSheetDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTimerFinishEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTimerTickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataReceivedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataSentEventTrigger
@@ -33,6 +35,8 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesWipedEv
 object EventTriggers {
     fun onBottomSheetDismissed() = OnBottomSheetDismissedEventTrigger
     fun onClick() = OnClickEventTrigger
+    fun onOnCountdownTimerTick() = OnCountdownTimerTickEventTrigger
+    fun onOnCountdownTimerFinish() = OnCountdownTimerFinishEventTrigger
     fun onDisplay() = OnDisplayEventTrigger
     fun onDataReceived() = OnDataReceivedEventTrigger
     fun onDataRemoved() = OnDataRemovedEventTrigger

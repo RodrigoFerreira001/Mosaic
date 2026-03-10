@@ -10,6 +10,8 @@ import kotlinx.browser.localStorage
 import org.koin.dsl.module
 import org.w3c.dom.Worker
 
+private val workerScriptUrl: String = js("""new URL("@cashapp/sqldelight-sqljs-worker/sqljs.worker.js", import.meta.url)""")
+
 @OptIn(ExperimentalWasmJsInterop::class)
 internal actual val platformModule = module {
     single<HttpClient> { HttpClient(Js) }
@@ -21,7 +23,7 @@ internal actual val platformModule = module {
     single<SqlDriver> {
         WebWorkerDriver(
             Worker(
-                scriptURL = js("""new URL("@cashapp/sqldelight-sqljs-worker/sqljs.worker.js", import.meta.url)""")
+                scriptURL = workerScriptUrl
             )
         )
     }

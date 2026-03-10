@@ -1,44 +1,48 @@
-package dev.catbit.mosaic.server.builder.tile.builders.inputs
+package dev.catbit.mosaic.server.builder.tile.builders.containers
 
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.CardTileSchema
 import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 
-internal class TextFieldSchemaBuilder(
+internal class CardTileSchemaBuilder(
     private val id: String,
+    private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},
     private val visibility: TileSchema.Visibility,
-    private val value: String
-) : TileSchemaBuilder<TextFieldTileSchema> {
+    private val kind: CardTileSchema.Kind
+) : TileSchemaBuilder<CardTileSchema> {
 
-    override fun build() = TextFieldTileSchema(
+    override fun build() = CardTileSchema(
         id = id,
+        tiles = TileSchemaBuilderScope().apply(tiles).build(),
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilder().apply { StyleSchemaBuilderScope().apply(style) }.build(),
         visibility = visibility,
-        value = value
+        kind = kind
     )
 }
 
-fun TileSchemaBuilderScope.TextField(
+fun TileSchemaBuilderScope.Card(
     id: String = randomUuid(),
+    tiles: TileSchemaBuilderScope.() -> Unit,
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
-    value: String = ""
+    kind: CardTileSchema.Kind = CardTileSchema.Kind.DEFAULT
 ) {
     addBuilder(
-        TextFieldSchemaBuilder(
+        CardTileSchemaBuilder(
             id = id,
+            tiles = tiles,
             events = events,
             style = style,
             visibility = visibility,
-            value = value
+            kind = kind
         )
     )
 }

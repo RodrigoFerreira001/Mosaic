@@ -11,7 +11,7 @@ import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 
-internal class MenuSchemaBuilder(
+internal class MenuTileSchemaBuilder(
     private val id: String,
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
@@ -42,7 +42,7 @@ fun TileSchemaBuilderScope.Menu(
     expanded: Boolean = false
 ) {
     addBuilder(
-        MenuSchemaBuilder(
+        MenuTileSchemaBuilder(
             id = id,
             tiles = tiles,
             events = events,

@@ -39,7 +39,7 @@ internal abstract class ScreenStateHolder<State, Event, Effect> : ViewModel() {
     protected open fun onPause() = Unit
     protected open fun onStop() = Unit
 
-    private fun DisposableEffectScope.onScreenDisplay() {
+    private fun onScreenDisplay() {
         if (firstAccess) {
             firstAccess = false
             onFirstDisplay()
@@ -47,7 +47,7 @@ internal abstract class ScreenStateHolder<State, Event, Effect> : ViewModel() {
         onDisplay()
     }
 
-    private fun DisposableEffectScope.onScreenDispose() {
+    private fun onScreenDispose() {
         onPause()
         internalStateHolderScope?.cancel()
     }

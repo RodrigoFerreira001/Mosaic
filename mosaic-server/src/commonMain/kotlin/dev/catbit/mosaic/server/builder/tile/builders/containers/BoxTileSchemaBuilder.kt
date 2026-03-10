@@ -1,52 +1,50 @@
 package dev.catbit.mosaic.server.builder.tile.builders.containers
 
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.GridTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.placement.AlignmentSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.BoxTileSchema
 import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.placement.alignToTopStart
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 
-internal class GridSchemaBuilder(
+internal class BoxTileSchemaBuilder(
     private val id: String,
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},
     private val visibility: TileSchema.Visibility,
-    private val columns: Int,
-    private val gutter: Int
-) : TileSchemaBuilder<GridTileSchema> {
+    private val alignment: AlignmentSchema.TwoDimensional
+) : TileSchemaBuilder<BoxTileSchema> {
 
-    override fun build() = GridTileSchema(
+    override fun build() = BoxTileSchema(
         id = id,
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilder().apply { StyleSchemaBuilderScope().apply(style) }.build(),
         visibility = visibility,
-        columns = columns,
-        gutter = gutter
+        alignment = alignment
     )
 }
 
-fun TileSchemaBuilderScope.Grid(
+fun TileSchemaBuilderScope.Box(
     id: String = randomUuid(),
     tiles: TileSchemaBuilderScope.() -> Unit,
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
-    columns: Int = 2,
-    gutter: Int = 0
+    alignment: AlignmentSchema.TwoDimensional = alignToTopStart()
 ) {
     addBuilder(
-        GridSchemaBuilder(
+        BoxTileSchemaBuilder(
             id = id,
             tiles = tiles,
             events = events,
             style = style,
             visibility = visibility,
-            columns = columns,
-            gutter = gutter
+            alignment = alignment
         )
     )
 }
