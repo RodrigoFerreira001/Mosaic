@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile
 
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.InsertionPosition
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.UpdateScope
@@ -9,7 +10,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.extensions.runSafely
 import dev.catbit.mosaic.core.extensions.toJsonElement
-import kotlin.sequences.filter
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
@@ -29,6 +29,15 @@ abstract class TileHolder<T : TileSchema> {
         if (tileId == id) this
         else tiles?.firstNotNullOfOrNull { it.getTileHolder(tileId, includeEventsOnSearch) }
             ?: if (includeEventsOnSearch) events?.firstNotNullOfOrNull { it.getTileHolder(tileId) } else null
+
+    open fun getTileHoldersByGroupEvent(
+        event: TileGroupEvent
+    ): List<TileHolder<*>> = mutableListOf<TileHolder<*>>().apply {
+        if (handlesGroupEvent(event)) add(this@TileHolder)
+        tiles?.flatMap { it.getTileHoldersByGroupEvent(event) }?.let(::addAll)
+    }
+
+    open fun handlesGroupEvent(event: TileGroupEvent): Boolean = false
 
     open fun getEventHolder(eventId: String): EventHolder<*>? =
         events?.firstNotNullOfOrNull { it.getEventHolder(eventId) }
@@ -80,6 +89,8 @@ abstract class TileHolder<T : TileSchema> {
     }
 
     open fun onTileEvent(event: TileEvent) = Unit
+
+    open fun onTileGroupEvent(event: TileGroupEvent) = Unit
 
     fun addChild(
         child: TileHolder<*>,

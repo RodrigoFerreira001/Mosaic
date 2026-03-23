@@ -23,25 +23,25 @@ object DownloadFileEventRunner : EventRunner<DownloadFileEventSchema> {
                             httpMethod = method.toKtorHttpMethod(),
                             onProgress = { progress ->
                                 onTrigger(
-                                    eventTrigger = EventTriggers.onDownloadProgressEventTrigger(),
+                                    eventTrigger = EventTriggers.onDownloadProgress(),
                                     data = progress
                                 )
                             },
                             onBytesReceived = { bytes ->
                                 onTrigger(
-                                    eventTrigger = EventTriggers.onDownloadPartialEventTrigger(),
+                                    eventTrigger = EventTriggers.onDownloadPartial(),
                                     data = bytes
                                 )
                             },
                             onDownloadFinished = { totalBytes ->
                                 onTrigger(
-                                    eventTrigger = EventTriggers.onDownloadFinishEventTrigger(),
+                                    eventTrigger = EventTriggers.onDownloadFinish(),
                                     data = totalBytes
                                 )
                             },
                             onDownloadFailure = { failure ->
                                 onTrigger(
-                                    eventTrigger = EventTriggers.onDownloadFailureEventTrigger(),
+                                    eventTrigger = EventTriggers.onDownloadFailure(),
                                     data = failure
                                 )
                             }

@@ -20,7 +20,6 @@ class TextFieldTileHolder(
         when (event) {
             is TextFieldTileEvents.OnTextChange -> {
                 tile = tile.copy(value = event.newValue)
-//                updateState()
             }
         }
     }

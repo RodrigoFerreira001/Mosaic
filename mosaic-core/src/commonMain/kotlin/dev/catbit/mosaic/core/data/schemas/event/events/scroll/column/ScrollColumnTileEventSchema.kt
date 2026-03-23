@@ -18,14 +18,23 @@ data class ScrollColumnTileEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: List<EventSchema>?,
-    val tileId: String,
-    val where: Where,
-    val smoothly: Boolean
+    @SerialName("tileId") val tileId: String,
+    @SerialName("where") val where: Where,
+    @SerialName("smoothly") val smoothly: Boolean
 ) : EventSchema {
 
+    @Serializable
     sealed interface Where {
+        @Serializable
+        @SerialName("Top")
         data object Top : Where
+
+        @Serializable
+        @SerialName("To")
         data class To(val index: Int) : Where
+
+        @Serializable
+        @SerialName("Bottom")
         data object Bottom : Where
     }
 }

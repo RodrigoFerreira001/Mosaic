@@ -1,17 +1,19 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder
 
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilderManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilderManager
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.extensions.toJsonElement
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
+import kotlin.reflect.KClass
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 import org.koin.core.scope.Scope
-import kotlin.reflect.KClass
 
 class BuilderScope(
     private val tileHolderBuilderManager: TileHolderBuilderManager,
@@ -20,8 +22,17 @@ class BuilderScope(
     private val koinScope: Scope
 ) {
 
-    fun buildTileHolder(tileSchema: TileSchema) = with(tileHolderBuilderManager) { build(tileSchema) }
-    fun buildEventHolder(eventSchema: EventSchema) = with(eventHolderBuilderManager) { build(eventSchema) }
+    fun buildTileHolder(tileSchema: TileSchema): TileHolder<*> =
+        with(tileHolderBuilderManager) { build(tileSchema) }
+
+    fun buildEventHolder(eventSchema: EventSchema): EventHolder<*> =
+        with(eventHolderBuilderManager) { build(eventSchema) }
+
+    fun List<EventSchema>.buildEventHolders(): MutableList<EventHolder<*>> =
+        map { eventModel -> buildEventHolder(eventModel) }.toMutableList()
+
+    fun List<TileSchema>.buildTileHolders(): MutableList<TileHolder<*>> =
+        map { tileModel -> buildTileHolder(tileModel) }.toMutableList()
 
     // Serializer helpers
 

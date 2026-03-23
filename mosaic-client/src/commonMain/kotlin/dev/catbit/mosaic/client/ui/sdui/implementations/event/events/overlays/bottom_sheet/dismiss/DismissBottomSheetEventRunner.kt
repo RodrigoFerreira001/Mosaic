@@ -7,6 +7,6 @@ import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.Di
 
 object DismissBottomSheetEventRunner : EventRunner<DismissBottomSheetEventSchema> {
     override fun EventRunningScope.runEvent(event: DismissBottomSheetEventSchema) {
-        broadcastData(ScreenTileBroadcastData.DismissBottomSheet)
+        broadcastData(ScreenTileBroadcastData.DismissBottomSheet())
     }
 }

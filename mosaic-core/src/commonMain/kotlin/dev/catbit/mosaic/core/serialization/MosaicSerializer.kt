@@ -24,10 +24,12 @@ import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DismissD
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DisplayDialogEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer.DismissNavigationDrawerEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer.DisplayNavigationDrawerEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.pull_to_refresh.StopRefreshingEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.screen.ChangeScreenStateEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.screen.GetScreenEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.screen.RefreshScreenEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.column.ScrollColumnTileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.scroll.pager.ScrollPagerTileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.row.ScrollRowTileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.security.RequestPermissionEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.system.CheckIfHasInternetConnectionEventSchema
@@ -37,7 +39,12 @@ import dev.catbit.mosaic.core.data.schemas.event.events.tiles.ReplaceTilesEventS
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.UpdateTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.WipeTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadStartEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnBottomSheetDismissedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTimerFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTimerTickEventTrigger
@@ -51,37 +58,68 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFail
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardDoneEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardGoEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardNextEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardPreviousEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardSearchEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardSendEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationBarItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationDrawerDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationRailItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsAcquiredEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPullEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTabItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTextChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesAddedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesRemovedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesReplacedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesUpdatedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesWipedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUncheckEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUnselectEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.app_bars.BottomAppBarTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.app_bars.TopAppBarTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.badges.BadgeTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.buttons.ButtonTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.BoxTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.CardTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.CarouselTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.ColumnTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.GridTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.PagerTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.PullToRefreshTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.RowTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.ShimmerTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.buttons.FloatingActionButtonTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.buttons.IconButtonTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.chips.SuggestionChipTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.BoxTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CardTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CarouselTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ColumnTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.GridTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PagerTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PullToRefreshTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.RowTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ShimmerTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.AsyncImageTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.IconTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.CheckboxTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.RadioButtonTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.SwitchTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.menu.MenuTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.text.TextTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NavigationBarTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NavigationRailTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NestedNavigationGraphTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.TabsTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.progress.CircularProgressIndicatorTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.progress.LinearProgressIndicatorTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.search.SearchBarTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.text.SimpleTextTileSchema
 import kotlin.reflect.KClass
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.KSerializer
@@ -166,8 +204,13 @@ class MosaicSerializer(
 
     private val defaultEventTriggerSerializers
         get() = mapOf(
+            OnAsyncImageLoadFailureEventTrigger::class to OnAsyncImageLoadFailureEventTrigger.serializer(),
+            OnAsyncImageLoadStartEventTrigger::class to OnAsyncImageLoadStartEventTrigger.serializer(),
+            OnAsyncImageLoadSuccessEventTrigger::class to OnAsyncImageLoadSuccessEventTrigger.serializer(),
             OnBottomSheetDismissedEventTrigger::class to OnBottomSheetDismissedEventTrigger.serializer(),
             OnClickEventTrigger::class to OnClickEventTrigger.serializer(),
+            OnCheckChangedEventTrigger::class to OnCheckChangedEventTrigger.serializer(),
+            OnCheckEventTrigger::class to OnCheckEventTrigger.serializer(),
             OnCountdownTimerTickEventTrigger::class to OnCountdownTimerTickEventTrigger.serializer(),
             OnCountdownTimerFinishEventTrigger::class to OnCountdownTimerFinishEventTrigger.serializer(),
             OnDisplayEventTrigger::class to OnDisplayEventTrigger.serializer(),
@@ -180,23 +223,36 @@ class MosaicSerializer(
             OnDownloadFinishEventTrigger::class to OnDownloadFinishEventTrigger.serializer(),
             OnDownloadProgressEventTrigger::class to OnDownloadProgressEventTrigger.serializer(),
             OnFailureEventTrigger::class to OnFailureEventTrigger.serializer(),
+            OnKeyboardDoneEventTrigger::class to OnKeyboardDoneEventTrigger.serializer(),
+            OnKeyboardGoEventTrigger::class to OnKeyboardGoEventTrigger.serializer(),
+            OnKeyboardNextEventTrigger::class to OnKeyboardNextEventTrigger.serializer(),
+            OnKeyboardPreviousEventTrigger::class to OnKeyboardPreviousEventTrigger.serializer(),
+            OnKeyboardSearchEventTrigger::class to OnKeyboardSearchEventTrigger.serializer(),
+            OnKeyboardSendEventTrigger::class to OnKeyboardSendEventTrigger.serializer(),
             OnLongPressEventTrigger::class to OnLongPressEventTrigger.serializer(),
             OnMenuItemClickEventTrigger::class to OnMenuItemClickEventTrigger.serializer(),
+            OnNavigationBarItemClickEventTrigger::class to OnNavigationBarItemClickEventTrigger.serializer(),
             OnNavigationDrawerDismissedEventTrigger::class to OnNavigationDrawerDismissedEventTrigger.serializer(),
             OnNavigationEventTrigger::class to OnNavigationEventTrigger.serializer(),
+            OnNavigationRailItemClickEventTrigger::class to OnNavigationRailItemClickEventTrigger.serializer(),
             OnNetworkResponseTrigger::class to OnNetworkResponseTrigger.serializer(),
             OnPermissionsAcquiredEventTrigger::class to OnPermissionsAcquiredEventTrigger.serializer(),
             OnPermissionsDeniedEventTrigger::class to OnPermissionsDeniedEventTrigger.serializer(),
             OnPullEventTrigger::class to OnPullEventTrigger.serializer(),
             OnScrolledEventTrigger::class to OnScrolledEventTrigger.serializer(),
+            OnSelectChangedEventTrigger::class to OnSelectChangedEventTrigger.serializer(),
+            OnSelectEventTrigger::class to OnSelectEventTrigger.serializer(),
             OnStartEventTrigger::class to OnStartEventTrigger.serializer(),
             OnSuccessEventTrigger::class to OnSuccessEventTrigger.serializer(),
+            OnTabItemClickEventTrigger::class to OnTabItemClickEventTrigger.serializer(),
             OnTextChangedEventTrigger::class to OnTextChangedEventTrigger.serializer(),
             OnTilesAddedEventTrigger::class to OnTilesAddedEventTrigger.serializer(),
             OnTilesRemovedEventTrigger::class to OnTilesRemovedEventTrigger.serializer(),
             OnTilesReplacedEventTrigger::class to OnTilesReplacedEventTrigger.serializer(),
             OnTilesUpdatedEventTrigger::class to OnTilesUpdatedEventTrigger.serializer(),
-            OnTilesWipedEventTrigger::class to OnTilesWipedEventTrigger.serializer()
+            OnTilesWipedEventTrigger::class to OnTilesWipedEventTrigger.serializer(),
+            OnUncheckEventTrigger::class to OnUncheckEventTrigger.serializer(),
+            OnUnselectEventTrigger::class to OnUnselectEventTrigger.serializer(),
         )
 
     private val defaultTileSerializers
@@ -213,7 +269,25 @@ class MosaicSerializer(
             ShimmerTileSchema::class to ShimmerTileSchema.serializer(),
             TextFieldTileSchema::class to TextFieldTileSchema.serializer(),
             MenuTileSchema::class to MenuTileSchema.serializer(),
-            TextTileSchema::class to TextTileSchema.serializer(),
+            SimpleTextTileSchema::class to SimpleTextTileSchema.serializer(),
+            TopAppBarTileSchema::class to TopAppBarTileSchema.serializer(),
+            BottomAppBarTileSchema::class to BottomAppBarTileSchema.serializer(),
+            BadgeTileSchema::class to BadgeTileSchema.serializer(),
+            FloatingActionButtonTileSchema::class to FloatingActionButtonTileSchema.serializer(),
+            IconButtonTileSchema::class to IconButtonTileSchema.serializer(),
+            CheckboxTileSchema::class to CheckboxTileSchema.serializer(),
+            SuggestionChipTileSchema::class to SuggestionChipTileSchema.serializer(),
+            NavigationBarTileSchema::class to NavigationBarTileSchema.serializer(),
+            NavigationRailTileSchema::class to NavigationRailTileSchema.serializer(),
+            CircularProgressIndicatorTileSchema::class to CircularProgressIndicatorTileSchema.serializer(),
+            LinearProgressIndicatorTileSchema::class to LinearProgressIndicatorTileSchema.serializer(),
+            SearchBarTileSchema::class to SearchBarTileSchema.serializer(),
+            SwitchTileSchema::class to SwitchTileSchema.serializer(),
+            TabsTileSchema::class to TabsTileSchema.serializer(),
+            RadioButtonTileSchema::class to RadioButtonTileSchema.serializer(),
+            AsyncImageTileSchema::class to AsyncImageTileSchema.serializer(),
+            IconTileSchema::class to IconTileSchema.serializer(),
+            NestedNavigationGraphTileSchema::class to NestedNavigationGraphTileSchema.serializer()
         )
 
     private val defaultEventSerializers
@@ -241,10 +315,12 @@ class MosaicSerializer(
             DisplayDialogEventSchema::class to DisplayDialogEventSchema.serializer(),
             DismissNavigationDrawerEventSchema::class to DismissNavigationDrawerEventSchema.serializer(),
             DisplayNavigationDrawerEventSchema::class to DisplayNavigationDrawerEventSchema.serializer(),
+            StopRefreshingEventSchema::class to StopRefreshingEventSchema.serializer(),
             ChangeScreenStateEventSchema::class to ChangeScreenStateEventSchema.serializer(),
             GetScreenEventSchema::class to GetScreenEventSchema.serializer(),
             RefreshScreenEventSchema::class to RefreshScreenEventSchema.serializer(),
             ScrollColumnTileEventSchema::class to ScrollColumnTileEventSchema.serializer(),
+            ScrollPagerTileEventSchema::class to ScrollPagerTileEventSchema.serializer(),
             ScrollRowTileEventSchema::class to ScrollRowTileEventSchema.serializer(),
             RequestPermissionEventSchema::class to RequestPermissionEventSchema.serializer(),
             CheckIfHasInternetConnectionEventSchema::class to CheckIfHasInternetConnectionEventSchema.serializer(),

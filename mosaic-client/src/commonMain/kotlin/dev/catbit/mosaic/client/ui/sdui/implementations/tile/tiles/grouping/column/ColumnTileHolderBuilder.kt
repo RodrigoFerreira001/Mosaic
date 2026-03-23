@@ -2,7 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.col
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilder
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.ColumnTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ColumnTileSchema
 
 object ColumnTileHolderBuilder : TileHolderBuilder<ColumnTileSchema, ColumnTileHolder> {
 
@@ -12,8 +12,8 @@ object ColumnTileHolderBuilder : TileHolderBuilder<ColumnTileSchema, ColumnTileH
         ColumnTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.map { eventModel -> buildEventHolder(eventModel) }?.toMutableList(),
-            tiles = tiles.map { tileModel -> buildTileHolder(tileModel) }.toMutableList()
+            events = events?.buildEventHolders(),
+            tiles = tiles.buildTileHolders()
         )
     }
 }

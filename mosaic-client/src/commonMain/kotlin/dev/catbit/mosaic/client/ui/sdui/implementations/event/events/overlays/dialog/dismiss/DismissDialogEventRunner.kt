@@ -7,6 +7,6 @@ import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DismissD
 
 object DismissDialogEventRunner : EventRunner<DismissDialogEventSchema> {
     override fun EventRunningScope.runEvent(event: DismissDialogEventSchema) {
-        broadcastData(ScreenTileBroadcastData.DismissDialog)
+        broadcastData(ScreenTileBroadcastData.DismissDialog())
     }
 }

@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.server.builder.event.builders.scroll.row
 
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.row.ScrollRowTileEventSchema
-import dev.catbit.mosaic.core.data.schemas.event.events.scroll.row.ScrollRowTileEventSchema.Where
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
@@ -12,7 +11,7 @@ internal class ScrollRowTileEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val tileId: String,
-    private val where: Where,
+    private val where: ScrollRowTileEventSchema.Where,
     private val smoothly: Boolean
 ) : EventSchemaBuilder<ScrollRowTileEventSchema> {
 
@@ -31,7 +30,7 @@ fun EventSchemaBuilderScope.ScrollRow(
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     tileId: String,
-    where: Where,
+    where: ScrollRowTileEventSchema.Where,
     smoothly: Boolean = true
 ) {
     addBuilder(

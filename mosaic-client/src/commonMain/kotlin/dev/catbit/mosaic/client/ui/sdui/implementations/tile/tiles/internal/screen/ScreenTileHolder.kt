@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen
 
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
@@ -33,6 +34,15 @@ class ScreenTileHolder(
             ?: navigationDrawerTiles?.firstNotNullOfOrNull { it.getEventHolder(eventId) }
             ?: events?.firstNotNullOfOrNull { it.getEventHolder(eventId) }
             ?: tiles.firstNotNullOfOrNull { it.getEventHolder(eventId) }
+
+    override fun getTileHoldersByGroupEvent(
+        event: TileGroupEvent
+    ): List<TileHolder<*>> = mutableListOf<TileHolder<*>>().apply {
+        currentBottomSheetTiles.orEmpty().flatMap { it.getTileHoldersByGroupEvent(event) }.let(::addAll)
+        currentDialogSheetTiles.orEmpty().flatMap { it.getTileHoldersByGroupEvent(event) }.let(::addAll)
+        navigationDrawerTiles.orEmpty().flatMap { it.getTileHoldersByGroupEvent(event) }.let(::addAll)
+        tiles.flatMap { it.getTileHoldersByGroupEvent(event) }.let(::addAll)
+    }
 
     override fun getEventsByTrigger(
         eventTrigger: EventTrigger

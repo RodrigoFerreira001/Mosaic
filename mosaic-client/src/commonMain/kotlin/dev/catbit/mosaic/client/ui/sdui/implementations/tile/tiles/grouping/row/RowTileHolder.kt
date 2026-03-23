@@ -2,7 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.row
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.RowTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.RowTileSchema
 
 class RowTileHolder(
     override val id: String,

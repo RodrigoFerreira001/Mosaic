@@ -53,10 +53,11 @@ Um aplicativo frontend de exemplo (suportando Android e JVM/Desktop).
 ## Fluxo de Trabalho e Padrão de Arquitetura (LLM, preste atenção)
 
 **Regras de Ouro (CRÍTICAS PARA DEVs E LLMs):**
-- **NUNCA tire implementações da sua própria cabeça.** A arquitetura do Mosaic é rígida e consolidada.
-- **SEMPRE abra e estude TODOS os arquivos correspondentes de um exemplo existente** ANTES de criar equivalentes para uma nova feature.
-  - Se for um **Evento**, estude um exemplo como `TriggerEventEventDefinition`, `TriggerEventEventHolder`, `TriggerEventEventHolderBuilder`, e `TriggerEventEventRunner`.
-  - Se for um **Tile**, estude um exemplo como `ButtonTileDefinition`, `ButtonTileHolder`, `ButtonTileHolderBuilder`, e `ButtonTileRenderer` (busque exemplos na pasta `ui/.../implementations/tile/tiles/`).
+- **REGRA UNIVERSAL: PARA QUALQUER CÓDIGO QUE VOCÊ VÁ GERAR (seja no `client`, `server` ou `core`), SEMPRE ESTUDE EXEMPLOS EXISTENTES ANTES.**
+- **NUNCA tire implementações da sua própria cabeça ("não tire da cartola").** A arquitetura do Mosaic é rígida e consolidada em todas as camadas.
+- **SE QLQR FUNCIONALIDADE NOVA for criada, abra e estude TODOS os arquivos correspondentes de um exemplo existente:**
+  - Se for um **Evento**, estude um exemplo como `TriggerEventEventDefinition`, `TriggerEventEventHolder`, `TriggerEventEventHolderBuilder`, e `TriggerEventEventRunner` no `client`, bem como o seu respectivo builder no `server` e o Schema no `core`.
+  - Se for um **Tile**, estude um exemplo como `ButtonTileDefinition`, `ButtonTileHolder`, `ButtonTileHolderBuilder`, e `ButtonTileRenderer` no `client`, bem como o seu respectivo builder no `server` e o Schema no `core`.
 - **Baseie-se FORTEMENTE na estrutura do exemplo lido para implementar sua solução:**
   - Estude os arquivos abertos para ter uma compreensão profunda de como os mecanismos funcionam e como a arquitetura está interligada.
   - Siga a organização dos pacotes e a divisão de responsabilidades.

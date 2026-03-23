@@ -8,7 +8,8 @@ import dev.catbit.mosaic.sample.ui.theme.lightColorScheme
 fun App() {
     MosaicApplication(
         applicationId = "MosaicSample",
-        baseUrl = "http://localhost:8080",
+        baseUrl = "http://192.168.3.84:8080",
+//        baseUrl = "http://localhost:8080",
         colorScheme = lightColorScheme
     )
 }

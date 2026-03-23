@@ -61,20 +61,40 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.get_fi
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.save_file.SaveFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.time.start_countdown_timer.StartCountdownTimerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.update_events.UpdateEventsEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.pull_to_refresh.StopRefreshingEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.pager.ScrollTilePagerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.button.ButtonTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.box.BoxTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.card.CardTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.carousel.CarouselTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.grid.GridTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.pager.PagerTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.pull_to_refresh.PullToRefreshTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.containers.shimmer.ShimmerTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.box.BoxTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.card.CardTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.carousel.CarouselTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.grid.GridTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pager.PagerTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pull_to_refresh.PullToRefreshTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.shimmer.ShimmerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.row.RowTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.text.TextTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.simple_text.SimpleTextTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.app_bars.top_app_bar.TopAppBarTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.app_bars.bottom_app_bar.BottomAppBarTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.badges.badge.BadgeTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.fab.FloatingActionButtonTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.icon_button.IconButtonTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.checkbox.CheckboxTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.chips.suggestion_chip.SuggestionChipTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.navigation_bar.NavigationBarTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.navigation_rail.NavigationRailTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.nested_navigation_graph.NestedNavigationGraphTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.progress.circular_progress.CircularProgressIndicatorTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.progress.linear_progress.LinearProgressIndicatorTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.search.search_bar.SearchBarTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.switch.SwitchTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.tabs.TabsTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.radio_button.RadioButtonTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.image.async_image.AsyncImageTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.image.icon.IconTileDefinition
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
@@ -278,16 +298,34 @@ internal class MosaicModules(
         ColumnTileDefinition,
         RowTileDefinition,
         ButtonTileDefinition,
-        BoxTileDefinition,
-        CardTileDefinition,
-        CarouselTileDefinition,
-        GridTileDefinition,
-        PagerTileDefinition,
-        PullToRefreshTileDefinition,
-        ShimmerTileDefinition,
+        FloatingActionButtonTileDefinition,
+        dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.box.BoxTileDefinition,
+        dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.card.CardTileDefinition,
+        dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.carousel.CarouselTileDefinition,
+        dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.grid.GridTileDefinition,
+        dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pager.PagerTileDefinition,
+        dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pull_to_refresh.PullToRefreshTileDefinition,
+        dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.shimmer.ShimmerTileDefinition,
         TextFieldTileDefinition,
-        TextTileDefinition,
-        MenuTileDefinition
+        SimpleTextTileDefinition,
+        MenuTileDefinition,
+        TopAppBarTileDefinition,
+        BottomAppBarTileDefinition,
+        BadgeTileDefinition,
+        IconButtonTileDefinition,
+        CheckboxTileDefinition,
+        SuggestionChipTileDefinition,
+        NavigationBarTileDefinition,
+        NavigationRailTileDefinition,
+        CircularProgressIndicatorTileDefinition,
+        LinearProgressIndicatorTileDefinition,
+        SearchBarTileDefinition,
+        SwitchTileDefinition,
+        TabsTileDefinition,
+        RadioButtonTileDefinition,
+        AsyncImageTileDefinition,
+        IconTileDefinition,
+        NestedNavigationGraphTileDefinition
     )
 
     private val baseEventsDefinitions = listOf(
@@ -297,6 +335,7 @@ internal class MosaicModules(
         NavigateUpEventDefinition,
         ToggleMenuEventDefinition,
         ScrollTileColumnEventDefinition,
+        ScrollTilePagerEventDefinition,
         ScrollRowTileEventDefinition,
         AddTilesEventDefinition,
         RemoveTilesEventDefinition,
@@ -318,6 +357,7 @@ internal class MosaicModules(
         UpdateDataEventDefinition,
         TriggerEventEventDefinition,
         RequestPermissionEventDefinition,
+        StopRefreshingEventDefinition,
         ChangeScreenStateEventDefinition,
         GetScreenEventDefinition,
         RefreshScreenEventDefinition,

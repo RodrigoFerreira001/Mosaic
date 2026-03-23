@@ -63,6 +63,7 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
+            implementation(compose.preview)
 
             // Navigation
             implementation(libs.compose.navigation3.ui)

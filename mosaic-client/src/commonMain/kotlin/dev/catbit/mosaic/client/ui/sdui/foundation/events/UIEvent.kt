@@ -12,4 +12,8 @@ sealed interface UIEvent {
         val tileId: String,
         val event: TileEvent
     ) : UIEvent
+
+    data class TileGroupEventHolderUIEvent(
+        val event: TileGroupEvent
+    ) : UIEvent
 }

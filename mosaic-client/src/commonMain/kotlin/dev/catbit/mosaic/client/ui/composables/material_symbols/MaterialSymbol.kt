@@ -1,34 +1,43 @@
 package dev.catbit.mosaic.client.ui.composables.material_symbols
 
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 
 @Composable
 fun MaterialSymbol(
     iconName: String,
-    style: MaterialSymbolStyle = MaterialSymbolStyle.OUTLINED,
-    size: Dp = 24.dp,
-    tint: Color = Color.Unspecified
+    modifier: Modifier = Modifier,
+    style: MaterialSymbolStyle? = null,
+    size: Dp? = null,
+    tint: Color? = null,
 ) {
     val materialSymbolFonts = LocalMaterialSymbolFonts.current
 
     val fontFamily = remember(style) {
         when (style) {
-            MaterialSymbolStyle.OUTLINED -> materialSymbolFonts.outlined
             MaterialSymbolStyle.ROUNDED -> materialSymbolFonts.rounded
             MaterialSymbolStyle.SHARP -> materialSymbolFonts.sharp
+            else -> materialSymbolFonts.outlined
         }
     }
 
     val density = LocalDensity.current
-    val fontSize = with(density) { size.toSp() }
+    val localTextStyle = LocalTextStyle.current
+    val fontSize = with(density) { size?.toSp() } ?: localTextStyle.fontSize
+    val tint = tint ?: LocalContentColor.current
 
     Text(
+        modifier = modifier,
         text = iconName,
         fontFamily = fontFamily,
         fontSize = fontSize,

@@ -3,7 +3,9 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scr
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import coil3.compose.AsyncImage
 import dev.catbit.mosaic.client.extensions.observeBroadcastChannel
 import dev.catbit.mosaic.client.ui.effects.SingleEffect
 import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastChannel
@@ -40,10 +42,12 @@ object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
             val broadcastChannel = LocalBroadcastChannel.current
             val tileRendererManager = LocalTileRendererManager.current
 
-            observeBroadcastChannel<ScreenTileBroadcastData> { data ->
+            observeBroadcastChannel<ScreenTileBroadcastData>(
+                filterByTileId = false
+            ) { data ->
                 when (data) {
-                    ScreenTileBroadcastData.DismissBottomSheet -> bottomSheetState.dismiss()
-                    ScreenTileBroadcastData.DismissDialog -> dialogState.dismiss()
+                    is ScreenTileBroadcastData.DismissBottomSheet -> bottomSheetState.dismiss()
+                    is ScreenTileBroadcastData.DismissDialog -> dialogState.dismiss()
                     is ScreenTileBroadcastData.DisplaySnackbar -> snackbarState.show(
                         message = data.message
                     )
@@ -60,8 +64,8 @@ object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
                         onDismiss = { dispatchEvent(ScreenTileEvents.OnCloseDialogFinished) }
                     )
 
-                    ScreenTileBroadcastData.DismissNavigationDrawer -> navigationDrawerState.dismiss()
-                    ScreenTileBroadcastData.DisplayNavigationDrawer -> {
+                    is ScreenTileBroadcastData.DismissNavigationDrawer -> navigationDrawerState.dismiss()
+                    is ScreenTileBroadcastData.DisplayNavigationDrawer -> {
                         navigationDrawerTiles?.let {
                             navigationDrawerState.show(
                                 onDismiss = { navigationDrawerState.dismiss() }

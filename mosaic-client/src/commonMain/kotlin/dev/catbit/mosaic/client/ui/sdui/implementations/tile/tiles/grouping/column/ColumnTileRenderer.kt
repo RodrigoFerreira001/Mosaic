@@ -11,16 +11,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.observeBroadcastChannel
+import dev.catbit.mosaic.client.extensions.onClick
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.extensions.toArrangement
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.modifiers.thenIf
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalLazyColumnRenderingScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.models.LazyColumnRenderingScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.containers.ColumnTileSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ColumnTileSchema
 
-// Olhar o escopo lazy e decidir se usa LazyColumn ou Apenas Column
 object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
 
     @Composable
@@ -28,25 +31,30 @@ object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
         tileSchema: ColumnTileSchema
     ) {
         with(tileSchema) {
-            if (!isGone()) {
-                if (lazyRender) {
+            val modifier = Modifier
+                .visible(isVisible())
+                .styledWith(
+                    style = style,
+                    onClick = onClick(events)
+                )
 
-                    val lazyListState = rememberLazyListState()
+            if (lazyRender && LocalLazyColumnRenderingScope.current.isUndefined()) {
 
-                    observeBroadcastChannel<ColumnTileBroadcastData> { data ->
-                        if (data.tileId == id) {
-                            when (data) {
-                                is ColumnTileBroadcastData.ScrollToTop -> lazyListState.scrollToItem(0)
-                                is ColumnTileBroadcastData.ScrollTo -> lazyListState.scrollToItem(data.index)
-                                is ColumnTileBroadcastData.ScrollToBottom -> lazyListState.scrollToItem(tileSchema.tiles.size)
-                            }
-                        }
+                val lazyListState = rememberLazyListState()
+
+                observeBroadcastChannel<ColumnTileBroadcastData> { data ->
+                    when (data) {
+                        is ColumnTileBroadcastData.ScrollToTop -> lazyListState.scrollToItem(0)
+                        is ColumnTileBroadcastData.ScrollTo -> lazyListState.scrollToItem(data.index)
+                        is ColumnTileBroadcastData.ScrollToBottom -> lazyListState.scrollToItem(tileSchema.tiles.size)
                     }
+                }
 
+                CompositionLocalProvider(
+                    LocalLazyColumnRenderingScope provides LazyColumnRenderingScope.Defined
+                ) {
                     LazyColumn(
-                        modifier = Modifier
-                            .visible(isVisible())
-                            .styledWith(tileSchema.style),
+                        modifier = modifier,
                         state = lazyListState,
                         verticalArrangement = arrangement.toArrangement(),
                         horizontalAlignment = alignment.toAlignment(),
@@ -56,33 +64,29 @@ object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
                             RenderChild(tileSchema)
                         }
                     }
-                } else {
+                }
+            } else {
 
-                    val scrollState = rememberScrollState()
+                val scrollState = rememberScrollState()
 
-                    observeBroadcastChannel<ColumnTileBroadcastData> { data ->
-                        if (data.tileId == tileSchema.id) {
-                            when (data) {
-                                is ColumnTileBroadcastData.ScrollToTop -> scrollState.scrollTo(0)
-                                is ColumnTileBroadcastData.ScrollTo -> scrollState.scrollTo(data.index)
-                                is ColumnTileBroadcastData.ScrollToBottom -> scrollState.scrollTo(scrollState.maxValue)
-                            }
-                        }
+                observeBroadcastChannel<ColumnTileBroadcastData> { data ->
+                    when (data) {
+                        is ColumnTileBroadcastData.ScrollToTop -> scrollState.scrollTo(0)
+                        is ColumnTileBroadcastData.ScrollTo -> scrollState.scrollTo(data.index)
+                        is ColumnTileBroadcastData.ScrollToBottom -> scrollState.scrollTo(scrollState.maxValue)
                     }
+                }
 
-                    Column(
-                        modifier = Modifier
-                            .visible(isVisible())
-                            .styledWith(style)
-                            .thenIf(isScrollable) {
-                                verticalScroll(scrollState)
-                            },
-                        verticalArrangement = arrangement.toArrangement(),
-                        horizontalAlignment = alignment.toAlignment(),
-                    ) {
-                        CompositionLocalProvider(LocalColumnScope provides this) {
-                            RenderChildren(tiles)
-                        }
+                Column(
+                    modifier = modifier
+                        .thenIf(isScrollable) {
+                            verticalScroll(scrollState)
+                        },
+                    verticalArrangement = arrangement.toArrangement(),
+                    horizontalAlignment = alignment.toAlignment(),
+                ) {
+                    CompositionLocalProvider(LocalColumnScope provides this) {
+                        RenderChildren(tiles)
                     }
                 }
             }

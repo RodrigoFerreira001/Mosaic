@@ -14,8 +14,8 @@ import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 internal class MenuTileSchemaBuilder(
     private val id: String,
     private val tiles: TileSchemaBuilderScope.() -> Unit,
-    private val events: EventSchemaBuilderScope.() -> Unit = {},
-    private val style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},
+    private val events: EventSchemaBuilderScope.() -> Unit,
+    private val style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit,
     private val visibility: TileSchema.Visibility,
     private val items: MenuItemSchemaBuilderScope.() -> Unit,
     private val expanded: Boolean

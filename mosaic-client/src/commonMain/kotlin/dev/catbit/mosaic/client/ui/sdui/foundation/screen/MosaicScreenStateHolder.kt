@@ -85,10 +85,14 @@ internal class MosaicScreenStateHolder(
         event: Event.OnUIEvent
     ) {
         when (event.event) {
-            is UIEvent.TileEventHolderUIEvent -> tilesUIStateManager.onEvent(
-                tileId = event.event.tileId,
-                event = event.event.event,
-            )
+            is UIEvent.TileEventHolderUIEvent ->
+                tilesUIStateManager.onEvent(
+                    tileId = event.event.tileId,
+                    event = event.event.event,
+                )
+
+            is UIEvent.TileGroupEventHolderUIEvent ->
+                tilesUIStateManager.onGroupEvent(event.event.event)
 
             is UIEvent.EventSchemaHolderUIEvent -> {
                 eventManager.runEvents(

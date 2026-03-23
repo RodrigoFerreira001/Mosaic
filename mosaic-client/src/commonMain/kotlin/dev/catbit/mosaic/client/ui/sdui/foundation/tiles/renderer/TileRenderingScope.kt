@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer
 
 import androidx.compose.runtime.Composable
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTileRendererManager
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
@@ -15,6 +16,10 @@ class TileRenderingScope(
 ) {
     fun dispatchEvent(tileEvent: TileEvent) {
         onEvent(UIEvent.TileEventHolderUIEvent(tileId, tileEvent))
+    }
+
+    fun dispatchGroupEvent(tileGroupEvent: TileGroupEvent) {
+        onEvent(UIEvent.TileGroupEventHolderUIEvent(tileGroupEvent))
     }
 
     fun triggerEvent(

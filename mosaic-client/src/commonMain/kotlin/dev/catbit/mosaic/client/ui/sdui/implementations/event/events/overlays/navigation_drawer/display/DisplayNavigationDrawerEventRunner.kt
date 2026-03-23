@@ -7,6 +7,6 @@ import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_draw
 
 object DisplayNavigationDrawerEventRunner : EventRunner<DisplayNavigationDrawerEventSchema> {
     override fun EventRunningScope.runEvent(event: DisplayNavigationDrawerEventSchema) {
-        broadcastData(ScreenTileBroadcastData.DisplayNavigationDrawer)
+        broadcastData(ScreenTileBroadcastData.DisplayNavigationDrawer())
     }
 }

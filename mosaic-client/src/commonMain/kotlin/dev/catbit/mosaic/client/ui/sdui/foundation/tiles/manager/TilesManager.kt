@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager
 
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.InsertionPosition
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
@@ -220,6 +221,17 @@ class TilesManager(
             screenTileHolder.getTileHolder(
                 tileId = tileId
             )?.onTileEvent(event)
+            updateState()
+        }
+    }
+
+    override fun onGroupEvent(
+        event: TileGroupEvent
+    ) {
+        runSafely {
+            screenTileHolder.getTileHoldersByGroupEvent(event).forEach { tileHolder ->
+                tileHolder.onTileGroupEvent(event)
+            }
             updateState()
         }
     }

@@ -19,7 +19,7 @@ coil = "3.3.0"
 kotlinx-datetime = "0.7.1"
 kotlinpoet = "2.2.0"
 sqdelight = "2.2.1"
-sql-js =  "1.6.2"
+sql-js = "1.6.2"
 copy-webpack-plugin = "9.1.0"
 
 [libraries]
@@ -41,7 +41,7 @@ coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" 
 coil-network = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil" }
 
 # Shimmer
-shimmer = {module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "shimmer"}
+shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "shimmer" }
 
 # Kotlinx
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -65,7 +65,7 @@ ktor-client-serialization = { module = "io.ktor:ktor-client-serialization", vers
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-netty = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
-ktor-server-network-tls-certificates = {module = "io.ktor:ktor-network-tls-certificates", version.ref = "ktor"}
+ktor-server-network-tls-certificates = { module = "io.ktor:ktor-network-tls-certificates", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 
 # Kotlin Datetime

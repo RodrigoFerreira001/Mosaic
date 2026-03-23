@@ -3,7 +3,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.col
 import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
 
 sealed interface ColumnTileBroadcastData : BroadcastData {
-    val tileId: String
+
     val smoothly: Boolean
 
     data class ScrollToTop(

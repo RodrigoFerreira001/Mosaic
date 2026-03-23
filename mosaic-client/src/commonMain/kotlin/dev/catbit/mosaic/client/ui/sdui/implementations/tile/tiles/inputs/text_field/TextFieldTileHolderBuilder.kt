@@ -8,11 +8,11 @@ object TextFieldTileHolderBuilder : TileHolderBuilder<TextFieldTileSchema, TextF
 
     override fun BuilderScope.build(
         tileModel: TextFieldTileSchema
-    ) = with(tileModel) {
+    ): TextFieldTileHolder = with(tileModel) {
         TextFieldTileHolder(
             id = id,
-            tile = tileModel,
-            events = events?.map { eventModel -> buildEventHolder(eventModel) }?.toMutableList()
+            tile = this,
+            events = events?.buildEventHolders()
         )
     }
 }
