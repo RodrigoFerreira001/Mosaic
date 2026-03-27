@@ -2,6 +2,6 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.check
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 
-interface CheckboxTileEvents : TileEvent {
+sealed interface CheckboxTileEvents : TileEvent {
     data class OnCheckChanged(val isChecked: Boolean): CheckboxTileEvents
 }

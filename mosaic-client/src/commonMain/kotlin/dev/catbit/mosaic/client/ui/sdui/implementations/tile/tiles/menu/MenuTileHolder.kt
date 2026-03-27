@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.TileEventScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.menu.MenuTileSchema
@@ -17,11 +18,10 @@ class MenuTileHolder(
         events = events?.map { it.get() }
     )
 
-    override fun onTileEvent(event: TileEvent) {
+    override fun TileEventScope.onTileEvent(event: TileEvent) {
         when (event) {
             is MenuTileEvents.OnToggleMenu -> {
                 tile = tile.copy(expanded = !tile.expanded)
-//                updateState()
             }
         }
     }

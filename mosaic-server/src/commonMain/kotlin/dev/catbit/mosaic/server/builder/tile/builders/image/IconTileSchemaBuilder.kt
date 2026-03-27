@@ -5,6 +5,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.IconTileSchema
 import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.icon
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope

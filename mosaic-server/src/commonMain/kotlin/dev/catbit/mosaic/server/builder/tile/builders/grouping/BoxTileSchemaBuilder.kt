@@ -31,7 +31,7 @@ internal class BoxTileSchemaBuilder(
 
 fun TileSchemaBuilderScope.Box(
     id: String = randomUuid(),
-    tiles: TileSchemaBuilderScope.() -> Unit,
+    tiles: TileSchemaBuilderScope.() -> Unit = {},
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,

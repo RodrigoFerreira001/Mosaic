@@ -26,16 +26,25 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardNext
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardPreviousEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardSearchEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardSendEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLeadingIconClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesStartEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationBarItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationDrawerDismissedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntryChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntrySetEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationRailItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsAcquiredEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryClearedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSearchEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
@@ -47,6 +56,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesRemoved
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesReplacedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesUpdatedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesWipedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTrailingIconClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUncheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUnselectEventTrigger
 
@@ -77,15 +87,25 @@ object EventTriggers {
     fun onKeyboardPrevious() = OnKeyboardPreviousEventTrigger
     fun onKeyboardSearch() = OnKeyboardSearchEventTrigger
     fun onKeyboardSend() = OnKeyboardSendEventTrigger
+    fun onLoadTilesFailure() = OnLoadTilesFailureEventTrigger
+    fun onLoadTilesStart() = OnLoadTilesStartEventTrigger
+    fun onLoadTilesSuccess() = OnLoadTilesSuccessEventTrigger
+    fun onLeadingIconClick() = OnLeadingIconClickEventTrigger
+    fun onTrailingIconClick() = OnTrailingIconClickEventTrigger
     fun onLongPress() = OnLongPressEventTrigger
     fun onMenuItemClick(itemId: String) = OnMenuItemClickEventTrigger(itemId)
     fun onNavigationBarItemClick(itemId: String) = OnNavigationBarItemClickEventTrigger(itemId)
     fun onNavigationDrawerDismissed() = OnNavigationDrawerDismissedEventTrigger
+    fun onNavigationEntryChanged() = OnNavigationEntryChangedEventTrigger
+    fun onNavigationEntrySet(screenId: String) = OnNavigationEntrySetEventTrigger(screenId)
     fun onNavigation() = OnNavigationEventTrigger
     fun onNavigationRailItemClick(itemId: String) = OnNavigationRailItemClickEventTrigger(itemId)
     fun onNetworkResponse(httpCode: Int) = OnNetworkResponseTrigger(httpCode)
     fun onPermissionsAcquired() = OnPermissionsAcquiredEventTrigger
     fun onPermissionsDenied() = OnPermissionsDeniedEventTrigger
+    fun onQueryChanged() = OnQueryChangedEventTrigger
+    fun onQueryCleared() = OnQueryClearedEventTrigger
+    fun onSearch() = OnSearchEventTrigger
     fun onScrolled() = OnScrolledEventTrigger
     fun onOnSelectChanged() = OnSelectChangedEventTrigger
     fun onSelect() = OnSelectEventTrigger

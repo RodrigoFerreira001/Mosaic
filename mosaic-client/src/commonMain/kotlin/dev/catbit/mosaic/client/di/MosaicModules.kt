@@ -19,6 +19,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunnerManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreenStateHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenExtrasHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilderManager
@@ -55,6 +56,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.remov
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.replace_tiles.ReplaceTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.update_tiles.UpdateTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.wipe_tiles.WipeTilesEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.reload_lazy_tiles.ReloadLazyTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.check_if_has_internet_connection.CheckIfHasInternetConnectionEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.delete_file.DeleteFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.get_file.GetFileEventDefinition
@@ -68,6 +70,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.box.
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.card.CardTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.carousel.CarouselTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.grid.GridTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.lazy_tiles.LazyTilesTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pager.PagerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pull_to_refresh.PullToRefreshTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.shimmer.ShimmerTileDefinition
@@ -136,6 +139,7 @@ internal class MosaicModules(
     private val applicationModule = module {
         single(named("APPLICATION_ID")) { applicationId }
         single { ScreenExtrasHolder() }
+        single { NavigatorsHolder() }
     }
 
     private val dataModule = module {
@@ -325,7 +329,8 @@ internal class MosaicModules(
         RadioButtonTileDefinition,
         AsyncImageTileDefinition,
         IconTileDefinition,
-        NestedNavigationGraphTileDefinition
+        NestedNavigationGraphTileDefinition,
+        LazyTilesTileDefinition
     )
 
     private val baseEventsDefinitions = listOf(
@@ -366,7 +371,8 @@ internal class MosaicModules(
         GetFileEventDefinition,
         SaveFileEventDefinition,
         StartCountdownTimerEventDefinition,
-        UpdateEventsEventDefinition
+        UpdateEventsEventDefinition,
+        ReloadLazyTilesEventDefinition
     )
 }
 

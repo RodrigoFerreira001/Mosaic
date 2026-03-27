@@ -21,13 +21,15 @@ internal val LocalMaterialSymbolFonts = staticCompositionLocalOf<MaterialSymbolF
 @Stable
 data class MaterialSymbolFonts(
     val outlined: FontFamily,
+    val outlinedFilled: FontFamily,
     val rounded: FontFamily,
-    val sharp: FontFamily
+    val roundedFilled: FontFamily,
+    val sharp: FontFamily,
+    val sharpFilled: FontFamily
 )
 
 @Stable
 data class MaterialSymbolFontsConfig(
-    val filled: Boolean = false,
     val weight: FontWeight = FontWeight.Normal,
     val grade: Int = 0,
     val opticalSize: TextUnit = 24.sp
@@ -51,7 +53,13 @@ fun loadMaterialSymbolFonts(
     }
 
     val settings = FontVariation.Settings(
-        FontVariation.Setting("FILL", if (filled) 1f else 0f),
+        FontVariation.Setting("FILL", 0f),
+        FontVariation.grade(grade),
+        FontVariation.Setting("opsz", opticalSize.value),
+        FontVariation.weight(weight.weight)
+    )
+    val settingsFilled = FontVariation.Settings(
+        FontVariation.Setting("FILL", 1f),
         FontVariation.grade(grade),
         FontVariation.Setting("opsz", opticalSize.value),
         FontVariation.weight(weight.weight)
@@ -64,16 +72,34 @@ fun loadMaterialSymbolFonts(
                 variationSettings = settings
             )
         ),
+        outlinedFilled = FontFamily(
+            Font(
+                resource = Res.font.materialSymbolsOutlined,
+                variationSettings = settingsFilled
+            )
+        ),
         rounded = FontFamily(
             Font(
                 resource = Res.font.materialSymbolsRounded,
                 variationSettings = settings
             )
         ),
+        roundedFilled = FontFamily(
+            Font(
+                resource = Res.font.materialSymbolsRounded,
+                variationSettings = settingsFilled
+            )
+        ),
         sharp = FontFamily(
             Font(
                 resource = Res.font.materialSymbolsSharp,
                 variationSettings = settings
+            )
+        ),
+        sharpFilled = FontFamily(
+            Font(
+                resource = Res.font.materialSymbolsSharp,
+                variationSettings = settingsFilled
             )
         )
     )

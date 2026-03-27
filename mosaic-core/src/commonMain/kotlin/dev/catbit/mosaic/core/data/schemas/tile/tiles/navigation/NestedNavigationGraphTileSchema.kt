@@ -1,11 +1,20 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation
 
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntryChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntrySetEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Triggers(
+    [
+        OnNavigationEntryChangedEventTrigger::class,
+        OnNavigationEntrySetEventTrigger::class,
+    ]
+)
 @Serializable
 @SerialName("NestedNavigationGraph")
 data class NestedNavigationGraphTileSchema(
@@ -20,15 +29,10 @@ data class NestedNavigationGraphTileSchema(
 
     @Serializable
     data class Entry(
-        @SerialName("screenId")
-        val screenId: String,
-        @SerialName("initialTiles")
-        val initialTiles: List<TileSchema>,
-        @SerialName("initialEvents")
-        val initialEvents: List<EventSchema>,
-        @SerialName("failureTiles")
-        val failureTiles: List<TileSchema>,
-        @SerialName("failureEvents")
-        val failureEvents: List<EventSchema>
+        @SerialName("screenId") val screenId: String,
+        @SerialName("initialTiles") val initialTiles: List<TileSchema>,
+        @SerialName("initialEvents") val initialEvents: List<EventSchema>,
+        @SerialName("failureTiles") val failureTiles: List<TileSchema>,
+        @SerialName("failureEvents") val failureEvents: List<EventSchema>
     )
 }

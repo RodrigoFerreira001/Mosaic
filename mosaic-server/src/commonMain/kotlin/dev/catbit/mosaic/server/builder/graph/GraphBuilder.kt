@@ -18,9 +18,9 @@ internal class GraphBuilder(
 }
 
 fun Graph(
-    entries: GraphEntryBuilderScope.() -> Unit,
     startEntryId: String,
-    ttl: LocalDateTime? = null
+    ttl: LocalDateTime? = null,
+    entries: GraphEntryBuilderScope.() -> Unit,
 ) = GraphBuilder(
     entries = entries,
     startEntryId = startEntryId,

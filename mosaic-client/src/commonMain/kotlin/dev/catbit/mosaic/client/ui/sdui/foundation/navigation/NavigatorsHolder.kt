@@ -1,6 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.navigation
 
-object NavigatorHolder {
+class NavigatorsHolder {
     private val navigators = mutableMapOf<String, NavigationController>()
 
     fun registerNavigator(

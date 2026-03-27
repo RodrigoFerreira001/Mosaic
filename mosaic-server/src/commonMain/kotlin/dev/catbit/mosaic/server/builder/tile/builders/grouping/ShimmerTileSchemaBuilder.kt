@@ -27,10 +27,10 @@ internal class ShimmerTileSchemaBuilder(
 
 fun TileSchemaBuilderScope.Shimmer(
     id: String = randomUuid(),
-    tiles: TileSchemaBuilderScope.() -> Unit,
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    tiles: TileSchemaBuilderScope.() -> Unit,
 ) {
     addBuilder(
         ShimmerTileSchemaBuilder(

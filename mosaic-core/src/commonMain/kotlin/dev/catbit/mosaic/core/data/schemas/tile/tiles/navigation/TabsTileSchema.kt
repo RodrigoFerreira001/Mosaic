@@ -21,7 +21,7 @@ data class TabsTileSchema(
     @SerialName("events") override val events: List<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
-    @SerialName("selectedTabId") val selectedTabIndex: String,
+    @SerialName("selectedTabId") val selectedTabId: String,
     @SerialName("tabItems") val tabItems: List<TabItem>,
     @SerialName("tabType") val tabType: Type,
     @SerialName("scrollable") val scrollable: Boolean

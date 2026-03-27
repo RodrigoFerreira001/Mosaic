@@ -27,6 +27,10 @@
 - Events: GetFile, SaveFile, DeleteFile
 - Events: CountDownTimer, StartInfiniteClock, FinishInfiniteClock
 - Events: Validate (o de operações), Transformation, CheckIfHasInternetConnection
+- Compactar dados entre cliente e servidor
+- AsyncTiles (Client + Server, com Builders que retornar lista de tiles)
+- Triggers de Scroll (OnScroll[Up, Down, Left, Right])
+- Usar ids para BS e outros overlays
 
 # Prioridades
 - Fazer teste inicial do server + cliente (com actions de GetScreen)

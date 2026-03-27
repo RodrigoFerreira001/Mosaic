@@ -2,7 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.radio
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 
-interface RadioButtonTileGroupEvents : TileGroupEvent {
+sealed interface RadioButtonTileGroupEvents : TileGroupEvent {
     data class OnRadioSelected(
         val selectedTileId: String,
         val groupId: String

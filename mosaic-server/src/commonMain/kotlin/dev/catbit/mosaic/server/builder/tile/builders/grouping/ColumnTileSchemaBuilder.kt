@@ -39,14 +39,14 @@ internal class ColumnTileSchemaBuilder(
 
 fun TileSchemaBuilderScope.Column(
     id: String = randomUuid(),
-    tiles: TileSchemaBuilderScope.() -> Unit,
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     arrangement: ArrangementSchema.Vertical = arrangeVerticallyToTop(),
     alignment: AlignmentSchema.Horizontal = alignHorizontallyToStart(),
     isScrollable: Boolean = false,
-    lazyRender: Boolean = false
+    lazyRender: Boolean = false,
+    tiles: TileSchemaBuilderScope.() -> Unit,
 ) {
     addBuilder(
         ColumnTileSchemaBuilder(

@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scr
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.TileEventScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
@@ -76,7 +77,7 @@ class ScreenTileHolder(
         currentDialogSheetTiles = tiles
     }
 
-    override fun onTileEvent(event: TileEvent) {
+    override fun TileEventScope.onTileEvent(event: TileEvent) {
         if (event is ScreenTileEvents) {
             when (event) {
                 ScreenTileEvents.OnCloseBottomSheetFinished -> {

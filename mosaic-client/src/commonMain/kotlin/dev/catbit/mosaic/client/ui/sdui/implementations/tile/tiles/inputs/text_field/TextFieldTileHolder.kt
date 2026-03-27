@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.TileEventScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema
@@ -16,7 +17,7 @@ class TextFieldTileHolder(
         events = events?.map { it.get() }
     )
 
-    override fun onTileEvent(event: TileEvent) {
+    override fun TileEventScope.onTileEvent(event: TileEvent) {
         when (event) {
             is TextFieldTileEvents.OnTextChange -> {
                 tile = tile.copy(value = event.newValue)

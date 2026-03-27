@@ -65,7 +65,7 @@ class NavigationBarItemSchemaBuilder(
 
 class NavigationBarItemSchemaBuilderScope :
     GenericBuilderScope<NavigationBarTileSchema.NavigationBarItem, NavigationBarItemSchemaBuilder>() {
-    fun addItem(
+    fun item(
         id: String,
         icon: IconSchema,
         label: String? = null

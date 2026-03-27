@@ -27,8 +27,8 @@ fun Screen(
     id: String,
     events: EventSchemaBuilderScope.() -> Unit = {},
     navigationDrawerTiles: (TileSchemaBuilderScope.() -> Unit)? = null,
-    tiles: TileSchemaBuilderScope.() -> Unit = {},
     ttl: LocalDateTime? = null,
+    tiles: TileSchemaBuilderScope.() -> Unit = {},
 ) = ScreenBuilder(
     id = id,
     events = events,

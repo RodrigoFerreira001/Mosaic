@@ -1,11 +1,15 @@
 package dev.catbit.mosaic.server.builder.tile.builders.navigation
 
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NestedNavigationGraphTileSchema
 import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.event.builders.screen.ChangeScreenState
+import dev.catbit.mosaic.server.builder.event.builders.screen.GetScreen
+import dev.catbit.mosaic.server.builder.event.builders.screen.successState
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
@@ -16,8 +20,8 @@ internal class NestedNavigationGraphTileSchemaBuilder(
     private val style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit,
     private val visibility: TileSchema.Visibility,
     private val navigatorId: String,
+    private val startEntryId: String,
     private val entries: NestedNavigationGraphEntryBuilderScope.() -> Unit,
-    private val startEntryId: String
 ) : TileSchemaBuilder<NestedNavigationGraphTileSchema> {
 
     override fun build() = NestedNavigationGraphTileSchema(
@@ -72,10 +76,20 @@ class NestedNavigationGraphEntryBuilder(
 
 class NestedNavigationGraphEntryBuilderScope :
     GenericBuilderScope<NestedNavigationGraphTileSchema.Entry, NestedNavigationGraphEntryBuilder>() {
-    fun addEntry(
+    fun entry(
         screenId: String,
         initialTiles: TileSchemaBuilderScope.() -> Unit = {},
-        initialEvents: EventSchemaBuilderScope.() -> Unit = {},
+        initialEvents: EventSchemaBuilderScope.() -> Unit = {
+            GetScreen(
+                trigger = EventTriggers.onDisplay(),
+                events = {
+                    ChangeScreenState(
+                        trigger = EventTriggers.onSuccess(),
+                        state = successState()
+                    )
+                }
+            )
+        },
         failureTiles: TileSchemaBuilderScope.() -> Unit = {},
         failureEvents: EventSchemaBuilderScope.() -> Unit = {},
     ) {

@@ -27,7 +27,7 @@ internal class TabsTileSchemaBuilder(
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilder().apply { StyleSchemaBuilderScope().apply(style) }.build(),
         visibility = visibility,
-        selectedTabIndex = selectedTabId,
+        selectedTabId = selectedTabId,
         tabItems = TabItemSchemaBuilderScope().apply(tabItems).build(),
         tabType = tabType,
         scrollable = scrollable

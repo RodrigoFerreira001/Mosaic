@@ -54,7 +54,7 @@ class UpdateTilesUpdateBuilder(
 
 class UpdateTilesUpdateBuilderScope : GenericBuilderScope<Update, UpdateTilesUpdateBuilder>() {
 
-    fun addUpdate(
+    fun update(
         tileId: String,
         data: Map<String, AnySerializable?>
     ) {

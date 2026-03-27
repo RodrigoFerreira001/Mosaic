@@ -13,6 +13,8 @@ class NavigationController(
         poppingUpTo: PopUpTo? = null
     ) {
 
+        if (backStack.lastOrNull()?.id == destination) return
+
         poppingUpTo?.let {
             val index = backStack
                 .indexOfLast { it.id == poppingUpTo.target }

@@ -36,14 +36,17 @@ abstract class EventHolder<T : EventSchema> {
     fun UpdateScope.update(updateData: Map<String, Any?>) {
         runSafely {
             val updateObject = updateData.toJsonElement().jsonObject
-            val eventObject = event.toJsonElement().jsonObject
+            val eventObject = serializer.encodeEventToJsonElement(event).jsonObject
 
             val updatedObject = buildJsonObject {
                 eventObject.forEach { (key, element) -> put(key, element) }
                 updateObject.forEach { (key, element) -> put(key, element) }
             }
 
-            serializer.decodeFromJsonElement(event::class.serializer(), updatedObject)
+            event = serializer.decodeFromJsonElement(
+                deserializer = event::class.serializer(),
+                element = updatedObject
+            )
         }
     }
 }

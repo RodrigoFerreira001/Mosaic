@@ -35,13 +35,14 @@ data class TextFieldTileSchema(
     @SerialName("value") val value: String,
     @SerialName("enabled") val enabled: Boolean,
     @SerialName("leadingIcon") val leadingIcon: IconSchema?,
+    @SerialName("clickableLeadingIcon") val clickableLeadingIcon: Boolean,
     @SerialName("trailingIcon") val trailingIcon: IconSchema?,
+    @SerialName("clickableTrailingIcon") val clickableTrailingIcon: Boolean,
     @SerialName("prefixText") val prefixText: String?,
     @SerialName("suffixText") val suffixText: String?,
     @SerialName("placeholder") val placeholder: String?,
     @SerialName("label") val label: String?,
     @SerialName("supportingText") val supportingText: String?,
-    @SerialName("maxLength") val maxLength: Int,
     @SerialName("minLines") val minLines: Int,
     @SerialName("maxLines") val maxLines: Int,
     @SerialName("kind") val kind: Kind,
@@ -70,7 +71,9 @@ data class TextFieldTileSchema(
 
         @Serializable
         @SerialName("Custom")
-        data class Custom(val mask: String) : VisualTransformation
+        data class Custom(
+            @SerialName("mask") val mask: String
+        ) : VisualTransformation
     }
 
     @Serializable

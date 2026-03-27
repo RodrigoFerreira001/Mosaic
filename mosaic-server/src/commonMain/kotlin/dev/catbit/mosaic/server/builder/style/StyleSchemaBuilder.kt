@@ -209,6 +209,17 @@ class StyleSchemaBuilder : GenericBuilder<StyleSchema> {
             )
         )
 
+        fun roundedCornerShape(
+            all: Int
+        ) = ShapeSchema.RoundedCornerRectangle(
+            RadiusSchema(
+                topStart = all,
+                topEnd = all,
+                bottomStart = all,
+                bottomEnd = all
+            )
+        )
+
         fun windowInsetsSystemBars() = WindowInsetsSchema.SystemBars
 
         fun windowInsetsCaptionBar() = WindowInsetsSchema.CaptionBar

@@ -34,7 +34,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigationController
-import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.OverlayContainer
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreen
 import dev.catbit.mosaic.client.ui.theme.MosaicTheme
@@ -43,6 +43,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import org.koin.compose.KoinMultiplatformApplication
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import org.koin.core.module.Module
@@ -136,8 +137,10 @@ private fun MosaicApplicationSuccessContent(
         NavigationController(backStack as NavBackStack<ScreenNavKey>)
     }
 
+    val navigatorsHolder = koinInject<NavigatorsHolder>()
+
     SingleEffect {
-        NavigatorHolder.registerNavigator(
+        navigatorsHolder.registerNavigator(
             navigatorId = "root",
             navigationController = navigationController
         )
@@ -149,6 +152,7 @@ private fun MosaicApplicationSuccessContent(
         NavDisplay(
             modifier = Modifier.fillMaxSize(),
             backStack = backStack,
+            onBack = { navigationController.goBack() },
             entryDecorators = listOf(
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator()

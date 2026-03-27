@@ -1,9 +1,10 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.InsertionPosition
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.TileEventScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.UpdateScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilderManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolderBuilderManager
@@ -50,6 +51,12 @@ class TilesManager(
     private val updateScope by lazy {
         UpdateScope(
             serializer = serializer
+        )
+    }
+
+    private val tileEventScope by lazy {
+        TileEventScope(
+            builderScope = builderScope
         )
     }
 
@@ -218,10 +225,12 @@ class TilesManager(
         event: TileEvent
     ) {
         runSafely {
-            screenTileHolder.getTileHolder(
-                tileId = tileId
-            )?.onTileEvent(event)
-            updateState()
+            withNotNull(
+                screenTileHolder.getTileHolder(tileId)
+            ) {
+                tileEventScope.onTileEvent(event)
+                updateState()
+            }
         }
     }
 
@@ -230,7 +239,9 @@ class TilesManager(
     ) {
         runSafely {
             screenTileHolder.getTileHoldersByGroupEvent(event).forEach { tileHolder ->
-                tileHolder.onTileGroupEvent(event)
+                with(tileHolder) {
+                    tileEventScope.onTileGroupEvent(event)
+                }
             }
             updateState()
         }

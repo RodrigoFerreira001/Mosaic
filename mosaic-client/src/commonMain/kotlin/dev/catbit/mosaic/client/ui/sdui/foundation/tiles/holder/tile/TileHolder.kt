@@ -1,16 +1,20 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.models.InsertionPosition
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.TileEventScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.UpdateScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import dev.catbit.mosaic.core.extensions.runSafely
 import dev.catbit.mosaic.core.extensions.toJsonElement
 import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json.Default.encodeToJsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.serializer
@@ -65,7 +69,7 @@ abstract class TileHolder<T : TileSchema> {
                 ?.toJsonElement()
                 ?.jsonObject
 
-            val tileObject = tile.toJsonElement().jsonObject
+            val tileObject = serializer.encodeTileToJsonElement(tile).jsonObject
             val styleObject = tile.style.toJsonElement().jsonObject
 
             val updatedStyleObject = styleUpdateObject?.let {
@@ -88,9 +92,9 @@ abstract class TileHolder<T : TileSchema> {
         }
     }
 
-    open fun onTileEvent(event: TileEvent) = Unit
+    open fun TileEventScope.onTileEvent(event: TileEvent) = Unit
 
-    open fun onTileGroupEvent(event: TileGroupEvent) = Unit
+    open fun TileEventScope.onTileGroupEvent(event: TileGroupEvent) = Unit
 
     fun addChild(
         child: TileHolder<*>,
