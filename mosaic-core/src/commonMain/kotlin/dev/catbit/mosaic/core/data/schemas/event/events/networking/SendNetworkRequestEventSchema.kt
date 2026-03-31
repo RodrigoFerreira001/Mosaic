@@ -26,8 +26,9 @@ data class SendNetworkRequestEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: List<EventSchema>?,
-    val url: String,
-    val method: HttpMethod,
-    val body: AnySerializable?,
-    val headers: Map<String, String>?
+    @SerialName("url") val url: String,
+    @SerialName("method") val method: HttpMethod,
+    @SerialName("body") val body: AnySerializable?,
+    @SerialName("headers") val headers: Map<String, String>?,
+    @SerialName("useIncomingDataForHeaders") val useIncomingDataForHeaders: Boolean = false
 ) : EventSchema

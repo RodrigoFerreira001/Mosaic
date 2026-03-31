@@ -15,7 +15,8 @@ internal class SendNetworkRequestEventBuilder(
     private val url: String,
     private val method: HttpMethod,
     private val body: AnySerializable?,
-    private val headers: Map<String, String>?
+    private val headers: Map<String, String>?,
+    private val useIncomingDataForHeaders: Boolean
 ) : EventSchemaBuilder<SendNetworkRequestEventSchema> {
 
     override fun build() = SendNetworkRequestEventSchema(
@@ -25,7 +26,8 @@ internal class SendNetworkRequestEventBuilder(
         url = url,
         method = method,
         body = body,
-        headers = headers
+        headers = headers,
+        useIncomingDataForHeaders = useIncomingDataForHeaders
     )
 }
 
@@ -36,7 +38,8 @@ fun EventSchemaBuilderScope.SendNetworkRequest(
     url: String,
     method: HttpMethod,
     body: AnySerializable? = null,
-    headers: Map<String, String>? = null
+    headers: Map<String, String>? = null,
+    useIncomingDataForHeaders: Boolean = false
 ) {
     addBuilder(
         SendNetworkRequestEventBuilder(
@@ -46,7 +49,8 @@ fun EventSchemaBuilderScope.SendNetworkRequest(
             url = url,
             method = method,
             body = body,
-            headers = headers
+            headers = headers,
+            useIncomingDataForHeaders = useIncomingDataForHeaders
         )
     )
 }

@@ -26,8 +26,8 @@ object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventSchema
                     SendNetworkRequestUseCase.Params(
                         url = url,
                         httpMethod = method.toKtorHttpMethod(),
-                        headers = headers ?: incomingData.asMapString(),
-                        body = body ?: incomingData
+                        headers = headers ?: if (useIncomingDataForHeaders) incomingData.asMapString() else null,
+                        body = body ?: if (!useIncomingDataForHeaders) incomingData else null
                     )
                 )
                     .onSuccess { response ->

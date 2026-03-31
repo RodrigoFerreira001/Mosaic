@@ -4,8 +4,17 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.server.builder.color.color
 import dev.catbit.mosaic.server.builder.color.themeColorOutline
+import dev.catbit.mosaic.server.builder.data.singleAccessMode
+import dev.catbit.mosaic.server.builder.data.tile
+import dev.catbit.mosaic.server.builder.event.builders.data.EvaluateData
+import dev.catbit.mosaic.server.builder.event.builders.data.GetData
 import dev.catbit.mosaic.server.builder.event.builders.data.ProcessData
+import dev.catbit.mosaic.server.builder.event.builders.data.incomingData
+import dev.catbit.mosaic.server.builder.event.builders.data.valueAtKeyEquals
 import dev.catbit.mosaic.server.builder.event.builders.networking.SendNetworkRequest
+import dev.catbit.mosaic.server.builder.event.builders.overlays.bottom_sheet.DisplayBottomSheet
+import dev.catbit.mosaic.server.builder.tile.builders.inputs.TextField
+import kotlinx.serialization.json.JsonPrimitive
 import dev.catbit.mosaic.server.builder.event.builders.screen.RefreshScreen
 import dev.catbit.mosaic.server.builder.event.builders.tiles.ReloadLazyTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
@@ -116,6 +125,111 @@ suspend fun RoutingCall.respondA() {
                         },
                         style = {
                             margin(horizontal = 24)
+                        }
+                    )
+                    TextField(
+                        id = "NAME_FIELD",
+                        label = "Nome",
+                        placeholder = "Digite seu nome",
+                        style = {
+                            margin(horizontal = 24, top = 24)
+                            size(width = fillHorizontally())
+                        }
+                    )
+                    Button(
+                        id = "SEND_NAME_BTN",
+                        text = "Enviar nome",
+                        style = {
+                            margin(horizontal = 24)
+                        },
+                        events = {
+                            UpdateTiles(
+                                trigger = EventTriggers.onClick(),
+                                updates = {
+                                    update(
+                                        tileId = "SEND_NAME_BTN",
+                                        data = mapOf("loading" to true, "enabled" to false)
+                                    )
+                                }
+                            )
+                            GetData(
+                                trigger = EventTriggers.onClick(),
+                                readings = {
+                                    addReading(
+                                        dataSource = tile(tileId = "NAME_FIELD", dataKey = "name"),
+                                        accessMode = singleAccessMode(dataId = "name")
+                                    )
+                                },
+                                events = {
+                                    EvaluateData(
+                                        trigger = EventTriggers.onSuccess(),
+                                        expression = incomingData().valueAtKeyEquals("name", JsonPrimitive("Rodrigo")),
+                                        events = {
+                                            SendNetworkRequest(
+                                                trigger = EventTriggers.onSuccess(),
+                                                url = "http://192.168.3.84:9090/events/helloName",
+                                                method = HttpMethod.POST,
+                                                events = {
+                                                    ProcessData(
+                                                        trigger = EventTriggers.onSuccess(),
+                                                        processWith = "EVENT_RUNNER"
+                                                    )
+                                                    UpdateTiles(
+                                                        trigger = EventTriggers.onSuccess(),
+                                                        updates = {
+                                                            update(
+                                                                tileId = "SEND_NAME_BTN",
+                                                                data = mapOf("loading" to false, "enabled" to true)
+                                                            )
+                                                        }
+                                                    )
+                                                    UpdateTiles(
+                                                        trigger = EventTriggers.onFailure(),
+                                                        updates = {
+                                                            update(
+                                                                tileId = "SEND_NAME_BTN",
+                                                                data = mapOf("loading" to false, "enabled" to true)
+                                                            )
+                                                        }
+                                                    )
+                                                }
+                                            )
+                                            DisplayBottomSheet(
+                                                trigger = EventTriggers.onFailure()
+                                            ) {
+                                                Column(
+                                                    style = {
+                                                        size(height = fixedVertically(200))
+                                                        padding(horizontal = 24)
+                                                    },
+                                                    arrangement = arrangeToCenter(),
+                                                    alignment = alignHorizontallyToCenter()
+                                                ) {
+                                                    SimpleText(text = "O nome deve ser Rodrigo.")
+                                                }
+                                            }
+                                            UpdateTiles(
+                                                trigger = EventTriggers.onFailure(),
+                                                updates = {
+                                                    update(
+                                                        tileId = "SEND_NAME_BTN",
+                                                        data = mapOf("loading" to false, "enabled" to true)
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    )
+                                    UpdateTiles(
+                                        trigger = EventTriggers.onFailure(),
+                                        updates = {
+                                            update(
+                                                tileId = "SEND_NAME_BTN",
+                                                data = mapOf("loading" to false, "enabled" to true)
+                                            )
+                                        }
+                                    )
+                                }
+                            )
                         }
                     )
                     Button(

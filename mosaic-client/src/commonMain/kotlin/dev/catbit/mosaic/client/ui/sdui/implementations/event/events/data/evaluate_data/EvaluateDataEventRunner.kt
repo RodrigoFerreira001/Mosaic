@@ -3,7 +3,6 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.evalu
 import dev.catbit.mosaic.client.domain.data.plain.GetAllPlainDataUseCase
 import dev.catbit.mosaic.client.domain.data.plain.GetPlainDataByIdsUseCase
 import dev.catbit.mosaic.client.domain.data.plain.GetPlainDataUseCase
-import dev.catbit.mosaic.core.domain.base.invoke
 import dev.catbit.mosaic.client.domain.data.segmented.GetAllSegmentedDataUseCase
 import dev.catbit.mosaic.client.domain.data.segmented.GetSegmentedDataByIdsUseCase
 import dev.catbit.mosaic.client.domain.data.segmented.GetSegmentedDataUseCase
@@ -17,6 +16,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.data.EvaluateDataEventSc
 import dev.catbit.mosaic.core.data.schemas.event.events.data.EvaluateDataEventSchema.Expression.DataExpression.Operation
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.domain.base.IO
+import dev.catbit.mosaic.core.domain.base.invoke
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.DayOfWeek
@@ -35,9 +35,9 @@ object EvaluateDataEventRunner : EventRunner<EvaluateDataEventSchema> {
                     }
 
                 if (result) {
-                    onTrigger(EventTriggers.onSuccess())
+                    onTrigger(EventTriggers.onSuccess(), data = incomingData)
                 } else {
-                    onTrigger(EventTriggers.onFailure())
+                    onTrigger(EventTriggers.onFailure(), data = incomingData)
                 }
             }
         }

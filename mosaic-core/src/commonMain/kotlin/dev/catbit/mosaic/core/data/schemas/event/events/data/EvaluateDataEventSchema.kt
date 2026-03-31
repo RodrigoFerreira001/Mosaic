@@ -85,11 +85,11 @@ data class EvaluateDataEventSchema(
                 @SerialName("Null")
                 sealed interface NullOperation : Operation {
                     @Serializable
-                    @SerialName("IsNull")
+                    @SerialName("Null_IsNull")
                     data object IsNull : NullOperation
 
                     @Serializable
-                    @SerialName("IsNotNull")
+                    @SerialName("Null_IsNotNull")
                     data object IsNotNull : NullOperation
                 }
 
@@ -97,77 +97,77 @@ data class EvaluateDataEventSchema(
                 @SerialName("String")
                 sealed interface StringOperation : Operation {
                     @Serializable
-                    @SerialName("IsLengthSmallerThan")
+                    @SerialName("String_IsEqualsTo")
                     data class IsEqualsTo(
                         @SerialName("target") val target: String
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("IsLengthSmallerThanOrEquals")
+                    @SerialName("String_IsLengthSmallerThan")
                     data class IsLengthSmallerThan(
                         @SerialName("length") val length: Int
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("IsLengthEqualsTo")
+                    @SerialName("String_IsLengthSmallerThanOrEquals")
                     data class IsLengthSmallerThanOrEquals(
                         @SerialName("length") val length: Int
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("IsLengthBiggerThan")
+                    @SerialName("String_IsLengthEqualsTo")
                     data class IsLengthEqualsTo(
                         @SerialName("length") val length: Int
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("IsLengthBiggerThanOrEquals")
+                    @SerialName("String_IsLengthBiggerThan")
                     data class IsLengthBiggerThan(
                         @SerialName("length") val length: Int
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("IsLengthBiggerThanOrEquals")
+                    @SerialName("String_IsLengthBiggerThanOrEquals")
                     data class IsLengthBiggerThanOrEquals(
                         @SerialName("length") val length: Int
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("MatchesRegex")
+                    @SerialName("String_MatchesRegex")
                     data class MatchesRegex(
                         @SerialName("regex") val regex: String
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("Contains")
+                    @SerialName("String_Contains")
                     data class Contains(
                         @SerialName("substring") val substring: String
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("StartsWith")
+                    @SerialName("String_StartsWith")
                     data class StartsWith(
                         @SerialName("prefix") val prefix: String
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("EndsWith")
+                    @SerialName("String_EndsWith")
                     data class EndsWith(
                         @SerialName("suffix") val suffix: String
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("EqualsIgnoreCase")
+                    @SerialName("String_EqualsIgnoreCase")
                     data class EqualsIgnoreCase(
                         @SerialName("target") val target: String
                     ) : StringOperation
 
                     @Serializable
-                    @SerialName("IsBlank")
+                    @SerialName("String_IsBlank")
                     data object IsBlank : StringOperation
 
                     @Serializable
-                    @SerialName("IsNotBlank")
+                    @SerialName("String_IsNotBlank")
                     data object IsNotBlank : StringOperation
                 }
 
@@ -175,39 +175,39 @@ data class EvaluateDataEventSchema(
                 @SerialName("Int")
                 sealed interface IntOperation : Operation {
                     @Serializable
-                    @SerialName("IsEven")
+                    @SerialName("Int_IsEven")
                     data object IsEven : IntOperation
 
                     @Serializable
-                    @SerialName("IsOdd")
+                    @SerialName("Int_IsOdd")
                     data object IsOdd : IntOperation
 
                     @Serializable
-                    @SerialName("IsSmallerThan")
+                    @SerialName("Int_IsSmallerThan")
                     data class IsSmallerThan(
                         @SerialName("target") val target: Int
                     ) : IntOperation
 
                     @Serializable
-                    @SerialName("IsSmallerThanOrEquals")
+                    @SerialName("Int_IsSmallerThanOrEquals")
                     data class IsSmallerThanOrEquals(
                         @SerialName("target") val target: Int
                     ) : IntOperation
 
                     @Serializable
-                    @SerialName("IsEqualsTo")
+                    @SerialName("Int_IsEqualsTo")
                     data class IsEqualsTo(
                         @SerialName("target") val target: Int
                     ) : IntOperation
 
                     @Serializable
-                    @SerialName("IsBiggerThan")
+                    @SerialName("Int_IsBiggerThan")
                     data class IsBiggerThan(
                         @SerialName("target") val target: Int
                     ) : IntOperation
 
                     @Serializable
-                    @SerialName("IsBiggerThanOrEquals")
+                    @SerialName("Int_IsBiggerThanOrEquals")
                     data class IsBiggerThanOrEquals(
                         @SerialName("target") val target: Int
                     ) : IntOperation
@@ -218,31 +218,31 @@ data class EvaluateDataEventSchema(
                 sealed interface LongOperation : Operation {
 
                     @Serializable
-                    @SerialName("IsSmallerThan")
+                    @SerialName("Long_IsSmallerThan")
                     data class IsSmallerThan(
                         @SerialName("target") val target: Long
                     ) : LongOperation
 
                     @Serializable
-                    @SerialName("IsSmallerThanOrEquals")
+                    @SerialName("Long_IsSmallerThanOrEquals")
                     data class IsSmallerThanOrEquals(
                         @SerialName("target") val target: Long
                     ) : LongOperation
 
                     @Serializable
-                    @SerialName("IsEqualsTo")
+                    @SerialName("Long_IsEqualsTo")
                     data class IsEqualsTo(
                         @SerialName("target") val target: Long
                     ) : LongOperation
 
                     @Serializable
-                    @SerialName("IsBiggerThan")
+                    @SerialName("Long_IsBiggerThan")
                     data class IsBiggerThan(
                         @SerialName("target") val target: Long
                     ) : LongOperation
 
                     @Serializable
-                    @SerialName("IsBiggerThanOrEquals")
+                    @SerialName("Long_IsBiggerThanOrEquals")
                     data class IsBiggerThanOrEquals(
                         @SerialName("target") val target: Long
                     ) : LongOperation
@@ -253,31 +253,31 @@ data class EvaluateDataEventSchema(
                 sealed interface FloatOperation : Operation {
 
                     @Serializable
-                    @SerialName("IsSmallerThan")
+                    @SerialName("Float_IsSmallerThan")
                     data class IsSmallerThan(
                         @SerialName("target") val target: Float
                     ) : FloatOperation
 
                     @Serializable
-                    @SerialName("IsSmallerThanOrEquals")
+                    @SerialName("Float_IsSmallerThanOrEquals")
                     data class IsSmallerThanOrEquals(
                         @SerialName("target") val target: Float
                     ) : FloatOperation
 
                     @Serializable
-                    @SerialName("IsEqualsTo")
+                    @SerialName("Float_IsEqualsTo")
                     data class IsEqualsTo(
                         @SerialName("target") val target: Float
                     ) : FloatOperation
 
                     @Serializable
-                    @SerialName("IsBiggerThan")
+                    @SerialName("Float_IsBiggerThan")
                     data class IsBiggerThan(
                         @SerialName("target") val target: Float
                     ) : FloatOperation
 
                     @Serializable
-                    @SerialName("IsBiggerThanOrEquals")
+                    @SerialName("Float_IsBiggerThanOrEquals")
                     data class IsBiggerThanOrEquals(
                         @SerialName("target") val target: Float
                     ) : FloatOperation
@@ -288,31 +288,31 @@ data class EvaluateDataEventSchema(
                 sealed interface DoubleOperation : Operation {
 
                     @Serializable
-                    @SerialName("IsSmallerThan")
+                    @SerialName("Double_IsSmallerThan")
                     data class IsSmallerThan(
                         @SerialName("target") val target: Double
                     ) : DoubleOperation
 
                     @Serializable
-                    @SerialName("IsSmallerThanOrEquals")
+                    @SerialName("Double_IsSmallerThanOrEquals")
                     data class IsSmallerThanOrEquals(
                         @SerialName("target") val target: Double
                     ) : DoubleOperation
 
                     @Serializable
-                    @SerialName("IsEqualsTo")
+                    @SerialName("Double_IsEqualsTo")
                     data class IsEqualsTo(
                         @SerialName("target") val target: Double
                     ) : DoubleOperation
 
                     @Serializable
-                    @SerialName("IsBiggerThan")
+                    @SerialName("Double_IsBiggerThan")
                     data class IsBiggerThan(
                         @SerialName("target") val target: Double
                     ) : DoubleOperation
 
                     @Serializable
-                    @SerialName("IsBiggerThanOrEquals")
+                    @SerialName("Double_IsBiggerThanOrEquals")
                     data class IsBiggerThanOrEquals(
                         @SerialName("target") val target: Double
                     ) : DoubleOperation
@@ -322,11 +322,11 @@ data class EvaluateDataEventSchema(
                 @SerialName("Boolean")
                 sealed interface BooleanOperation : Operation {
                     @Serializable
-                    @SerialName("IsFalse")
+                    @SerialName("Boolean_IsFalse")
                     data object IsFalse : BooleanOperation
 
                     @Serializable
-                    @SerialName("IsTrue")
+                    @SerialName("Boolean_IsTrue")
                     data object IsTrue : BooleanOperation
                 }
 
@@ -334,57 +334,57 @@ data class EvaluateDataEventSchema(
                 @SerialName("Map")
                 sealed interface MapOperation : Operation {
                     @Serializable
-                    @SerialName("ContainsKey")
+                    @SerialName("Map_ContainsKey")
                     data class ContainsKey(
                         @SerialName("key") val key: String
                     ) : MapOperation
 
                     @Serializable
-                    @SerialName("ContainsValue")
+                    @SerialName("Map_ContainsValue")
                     data class ContainsValue(
                         @SerialName("value") val value: AnySerializable
                     ) : MapOperation
 
                     @Serializable
-                    @SerialName("IsEmpty")
+                    @SerialName("Map_IsEmpty")
                     data object IsEmpty : MapOperation
 
                     @Serializable
-                    @SerialName("IsNotEmpty")
+                    @SerialName("Map_IsNotEmpty")
                     data object IsNotEmpty : MapOperation
 
                     @Serializable
-                    @SerialName("IsSizeSmallerThan")
+                    @SerialName("Map_IsSizeSmallerThan")
                     data class IsSizeSmallerThan(
                         @SerialName("size") val size: Int
                     ) : MapOperation
 
                     @Serializable
-                    @SerialName("IsSizeSmallerThanOrEquals")
+                    @SerialName("Map_IsSizeSmallerThanOrEquals")
                     data class IsSizeSmallerThanOrEquals(
                         @SerialName("size") val size: Int
                     ) : MapOperation
 
                     @Serializable
-                    @SerialName("IsSizeEqualsTo")
+                    @SerialName("Map_IsSizeEqualsTo")
                     data class IsSizeEqualsTo(
                         @SerialName("size") val size: Int
                     ) : MapOperation
 
                     @Serializable
-                    @SerialName("IsSizeBiggerThan")
+                    @SerialName("Map_IsSizeBiggerThan")
                     data class IsSizeBiggerThan(
                         @SerialName("size") val size: Int
                     ) : MapOperation
 
                     @Serializable
-                    @SerialName("IsSizeBiggerThanOrEquals")
+                    @SerialName("Map_IsSizeBiggerThanOrEquals")
                     data class IsSizeBiggerThanOrEquals(
                         @SerialName("size") val size: Int
                     ) : MapOperation
 
                     @Serializable
-                    @SerialName("ValueAtKeyEquals")
+                    @SerialName("Map_ValueAtKeyEquals")
                     data class ValueAtKeyEquals(
                         @SerialName("key") val key: String,
                         @SerialName("value") val value: AnySerializable
@@ -395,63 +395,63 @@ data class EvaluateDataEventSchema(
                 @SerialName("List")
                 sealed interface ListOperation : Operation {
                     @Serializable
-                    @SerialName("Contains")
+                    @SerialName("List_Contains")
                     data class Contains(
                         @SerialName("value") val value: AnySerializable
                     ) : ListOperation
 
                     @Serializable
-                    @SerialName("In")
+                    @SerialName("List_In")
                     data class In(
                         @SerialName("list") val list: List<AnySerializable>
                     ) : ListOperation
 
                     @Serializable
-                    @SerialName("IsEmpty")
+                    @SerialName("List_IsEmpty")
                     data object IsEmpty : ListOperation
 
                     @Serializable
-                    @SerialName("IsNotEmpty")
+                    @SerialName("List_IsNotEmpty")
                     data object IsNotEmpty : ListOperation
 
                     @Serializable
-                    @SerialName("IsSizeSmallerThan")
+                    @SerialName("List_IsSizeSmallerThan")
                     data class IsSizeSmallerThan(
                         @SerialName("size") val size: Int
                     ) : ListOperation
 
                     @Serializable
-                    @SerialName("IsSizeSmallerThanOrEquals")
+                    @SerialName("List_IsSizeSmallerThanOrEquals")
                     data class IsSizeSmallerThanOrEquals(
                         @SerialName("size") val size: Int
                     ) : ListOperation
 
                     @Serializable
-                    @SerialName("IsSizeEqualsTo")
+                    @SerialName("List_IsSizeEqualsTo")
                     data class IsSizeEqualsTo(
                         @SerialName("size") val size: Int
                     ) : ListOperation
 
                     @Serializable
-                    @SerialName("IsSizeBiggerThan")
+                    @SerialName("List_IsSizeBiggerThan")
                     data class IsSizeBiggerThan(
                         @SerialName("size") val size: Int
                     ) : ListOperation
 
                     @Serializable
-                    @SerialName("IsSizeBiggerThanOrEquals")
+                    @SerialName("List_IsSizeBiggerThanOrEquals")
                     data class IsSizeBiggerThanOrEquals(
                         @SerialName("size") val size: Int
                     ) : ListOperation
 
                     @Serializable
-                    @SerialName("ContainsAll")
+                    @SerialName("List_ContainsAll")
                     data class ContainsAll(
                         @SerialName("items") val items: List<AnySerializable>
                     ) : ListOperation
 
                     @Serializable
-                    @SerialName("ContainsAny")
+                    @SerialName("List_ContainsAny")
                     data class ContainsAny(
                         @SerialName("items") val items: List<AnySerializable>
                     ) : ListOperation
@@ -461,29 +461,29 @@ data class EvaluateDataEventSchema(
                 @SerialName("LocalDateTime")
                 sealed interface LocalDateTimeOperation : Operation {
                     @Serializable
-                    @SerialName("IsEqualTo")
+                    @SerialName("LocalDateTime_IsEqualTo")
                     data class IsEqualTo(
                         @SerialName("dateTime") val dateTime: LocalDateTime
                     ) : LocalDateTimeOperation
 
                     @Serializable
-                    @SerialName("IsBefore")
+                    @SerialName("LocalDateTime_IsBefore")
                     data class IsBefore(
                         @SerialName("dateTime") val dateTime: LocalDateTime
                     ) : LocalDateTimeOperation
 
                     @Serializable
-                    @SerialName("IsAfter")
+                    @SerialName("LocalDateTime_IsAfter")
                     data class IsAfter(
                         @SerialName("dateTime") val dateTime: LocalDateTime
                     ) : LocalDateTimeOperation
 
                     @Serializable
-                    @SerialName("IsWeekend")
+                    @SerialName("LocalDateTime_IsWeekend")
                     data object IsWeekend : LocalDateTimeOperation
 
                     @Serializable
-                    @SerialName("IsWeekday")
+                    @SerialName("LocalDateTime_IsWeekday")
                     data object IsWeekday : LocalDateTimeOperation
                 }
             }
