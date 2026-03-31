@@ -1,11 +1,14 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.events
 
+import dev.catbit.mosaic.client.logger.Level
+import dev.catbit.mosaic.client.logger.MosaicLogger
 import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.DataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEditor
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventDispatcher
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesOverlaysEditor
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesValueProducer
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
@@ -16,6 +19,7 @@ import kotlinx.coroutines.supervisorScope
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 import org.koin.core.scope.Scope
+import org.koin.mp.KoinPlatform
 
 data class EventRunningScope(
     val screenId: String,
@@ -28,6 +32,7 @@ data class EventRunningScope(
     val tilesEditor: TilesEditor,
     val tilesEventDispatcher: TilesEventDispatcher,
     val tilesOverlaysEditor: TilesOverlaysEditor,
+    val tilesValueProducer: TilesValueProducer,
     val dataHolder: DataHolder,
     val screenBehaviorsHolder: ScreenBehaviorsHolder,
 ) {
@@ -89,7 +94,14 @@ data class EventRunningScope(
         clazz: KClass<T>,
         qualifier: Qualifier? = null,
         parameters: ParametersDefinition? = null
-    ): T = koinScope.get(clazz, qualifier, parameters)
+//    ): T = koinScope.get(clazz, qualifier, parameters)
+    ): T = KoinPlatform.getKoin().get(clazz, qualifier, parameters)
+
+    inline fun <reified T: Any> getAll(): List<T> = getAll(T::class)
+
+    fun <T : Any> getAll(
+        clazz: KClass<T>,
+    ): List<T> = koinScope.getAll(clazz)
 
     inline fun <reified T : Any> getOrNull(
         qualifier: Qualifier? = null,
@@ -108,4 +120,23 @@ data class EventRunningScope(
     @Suppress("UNCHECKED_CAST")
     fun Any?.asMapString(): Map<String, String>? =
         asMapAny()?.filterValues { it is String } as? Map<String, String>
+
+    fun logError(
+        throwable: Throwable,
+        tag: String = "MosaicCommonError",
+    ) {
+        koinScope.get<MosaicLogger>().error(
+            """
+                Tag: $tag
+                Error: ${throwable.printStackTrace()}
+            """.trimIndent()
+        )
+    }
+
+    fun log(
+        level: Level,
+        msg: String
+    ) {
+        koinScope.get<MosaicLogger>().log(level, msg)
+    }
 }

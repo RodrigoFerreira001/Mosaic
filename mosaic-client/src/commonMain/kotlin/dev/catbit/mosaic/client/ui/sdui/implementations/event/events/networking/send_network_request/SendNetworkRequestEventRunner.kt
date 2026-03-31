@@ -18,46 +18,44 @@ object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventSchema
 
     override fun EventRunningScope.runEvent(event: SendNetworkRequestEventSchema) {
         with(event) {
-            getOrNull<SendNetworkRequestUseCase>()?.let { sendNetworkRequestUseCase ->
-                runSuspendOnStateHolderScope {
+            runSuspendOnStateHolderScope {
 
-                    onTrigger(EventTriggers.onStart())
+                onTrigger(EventTriggers.onStart())
 
-                    sendNetworkRequestUseCase(
-                        SendNetworkRequestUseCase.Params(
-                            url = url,
-                            httpMethod = method.toKtorHttpMethod(),
-                            headers = headers ?: incomingData.asMapString(),
-                            body = body ?: incomingData
-                        )
+                get<SendNetworkRequestUseCase>()(
+                    SendNetworkRequestUseCase.Params(
+                        url = url,
+                        httpMethod = method.toKtorHttpMethod(),
+                        headers = headers ?: incomingData.asMapString(),
+                        body = body ?: incomingData
                     )
-                        .onSuccess { response ->
+                )
+                    .onSuccess { response ->
 
-                            val data = when {
-                                response.contentType()?.match(ContentType.Application.Json) == true -> {
-                                    response.body<JsonElement>().toAny()
-                                }
-
-                                else -> response.bodyAsBytes()
+                        val data = when {
+                            response.contentType()?.match(ContentType.Application.Json) == true -> {
+                                response.body<JsonElement>().toAny()
                             }
 
-                            onTrigger(
-                                eventTrigger = if (response.status.isSuccess()) EventTriggers.onSuccess() else EventTriggers.onFailure(),
-                                data = data
-                            )
+                            else -> response.bodyAsBytes()
+                        }
 
-                            onTrigger(
-                                eventTrigger = EventTriggers.onNetworkResponse(response.status.value),
-                                data = data
-                            )
-                        }
-                        .onFailure { failure ->
-                            onTrigger(
-                                eventTrigger = EventTriggers.onFailure(),
-                                data = failure
-                            )
-                        }
-                }
+                        onTrigger(
+                            eventTrigger = if (response.status.isSuccess()) EventTriggers.onSuccess() else EventTriggers.onFailure(),
+                            data = data
+                        )
+
+                        onTrigger(
+                            eventTrigger = EventTriggers.onNetworkResponse(response.status.value),
+                            data = data
+                        )
+                    }
+                    .onFailure { failure ->
+                        onTrigger(
+                            eventTrigger = EventTriggers.onFailure(),
+                            data = failure
+                        )
+                    }
             }
         }
     }

@@ -1,0 +1,68 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "db1cc64164ecd83428f6f891274b1f76",
+    "entities": [
+      {
+        "tableName": "plain_data",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`dataKey` TEXT NOT NULL, `data` TEXT NOT NULL, PRIMARY KEY(`dataKey`))",
+        "fields": [
+          {
+            "fieldPath": "dataKey",
+            "columnName": "dataKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data",
+            "columnName": "data",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "dataKey"
+          ]
+        }
+      },
+      {
+        "tableName": "segmented_data",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`segmentKey` TEXT NOT NULL, `dataKey` TEXT NOT NULL, `data` TEXT NOT NULL, PRIMARY KEY(`segmentKey`, `dataKey`))",
+        "fields": [
+          {
+            "fieldPath": "segmentKey",
+            "columnName": "segmentKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dataKey",
+            "columnName": "dataKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data",
+            "columnName": "data",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "segmentKey",
+            "dataKey"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'db1cc64164ecd83428f6f891274b1f76')"
+    ]
+  }
+}

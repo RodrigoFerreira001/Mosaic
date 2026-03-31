@@ -33,6 +33,22 @@ fun Route.initialGraph() {
                                 )
                             }
                         )
+                    },
+                    failureTiles = {
+                        Column(
+                            arrangement = arrangeToCenter(),
+                            alignment = alignHorizontallyToCenter(),
+                            tiles = {
+                                SimpleText(
+                                    text = "Erro",
+                                    style = {
+                                        size(
+                                            width = wrapHorizontally()
+                                        )
+                                    }
+                                )
+                            }
+                        )
                     }
                 )
             }

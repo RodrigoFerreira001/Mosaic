@@ -40,6 +40,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.tiles.ReplaceTilesEventS
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.UpdateTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.WipeTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.InlineEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadSuccessEventTrigger
@@ -136,6 +137,7 @@ import kotlin.reflect.KClass
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
@@ -207,6 +209,13 @@ class MosaicSerializer(
         value = tile
     )
 
+    fun decodeTileFromJsonElement(
+        jsonElement: JsonElement
+    ): TileSchema = json.decodeFromJsonElement(
+        deserializer = PolymorphicSerializer(TileSchema::class),
+        element = jsonElement
+    )
+
     @OptIn(InternalSerializationApi::class)
     @Suppress("UNCHECKED_CAST")
     fun encodeEventToJsonElement(
@@ -214,6 +223,13 @@ class MosaicSerializer(
     ) = json.encodeToJsonElement(
         serializer = event::class.serializer() as KSerializer<EventSchema>,
         value = event
+    )
+
+    fun decodeEventFromJsonElement(
+        jsonElement: JsonElement
+    ): EventSchema = json.decodeFromJsonElement(
+        deserializer = PolymorphicSerializer(EventSchema::class),
+        element = jsonElement
     )
 
     fun <T> decodeFromJsonElement(
@@ -235,6 +251,7 @@ class MosaicSerializer(
 
     private val defaultEventTriggerSerializers
         get() = mapOf(
+            InlineEventTrigger::class to InlineEventTrigger.serializer(),
             OnAsyncImageLoadFailureEventTrigger::class to OnAsyncImageLoadFailureEventTrigger.serializer(),
             OnAsyncImageLoadStartEventTrigger::class to OnAsyncImageLoadStartEventTrigger.serializer(),
             OnAsyncImageLoadSuccessEventTrigger::class to OnAsyncImageLoadSuccessEventTrigger.serializer(),

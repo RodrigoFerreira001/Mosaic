@@ -24,4 +24,8 @@ class CheckboxTileHolder(
             }
         }
     }
+
+    override fun produceValueWithKey(
+        key: String
+    ) = mapOf(key to tile.checked)
 }

@@ -1,6 +1,5 @@
 package dev.catbit.mosaic.server.builder.event.builders.data
 
-import dev.catbit.mosaic.core.data.schemas.event.data.AccessModeSchema
 import dev.catbit.mosaic.core.data.schemas.event.data.DataSourceSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema.Update
@@ -44,24 +43,24 @@ fun EventSchemaBuilderScope.UpdateData(
 
 class UpdateDataUpdateBuilder(
     private val dataSource: DataSourceSchema,
-    private val accessMode: AccessModeSchema
+    private val updateData: Update.UpdateDate
 ) : GenericBuilder<Update> {
 
     override fun build() = Update(
         dataSource = dataSource,
-        accessMode = accessMode
+        updateData = updateData
     )
 }
 
 class UpdateDataUpdateBuilderScope : GenericBuilderScope<Update, UpdateDataUpdateBuilder>() {
     fun addUpdate(
         dataSource: DataSourceSchema,
-        accessMode: AccessModeSchema
+        updateData: Update.UpdateDate
     ) {
         addBuilder(
             UpdateDataUpdateBuilder(
                 dataSource = dataSource,
-                accessMode = accessMode,
+                updateData = updateData,
             )
         )
     }

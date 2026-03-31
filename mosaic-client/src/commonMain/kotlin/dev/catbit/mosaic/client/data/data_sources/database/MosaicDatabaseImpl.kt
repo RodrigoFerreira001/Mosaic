@@ -1,83 +1,100 @@
 package dev.catbit.mosaic.client.data.data_sources.database
 
+import dev.catbit.mosaic.client.data.data_sources.database.entities.PlainDataEntity
+import dev.catbit.mosaic.client.data.data_sources.database.entities.SegmentedDataEntity
 import dev.catbit.mosaic.core.extensions.toAny
 import dev.catbit.mosaic.core.extensions.toJsonElement
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import kotlinx.serialization.json.JsonElement
-import dev.catbit.mosaic.client.MosaicDatabase as MosaicSQDelightDatabase
 
 class MosaicDatabaseImpl(
-    private val database: MosaicSQDelightDatabase,
+    private val db: MosaicRoomDatabase,
     private val serializer: MosaicSerializer
 ) : MosaicDatabase {
 
-    override suspend fun setData(
-        dataId: String,
-        data: Any
-    ) {
-        database.mosaicDatabaseQueries.setGlobal(
-            dataId = dataId,
-            data_ = serializer.encodeToString(data.toJsonElement())
+    private val plainDataDao get() = db.plainDataDao()
+    private val segmentedDataDao get() = db.segmentedDataDao()
+
+    override suspend fun setPlainData(dataKey: String, data: Any) {
+        plainDataDao.upsert(
+            PlainDataEntity(
+                dataKey = dataKey,
+                data = serializer.encodeToString(data.toJsonElement())
+            )
         )
     }
 
-    override suspend fun getData(
-        dataId: String
-    ): Any? = runCatching {
-        val result = database.mosaicDatabaseQueries.getGlobal(dataId).executeAsOne()
-        serializer.decodeFromString<JsonElement>(result).toAny()
-    }.getOrElse {
-        database.mosaicDatabaseQueries.deleteGlobal(dataId)
-        null
+    override suspend fun getPlainData(dataKey: String): Any? = runCatching {
+        plainDataDao.get(dataKey)?.let {
+            serializer.decodeFromString<JsonElement>(it.data).toAny()
+        }
+    }.getOrNull()
+
+    @Suppress("UNCHECKED_CAST")
+    override suspend fun getAllPlainData(): Map<String, Any>? = runCatching {
+        plainDataDao.getAll()
+            .associate { it.dataKey to serializer.decodeFromString<JsonElement>(it.data).toAny() }
+            .filterValues { it != null } as Map<String, Any>
+    }.getOrNull()
+
+    @Suppress("UNCHECKED_CAST")
+    override suspend fun getPlainDataByIds(dataKeys: List<String>): Map<String, Any>? = runCatching {
+        plainDataDao.getByIds(dataKeys)
+            .associate { it.dataKey to serializer.decodeFromString<JsonElement>(it.data).toAny() }
+            .filterValues { it != null } as Map<String, Any>
+    }.getOrNull()
+
+    override suspend fun deletePlainData(dataKey: String) {
+        plainDataDao.delete(dataKey)
     }
 
-    override suspend fun deleteData(
-        dataId: String
-    ) {
-        database.mosaicDatabaseQueries.deleteGlobal(dataId)
+    override suspend fun deletePlainDataByIds(dataKeys: List<String>) {
+        plainDataDao.deleteByIds(dataKeys)
     }
 
-    override suspend fun deleteData(
-        segmentId: String,
-        dataId: String
-    ) {
-        database.mosaicDatabaseQueries.deleteSegmentedItem(
-            segmentId = segmentId,
-            dataId = dataId
+    override suspend fun wipePlainData() {
+        plainDataDao.wipe()
+    }
+
+    override suspend fun setSegmentedData(segmentKey: String, dataKey: String, data: Any) {
+        segmentedDataDao.upsert(
+            SegmentedDataEntity(
+                segmentKey = segmentKey,
+                dataKey = dataKey,
+                data = serializer.encodeToString(data.toJsonElement())
+            )
         )
     }
 
-    override suspend fun setSegmentedData(
-        segmentId: String,
-        dataId: String,
-        data: Any
-    ) {
-        database.mosaicDatabaseQueries.setSegmented(
-            segmentId = segmentId,
-            dataId = dataId,
-            data_ = serializer.encodeToString(data.toJsonElement())
-        )
+    override suspend fun getSegmentedData(segmentKey: String, dataKey: String): Any? = runCatching {
+        segmentedDataDao.get(segmentKey, dataKey)?.let {
+            serializer.decodeFromString<JsonElement>(it.data).toAny()
+        }
+    }.getOrNull()
+
+    @Suppress("UNCHECKED_CAST")
+    override suspend fun getAllSegmentedData(segmentKey: String): Map<String, Any>? = runCatching {
+        segmentedDataDao.getAll(segmentKey)
+            .associate { it.dataKey to serializer.decodeFromString<JsonElement>(it.data).toAny() }
+            .filterValues { it != null } as Map<String, Any>
+    }.getOrNull()
+
+    @Suppress("UNCHECKED_CAST")
+    override suspend fun getSegmentedDataByIds(segmentKey: String, dataKeys: List<String>): Map<String, Any>? = runCatching {
+        segmentedDataDao.getByIds(segmentKey, dataKeys)
+            .associate { it.dataKey to serializer.decodeFromString<JsonElement>(it.data).toAny() }
+            .filterValues { it != null } as Map<String, Any>
+    }.getOrNull()
+
+    override suspend fun deleteSegmentedData(segmentKey: String, dataKey: String) {
+        segmentedDataDao.delete(segmentKey, dataKey)
     }
 
-    override suspend fun getSegmentedData(
-        segmentId: String,
-        dataId: String
-    ): Any? = runCatching{
-        val result = database.mosaicDatabaseQueries.getSegmented(
-            segmentId = dataId,
-            dataId = dataId
-        ).executeAsOne()
-        serializer.decodeFromString<JsonElement>(result).toAny()
-    }.getOrElse {
-        database.mosaicDatabaseQueries.deleteSegmentedItem(
-            segmentId = segmentId,
-            dataId = dataId
-        )
+    override suspend fun deleteSegmentedDataByIds(segmentKey: String, dataKeys: List<String>) {
+        segmentedDataDao.deleteByIds(segmentKey, dataKeys)
     }
 
-    override suspend fun deleteSegment(
-        segmentId: String
-    ) {
-        database.mosaicDatabaseQueries.deleteSegment(segmentId)
+    override suspend fun wipeSegmentedData(segmentKey: String) {
+        segmentedDataDao.wipe(segmentKey)
     }
 }

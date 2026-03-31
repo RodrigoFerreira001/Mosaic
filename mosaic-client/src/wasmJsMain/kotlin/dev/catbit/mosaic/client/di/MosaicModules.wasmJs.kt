@@ -1,16 +1,15 @@
 package dev.catbit.mosaic.client.di
 
-import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.driver.worker.WebWorkerDriver
+import androidx.room3.Room
+import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import dev.catbit.mosaic.client.data.data_chest.DataChest
 import dev.catbit.mosaic.client.data.data_chest.WasmJsDataChest
+import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.js.Js
 import kotlinx.browser.localStorage
 import org.koin.dsl.module
 import org.w3c.dom.Worker
-
-private val workerScriptUrl: String = js("""new URL("@cashapp/sqldelight-sqljs-worker/sqljs.worker.js", import.meta.url)""")
 
 @OptIn(ExperimentalWasmJsInterop::class)
 internal actual val platformModule = module {
@@ -20,11 +19,13 @@ internal actual val platformModule = module {
         WasmJsDataChest(localStorage)
     }
 
-    single<SqlDriver> {
-        WebWorkerDriver(
-            Worker(
-                scriptURL = workerScriptUrl
-            )
-        )
+    single<MosaicRoomDatabase> {
+        Room.databaseBuilder<MosaicRoomDatabase>(name = "mosaic_database.db")
+            .setDriver(WebWorkerSQLiteDriver(jsWorker()))
+            .build()
     }
 }
+
+@OptIn(ExperimentalWasmJsInterop::class)
+private fun jsWorker(): Worker =
+    js("""new Worker(new URL("sqlite-wasm-worker/worker.js", import.meta.url))""")

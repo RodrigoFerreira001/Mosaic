@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.trigger
 
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.InlineEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadSuccessEventTrigger
@@ -61,6 +62,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUncheckEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUnselectEventTrigger
 
 object EventTriggers {
+    fun inline() = InlineEventTrigger
     fun onAsyncImageLoadStart() = OnAsyncImageLoadStartEventTrigger
     fun onAsyncImageLoadFailure() = OnAsyncImageLoadFailureEventTrigger
     fun onAsyncImageLoadSuccess() = OnAsyncImageLoadSuccessEventTrigger

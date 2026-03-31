@@ -11,7 +11,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.compose.multiplatform)
-    alias(libs.plugins.sqdelight)
+    alias(libs.plugins.room3)
+    alias(libs.plugins.ksp)
 }
 
 group = "dev.catbit"
@@ -37,7 +38,6 @@ kotlin {
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { target ->
@@ -55,6 +55,9 @@ kotlin {
         commonMain.dependencies {
             // Mosaic core
             implementation(project(":mosaic-core"))
+
+            // Room 3
+            implementation(libs.room3.runtime)
 
             // Compose
             implementation(compose.runtime)
@@ -96,55 +99,61 @@ kotlin {
 
             // Datetime
             implementation(libs.kotlinx.datetime)
+
+            // FileKit
+            implementation(libs.filekit.core)
+            implementation(libs.filekit.dialogs)
+            implementation(libs.filekit.dialogs.compose)
         }
 
         androidMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.okhttp)
-
-            // SQDelight
-            implementation(libs.sqdelight.android)
         }
 
         iosMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.darwin)
-
-            // SQDelight
-            implementation(libs.sqdelight.native)
+            // SQLite driver
+            implementation(libs.androidx.sqlite.bundled)
         }
 
         jvmMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.okhttp)
-
-            // SQDelight
-            implementation(libs.sqdelight.jvm)
+            // SQLite driver
+            implementation(libs.androidx.sqlite.bundled)
         }
 
         wasmJsMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.js)
-
-            // SQDelight
-            implementation(libs.sqdelight.js)
-            implementation(npm("sql.js", "1.6.2"))
-            implementation(devNpm("copy-webpack-plugin", "9.1.0"))
+            // SQLite driver (OPFS-based Web Worker)
+            implementation(libs.androidx.sqlite.web)
+            implementation(npm("sqlite-wasm-worker", layout.projectDirectory.dir("sqliteWasmWorker").asFile))
         }
     }
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
+
+dependencies {
+    add("kspAndroid", libs.room3.compiler)
+    add("kspJvm", libs.room3.compiler)
+    add("kspIosArm64", libs.room3.compiler)
+    add("kspIosSimulatorArm64", libs.room3.compiler)
+    add("kspWasmJs", libs.room3.compiler)
+}
+
+room3 {
+    schemaDirectory("$projectDir/schemas")
 }
 
 compose {
     resources {
         publicResClass = true
         packageOfResClass = "dev.catbit.mosaic.client.generated.resources"
-    }
-}
-
-sqldelight {
-    databases {
-        create("MosaicDatabase") {
-            packageName.set("dev.catbit.mosaic.client")
-        }
     }
 }

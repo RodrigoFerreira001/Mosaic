@@ -13,6 +13,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.Tiles
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesOverlaysEditor
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesStateUpdater
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesValueProducer
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileHolder
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileSchema
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
@@ -32,7 +33,8 @@ class TilesManager(
     TilesStateUpdater,
     TilesEventDispatcher,
     TilesOverlaysEditor,
-    TilesEventHolder {
+    TilesEventHolder,
+    TilesValueProducer {
 
     private val screenTileHolerId = "mosaic::root"
 
@@ -280,4 +282,9 @@ class TilesManager(
     override fun getEventsByTrigger(
         eventTrigger: EventTrigger
     ): List<EventSchema>? = screenTileHolder.getEventsByTrigger(eventTrigger)
+
+    override fun getValueWithKey(
+        tileId: String,
+        key: String
+    ): Map<String, Any>? = screenTileHolder.getTileHolder(tileId)?.produceValueWithKey(key)
 }

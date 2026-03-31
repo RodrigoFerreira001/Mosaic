@@ -29,5 +29,12 @@ sealed interface DataSourceSchema {
     data class ScreenSegmentedData(
         @SerialName("segmentId") val segmentId: String
     ) : DataSourceSchema
+
+    @Serializable
+    @SerialName("Tile")
+    data class Tile(
+        @SerialName("tileId") val tileId: String,
+        @SerialName("dataKey") val dataKey: String
+    ) : DataSourceSchema
 }
 

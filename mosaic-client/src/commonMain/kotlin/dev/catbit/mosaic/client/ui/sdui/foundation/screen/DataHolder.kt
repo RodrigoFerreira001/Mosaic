@@ -26,14 +26,22 @@ interface DataHolder {
         dataId: String
     ): Any?
 
+    fun getAllPlainData(): Map<String, Any>
+
     fun getSegmentedData(
         dataId: String,
         segmentId: String
     ): Any?
 
+    fun getAllSegmentedData(
+        segmentId: String
+    ): Map<String, Any>
+
     fun getNavigationData(
         dataId: String
     ): Any?
+
+    fun getAllNavigationData(): Map<String, Any>
 
     fun wipePlainData()
 
@@ -80,11 +88,20 @@ class DefaultDataHolder(
     override fun getPlainData(dataId: String): Any? =
         plainData[dataId]
 
+    override fun getAllPlainData(): Map<String, Any> =
+        plainData.toMap()
+
     override fun getSegmentedData(dataId: String, segmentId: String): Any? =
         segmentedData[segmentId]?.get(dataId)
 
+    override fun getAllSegmentedData(segmentId: String): Map<String, Any> =
+        segmentedData[segmentId]?.toMap() ?: emptyMap()
+
     override fun getNavigationData(dataId: String): Any? =
         navigationData[dataId]
+
+    override fun getAllNavigationData(): Map<String, Any> =
+        navigationData.toMap()
 
     override fun wipePlainData() {
         plainData.clear()

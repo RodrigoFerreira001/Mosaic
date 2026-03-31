@@ -11,11 +11,15 @@ import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyTilesTileSchema
 import dev.catbit.mosaic.core.domain.base.IO
+import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import io.ktor.client.call.body
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.PolymorphicSerializer
+import kotlinx.serialization.builtins.ListSerializer
 import org.koin.compose.koinInject
 
 object LazyTilesTileRenderer : TileRenderer<LazyTilesTileSchema> {
@@ -26,6 +30,7 @@ object LazyTilesTileRenderer : TileRenderer<LazyTilesTileSchema> {
     ) {
 
         val sendNetworkRequestUseCase = koinInject<SendNetworkRequestUseCase>()
+        val mosaicSerializer = koinInject<MosaicSerializer>()
 
         with(tileSchema) {
             Column(
@@ -55,10 +60,14 @@ object LazyTilesTileRenderer : TileRenderer<LazyTilesTileSchema> {
                                             triggerEvent(EventTriggers.onLoadTilesSuccess())
                                             dispatchEvent(
                                                 tileEvent = LazyTilesTileEvents.OnTilesLoadedSuccessfully(
-                                                    tiles = response.body()
+                                                    tiles = mosaicSerializer.decodeFromJsonElement(
+                                                        deserializer = ListSerializer(PolymorphicSerializer(TileSchema::class)),
+                                                        element = response.body()
+                                                    )
                                                 )
                                             )
                                         } catch (e: Throwable) {
+                                            println(e.printStackTrace())
                                             triggerEvent(
                                                 trigger = EventTriggers.onLoadTilesFailure(),
                                                 data = e
@@ -67,6 +76,7 @@ object LazyTilesTileRenderer : TileRenderer<LazyTilesTileSchema> {
                                         }
                                     }
                                     .onFailure {
+                                        println(it.printStackTrace())
                                         triggerEvent(
                                             trigger = EventTriggers.onLoadTilesFailure(),
                                             data = it

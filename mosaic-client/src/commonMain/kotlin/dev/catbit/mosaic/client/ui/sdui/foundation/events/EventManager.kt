@@ -6,6 +6,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.Tiles
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventDispatcher
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesOverlaysEditor
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesValueProducer
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.runSafely
@@ -27,6 +28,7 @@ class EventManager(
     private lateinit var tilesEventHolder: TilesEventHolder
     private lateinit var screenBehaviorsHolder: ScreenBehaviorsHolder
     private lateinit var dataHolder: DataHolder
+    private lateinit var tilesValueProducer: TilesValueProducer
 
     fun attachTilesEditor(tilesEditor: TilesEditor) {
         this.tilesEditor = tilesEditor
@@ -50,6 +52,10 @@ class EventManager(
 
     fun attachTilesEventDispatcher(tilesEventDispatcher: TilesEventDispatcher) {
         this.tilesEventDispatcher = tilesEventDispatcher
+    }
+
+    fun attachTilesValueProducer(tilesValueProducer: TilesValueProducer) {
+        this.tilesValueProducer = tilesValueProducer
     }
 
     fun setStateHolderCoroutineScope(
@@ -109,6 +115,7 @@ class EventManager(
                     koinScope = koinScope,
                     stateHolderCoroutineScope = stateHolderCoroutineScope,
                     screenCoroutineScope = screenCoroutineScope,
+                    tilesValueProducer = tilesValueProducer
                 ).runEvent(eventSchema)
             }
         }

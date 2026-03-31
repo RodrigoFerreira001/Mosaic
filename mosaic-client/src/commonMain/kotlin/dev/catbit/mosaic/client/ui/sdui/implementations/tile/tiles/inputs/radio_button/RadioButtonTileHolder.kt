@@ -30,4 +30,8 @@ class RadioButtonTileHolder(
             }
         }
     }
+
+    override fun produceValueWithKey(
+        key: String
+    ) = mapOf(key to tile.selected)
 }

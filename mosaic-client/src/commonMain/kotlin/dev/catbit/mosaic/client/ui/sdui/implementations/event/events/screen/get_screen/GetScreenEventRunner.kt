@@ -8,29 +8,27 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object GetScreenEventRunner : EventRunner<GetScreenEventSchema> {
     override fun EventRunningScope.runEvent(event: GetScreenEventSchema) {
-        getOrNull<GetScreenUseCase>()?.let { getScreenUseCase ->
-
-            @Suppress("UNCHECKED_CAST")
-            runSuspendOnStateHolderScope {
-                getScreenUseCase(
-                    GetScreenUseCase.Params(
-                        screenId = screenId,
-                        headers = incomingData?.asMapAny()?.filterValues { it is String } as? Map<String, String>
-                    )
+        @Suppress("UNCHECKED_CAST")
+        runSuspendOnStateHolderScope {
+            get<GetScreenUseCase>()(
+                GetScreenUseCase.Params(
+                    screenId = screenId,
+                    headers = incomingData.asMapString(),
                 )
-                    .onSuccess { screenModel ->
-                        onTrigger(
-                            eventTrigger = EventTriggers.onSuccess(),
-                            data = screenModel
-                        )
-                    }
-                    .onFailure { failure ->
-                        onTrigger(
-                            eventTrigger = EventTriggers.onFailure(),
-                            data = failure
-                        )
-                    }
-            }
+            )
+                .onSuccess { screenModel ->
+                    onTrigger(
+                        eventTrigger = EventTriggers.onSuccess(),
+                        data = screenModel
+                    )
+                }
+                .onFailure { failure ->
+                    logError(failure)
+                    onTrigger(
+                        eventTrigger = EventTriggers.onFailure(),
+                        data = failure
+                    )
+                }
         }
     }
 }

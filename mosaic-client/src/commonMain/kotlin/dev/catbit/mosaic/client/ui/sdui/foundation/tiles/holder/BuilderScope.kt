@@ -1,5 +1,7 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder
 
+import dev.catbit.mosaic.client.logger.Level
+import dev.catbit.mosaic.client.logger.MosaicLogger
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilderManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
@@ -70,4 +72,23 @@ class BuilderScope(
         qualifier: Qualifier? = null,
         parameters: ParametersDefinition? = null
     ): T? = koinScope.getOrNull(clazz, qualifier, parameters)
+
+    fun logError(
+        tag: String = "MosaicCommonError",
+        throwable: Throwable
+    ) {
+        koinScope.get<MosaicLogger>().error(
+            """
+                Tag: $tag
+                Error: ${throwable.printStackTrace()}
+            """.trimIndent()
+        )
+    }
+
+    fun log(
+        level: Level,
+        msg: String
+    ) {
+        koinScope.get<MosaicLogger>().log(level, msg)
+    }
 }

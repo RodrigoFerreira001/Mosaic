@@ -49,7 +49,6 @@ internal abstract class ScreenStateHolder<State, Event, Effect> : ViewModel() {
 
     private fun onScreenDispose() {
         onPause()
-        internalStateHolderScope?.cancel()
     }
 
     override fun onCleared() {

@@ -11,3 +11,5 @@ fun screenNavigationData() = DataSourceSchema.ScreenNavigationData
 fun screenPlainData() = DataSourceSchema.ScreenPlainData
 
 fun screenSegmentedData(segmentId: String) = DataSourceSchema.ScreenSegmentedData(segmentId)
+
+fun tile(tileId: String, dataKey: String) = DataSourceSchema.Tile(tileId, dataKey)

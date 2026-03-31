@@ -1,33 +1,57 @@
 package dev.catbit.mosaic.client.data.data_sources.database
 
 interface MosaicDatabase {
-    //https://klibs.io/project/sqldelight/sqldelight
-    suspend fun setData(
-        dataId: String,
+
+    suspend fun setPlainData(
+        dataKey: String,
         data: Any
     )
 
-    suspend fun getData(
-        dataId: String
+    suspend fun getPlainData(
+        dataKey: String
     ): Any?
 
-    suspend fun deleteData(dataId: String)
+    suspend fun getAllPlainData(): Map<String, Any>?
+
+    suspend fun getPlainDataByIds(dataKeys: List<String>): Map<String, Any>?
+
+    suspend fun deletePlainData(dataKey: String)
+
+    suspend fun deletePlainDataByIds(dataKeys: List<String>)
+
+    suspend fun wipePlainData()
 
     suspend fun setSegmentedData(
-        segmentId: String,
-        dataId: String,
+        segmentKey: String,
+        dataKey: String,
         data: Any
     )
 
     suspend fun getSegmentedData(
-        segmentId: String,
-        dataId: String
+        segmentKey: String,
+        dataKey: String
     ): Any?
 
-    suspend fun deleteData(
-        segmentId: String,
-        dataId: String
+    suspend fun getAllSegmentedData(
+        segmentKey: String
+    ): Map<String, Any>?
+
+    suspend fun getSegmentedDataByIds(
+        segmentKey: String,
+        dataKeys: List<String>
+    ): Map<String, Any>?
+
+    suspend fun deleteSegmentedData(
+        segmentKey: String,
+        dataKey: String
     )
 
-    suspend fun deleteSegment(segmentId: String)
+    suspend fun deleteSegmentedDataByIds(
+        segmentKey: String,
+        dataKeys: List<String>
+    )
+
+    suspend fun wipeSegmentedData(
+        segmentKey: String
+    )
 }

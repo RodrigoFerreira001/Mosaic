@@ -1,5 +1,6 @@
 package dev.catbit.mosaic
 
+import dev.catbit.mosaic.endpoints.events.events
 import dev.catbit.mosaic.endpoints.initial_graph.initialGraph
 import dev.catbit.mosaic.endpoints.screen.screen
 import dev.catbit.mosaic.endpoints.tiles.tiles
@@ -11,5 +12,6 @@ fun Application.configureRouting() {
         initialGraph()
         screen()
         tiles()
+        events()
     }
 }

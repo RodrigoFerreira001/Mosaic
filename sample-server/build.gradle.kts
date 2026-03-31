@@ -20,5 +20,6 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.network.tls.certificates)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.ktor.server.cors)
     implementation(libs.logback.classic)
 }

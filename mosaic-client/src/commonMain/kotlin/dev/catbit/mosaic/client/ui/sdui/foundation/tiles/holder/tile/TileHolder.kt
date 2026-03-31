@@ -127,4 +127,6 @@ abstract class TileHolder<T : TileSchema> {
     fun wipeChildren() {
         tiles?.clear()
     }
+
+    open fun produceValueWithKey(key: String): Map<String, Any>? = null
 }

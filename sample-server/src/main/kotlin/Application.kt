@@ -7,7 +7,7 @@ import io.ktor.server.netty.Netty
 fun main() {
     embeddedServer(
         factory = Netty,
-        port = 8080,
+        port = 9090,
         host = "0.0.0.0",
         module = Application::module,
         watchPaths = listOf("classes", "resources")
@@ -17,4 +17,5 @@ fun main() {
 fun Application.module() {
     configureRouting()
     configureSerialization()
+    configureCORS()
 }

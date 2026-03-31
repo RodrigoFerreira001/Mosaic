@@ -11,43 +11,41 @@ object DownloadFileEventRunner : EventRunner<DownloadFileEventSchema> {
 
     override fun EventRunningScope.runEvent(event: DownloadFileEventSchema) {
         with(event) {
-            getOrNull<DownloadFileUseCase>()?.let { downloadFileUseCase ->
-                runSuspendOnStateHolderScope {
+            runSuspendOnStateHolderScope {
 
-                    onTrigger(EventTriggers.onStart())
+                onTrigger(EventTriggers.onStart())
 
-                    downloadFileUseCase(
-                        DownloadFileUseCase.Params(
-                            url = url,
-                            headers = headers ?: incomingData.asMapString(),
-                            httpMethod = method.toKtorHttpMethod(),
-                            onProgress = { progress ->
-                                onTrigger(
-                                    eventTrigger = EventTriggers.onDownloadProgress(),
-                                    data = progress
-                                )
-                            },
-                            onBytesReceived = { bytes ->
-                                onTrigger(
-                                    eventTrigger = EventTriggers.onDownloadPartial(),
-                                    data = bytes
-                                )
-                            },
-                            onDownloadFinished = { totalBytes ->
-                                onTrigger(
-                                    eventTrigger = EventTriggers.onDownloadFinish(),
-                                    data = totalBytes
-                                )
-                            },
-                            onDownloadFailure = { failure ->
-                                onTrigger(
-                                    eventTrigger = EventTriggers.onDownloadFailure(),
-                                    data = failure
-                                )
-                            }
-                        )
+                get<DownloadFileUseCase>()(
+                    DownloadFileUseCase.Params(
+                        url = url,
+                        headers = headers ?: incomingData.asMapString(),
+                        httpMethod = method.toKtorHttpMethod(),
+                        onProgress = { progress ->
+                            onTrigger(
+                                eventTrigger = EventTriggers.onDownloadProgress(),
+                                data = progress
+                            )
+                        },
+                        onBytesReceived = { bytes ->
+                            onTrigger(
+                                eventTrigger = EventTriggers.onDownloadPartial(),
+                                data = bytes
+                            )
+                        },
+                        onDownloadFinished = { totalBytes ->
+                            onTrigger(
+                                eventTrigger = EventTriggers.onDownloadFinish(),
+                                data = totalBytes
+                            )
+                        },
+                        onDownloadFailure = { failure ->
+                            onTrigger(
+                                eventTrigger = EventTriggers.onDownloadFailure(),
+                                data = failure
+                            )
+                        }
                     )
-                }
+                )
             }
         }
     }

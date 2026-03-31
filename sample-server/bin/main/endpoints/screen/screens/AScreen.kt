@@ -1,10 +1,14 @@
 package dev.catbit.mosaic.endpoints.screen.screens
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
+import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.server.builder.color.color
 import dev.catbit.mosaic.server.builder.color.themeColorOutline
+import dev.catbit.mosaic.server.builder.event.builders.data.ProcessData
+import dev.catbit.mosaic.server.builder.event.builders.networking.SendNetworkRequest
 import dev.catbit.mosaic.server.builder.event.builders.screen.RefreshScreen
 import dev.catbit.mosaic.server.builder.event.builders.tiles.ReloadLazyTiles
+import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.icon
 import dev.catbit.mosaic.server.builder.placement.alignHorizontallyToCenter
 import dev.catbit.mosaic.server.builder.placement.alignToCenter
@@ -20,6 +24,7 @@ import dev.catbit.mosaic.server.builder.tile.builders.search.SearchBar
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingCall
+import io.ktor.server.util.url
 
 suspend fun RoutingCall.respondA() {
     respond(
@@ -49,15 +54,20 @@ suspend fun RoutingCall.respondA() {
                     placeholderTiles = {
                         Shimmer(
                             style = {
+                                clip(roundedCornerShape(16))
                                 size(
                                     height = fixedVertically(200)
                                 )
-                                margin(horizontal = 24)
+                                margin(horizontal = 24, top = 24)
                             }
                         ) {
                             Box(
                               style = {
                                   background(color(themeColorOutline()))
+                                  size(
+                                      height = fillVertically(),
+                                      width = fillHorizontally()
+                                  )
                               }
                             )
                         }
@@ -73,7 +83,7 @@ suspend fun RoutingCall.respondA() {
                             arrangement = arrangeToCenter(),
                             alignment = alignHorizontallyToCenter()
                         ) {
-                            Icon("error")
+                            Icon(icon = icon("error"))
                             SimpleText(text = "Erro ao carregar tiles")
                             Button(
                                 text = "Recarregar",
@@ -86,7 +96,7 @@ suspend fun RoutingCall.respondA() {
                             )
                         }
                     },
-                    url = "http://192.168.3.84:8080/tiles/a"
+                    url = "http://192.168.3.84:9090/tiles/a"
                 )
 
                 Column(
@@ -102,6 +112,50 @@ suspend fun RoutingCall.respondA() {
                         events = {
                             RefreshScreen(
                                 trigger = EventTriggers.onClick()
+                            )
+                        },
+                        style = {
+                            margin(horizontal = 24)
+                        }
+                    )
+                    Button(
+                        id = "NETWORK_CALL",
+                        text = "Make a network call",
+                        events = {
+                            SendNetworkRequest(
+                                trigger = EventTriggers.onClick(),
+                                url = "http://192.168.3.84:9090/events/BS",
+                                method = HttpMethod.GET,
+                                events = {
+                                    UpdateTiles(
+                                        trigger = EventTriggers.onStart(),
+                                        updates = {
+                                            update(
+                                                tileId = "NETWORK_CALL",
+                                                data = mapOf(
+                                                    "loading" to true,
+                                                    "enabled" to false
+                                                )
+                                            )
+                                        }
+                                    )
+                                    ProcessData(
+                                        trigger = EventTriggers.onSuccess(),
+                                        processWith = "EVENT_RUNNER"
+                                    )
+                                    UpdateTiles(
+                                        trigger = EventTriggers.onSuccess(),
+                                        updates = {
+                                            update(
+                                                tileId = "NETWORK_CALL",
+                                                data = mapOf(
+                                                    "loading" to false,
+                                                    "enabled" to true
+                                                )
+                                            )
+                                        }
+                                    )
+                                }
                             )
                         },
                         style = {

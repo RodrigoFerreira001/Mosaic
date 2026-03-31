@@ -12,31 +12,29 @@ object RefreshScreenEventRunner : EventRunner<RefreshScreenEventSchema> {
 
         screenBehaviorsHolder.setState(ScreenBehaviorsHolder.State.Initial)
 
-        getOrNull<GetScreenUseCase>()?.let { getScreenUseCase ->
-
-            @Suppress("UNCHECKED_CAST")
-            runSuspendOnStateHolderScope {
-                getScreenUseCase(
-                    GetScreenUseCase.Params(
-                        screenId = screenId,
-                        headers = incomingData?.asMapAny()?.filterValues { it is String } as? Map<String, String>
-                    )
+        @Suppress("UNCHECKED_CAST")
+        runSuspendOnStateHolderScope {
+            get<GetScreenUseCase>()(
+                GetScreenUseCase.Params(
+                    screenId = screenId,
+                    headers = incomingData?.asMapAny()?.filterValues { it is String } as? Map<String, String>
                 )
-                    .onSuccess { screenModel ->
-                        screenBehaviorsHolder.setState(ScreenBehaviorsHolder.State.Success(screenModel))
-                        onTrigger(
-                            eventTrigger = EventTriggers.onSuccess(),
-                            data = screenModel
-                        )
-                    }
-                    .onFailure { failure ->
-                        screenBehaviorsHolder.setState(ScreenBehaviorsHolder.State.Failure)
-                        onTrigger(
-                            eventTrigger = EventTriggers.onFailure(),
-                            data = failure
-                        )
-                    }
-            }
+            )
+                .onSuccess { screenModel ->
+                    screenBehaviorsHolder.setState(ScreenBehaviorsHolder.State.Success(screenModel))
+                    onTrigger(
+                        eventTrigger = EventTriggers.onSuccess(),
+                        data = screenModel
+                    )
+                }
+                .onFailure { failure ->
+                    logError(failure)
+                    screenBehaviorsHolder.setState(ScreenBehaviorsHolder.State.Failure)
+                    onTrigger(
+                        eventTrigger = EventTriggers.onFailure(),
+                        data = failure
+                    )
+                }
         }
     }
 }

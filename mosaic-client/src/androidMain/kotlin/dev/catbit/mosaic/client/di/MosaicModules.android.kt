@@ -1,11 +1,10 @@
 package dev.catbit.mosaic.client.di
 
 import android.content.Context
-import app.cash.sqldelight.db.SqlDriver
-import app.cash.sqldelight.driver.android.AndroidSqliteDriver
-import dev.catbit.mosaic.client.MosaicDatabase
+import androidx.room3.Room
 import dev.catbit.mosaic.client.data.data_chest.AndroidDataChest
 import dev.catbit.mosaic.client.data.data_chest.DataChest
+import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import org.koin.core.module.Module
@@ -25,11 +24,10 @@ internal actual val platformModule: Module = module {
         }
     }
 
-    single<SqlDriver> {
-        AndroidSqliteDriver(
-            schema = MosaicDatabase.Schema,
+    single<MosaicRoomDatabase> {
+        Room.databaseBuilder<MosaicRoomDatabase>(
             context = get<Context>(),
             name = "mosaic_database.db"
-        )
+        ).build()
     }
 }

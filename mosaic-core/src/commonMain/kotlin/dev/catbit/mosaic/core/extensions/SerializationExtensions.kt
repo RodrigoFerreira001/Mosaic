@@ -29,63 +29,65 @@ import kotlin.collections.component1
 import kotlin.collections.component2
 
 fun JsonElement.toAny(): Any? = when (this) {
+    is JsonNull -> null
     is JsonArray -> map { it.toAny() }
-    is JsonObject -> mapValues { (_, value) -> value.toAny() }
-    is JsonPrimitive -> when {
-        booleanOrNull != null -> boolean
-        intOrNull != null -> int
-        doubleOrNull != null -> double
-        longOrNull != null -> long
-        floatOrNull != null -> float
-        else -> content
+    is JsonObject -> mapValues { it.value.toAny() }
+    is JsonPrimitive -> {
+        if (isString) {
+            content
+        } else {
+            booleanOrNull
+                ?: intOrNull
+                ?: longOrNull
+                ?: doubleOrNull
+                ?: content
+        }
     }
-
-    JsonNull -> null
 }
 
 @Suppress("UNCHECKED_CAST")
-fun Any?.toJsonElement(): JsonElement {
-
-    if (this == null) return JsonNull
-    val serializer = this::class.serializerOrNull()
-
-    return when {
-        serializer != null -> {
+fun Any?.toJsonElement(): JsonElement = when (this) {
+    null -> JsonNull
+    is JsonElement -> this // Já é um JsonElement, não faz nada
+    is String -> JsonPrimitive(this)
+    is Number -> JsonPrimitive(this)
+    is Boolean -> JsonPrimitive(this)
+    is Map<*, *> -> {
+        val jsonMap = entries.associate { (key, value) ->
+            key.toString() to value.toJsonElement()
+        }
+        JsonObject(jsonMap)
+    }
+    is Iterable<*> -> {
+        val jsonList = map { it.toJsonElement() }
+        JsonArray(jsonList)
+    }
+    is Array<*> -> {
+        val jsonList = map { it.toJsonElement() }
+        JsonArray(jsonList)
+    }
+    is Pair<*, *> -> JsonObject(
+        mapOf(
+            "first" to first.toJsonElement(),
+            "second" to second.toJsonElement()
+        )
+    )
+    is Triple<*, *, *> -> JsonObject(
+        mapOf(
+            "first" to first.toJsonElement(),
+            "second" to second.toJsonElement(),
+            "third" to third.toJsonElement()
+        )
+    )
+    else -> {
+        this::class.serializerOrNull()?.let { serializer ->
             Json.encodeToJsonElement(
                 serializer = serializer as KSerializer<Any>,
                 value = this
             )
-        }
-
-        else -> {
-            when (val rawObj = this) {
-                is Map<*, *> -> buildJsonObject {
-                    rawObj.forEach { (key, value) ->
-                        put(key.toString(), value.toJsonElement())
-                    }
-                }
-
-                is Array<*> -> buildJsonArray {
-                    addAll(rawObj.map { element -> element.toJsonElement() })
-                }
-
-                is Collection<*> -> buildJsonArray {
-                    addAll(rawObj.map { element -> element.toJsonElement() })
-                }
-
-                is Pair<*, *> -> buildJsonObject {
-                    put("first", rawObj.first.toJsonElement())
-                    put("second", rawObj.second.toJsonElement())
-                }
-
-                is Triple<*, *, *> -> buildJsonObject {
-                    put("first", rawObj.first.toJsonElement())
-                    put("second", rawObj.second.toJsonElement())
-                    put("third", rawObj.third.toJsonElement())
-                }
-
-                else -> throw SerializationException("Object is not serializable: $rawObj")
-            }
-        }
+        } ?: throw SerializationException(
+            "Cannot safely serialize type ${this::class.simpleName} to JsonElement dynamically in Kotlin Multiplatform. " +
+                    "Provide a specific KSerializer or convert it to a primitive/map first."
+        )
     }
 }

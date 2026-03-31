@@ -24,4 +24,10 @@ class TextFieldTileHolder(
             }
         }
     }
+
+    override fun produceValueWithKey(
+        key: String
+    ) = tile.takeIf { it.value.isNotEmpty() }?.let {
+        mapOf(key to it.value)
+    }
 }
