@@ -10,7 +10,7 @@ internal class DismissDialogEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {}
-) : EventSchemaBuilder<DismissDialogEventSchema> {
+) : EventSchemaBuilder<DismissDialogEventSchema>() {
 
     override fun build() = DismissDialogEventSchema(
         id = id,

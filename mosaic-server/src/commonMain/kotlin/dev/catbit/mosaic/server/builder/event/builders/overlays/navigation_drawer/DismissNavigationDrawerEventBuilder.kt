@@ -10,7 +10,7 @@ internal class DismissNavigationDrawerEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {}
-) : EventSchemaBuilder<DismissNavigationDrawerEventSchema> {
+) : EventSchemaBuilder<DismissNavigationDrawerEventSchema>() {
 
     override fun build() = DismissNavigationDrawerEventSchema(
         id = id,

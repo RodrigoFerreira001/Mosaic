@@ -11,7 +11,7 @@ internal class CheckForReceivedDataEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val dataKey: String
-) : EventSchemaBuilder<CheckForReceivedDataEventSchema> {
+) : EventSchemaBuilder<CheckForReceivedDataEventSchema>() {
 
     override fun build() = CheckForReceivedDataEventSchema(
         id = id,

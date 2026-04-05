@@ -7,6 +7,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.data.GetDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.ProcessDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.RemoveDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.SendDataEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.data.TransformDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.event.TriggerEventEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.event.UpdateEventsEventSchema
@@ -357,6 +358,7 @@ class MosaicSerializer(
             ProcessDataEventSchema::class to ProcessDataEventSchema.serializer(),
             RemoveDataEventSchema::class to RemoveDataEventSchema.serializer(),
             SendDataEventSchema::class to SendDataEventSchema.serializer(),
+            TransformDataEventSchema::class to TransformDataEventSchema.serializer(),
             UpdateDataEventSchema::class to UpdateDataEventSchema.serializer(),
             TriggerEventEventSchema::class to TriggerEventEventSchema.serializer(),
             UpdateEventsEventSchema::class to UpdateEventsEventSchema.serializer(),

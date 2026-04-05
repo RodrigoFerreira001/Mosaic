@@ -14,7 +14,7 @@ internal class DisplayDialogEventBuilder(
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val isCancellable: Boolean,
     private val usePlatformDefaultWidth: Boolean
-) : EventSchemaBuilder<DisplayDialogEventSchema> {
+) : EventSchemaBuilder<DisplayDialogEventSchema>() {
 
     override fun build() = DisplayDialogEventSchema(
         id = id,

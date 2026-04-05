@@ -18,6 +18,6 @@ data class RemoveTilesEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: List<EventSchema>?,
-    val groupingTileId: String?,
-    val tileIds: List<String>
+    @SerialName("groupingTileId") val groupingTileId: String,
+    @SerialName("tileIds") val tileIds: List<String>
 ) : EventSchema

@@ -14,7 +14,7 @@ internal class AddTilesEventBuilder(
     private val groupingTileId: String,
     private val position: AddTilesEventSchema.InsertionPosition,
     private val tiles: TileSchemaBuilderScope.() -> Unit = {},
-) : EventSchemaBuilder<AddTilesEventSchema> {
+) : EventSchemaBuilder<AddTilesEventSchema>() {
 
     override fun build(): AddTilesEventSchema {
         return AddTilesEventSchema(

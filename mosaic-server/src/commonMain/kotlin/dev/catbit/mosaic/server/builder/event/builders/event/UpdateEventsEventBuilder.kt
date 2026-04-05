@@ -11,7 +11,7 @@ internal class UpdateEventsEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val updates: List<UpdateEventsEventSchema.Update>
-) : EventSchemaBuilder<UpdateEventsEventSchema> {
+) : EventSchemaBuilder<UpdateEventsEventSchema>() {
 
     override fun build() = UpdateEventsEventSchema(
         id = id,

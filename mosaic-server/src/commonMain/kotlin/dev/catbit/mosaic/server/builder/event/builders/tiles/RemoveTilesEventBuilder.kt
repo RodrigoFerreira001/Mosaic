@@ -10,9 +10,9 @@ internal class RemoveTilesEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
-    private val groupingTileId: String?,
+    private val groupingTileId: String,
     private val tileIds: List<String>
-) : EventSchemaBuilder<RemoveTilesEventSchema> {
+) : EventSchemaBuilder<RemoveTilesEventSchema>() {
 
     override fun build() = RemoveTilesEventSchema(
         id = id,
@@ -27,7 +27,7 @@ fun EventSchemaBuilderScope.RemoveTiles(
     id: String = randomUuid(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
-    groupingTileId: String? = null,
+    groupingTileId: String,
     tileIds: List<String>
 ) {
     addBuilder(

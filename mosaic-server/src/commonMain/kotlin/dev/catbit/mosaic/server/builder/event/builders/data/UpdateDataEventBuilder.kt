@@ -7,6 +7,8 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
+import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
+import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -15,7 +17,7 @@ internal class UpdateDataEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val updates: UpdateDataUpdateBuilderScope.() -> Unit
-) : EventSchemaBuilder<UpdateDataEventSchema> {
+) : EventSchemaBuilder<UpdateDataEventSchema>() {
 
     override fun build() = UpdateDataEventSchema(
         id = id,
@@ -44,7 +46,7 @@ fun EventSchemaBuilderScope.UpdateData(
 class UpdateDataUpdateBuilder(
     private val dataSource: DataSourceSchema,
     private val updateData: Update.UpdateDate
-) : GenericBuilder<Update> {
+) : GenericBuilder<Update>() {
 
     override fun build() = Update(
         dataSource = dataSource,
@@ -52,7 +54,14 @@ class UpdateDataUpdateBuilder(
     )
 }
 
-class UpdateDataUpdateBuilderScope : GenericBuilderScope<Update, UpdateDataUpdateBuilder>() {
+class UpdateDataUpdateBuilderScope private constructor(): GenericBuilderScope<Update, UpdateDataUpdateBuilder>() {
+
+    companion object {
+        internal operator fun invoke(
+            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
+        ) = UpdateDataUpdateBuilderScope().apply { pushLocals(compositionLocals) }
+    }
+
     fun addUpdate(
         dataSource: DataSourceSchema,
         updateData: Update.UpdateDate

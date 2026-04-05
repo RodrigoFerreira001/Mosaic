@@ -11,7 +11,7 @@ internal class WipeTilesEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val groupingTileId: String
-) : EventSchemaBuilder<WipeTilesEventSchema> {
+) : EventSchemaBuilder<WipeTilesEventSchema>() {
 
     override fun build() = WipeTilesEventSchema(
         id = id,

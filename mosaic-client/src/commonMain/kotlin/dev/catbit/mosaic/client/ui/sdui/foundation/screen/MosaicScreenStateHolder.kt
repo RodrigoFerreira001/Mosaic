@@ -21,8 +21,8 @@ internal class MosaicScreenStateHolder(
     private val failureTiles: List<TileSchema>,
     private val failureEvents: List<EventSchema>,
     private val navigationData: Map<String, Any>?,
-    private val tilesUIStateManager: TilesManager,
     private val eventManager: EventManager,
+    val tilesManager: TilesManager,
     val tileRendererManager: TileRendererManager
 ) : ScreenStateHolder<State, Event, Effect>(),
     ScreenBehaviorsHolder,
@@ -35,7 +35,7 @@ internal class MosaicScreenStateHolder(
 
     init {
         eventManager.setStateHolderCoroutineScope(stateHolderScope)
-        tilesUIStateManager.setup(
+        tilesManager.setup(
             tiles = initialTiles,
             events = initialEvents,
             onUpdateStateRequest = ::onUpdateStateRequest
@@ -46,7 +46,7 @@ internal class MosaicScreenStateHolder(
         when (state) {
             ScreenBehaviorsHolder.State.Initial -> {
                 internalUIState.update { State.Initial() }
-                tilesUIStateManager.setup(
+                tilesManager.setup(
                     tiles = initialTiles,
                     events = initialEvents,
                     onUpdateStateRequest = ::onUpdateStateRequest
@@ -55,7 +55,7 @@ internal class MosaicScreenStateHolder(
 
             ScreenBehaviorsHolder.State.Failure -> {
                 internalUIState.update { State.Failure() }
-                tilesUIStateManager.setup(
+                tilesManager.setup(
                     tiles = failureTiles,
                     events = failureEvents,
                     onUpdateStateRequest = ::onUpdateStateRequest
@@ -64,7 +64,7 @@ internal class MosaicScreenStateHolder(
 
             is ScreenBehaviorsHolder.State.Success -> {
                 internalUIState.update { State.Displaying() }
-                tilesUIStateManager.setup(
+                tilesManager.setup(
                     tiles = state.screenModel.tiles,
                     navigationDrawerTiles = state.screenModel.navigationDrawerTiles,
                     events = state.screenModel.events,
@@ -86,13 +86,13 @@ internal class MosaicScreenStateHolder(
     ) {
         when (event.event) {
             is UIEvent.TileEventHolderUIEvent ->
-                tilesUIStateManager.onEvent(
+                tilesManager.onEvent(
                     tileId = event.event.tileId,
                     event = event.event.event,
                 )
 
             is UIEvent.TileGroupEventHolderUIEvent ->
-                tilesUIStateManager.onGroupEvent(event.event.event)
+                tilesManager.onGroupEvent(event.event.event)
 
             is UIEvent.EventSchemaHolderUIEvent -> {
                 eventManager.runEvents(

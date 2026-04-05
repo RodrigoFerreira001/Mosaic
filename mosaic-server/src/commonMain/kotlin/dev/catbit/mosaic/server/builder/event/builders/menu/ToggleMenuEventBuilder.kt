@@ -11,7 +11,7 @@ internal class ToggleMenuEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val menuId: String
-) : EventSchemaBuilder<ToggleMenuEventSchema> {
+) : EventSchemaBuilder<ToggleMenuEventSchema>() {
 
     override fun build() = ToggleMenuEventSchema(
         id = id,

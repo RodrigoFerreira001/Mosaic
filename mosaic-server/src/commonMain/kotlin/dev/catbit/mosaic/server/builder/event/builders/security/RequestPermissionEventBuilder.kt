@@ -12,7 +12,7 @@ internal class RequestPermissionEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val permissions: List<Permissions>
-) : EventSchemaBuilder<RequestPermissionEventSchema> {
+) : EventSchemaBuilder<RequestPermissionEventSchema>() {
 
     override fun build() = RequestPermissionEventSchema(
         id = id,

@@ -1,9 +1,11 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.simple_text
 
 import androidx.compose.foundation.layout.visible
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import dev.catbit.mosaic.client.extensions.toComposeColor
 import dev.catbit.mosaic.client.extensions.toTextStyle
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
@@ -23,8 +25,8 @@ object SimpleTextTileRenderer : TileRenderer<SimpleTextTileSchema> {
                     .visible(isVisible())
                     .styledWith(style),
                 text = text,
-                color = color.toComposeColor(),
-                style = typography.toTextStyle()
+                color = color?.toComposeColor() ?: Color.Unspecified,
+                style = typography?.toTextStyle() ?: LocalTextStyle.current
             )
         }
     }

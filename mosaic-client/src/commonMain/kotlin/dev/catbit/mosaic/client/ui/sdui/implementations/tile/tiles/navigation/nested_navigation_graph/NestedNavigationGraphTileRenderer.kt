@@ -16,6 +16,7 @@ import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTilesManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigationController
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreen
@@ -100,7 +101,8 @@ object NestedNavigationGraphTileRenderer : TileRenderer<NestedNavigationGraphTil
                         }
                         MosaicScreen(
                             screenId = it.id,
-                            navigationData = it.navigationData
+                            navigationData = it.navigationData,
+                            parent = LocalTilesManager.current
                         )
                     }
                 }

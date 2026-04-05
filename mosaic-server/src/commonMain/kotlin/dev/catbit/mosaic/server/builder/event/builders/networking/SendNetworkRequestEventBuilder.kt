@@ -17,7 +17,7 @@ internal class SendNetworkRequestEventBuilder(
     private val body: AnySerializable?,
     private val headers: Map<String, String>?,
     private val useIncomingDataForHeaders: Boolean
-) : EventSchemaBuilder<SendNetworkRequestEventSchema> {
+) : EventSchemaBuilder<SendNetworkRequestEventSchema>() {
 
     override fun build() = SendNetworkRequestEventSchema(
         id = id,

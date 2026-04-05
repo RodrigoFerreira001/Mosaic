@@ -11,7 +11,7 @@ internal class NavigateUpEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val navigatorId: String
-) : EventSchemaBuilder<NavigateUpEventSchema> {
+) : EventSchemaBuilder<NavigateUpEventSchema>() {
 
     override fun build() = NavigateUpEventSchema(
         id = id,

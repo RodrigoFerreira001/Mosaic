@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface ColorSchema {
 
+    // TODO GRADIENT, BLUR?
+
     @Serializable
     @SerialName("hex")
     data class Hex(

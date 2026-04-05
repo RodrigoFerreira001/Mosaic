@@ -13,7 +13,7 @@ internal class ChangeScreenStateEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val state: State
-) : EventSchemaBuilder<ChangeScreenStateEventSchema> {
+) : EventSchemaBuilder<ChangeScreenStateEventSchema>() {
 
     override fun build() = ChangeScreenStateEventSchema(
         id = id,

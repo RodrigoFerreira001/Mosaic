@@ -10,7 +10,7 @@ internal class DisplayNavigationDrawerEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {}
-) : EventSchemaBuilder<DisplayNavigationDrawerEventSchema> {
+) : EventSchemaBuilder<DisplayNavigationDrawerEventSchema>() {
 
     override fun build() = DisplayNavigationDrawerEventSchema(
         id = id,

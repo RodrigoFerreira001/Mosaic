@@ -10,7 +10,7 @@ internal class DismissBottomSheetEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {}
-) : EventSchemaBuilder<DismissBottomSheetEventSchema> {
+) : EventSchemaBuilder<DismissBottomSheetEventSchema>() {
 
     override fun build() = DismissBottomSheetEventSchema(
         id = id,

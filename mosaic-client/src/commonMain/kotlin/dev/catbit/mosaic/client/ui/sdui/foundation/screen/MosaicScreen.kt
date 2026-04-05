@@ -9,6 +9,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import dev.catbit.mosaic.client.ui.effects.SingleEffect
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalBroadcastChannel
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTileRendererManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTilesManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -17,10 +19,11 @@ import org.koin.core.parameter.parametersOf
 internal fun MosaicScreen(
     screenId: String,
     navigationData: Map<String, Any>?,
+    parent: TilesManager?,
     stateHolder: MosaicScreenStateHolder = koinViewModel(
         key = screenId
     ) {
-        parametersOf(screenId, navigationData)
+        parametersOf(screenId, navigationData, parent)
     }
 ) {
     stateHolder.bindScreenLifecycle()
@@ -35,8 +38,8 @@ internal fun MosaicScreen(
     CompositionLocalProvider(
         LocalTileRendererManager provides stateHolder.tileRendererManager,
         LocalBroadcastChannel provides stateHolder.broadcastChannel,
+        LocalTilesManager provides stateHolder.tilesManager
     ) {
-
         uiState.rootTile?.let { rootTile ->
             LocalTileRendererManager.current.Render(
                 tileSchema = rootTile,

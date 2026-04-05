@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.n
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.visible
+import androidx.compose.material3.ModalWideNavigationRail
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.runtime.Composable

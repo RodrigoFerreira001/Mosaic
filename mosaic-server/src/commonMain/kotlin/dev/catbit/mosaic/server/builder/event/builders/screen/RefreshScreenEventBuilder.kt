@@ -10,7 +10,7 @@ internal class RefreshScreenEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
-) : EventSchemaBuilder<RefreshScreenEventSchema> {
+) : EventSchemaBuilder<RefreshScreenEventSchema>() {
 
     override fun build() = RefreshScreenEventSchema(
         id = id,

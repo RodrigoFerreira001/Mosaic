@@ -5,7 +5,7 @@ import dev.catbit.mosaic.server.builder.GenericBuilder
 
 class TileListBuilder(
     private val tiles: TileSchemaBuilderScope.() -> Unit = {},
-) : GenericBuilder<List<TileSchema>> {
+) : GenericBuilder<List<TileSchema>>() {
 
     override fun build() = TileSchemaBuilderScope().apply(tiles).build()
 }

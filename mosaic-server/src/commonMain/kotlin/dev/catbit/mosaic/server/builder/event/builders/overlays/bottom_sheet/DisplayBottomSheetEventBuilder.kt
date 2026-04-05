@@ -14,7 +14,7 @@ internal class DisplayBottomSheetEventBuilder(
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val isCancellable: Boolean,
     private val fill: Boolean
-) : EventSchemaBuilder<DisplayBottomSheetEventSchema> {
+) : EventSchemaBuilder<DisplayBottomSheetEventSchema>() {
 
     override fun build() = DisplayBottomSheetEventSchema(
         id = id,

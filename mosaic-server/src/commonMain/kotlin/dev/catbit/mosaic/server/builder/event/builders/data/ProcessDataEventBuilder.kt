@@ -11,7 +11,7 @@ internal class ProcessDataEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val processWith: String
-) : EventSchemaBuilder<ProcessDataEventSchema> {
+) : EventSchemaBuilder<ProcessDataEventSchema>() {
 
     override fun build() = ProcessDataEventSchema(
         id = id,

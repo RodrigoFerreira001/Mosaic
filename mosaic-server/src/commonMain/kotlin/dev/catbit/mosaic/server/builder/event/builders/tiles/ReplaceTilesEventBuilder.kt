@@ -11,9 +11,9 @@ internal class ReplaceTilesEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
-    private val groupingTileId: String?,
+    private val groupingTileId: String,
     private val tiles: TileSchemaBuilderScope.() -> Unit
-) : EventSchemaBuilder<ReplaceTilesEventSchema> {
+) : EventSchemaBuilder<ReplaceTilesEventSchema>() {
 
     override fun build() = ReplaceTilesEventSchema(
         id = id,
@@ -28,7 +28,7 @@ fun EventSchemaBuilderScope.ReplaceTiles(
     id: String = randomUuid(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
-    groupingTileId: String? = null,
+    groupingTileId: String,
     tiles: TileSchemaBuilderScope.() -> Unit
 ) {
     addBuilder(

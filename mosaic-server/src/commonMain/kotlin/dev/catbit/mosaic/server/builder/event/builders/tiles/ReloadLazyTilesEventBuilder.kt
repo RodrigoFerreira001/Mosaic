@@ -11,7 +11,7 @@ internal class ReloadLazyTilesEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val lazyTileId: String
-) : EventSchemaBuilder<ReloadLazyTilesEventSchema> {
+) : EventSchemaBuilder<ReloadLazyTilesEventSchema>() {
 
     override fun build() = ReloadLazyTilesEventSchema(
         id = id,

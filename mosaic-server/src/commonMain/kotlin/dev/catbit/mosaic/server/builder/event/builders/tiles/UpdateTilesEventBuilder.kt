@@ -7,6 +7,8 @@ import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
+import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
+import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -15,7 +17,7 @@ internal class UpdateTilesEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val updates: UpdateTilesUpdateBuilderScope.() -> Unit
-) : EventSchemaBuilder<UpdateTilesEventSchema> {
+) : EventSchemaBuilder<UpdateTilesEventSchema>() {
 
     override fun build() = UpdateTilesEventSchema(
         id = id,
@@ -44,7 +46,7 @@ fun EventSchemaBuilderScope.UpdateTiles(
 class UpdateTilesUpdateBuilder(
     private val tileId: String,
     private val data: Map<String, AnySerializable?>
-) : GenericBuilder<Update> {
+) : GenericBuilder<Update>() {
 
     override fun build() = Update(
         tileId = tileId,
@@ -52,7 +54,13 @@ class UpdateTilesUpdateBuilder(
     )
 }
 
-class UpdateTilesUpdateBuilderScope : GenericBuilderScope<Update, UpdateTilesUpdateBuilder>() {
+class UpdateTilesUpdateBuilderScope private constructor(): GenericBuilderScope<Update, UpdateTilesUpdateBuilder>() {
+
+    companion object {
+        internal operator fun invoke(
+            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
+        ) = UpdateTilesUpdateBuilderScope().apply { pushLocals(compositionLocals) }
+    }
 
     fun update(
         tileId: String,

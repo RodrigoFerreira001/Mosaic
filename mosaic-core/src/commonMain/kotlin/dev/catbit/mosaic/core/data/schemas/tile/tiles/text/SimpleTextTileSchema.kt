@@ -16,6 +16,6 @@ data class SimpleTextTileSchema(
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("text") val text: String,
-    @SerialName("color") val color: ColorSchema,
-    @SerialName("typography") val typography: TypographySchema
+    @SerialName("color") val color: ColorSchema?,
+    @SerialName("typography") val typography: TypographySchema?
 ) : TileSchema

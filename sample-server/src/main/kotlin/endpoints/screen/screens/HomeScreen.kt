@@ -2,12 +2,17 @@ package dev.catbit.mosaic.endpoints.screen.screens
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.server.builder.event.builders.navigation.Navigate
+import dev.catbit.mosaic.server.builder.event.builders.overlays.bottom_sheet.DisplayBottomSheet
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.icon
+import dev.catbit.mosaic.server.builder.outlinedIcon
 import dev.catbit.mosaic.server.builder.placement.alignHorizontallyToCenter
 import dev.catbit.mosaic.server.builder.placement.arrangeSpaceBetween
 import dev.catbit.mosaic.server.builder.placement.arrangeToCenter
 import dev.catbit.mosaic.server.builder.screen.Screen
+import dev.catbit.mosaic.server.builder.tile.builders.app_bars.TopAppBar
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.IconButton
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.filledIconButton
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
 import dev.catbit.mosaic.server.builder.tile.builders.navigation.NavigationBar
 import dev.catbit.mosaic.server.builder.tile.builders.navigation.NestedNavigationGraph
@@ -19,6 +24,17 @@ suspend fun RoutingCall.respondHome() {
     respond(
         Screen(
             id = "home",
+            events = {
+                DisplayBottomSheet(
+                    id = "#DISPLAY_BOTTOM_SHEET",
+                    trigger = EventTriggers.inline()
+                ) {
+                    SimpleText(
+                        id = "#SIMPLE_TEXT",
+                        text = "Hello there!"
+                    )
+                }
+            }
         ) {
             Column(
                 arrangement = arrangeSpaceBetween(),
@@ -32,6 +48,17 @@ suspend fun RoutingCall.respondHome() {
                     )
                 }
             ) {
+                TopAppBar(
+                    actions = {
+                        IconButton(
+                            id = "MENU_TESTER",
+                            icon = icon("settings"),
+                            buttonType = filledIconButton()
+                        )
+                    }
+                ) {
+                    SimpleText(text = "Mosaic")
+                }
                 NestedNavigationGraph(
                     navigatorId = "home",
                     startEntryId = "a",

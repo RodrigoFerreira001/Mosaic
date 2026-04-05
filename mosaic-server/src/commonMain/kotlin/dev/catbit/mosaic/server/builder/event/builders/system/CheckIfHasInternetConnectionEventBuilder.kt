@@ -10,7 +10,7 @@ internal class CheckIfHasInternetConnectionEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {}
-) : EventSchemaBuilder<CheckIfHasInternetConnectionEventSchema> {
+) : EventSchemaBuilder<CheckIfHasInternetConnectionEventSchema>() {
 
     override fun build() = CheckIfHasInternetConnectionEventSchema(
         id = id,

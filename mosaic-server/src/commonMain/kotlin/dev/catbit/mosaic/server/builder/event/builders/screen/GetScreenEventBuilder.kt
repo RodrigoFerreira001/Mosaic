@@ -10,7 +10,7 @@ internal class GetScreenEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
-) : EventSchemaBuilder<GetScreenEventSchema> {
+) : EventSchemaBuilder<GetScreenEventSchema>() {
 
     override fun build() = GetScreenEventSchema(
         id = id,

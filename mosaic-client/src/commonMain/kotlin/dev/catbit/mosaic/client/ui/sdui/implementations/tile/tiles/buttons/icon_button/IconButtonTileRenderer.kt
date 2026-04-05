@@ -3,6 +3,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.icon
 import androidx.compose.foundation.layout.visible
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,8 +34,9 @@ object IconButtonTileRenderer : TileRenderer<IconButtonTileSchema> {
 
             when (buttonType) {
                 IconButtonTileSchema.Type.DEFAULT ->
-                    OutlinedIconButton(
+                    IconButton(
                         modifier = modifier,
+                        enabled = enabled,
                         onClick = onClick,
                         content = content
                     )
@@ -42,6 +44,7 @@ object IconButtonTileRenderer : TileRenderer<IconButtonTileSchema> {
                 IconButtonTileSchema.Type.FILLED ->
                     FilledIconButton(
                         modifier = modifier,
+                        enabled = enabled,
                         onClick = onClick,
                         content = content
                     )
@@ -49,6 +52,7 @@ object IconButtonTileRenderer : TileRenderer<IconButtonTileSchema> {
                 IconButtonTileSchema.Type.FILLED_TONAL ->
                     FilledTonalIconButton(
                         modifier = modifier,
+                        enabled = enabled,
                         onClick = onClick,
                         content = content
                     )
@@ -56,6 +60,7 @@ object IconButtonTileRenderer : TileRenderer<IconButtonTileSchema> {
                 IconButtonTileSchema.Type.OUTLINED ->
                     OutlinedIconButton(
                         modifier = modifier,
+                        enabled = enabled,
                         onClick = onClick,
                         content = content
                     )

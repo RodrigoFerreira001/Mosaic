@@ -12,17 +12,21 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonDecoder
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonEncoder
 
 object AnySerializer : KSerializer<Any> {
 
     override val descriptor = buildClassSerialDescriptor("Any")
 
     override fun serialize(encoder: Encoder, value: Any) {
+        val json = (encoder as? JsonEncoder)?.json ?: Json
+
         encoder.encodeSerializableValue(
             serializer = JsonElement.serializer(),
-            value = value.toJsonElement()
+            value = value.toJsonElement(json)
         )
     }
 

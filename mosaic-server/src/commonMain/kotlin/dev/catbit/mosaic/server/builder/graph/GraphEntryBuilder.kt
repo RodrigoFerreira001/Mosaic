@@ -4,6 +4,8 @@ import dev.catbit.mosaic.core.data.responses.graph.GraphResponse.Entry
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
+import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
+import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.event.builders.screen.ChangeScreenState
 import dev.catbit.mosaic.server.builder.event.builders.screen.GetScreen
@@ -16,7 +18,7 @@ class GraphEntryBuilder(
     private val initialEvents: EventSchemaBuilderScope.() -> Unit = {},
     private val failureTiles: TileSchemaBuilderScope.() -> Unit = {},
     private val failureEvents: EventSchemaBuilderScope.() -> Unit = {},
-) : GenericBuilder<Entry> {
+) : GenericBuilder<Entry>() {
 
     override fun build() = Entry(
         screenId = screenId,
@@ -27,32 +29,39 @@ class GraphEntryBuilder(
     )
 }
 
-class GraphEntryBuilderScope : GenericBuilderScope<Entry, GraphEntryBuilder>()
+class GraphEntryBuilderScope private constructor(): GenericBuilderScope<Entry, GraphEntryBuilder>() {
 
-fun GraphEntryBuilderScope.entry(
-    screenId: String,
-    initialTiles: TileSchemaBuilderScope.() -> Unit = {},
-    initialEvents: EventSchemaBuilderScope.() -> Unit = {
-        GetScreen(
-            trigger = EventTriggers.onDisplay(),
-            events = {
-                ChangeScreenState(
-                    trigger = EventTriggers.onSuccess(),
-                    state = successState()
-                )
-            }
+    companion object {
+        internal operator fun invoke(
+            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
+        ) = GraphEntryBuilderScope().apply { pushLocals(compositionLocals) }
+    }
+
+    fun entry(
+        screenId: String,
+        initialTiles: TileSchemaBuilderScope.() -> Unit = {},
+        initialEvents: EventSchemaBuilderScope.() -> Unit = {
+            GetScreen(
+                trigger = EventTriggers.onDisplay(),
+                events = {
+                    ChangeScreenState(
+                        trigger = EventTriggers.onSuccess(),
+                        state = successState()
+                    )
+                }
+            )
+        },
+        failureTiles: TileSchemaBuilderScope.() -> Unit = {},
+        failureEvents: EventSchemaBuilderScope.() -> Unit = {},
+    ) {
+        addBuilder(
+            GraphEntryBuilder(
+                screenId = screenId,
+                initialTiles = initialTiles,
+                initialEvents = initialEvents,
+                failureTiles = failureTiles,
+                failureEvents = failureEvents
+            )
         )
-    },
-    failureTiles: TileSchemaBuilderScope.() -> Unit = {},
-    failureEvents: EventSchemaBuilderScope.() -> Unit = {},
-) {
-    addBuilder(
-        GraphEntryBuilder(
-            screenId = screenId,
-            initialTiles = initialTiles,
-            initialEvents = initialEvents,
-            failureTiles = failureTiles,
-            failureEvents = failureEvents
-        )
-    )
+    }
 }

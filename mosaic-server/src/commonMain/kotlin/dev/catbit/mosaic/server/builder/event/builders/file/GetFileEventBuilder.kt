@@ -11,7 +11,7 @@ internal class GetFileEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val fileName: String
-) : EventSchemaBuilder<GetFileEventSchema> {
+) : EventSchemaBuilder<GetFileEventSchema>() {
 
     override fun build() = GetFileEventSchema(
         id = id,

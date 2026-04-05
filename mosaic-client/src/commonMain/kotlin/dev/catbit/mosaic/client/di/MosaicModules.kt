@@ -49,6 +49,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.get_da
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.process_data.ProcessDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.remove_data.RemoveDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.send_data.SendDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.transform_data.TransformDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.update_data.UpdateDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trigger_event.TriggerEventEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.update_events.UpdateEventsEventDefinition
@@ -265,13 +266,14 @@ internal class MosaicModules(
             )
         }
 
-        viewModel { (screenId: String, navigationData: Map<String, Any>?) ->
+        viewModel { (screenId: String, navigationData: Map<String, Any>?, parent: TilesManager?) ->
 
             val tilesUIStateManager = TilesManager(
                 tileHolderBuilderManager = get(),
                 eventHolderBuilderManager = get(),
                 serializer = get(),
                 koinScope = this,
+                parent = parent
             )
 
             val eventManager = EventManager(
@@ -296,7 +298,7 @@ internal class MosaicModules(
                 failureTiles = screenExtras.failureTiles,
                 failureEvents = screenExtras.failureEvents,
                 navigationData = navigationData,
-                tilesUIStateManager = tilesUIStateManager,
+                tilesManager = tilesUIStateManager,
                 eventManager = eventManager,
                 tileRendererManager = get(),
             ).also {
@@ -391,6 +393,7 @@ internal class MosaicModules(
         EvaluateDataEventDefinition,
         RemoveDataEventDefinition,
         SendDataEventDefinition,
+        TransformDataEventDefinition,
         UpdateDataEventDefinition,
         TriggerEventEventDefinition,
         RequestPermissionEventDefinition,

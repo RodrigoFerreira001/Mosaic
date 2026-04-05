@@ -12,7 +12,7 @@ class ScreenBuilder(
     private val navigationDrawerTiles: (TileSchemaBuilderScope.() -> Unit)? = null,
     private val tiles: TileSchemaBuilderScope.() -> Unit = {},
     private val ttl: LocalDateTime? = null,
-) : GenericBuilder<ScreenResponse> {
+) : GenericBuilder<ScreenResponse>() {
 
     override fun build() = ScreenResponse(
         id = id,

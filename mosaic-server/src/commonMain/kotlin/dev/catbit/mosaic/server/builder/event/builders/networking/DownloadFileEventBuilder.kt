@@ -16,7 +16,7 @@ internal class DownloadFileEventBuilder(
     private val method: HttpMethod,
     private val body: AnySerializable?,
     private val headers: Map<String, String>?
-) : EventSchemaBuilder<DownloadFileEventSchema> {
+) : EventSchemaBuilder<DownloadFileEventSchema>() {
 
     override fun build() = DownloadFileEventSchema(
         id = id,

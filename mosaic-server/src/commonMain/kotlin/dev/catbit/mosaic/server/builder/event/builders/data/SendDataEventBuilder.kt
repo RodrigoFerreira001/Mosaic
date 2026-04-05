@@ -13,7 +13,7 @@ internal class SendDataEventBuilder(
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val dataKey: String,
     private val data: AnySerializable?
-) : EventSchemaBuilder<SendDataEventSchema> {
+) : EventSchemaBuilder<SendDataEventSchema>() {
 
     override fun build() = SendDataEventSchema(
         id = id,

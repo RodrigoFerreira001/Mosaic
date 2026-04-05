@@ -11,7 +11,7 @@ internal class StartCountdownTimerEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val setupTimeInSeconds: Long
-) : EventSchemaBuilder<StartCountdownTimerEventSchema> {
+) : EventSchemaBuilder<StartCountdownTimerEventSchema>() {
 
     override fun build() = StartCountdownTimerEventSchema(
         id = id,

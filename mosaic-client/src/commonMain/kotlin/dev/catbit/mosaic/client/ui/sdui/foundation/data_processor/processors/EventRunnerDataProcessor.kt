@@ -11,12 +11,16 @@ import kotlinx.serialization.json.JsonObject
 object EventRunnerDataProcessor : DataProcessor {
     override val id: String = "EVENT_RUNNER"
 
-    override fun EventRunningScope.proccess(data: Any) {
+    override fun EventRunningScope.process(
+        data: Any,
+        onSuccess: () -> Unit,
+        onFailure: (Throwable) -> Unit
+    ) {
 
         val jsonElement = data.toJsonElement()
         val serializer = get<MosaicSerializer>()
 
-        runSafely {
+        try {
             when (jsonElement) {
                 is JsonArray -> {
                     jsonElement
@@ -32,6 +36,9 @@ object EventRunnerDataProcessor : DataProcessor {
 
                 else -> Unit
             }
+            onSuccess()
+        } catch (e: Throwable) {
+            onFailure(e)
         }
     }
 }

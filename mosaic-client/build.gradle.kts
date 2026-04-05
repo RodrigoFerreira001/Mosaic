@@ -132,6 +132,10 @@ kotlin {
             implementation(libs.androidx.sqlite.web)
             implementation(npm("sqlite-wasm-worker", layout.projectDirectory.dir("sqliteWasmWorker").asFile))
         }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
     }
 
     compilerOptions {

@@ -6,14 +6,14 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyTilesTileSche
 import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
-import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilder
+import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 
 internal class LazyTilesTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
-    private val style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit,
+    private val style: StyleSchemaBuilderScope.() -> Unit,
     private val visibility: TileSchema.Visibility,
     private val failureTiles: TileSchemaBuilderScope.() -> Unit,
     private val placeholderTiles: TileSchemaBuilderScope.() -> Unit,
@@ -21,12 +21,12 @@ internal class LazyTilesTileSchemaBuilder(
     private val method: HttpMethod,
     private val body: AnySerializable?,
     private val headers: Map<String, String>?
-) : TileSchemaBuilder<LazyTilesTileSchema> {
+) : TileSchemaBuilder<LazyTilesTileSchema>() {
 
     override fun build() = LazyTilesTileSchema(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
-        style = StyleSchemaBuilder().apply { StyleSchemaBuilderScope().apply(style) }.build(),
+        style = StyleSchemaBuilderScope().apply(style).buildStyle(),
         visibility = visibility,
         failureTiles = TileSchemaBuilderScope().apply(failureTiles).build(),
         placeholderTiles = TileSchemaBuilderScope().apply(placeholderTiles).build(),
@@ -40,7 +40,7 @@ internal class LazyTilesTileSchemaBuilder(
 fun TileSchemaBuilderScope.LazyTiles(
     id: String = randomUuid(),
     events: EventSchemaBuilderScope.() -> Unit = {},
-    style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},
+    style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     url: String,
     method: HttpMethod = HttpMethod.GET,

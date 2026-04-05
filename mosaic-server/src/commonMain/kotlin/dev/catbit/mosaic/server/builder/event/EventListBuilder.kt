@@ -5,7 +5,7 @@ import dev.catbit.mosaic.server.builder.GenericBuilder
 
 class EventListBuilder(
     private val events: EventSchemaBuilderScope.() -> Unit = {},
-) : GenericBuilder<List<EventSchema>> {
+) : GenericBuilder<List<EventSchema>>() {
 
     override fun build() = EventSchemaBuilderScope().apply(events).build()
 }

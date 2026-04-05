@@ -6,28 +6,30 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NestedNavigatio
 import dev.catbit.mosaic.core.extensions.randomUuid
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
+import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
+import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.event.builders.screen.ChangeScreenState
 import dev.catbit.mosaic.server.builder.event.builders.screen.GetScreen
 import dev.catbit.mosaic.server.builder.event.builders.screen.successState
-import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilder
+import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 
 internal class NestedNavigationGraphTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
-    private val style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit,
+    private val style: StyleSchemaBuilderScope.() -> Unit,
     private val visibility: TileSchema.Visibility,
     private val navigatorId: String,
     private val startEntryId: String,
     private val entries: NestedNavigationGraphEntryBuilderScope.() -> Unit,
-) : TileSchemaBuilder<NestedNavigationGraphTileSchema> {
+) : TileSchemaBuilder<NestedNavigationGraphTileSchema>() {
 
     override fun build() = NestedNavigationGraphTileSchema(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
-        style = StyleSchemaBuilder().apply { StyleSchemaBuilderScope().apply(style) }.build(),
+        style = StyleSchemaBuilderScope().apply(style).buildStyle(),
         visibility = visibility,
         navigatorId = navigatorId,
         entries = NestedNavigationGraphEntryBuilderScope().apply(entries).build(),
@@ -38,7 +40,7 @@ internal class NestedNavigationGraphTileSchemaBuilder(
 fun TileSchemaBuilderScope.NestedNavigationGraph(
     id: String = randomUuid(),
     events: EventSchemaBuilderScope.() -> Unit = {},
-    style: StyleSchemaBuilder.StyleSchemaBuilderScope.() -> Unit = {},
+    style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     navigatorId: String,
     startEntryId: String,
@@ -63,7 +65,7 @@ class NestedNavigationGraphEntryBuilder(
     private val initialEvents: EventSchemaBuilderScope.() -> Unit = {},
     private val failureTiles: TileSchemaBuilderScope.() -> Unit = {},
     private val failureEvents: EventSchemaBuilderScope.() -> Unit = {},
-) : GenericBuilder<NestedNavigationGraphTileSchema.Entry> {
+) : GenericBuilder<NestedNavigationGraphTileSchema.Entry>() {
 
     override fun build() = NestedNavigationGraphTileSchema.Entry(
         screenId = screenId,
@@ -74,8 +76,15 @@ class NestedNavigationGraphEntryBuilder(
     )
 }
 
-class NestedNavigationGraphEntryBuilderScope :
+class NestedNavigationGraphEntryBuilderScope private constructor():
     GenericBuilderScope<NestedNavigationGraphTileSchema.Entry, NestedNavigationGraphEntryBuilder>() {
+
+    companion object {
+        internal operator fun invoke(
+            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
+        ) = NestedNavigationGraphEntryBuilderScope().apply { pushLocals(compositionLocals) }
+    }
+
     fun entry(
         screenId: String,
         initialTiles: TileSchemaBuilderScope.() -> Unit = {},

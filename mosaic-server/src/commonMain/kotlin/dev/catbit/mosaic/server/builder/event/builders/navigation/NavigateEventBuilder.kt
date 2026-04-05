@@ -16,7 +16,7 @@ internal class NavigateEventBuilder(
     private val navigatorId: String,
     private val popUpTo: PopUpTo? = null,
     private val data: Map<String, AnySerializable>? = null,
-) : EventSchemaBuilder<NavigateEventSchema> {
+) : EventSchemaBuilder<NavigateEventSchema>() {
 
     override fun build() = NavigateEventSchema(
         id = id,

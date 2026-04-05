@@ -6,6 +6,11 @@ import dev.catbit.mosaic.core.data.schemas.event.events.event.UpdateEventsEventS
 
 object UpdateEventsEventRunner : EventRunner<UpdateEventsEventSchema> {
     override fun EventRunningScope.runEvent(event: UpdateEventsEventSchema) {
-        println("executed UpdateEventsEvent")
+        event.updates.forEach { update ->
+            tilesEventDispatcher.updateEventHolder(
+                eventId = update.eventId,
+                data = update.data
+            )
+        }
     }
 }

@@ -11,7 +11,7 @@ internal class StopRefreshingEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val tileId: String
-) : EventSchemaBuilder<StopRefreshingEventSchema> {
+) : EventSchemaBuilder<StopRefreshingEventSchema>() {
 
     override fun build() = StopRefreshingEventSchema(
         id = id,

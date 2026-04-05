@@ -214,6 +214,8 @@ Implements five behavior interfaces simultaneously:
 
 All mutations operate on the root `ScreenTileHolder` tree. After every mutation, `updateState()` is called, which invokes `onUpdateRequest(rootTile.get())` — updating the `StateFlow` and triggering Compose recomposition.
 
+**Parent reference:** `TilesManager` holds `private val parent: TilesManager?`. All tile lookup operations (`getTileHolderAndOwner`, `getTileHoldersByGroupEventAndOwner`) first search the local `ScreenTileHolder` tree, then delegate to `parent` recursively if the tile is not found locally. This allows tiles rendered inside nested contexts (e.g. `NestedNavigationGraphTile`) to dispatch tile management events (`AddTiles`, `RemoveTiles`, `UpdateTile`, `ReplaceTiles`, etc.) that target tiles in outer/parent screens — transparently, with no special handling required in the event runners.
+
 **ScreenTileHolder** is the root node. It extends `TileHolder` and additionally manages:
 - `currentBottomSheetTiles: List<TileHolder<*>>?`
 - `currentDialogSheetTiles: List<TileHolder<*>>?`
@@ -444,6 +446,76 @@ runEventInline(eventSchema)   →  executes events (e.g., AddTilesEventRunner)
 ## Logging
 
 `MosaicLogger` is an abstract class with level-based filtering (`DEBUG`, `INFO`, `WARNING`, `ERROR`). Implementations are platform-specific. Available via Koin DI. Use `logError()` / `log()` helpers in `EventRunningScope` and `BuilderScope`.
+
+---
+
+## Server DSL: CompositionLocal System
+
+Inspired by Jetpack Compose's `CompositionLocal`, the server DSL provides a mechanism to pass values implicitly through the builder tree without threading them as explicit parameters.
+
+### API
+
+```kotlin
+// Define (tipicamente em sample-server ou em um arquivo dedicado do módulo)
+val LocalNameProvider = compositionLocalOf<String> { error("Name not provided") }
+
+// Fornecer um valor para uma subárvore
+CompositionLocalProvider(LocalNameProvider provides "Rodrigo") {
+    Column {
+        SimpleText(LocalNameProvider.current())  // lê "Rodrigo"
+    }
+}
+```
+
+| Função | Onde | Descrição |
+|---|---|---|
+| `compositionLocalOf<T> { default }` | qualquer lugar | Cria um `CompositionLocal<T>` com valor padrão (use `error()` para obrigatórios) |
+| `CompositionLocalProvider(...)` | `GenericBuilderScope` | Fornece valores para o escopo do bloco `content` |
+| `CompositionLocal<T>.current()` | `GenericBuilderScope` | Lê o valor atual; cai no default se não fornecido |
+| `snapshotLocals()` | `GenericBuilderScope` | Retorna cópia imutável do mapa atual de locals |
+| `pushLocals(map)` | `GenericBuilderScope` (internal) | Insere locals no mapa — uso exclusivo de `CompositionLocalProvider` |
+| `restoreLocals(snapshot)` | `GenericBuilderScope` (internal) | Restaura estado anterior — uso exclusivo de `CompositionLocalProvider` |
+
+### Como os valores propagam pelo builder tree
+
+O `GenericBuilderScope` mantém um `private val compositionLocals: MutableMap` com acesso controlado apenas pelos métodos acima.
+
+Quando um builder é registrado via `addBuilder()`, o scope **tira um snapshot imutável** do mapa naquele momento e o armazena no builder. Isso garante que os locals corretos são preservados mesmo após o `CompositionLocalProvider` restaurar o estado do scope.
+
+```
+DSL construction time:
+  CompositionLocalProvider(LocalX provides "value") {
+      Column { ... }   ← addBuilder() → builder.compositionLocals = snapshot { LocalX → "value" }
+  }
+  ← cleanup: scope restaura locals anteriores (snapshot do builder não é afetado)
+
+build() time:
+  ColumnTileSchemaBuilder.build()
+      TileSchemaBuilderScope()   ← invoke operator em GenericBuilder injeta builder.compositionLocals
+          └─ locals corretos disponíveis para sub-builders e .current()
+```
+
+O `GenericBuilder` expõe invoke operators (`TileSchemaBuilderScope()`, `EventSchemaBuilderScope()`, etc.) que automaticamente injetam `compositionLocals` no novo scope. Todo builder deve criar sub-scopes **exclusivamente** por esses operators — nunca construindo os scopes diretamente.
+
+### Caso especial: template avaliado com locals fora do build()
+
+Quando um builder precisa avaliar um lambda **eagerly** (fora de `build()`) mas ainda precisa dos locals corretos, usar `snapshotLocals()` **antes** de `addBuilder()`:
+
+```kotlin
+fun EventSchemaBuilderScope.TransformData(..., eventTemplate: EventSchemaBuilderScope.() -> Unit) {
+    val locals = snapshotLocals()  // capturado com os locals corretos (antes do cleanup do provider)
+    addBuilder(
+        TransformDataEventBuilder(
+            ...,
+            template = {
+                EventSchemaBuilderScope(locals).apply(eventTemplate).build()
+            }
+        )
+    )
+}
+```
+
+Chamar `snapshotLocals()` **dentro** do lambda causaria leitura após o cleanup do `CompositionLocalProvider`, resultando em locals vazios.
 
 ---
 

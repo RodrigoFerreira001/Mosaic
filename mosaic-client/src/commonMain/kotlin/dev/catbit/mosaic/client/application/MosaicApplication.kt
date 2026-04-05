@@ -161,7 +161,8 @@ private fun MosaicApplicationSuccessContent(
                 entry<ScreenNavKey> {
                     MosaicScreen(
                         screenId = it.id,
-                        navigationData = it.navigationData
+                        navigationData = it.navigationData,
+                        parent = null
                     )
                 }
             }

@@ -12,7 +12,7 @@ internal class ScrollPagerTileEventBuilder(
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val tileId: String,
     private val where: ScrollPagerTileEventSchema.Where,
-) : EventSchemaBuilder<ScrollPagerTileEventSchema> {
+) : EventSchemaBuilder<ScrollPagerTileEventSchema>() {
 
     override fun build() = ScrollPagerTileEventSchema(
         id = id,

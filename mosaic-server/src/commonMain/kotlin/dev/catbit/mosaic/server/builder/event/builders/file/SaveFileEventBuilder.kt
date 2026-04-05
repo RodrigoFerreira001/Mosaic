@@ -12,7 +12,7 @@ internal class SaveFileEventBuilder(
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val fileName: String,
     private val overrideIfExists: Boolean
-) : EventSchemaBuilder<SaveFileEventSchema> {
+) : EventSchemaBuilder<SaveFileEventSchema>() {
 
     override fun build() = SaveFileEventSchema(
         id = id,

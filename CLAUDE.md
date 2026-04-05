@@ -132,3 +132,4 @@ Detailed catalogs and architecture documentation are located in `.claude/context
 - `tiles-catalog.md` — All Tile schemas, fields, variants, and supported triggers
 - `events-catalog.md` — All Event schemas, fields, and execution behavior
 - `triggers-catalog.md` — All EventTriggers and their usage context
+- `boilerplate-templates.md` — **Ler este arquivo PRIMEIRO ao gerar boilerplate de Event ou Tile.** Contém os 5 arquivos de cada camada como templates prontos, os 2 pontos de registro (MosaicSerializer + MosaicModules), e a API do EventRunningScope. Evita explorar o projeto inteiro.

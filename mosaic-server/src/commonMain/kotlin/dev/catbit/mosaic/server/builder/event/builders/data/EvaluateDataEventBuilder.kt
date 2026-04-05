@@ -17,7 +17,7 @@ class EvaluateDataEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val expression: EvaluateDataEventSchema.Expression
-) : EventSchemaBuilder<EvaluateDataEventSchema> {
+) : EventSchemaBuilder<EvaluateDataEventSchema>() {
 
     override fun build() = EvaluateDataEventSchema(
         id = id,

@@ -13,7 +13,7 @@ internal class ScrollRowTileEventBuilder(
     private val tileId: String,
     private val where: ScrollRowTileEventSchema.Where,
     private val smoothly: Boolean
-) : EventSchemaBuilder<ScrollRowTileEventSchema> {
+) : EventSchemaBuilder<ScrollRowTileEventSchema>() {
 
     override fun build() = ScrollRowTileEventSchema(
         id = id,
