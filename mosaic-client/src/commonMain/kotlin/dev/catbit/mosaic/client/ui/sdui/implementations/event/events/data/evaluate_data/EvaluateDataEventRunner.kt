@@ -29,7 +29,10 @@ object EvaluateDataEventRunner : EventRunner<EvaluateDataEventSchema> {
             withContext(Dispatchers.IO) {
                 val result = runCatching { evaluate(event.expression) }
                     .getOrElse {
-                        logError(it)
+                        logError(
+                            tag = "EvaluateDataEventRunner",
+                            throwable = it
+                        )
                         onTrigger(EventTriggers.onFailure(), data = it)
                         return@withContext
                     }

@@ -12,6 +12,7 @@ internal class ScrollPagerTileEventBuilder(
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val tileId: String,
     private val where: ScrollPagerTileEventSchema.Where,
+    private val smoothly: Boolean
 ) : EventSchemaBuilder<ScrollPagerTileEventSchema>() {
 
     override fun build() = ScrollPagerTileEventSchema(
@@ -19,7 +20,8 @@ internal class ScrollPagerTileEventBuilder(
         trigger = trigger,
         events = EventSchemaBuilderScope().apply(events).build(),
         tileId = tileId,
-        where = where
+        where = where,
+        smoothly = smoothly
     )
 }
 
@@ -29,6 +31,7 @@ fun EventSchemaBuilderScope.ScrollPager(
     events: EventSchemaBuilderScope.() -> Unit = {},
     tileId: String,
     where: ScrollPagerTileEventSchema.Where,
+    smoothly: Boolean = true,
 ) {
     addBuilder(
         ScrollPagerTileEventBuilder(
@@ -36,7 +39,13 @@ fun EventSchemaBuilderScope.ScrollPager(
             trigger = trigger,
             events = events,
             tileId = tileId,
-            where = where
+            where = where,
+            smoothly = smoothly
         )
     )
 }
+
+fun scrollPageToBegin() = ScrollPagerTileEventSchema.Where.Begin
+fun scrollPageToPreviousPage() = ScrollPagerTileEventSchema.Where.PreviousPage
+fun scrollPageToNextPage() = ScrollPagerTileEventSchema.Where.NextPage
+fun scrollPageToEnd() = ScrollPagerTileEventSchema.Where.End

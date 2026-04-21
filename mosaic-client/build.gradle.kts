@@ -131,6 +131,8 @@ kotlin {
             // SQLite driver (OPFS-based Web Worker)
             implementation(libs.androidx.sqlite.web)
             implementation(npm("sqlite-wasm-worker", layout.projectDirectory.dir("sqliteWasmWorker").asFile))
+            // OPFS file handler (dedicated Web Worker)
+            implementation(npm("opfs-wasm-worker", layout.projectDirectory.dir("opfsWorker").asFile))
         }
 
         commonTest.dependencies {

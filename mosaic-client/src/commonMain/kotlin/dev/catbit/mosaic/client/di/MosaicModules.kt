@@ -29,6 +29,8 @@ import dev.catbit.mosaic.client.domain.download.DownloadFileUseCase
 import dev.catbit.mosaic.client.domain.graph.GetInitialGraphUseCase
 import dev.catbit.mosaic.client.domain.screen.GetScreenUseCase
 import dev.catbit.mosaic.client.domain.send_request.SendNetworkRequestUseCase
+import dev.catbit.mosaic.client.logger.DefaultMosaicLoggerImpl
+import dev.catbit.mosaic.client.logger.MosaicLogger
 import dev.catbit.mosaic.client.ui.sdui.foundation.data_mailer.DataMailer
 import dev.catbit.mosaic.client.ui.sdui.foundation.data_processor.DataProcessor
 import dev.catbit.mosaic.client.ui.sdui.foundation.data_processor.processors.EventRunnerDataProcessor
@@ -94,6 +96,8 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.box.
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.card.CardTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.carousel.CarouselTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.lazy_column.LazyColumnTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.lazy_row.LazyRowTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.grid.GridTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.lazy_tiles.LazyTilesTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pager.PagerTileDefinition
@@ -108,6 +112,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.switch
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.adaptive_navigation.AdaptiveNavigationTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.navigation_bar.NavigationBarTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.navigation_rail.NavigationRailTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.nested_navigation_graph.NestedNavigationGraphTileDefinition
@@ -160,6 +165,7 @@ internal class MosaicModules(
         single { ScreenExtrasHolder() }
         single { NavigatorsHolder() }
         single { DataMailer() }
+        single<MosaicLogger> { DefaultMosaicLoggerImpl() }
     }
 
     private val dataModule = module {
@@ -334,7 +340,9 @@ internal class MosaicModules(
     private val baseTilesDefinitions = listOf(
         ScreenTileDefinition,
         ColumnTileDefinition,
+        LazyColumnTileDefinition,
         RowTileDefinition,
+        LazyRowTileDefinition,
         ButtonTileDefinition,
         FloatingActionButtonTileDefinition,
         BoxTileDefinition,
@@ -353,6 +361,7 @@ internal class MosaicModules(
         IconButtonTileDefinition,
         CheckboxTileDefinition,
         SuggestionChipTileDefinition,
+        AdaptiveNavigationTileDefinition,
         NavigationBarTileDefinition,
         NavigationRailTileDefinition,
         CircularProgressIndicatorTileDefinition,

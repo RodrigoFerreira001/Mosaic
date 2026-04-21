@@ -1,12 +1,15 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.navigation_rail
 
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.visible
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ModalWideNavigationRail
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import dev.catbit.mosaic.client.extensions.textOrNull
 import dev.catbit.mosaic.client.ui.composables.icon.Icon
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
@@ -25,7 +28,8 @@ object NavigationRailTileRenderer : TileRenderer<NavigationRailTileSchema> {
             NavigationRail(
                 modifier = Modifier
                     .visible(isVisible())
-                    .styledWith(style),
+                    .styledWith(style)
+                    .padding(horizontal = 4.dp, vertical = 8.dp),
                 header = header?.let { header ->
                     @Composable {
                         RenderChild(header)
@@ -46,7 +50,7 @@ object NavigationRailTileRenderer : TileRenderer<NavigationRailTileSchema> {
                                     filled = selectedItemId == id
                                 )
                             },
-                            label = label.textOrNull()
+                            label = label.textOrNull(centered = true)
                         )
                     }
                 }

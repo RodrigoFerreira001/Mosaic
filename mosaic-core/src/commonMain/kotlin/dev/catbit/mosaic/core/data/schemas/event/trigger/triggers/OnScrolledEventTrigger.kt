@@ -6,4 +6,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 @SerialName("OnScrolled")
-object OnScrolledEventTrigger : EventTrigger
+data class OnScrolledEventTrigger(
+    @SerialName("direction") val direction: ScrollDirection
+) : EventTrigger {
+
+    @Serializable
+    enum class ScrollDirection {
+        @SerialName("Top") Top,
+        @SerialName("Bottom") Bottom,
+        @SerialName("Start") Start,
+        @SerialName("End") End
+    }
+}

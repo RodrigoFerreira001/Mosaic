@@ -77,12 +77,7 @@ class BuilderScope(
         tag: String = "MosaicCommonError",
         throwable: Throwable
     ) {
-        koinScope.get<MosaicLogger>().error(
-            """
-                Tag: $tag
-                Error: ${throwable.printStackTrace()}
-            """.trimIndent()
-        )
+        koinScope.get<MosaicLogger>().error("$tag: ${throwable.stackTraceToString()}")
     }
 
     fun log(

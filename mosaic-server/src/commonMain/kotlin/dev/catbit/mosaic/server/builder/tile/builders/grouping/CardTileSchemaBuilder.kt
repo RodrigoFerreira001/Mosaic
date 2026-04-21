@@ -29,11 +29,11 @@ internal class CardTileSchemaBuilder(
 
 fun TileSchemaBuilderScope.Card(
     id: String = randomUuid(),
-    tiles: TileSchemaBuilderScope.() -> Unit,
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
-    kind: CardTileSchema.Kind = CardTileSchema.Kind.DEFAULT
+    kind: CardTileSchema.Kind = CardTileSchema.Kind.DEFAULT,
+    tiles: TileSchemaBuilderScope.() -> Unit,
 ) {
     addBuilder(
         CardTileSchemaBuilder(

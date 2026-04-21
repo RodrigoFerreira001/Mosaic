@@ -28,7 +28,12 @@ internal class CircularProgressIndicatorTileSchemaBuilder(
 fun TileSchemaBuilderScope.CircularProgressIndicator(
     id: String = randomUuid(),
     events: EventSchemaBuilderScope.() -> Unit = {},
-    style: StyleSchemaBuilderScope.() -> Unit = {},
+    style: StyleSchemaBuilderScope.() -> Unit = {
+        size(
+            width = fixedHorizontally(48),
+            height = fixedVertically(48)
+        )
+    },
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     progress: Float? = null
 ) {

@@ -32,9 +32,9 @@ fun EventSchemaBuilderScope.AddTiles(
     id: String = randomUuid(),
     trigger: EventTrigger,
     groupingTileId: String,
-    position: AddTilesEventSchema.InsertionPosition,
+    position: AddTilesEventSchema.InsertionPosition = insertAtEnd(),
     events: EventSchemaBuilderScope.() -> Unit = {},
-    tiles: TileSchemaBuilderScope.() -> Unit = {},
+    tiles: TileSchemaBuilderScope.() -> Unit,
 ) {
     addBuilder(
         AddTilesEventBuilder(
@@ -47,3 +47,9 @@ fun EventSchemaBuilderScope.AddTiles(
         )
     )
 }
+
+fun insertAtStart() = AddTilesEventSchema.InsertionPosition.Start
+fun insertAtEnd() = AddTilesEventSchema.InsertionPosition.End
+fun insertBeforeTile(tileId: String) = AddTilesEventSchema.InsertionPosition.BeforeTile(tileId)
+fun insertAfterTile(tileId: String) = AddTilesEventSchema.InsertionPosition.AfterTile(tileId)
+fun insertAtIndex(index: Int) = AddTilesEventSchema.InsertionPosition.AtIndex(index)

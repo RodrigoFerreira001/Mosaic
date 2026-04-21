@@ -43,7 +43,7 @@ fun JsonElement.toAny(): Any? = when (this) {
 
 @Suppress("UNCHECKED_CAST")
 fun Any?.toJsonElement(
-    json: Json?
+    json: Json? = null
 ): JsonElement = when (this) {
     null -> JsonNull
     is JsonElement -> this

@@ -7,5 +7,5 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 fun TileRenderingScope.onClick(
     events: List<EventSchema>?
 ): (() -> Unit)? = events
-    ?.takeIf { it.any { it.trigger == EventTriggers.onClick() } }
+    ?.takeIf { it.any { event -> event.trigger == EventTriggers.onClick() } }
     ?.let { { triggerEvent(EventTriggers.onClick()) } }

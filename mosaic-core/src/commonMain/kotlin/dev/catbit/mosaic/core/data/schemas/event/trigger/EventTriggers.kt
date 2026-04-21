@@ -33,6 +33,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSta
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAdaptiveNavigationItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationBarItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationDrawerDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntryChangedEventTrigger
@@ -44,6 +45,8 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsA
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryClearedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrollThresholdReachedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSearchEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectChangedEventTrigger
@@ -96,6 +99,7 @@ object EventTriggers {
     fun onTrailingIconClick() = OnTrailingIconClickEventTrigger
     fun onLongPress() = OnLongPressEventTrigger
     fun onMenuItemClick(itemId: String) = OnMenuItemClickEventTrigger(itemId)
+    fun onAdaptiveNavigationItemClick(itemId: String) = OnAdaptiveNavigationItemClickEventTrigger(itemId)
     fun onNavigationBarItemClick(itemId: String) = OnNavigationBarItemClickEventTrigger(itemId)
     fun onNavigationDrawerDismissed() = OnNavigationDrawerDismissedEventTrigger
     fun onNavigationEntryChanged() = OnNavigationEntryChangedEventTrigger
@@ -108,7 +112,9 @@ object EventTriggers {
     fun onQueryChanged() = OnQueryChangedEventTrigger
     fun onQueryCleared() = OnQueryClearedEventTrigger
     fun onSearch() = OnSearchEventTrigger
-    fun onScrolled() = OnScrolledEventTrigger
+    fun onPageChanged(direction: OnPageChangedEventTrigger.Direction) = OnPageChangedEventTrigger(direction)
+    fun onScrolled(direction: OnScrolledEventTrigger.ScrollDirection) = OnScrolledEventTrigger(direction)
+    fun onScrollThresholdReached() = OnScrollThresholdReachedEventTrigger
     fun onOnSelectChanged() = OnSelectChangedEventTrigger
     fun onSelect() = OnSelectEventTrigger
     fun onStart() = OnStartEventTrigger

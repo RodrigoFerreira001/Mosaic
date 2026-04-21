@@ -44,3 +44,7 @@ fun EventSchemaBuilderScope.ScrollColumn(
         )
     )
 }
+
+fun scrollColumnToTop() = ScrollColumnTileEventSchema.Where.Top
+fun scrollColumnTo(index: Int) = ScrollColumnTileEventSchema.Where.To(index)
+fun scrollColumnToBottom() = ScrollColumnTileEventSchema.Where.Top

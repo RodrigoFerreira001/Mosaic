@@ -44,3 +44,7 @@ fun EventSchemaBuilderScope.ScrollRow(
         )
     )
 }
+
+fun scrollRowToStart() = ScrollRowTileEventSchema.Where.Start
+fun scrollRowTo(index: Int) = ScrollRowTileEventSchema.Where.To(index)
+fun scrollRowToEnd() = ScrollRowTileEventSchema.Where.End

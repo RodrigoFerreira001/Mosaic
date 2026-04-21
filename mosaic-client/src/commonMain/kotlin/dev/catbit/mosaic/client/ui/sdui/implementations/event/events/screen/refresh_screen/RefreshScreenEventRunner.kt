@@ -28,7 +28,10 @@ object RefreshScreenEventRunner : EventRunner<RefreshScreenEventSchema> {
                     )
                 }
                 .onFailure { failure ->
-                    logError(failure)
+                    logError(
+                        tag = "RefreshScreenEventRunner",
+                        throwable = failure
+                    )
                     screenBehaviorsHolder.setState(ScreenBehaviorsHolder.State.Failure)
                     onTrigger(
                         eventTrigger = EventTriggers.onFailure(),

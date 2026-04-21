@@ -39,7 +39,7 @@ object NavigationBarTileRenderer : TileRenderer<NavigationBarTileSchema> {
                                     filled = selectedItemId == id
                                 )
                             },
-                            label = label.textOrNull()
+                            label = label.textOrNull(centered = true)
                         )
                     }
                 }

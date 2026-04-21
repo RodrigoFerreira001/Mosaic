@@ -31,11 +31,11 @@ internal class BoxTileSchemaBuilder(
 
 fun TileSchemaBuilderScope.Box(
     id: String = randomUuid(),
-    tiles: TileSchemaBuilderScope.() -> Unit = {},
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
-    alignment: AlignmentSchema.TwoDimensional = alignToTopStart()
+    alignment: AlignmentSchema.TwoDimensional = alignToTopStart(),
+    tiles: TileSchemaBuilderScope.() -> Unit = {},
 ) {
     addBuilder(
         BoxTileSchemaBuilder(

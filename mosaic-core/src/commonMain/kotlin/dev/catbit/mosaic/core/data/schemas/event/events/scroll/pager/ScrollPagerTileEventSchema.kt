@@ -20,7 +20,8 @@ data class ScrollPagerTileEventSchema(
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: List<EventSchema>?,
     @SerialName("tileId") val tileId: String,
-    @SerialName("where") val where: Where
+    @SerialName("where") val where: Where,
+    @SerialName("smoothly") val smoothly: Boolean
 ) : EventSchema {
 
     @Serializable

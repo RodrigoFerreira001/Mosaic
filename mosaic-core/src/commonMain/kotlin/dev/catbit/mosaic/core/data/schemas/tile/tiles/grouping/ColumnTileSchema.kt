@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.AlignmentSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.ArrangementSchema
@@ -14,7 +15,8 @@ import kotlinx.serialization.Serializable
 @Triggers(
     [
         OnClickEventTrigger::class,
-        OnLongPressEventTrigger::class
+        OnLongPressEventTrigger::class,
+        OnScrolledEventTrigger::class
     ]
 )
 @Serializable
@@ -27,6 +29,5 @@ data class ColumnTileSchema(
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("arrangement") val arrangement: ArrangementSchema.Vertical,
     @SerialName("alignment") val alignment: AlignmentSchema.Horizontal,
-    @SerialName("isScrollable") val isScrollable: Boolean,
-    @SerialName("lazyRender") val lazyRender: Boolean,
+    @SerialName("scrollable") val scrollable: Boolean = false,
 ) : TileSchema

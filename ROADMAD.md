@@ -35,6 +35,7 @@
 # Prioridades
 - [ ] Fazer teste inicial do server + cliente (com actions de GetScreen)
 - [ ] Adicionar todos os tiles restantes (pelo menos o contrato)
+- [ ] Mudar tudo o que EventSchema e TileSchema que use List<> para utilizar ImmutableList<>
 
 # Bugs
 - [ ] Configuração está sendo perdida com config change

@@ -1,45 +1,19 @@
 package dev.catbit.mosaic.endpoints.screen.screens
 
-import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
-import dev.catbit.mosaic.server.builder.event.builders.navigation.Navigate
-import dev.catbit.mosaic.server.builder.event.builders.overlays.bottom_sheet.DisplayBottomSheet
-import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.icon
-import dev.catbit.mosaic.server.builder.outlinedIcon
 import dev.catbit.mosaic.server.builder.placement.alignHorizontallyToCenter
-import dev.catbit.mosaic.server.builder.placement.arrangeSpaceBetween
 import dev.catbit.mosaic.server.builder.placement.arrangeToCenter
 import dev.catbit.mosaic.server.builder.screen.Screen
-import dev.catbit.mosaic.server.builder.tile.builders.app_bars.TopAppBar
-import dev.catbit.mosaic.server.builder.tile.builders.buttons.IconButton
-import dev.catbit.mosaic.server.builder.tile.builders.buttons.filledIconButton
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
-import dev.catbit.mosaic.server.builder.tile.builders.navigation.NavigationBar
-import dev.catbit.mosaic.server.builder.tile.builders.navigation.NestedNavigationGraph
+import dev.catbit.mosaic.server.builder.tile.builders.navigation.AdaptiveNavigation
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingCall
 
 suspend fun RoutingCall.respondHome() {
     respond(
-        Screen(
-            id = "home",
-            events = {
-                DisplayBottomSheet(
-                    id = "#DISPLAY_BOTTOM_SHEET",
-                    trigger = EventTriggers.inline()
-                ) {
-                    SimpleText(
-                        id = "#SIMPLE_TEXT",
-                        text = "Hello there!"
-                    )
-                }
-            }
-        ) {
+        Screen(id = "home") {
             Column(
-                arrangement = arrangeSpaceBetween(),
-                alignment = alignHorizontallyToCenter(),
-                isScrollable = true,
                 style = {
                     windowInsets(windowInsetsSystemBars())
                     size(
@@ -48,192 +22,141 @@ suspend fun RoutingCall.respondHome() {
                     )
                 }
             ) {
-                TopAppBar(
-                    actions = {
-                        IconButton(
-                            id = "MENU_TESTER",
-                            icon = icon("settings"),
-                            buttonType = filledIconButton()
-                        )
-                    }
-                ) {
-                    SimpleText(text = "Mosaic")
-                }
-                NestedNavigationGraph(
+                AdaptiveNavigation(
                     navigatorId = "home",
                     startEntryId = "a",
                     style = {
                         size(
                             width = fillHorizontally(),
-                            height = weightVertically(1f)
-                        )
-                    },
-                    events = {
-                        UpdateTiles(
-                            trigger = EventTriggers.onNavigationEntrySet("a")
-                        ) {
-                            update(
-                                tileId = "NAV_BAR",
-                                data = mapOf("selectedItemId" to "a")
-                            )
-                        }
-                        UpdateTiles(
-                            trigger = EventTriggers.onNavigationEntrySet("b")
-                        ) {
-                            update(
-                                tileId = "NAV_BAR",
-                                data = mapOf("selectedItemId" to "b")
-                            )
-                        }
-                        UpdateTiles(
-                            trigger = EventTriggers.onNavigationEntrySet("c")
-                        ) {
-                            update(
-                                tileId = "NAV_BAR",
-                                data = mapOf("selectedItemId" to "c")
-                            )
-                        }
-                    }
-                ) {
-                    entry(
-                        screenId = "a",
-                        initialTiles = {
-                            Column(
-                                arrangement = arrangeToCenter(),
-                                alignment = alignHorizontallyToCenter(),
-                                tiles = {
-                                    SimpleText(
-                                        text = "Carregando",
-                                        style = {
-                                            size(
-                                                width = wrapHorizontally()
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        },
-                        failureTiles = {
-                            Column(
-                                arrangement = arrangeToCenter(),
-                                alignment = alignHorizontallyToCenter(),
-                                tiles = {
-                                    SimpleText(
-                                        text = "Error",
-                                        style = {
-                                            size(
-                                                width = wrapHorizontally()
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    )
-                    entry(
-                        screenId = "b",
-                        initialTiles = {
-                            Column(
-                                arrangement = arrangeToCenter(),
-                                alignment = alignHorizontallyToCenter(),
-                                tiles = {
-                                    SimpleText(
-                                        text = "Carregando",
-                                        style = {
-                                            size(
-                                                width = wrapHorizontally()
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        },
-                        failureTiles = {
-                            Column(
-                                arrangement = arrangeToCenter(),
-                                alignment = alignHorizontallyToCenter(),
-                                tiles = {
-                                    SimpleText(
-                                        text = "Error",
-                                        style = {
-                                            size(
-                                                width = wrapHorizontally()
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    )
-                    entry(
-                        screenId = "c",
-                        initialTiles = {
-                            Column(
-                                arrangement = arrangeToCenter(),
-                                alignment = alignHorizontallyToCenter(),
-                                tiles = {
-                                    SimpleText(
-                                        text = "Carregando",
-                                        style = {
-                                            size(
-                                                width = wrapHorizontally()
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        },
-                        failureTiles = {
-                            Column(
-                                arrangement = arrangeToCenter(),
-                                alignment = alignHorizontallyToCenter(),
-                                tiles = {
-                                    SimpleText(
-                                        text = "Error",
-                                        style = {
-                                            size(
-                                                width = wrapHorizontally()
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    )
-                }
-
-                NavigationBar(
-                    id = "NAV_BAR",
-                    selectedItemId = "a",
-                    events = {
-                        Navigate(
-                            trigger = EventTriggers.onNavigationBarItemClick("a"),
-                            navigatorId = "home",
-                            destination = "a",
-                        )
-                        Navigate(
-                            trigger = EventTriggers.onNavigationBarItemClick("b"),
-                            navigatorId = "home",
-                            destination = "b",
-                        )
-                        Navigate(
-                            trigger = EventTriggers.onNavigationBarItemClick("c"),
-                            navigatorId = "home",
-                            destination = "c",
+                            height = fillVertically()
                         )
                     }
                 ) {
-                    item(
+                    entry(
                         id = "a",
-                        icon = icon("hdr_auto")
+                        icon = icon("hdr_auto"),
+                        label = "Auto",
+                        initialTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Carregando")
+                            }
+                        },
+                        failureTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Error")
+                            }
+                        }
                     )
-                    item(
+                    entry(
                         id = "b",
-                        icon = icon("currency_bitcoin")
+                        icon = icon("currency_bitcoin"),
+                        label = "Bitcoin",
+                        initialTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Carregando")
+                            }
+                        },
+                        failureTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Error")
+                            }
+                        }
                     )
-                    item(
+                    entry(
                         id = "c",
-                        icon = icon("copyright")
+                        icon = icon("copyright"),
+                        label = "Copyright",
+                        initialTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Carregando")
+                            }
+                        },
+                        failureTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Error")
+                            }
+                        }
+                    )
+                    entry(
+                        id = "d",
+                        icon = icon("dialpad"),
+                        label = "Dialpad",
+                        initialTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Carregando")
+                            }
+                        },
+                        failureTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Error")
+                            }
+                        }
+                    )
+                    entry(
+                        id = "e",
+                        icon = icon("explicit"),
+                        label = "Explicit",
+                        initialTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Carregando")
+                            }
+                        },
+                        failureTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Error")
+                            }
+                        }
+                    )
+                    entry(
+                        id = "f",
+                        icon = icon("fire_extinguisher"),
+                        label = "Fire Extinguisher",
+                        initialTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Carregando")
+                            }
+                        },
+                        failureTiles = {
+                            Column(
+                                arrangement = arrangeToCenter(),
+                                alignment = alignHorizontallyToCenter()
+                            ) {
+                                SimpleText(text = "Error")
+                            }
+                        }
                     )
                 }
             }

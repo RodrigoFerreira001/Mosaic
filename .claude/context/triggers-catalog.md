@@ -183,11 +183,12 @@ Used as child event triggers after async operations (network, data, file, screen
 
 ---
 
-## Scroll Triggers
+## Scroll / Page Triggers
 
-| Trigger | @SerialName | Fired By |
-|---|---|---|
-| `OnScrolledEventTrigger` | `"OnScrolled"` | ScrollColumnTileEventSchema, ScrollRowTileEventSchema, ScrollPagerTileEventSchema |
+| Trigger | @SerialName | Fields | Fired By |
+|---|---|---|---|
+| `OnScrolledEventTrigger` | `"OnScrolled"` | `direction: ScrollDirection` (Top, Bottom, Start, End) | ScrollColumnTileEventSchema, ScrollRowTileEventSchema, ScrollPagerTileEventSchema |
+| `OnPageChangedEventTrigger` | `"OnPageChanged"` | `direction: Direction` (Start, End, Any, Index(index: Int)) | PagerTileSchema |
 
 ---
 
@@ -208,5 +209,5 @@ Used as child event triggers after async operations (network, data, file, screen
 | Menu | 1 |
 | Timer | 2 |
 | Permission | 2 |
-| Scroll | 1 |
+| Scroll / Page | 2 |
 | **Total** | **56** |

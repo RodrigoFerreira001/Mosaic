@@ -1,8 +1,14 @@
 package dev.catbit.mosaic.server.builder.event.builders.event
 
 import dev.catbit.mosaic.core.data.schemas.event.events.event.UpdateEventsEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.event.UpdateEventsEventSchema.Update
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
+import dev.catbit.mosaic.server.builder.GenericBuilder
+import dev.catbit.mosaic.server.builder.GenericBuilderScope
+import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
+import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -10,14 +16,14 @@ internal class UpdateEventsEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
-    private val updates: List<UpdateEventsEventSchema.Update>
+    private val updates: UpdateEventsUpdateBuilderScope.() -> Unit
 ) : EventSchemaBuilder<UpdateEventsEventSchema>() {
 
     override fun build() = UpdateEventsEventSchema(
         id = id,
         trigger = trigger,
         events = EventSchemaBuilderScope().apply(events).build(),
-        updates = updates
+        updates = UpdateEventsUpdateBuilderScope().apply(updates).build()
     )
 }
 
@@ -25,7 +31,7 @@ fun EventSchemaBuilderScope.UpdateEvents(
     id: String = randomUuid(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
-    updates: List<UpdateEventsEventSchema.Update>
+    updates: UpdateEventsUpdateBuilderScope.() -> Unit
 ) {
     addBuilder(
         UpdateEventsEventBuilder(
@@ -35,4 +41,36 @@ fun EventSchemaBuilderScope.UpdateEvents(
             updates = updates
         )
     )
+}
+
+class UpdateEventsUpdateBuilder(
+    private val eventId: String,
+    private val data: Map<String, AnySerializable?>
+) : GenericBuilder<Update>() {
+
+    override fun build() = Update(
+        eventId = eventId,
+        data = data
+    )
+}
+
+class UpdateEventsUpdateBuilderScope private constructor(): GenericBuilderScope<Update, UpdateEventsUpdateBuilder>() {
+
+    companion object {
+        internal operator fun invoke(
+            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
+        ) = UpdateEventsUpdateBuilderScope().apply { pushLocals(compositionLocals) }
+    }
+
+    fun update(
+        eventId: String,
+        data: Map<String, AnySerializable?>
+    ) {
+        addBuilder(
+            UpdateEventsUpdateBuilder(
+                eventId = eventId,
+                data = data
+            )
+        )
+    }
 }

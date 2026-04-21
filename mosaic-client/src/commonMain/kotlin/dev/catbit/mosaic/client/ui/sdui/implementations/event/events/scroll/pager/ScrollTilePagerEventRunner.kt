@@ -9,11 +9,13 @@ object ScrollTilePagerEventRunner : EventRunner<ScrollPagerTileEventSchema> {
 
     override fun EventRunningScope.runEvent(event: ScrollPagerTileEventSchema) {
         broadcastData(
-            when (event.where) {
-                ScrollPagerTileEventSchema.Where.Begin -> PagerTileBroadcastData.ScrollToBegin(event.tileId)
-                ScrollPagerTileEventSchema.Where.End -> PagerTileBroadcastData.ScrollToEnd(event.tileId)
-                ScrollPagerTileEventSchema.Where.NextPage -> PagerTileBroadcastData.ScrollToNextPage(event.tileId)
-                ScrollPagerTileEventSchema.Where.PreviousPage -> PagerTileBroadcastData.ScrollToPreviousPage(event.tileId)
+            with(event) {
+                when (event.where) {
+                    ScrollPagerTileEventSchema.Where.Begin -> PagerTileBroadcastData.ScrollToBegin(tileId, smoothly)
+                    ScrollPagerTileEventSchema.Where.End -> PagerTileBroadcastData.ScrollToEnd(tileId, smoothly)
+                    ScrollPagerTileEventSchema.Where.NextPage -> PagerTileBroadcastData.ScrollToNextPage(tileId, smoothly)
+                    ScrollPagerTileEventSchema.Where.PreviousPage -> PagerTileBroadcastData.ScrollToPreviousPage(tileId, smoothly)
+                }
             }
         )
     }

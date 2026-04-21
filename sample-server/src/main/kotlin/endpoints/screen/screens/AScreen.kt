@@ -1,34 +1,41 @@
 package dev.catbit.mosaic.endpoints.screen.screens
 
+import dev.catbit.mosaic.core.data.schemas.event.events.scroll.column.ScrollColumnTileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
+import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.endpoints.local_compositions.LocalNameProvider
-import dev.catbit.mosaic.server.builder.color.color
-import dev.catbit.mosaic.server.builder.color.themeColorOutline
 import dev.catbit.mosaic.server.builder.composition_local.CompositionLocalProvider
-import dev.catbit.mosaic.server.builder.data.fullAccessMode
-import dev.catbit.mosaic.server.builder.data.tile
-import dev.catbit.mosaic.server.builder.event.builders.data.GetData
 import dev.catbit.mosaic.server.builder.event.builders.data.ProcessData
-import dev.catbit.mosaic.server.builder.event.builders.data.TransformData
-import dev.catbit.mosaic.server.builder.event.builders.event.TriggerEvent
+import dev.catbit.mosaic.server.builder.event.builders.networking.SendNetworkRequest
 import dev.catbit.mosaic.server.builder.event.builders.screen.RefreshScreen
-import dev.catbit.mosaic.server.builder.event.builders.tiles.ReloadLazyTiles
+import dev.catbit.mosaic.server.builder.event.builders.tiles.AddTiles
+import dev.catbit.mosaic.server.builder.event.builders.tiles.RemoveTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.icon
-import dev.catbit.mosaic.server.builder.placement.alignHorizontallyToCenter
+import dev.catbit.mosaic.server.builder.event.builders.scroll.column.ScrollColumn
+import dev.catbit.mosaic.server.builder.placement.alignToBottomEnd
+import dev.catbit.mosaic.server.builder.placement.alignVerticallyToCenter
 import dev.catbit.mosaic.server.builder.placement.arrangeToCenter
 import dev.catbit.mosaic.server.builder.screen.Screen
-import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.IconButton
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.filledIconButton
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.outlinedIconButton
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Box
+import dev.catbit.mosaic.server.builder.tile.builders.grouping.Card
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
-import dev.catbit.mosaic.server.builder.tile.builders.grouping.LazyTiles
-import dev.catbit.mosaic.server.builder.tile.builders.grouping.Shimmer
+import dev.catbit.mosaic.server.builder.tile.builders.grouping.LazyColumn
+import dev.catbit.mosaic.server.builder.tile.builders.grouping.Row
 import dev.catbit.mosaic.server.builder.tile.builders.image.Icon
-import dev.catbit.mosaic.server.builder.tile.builders.inputs.TextField
+import dev.catbit.mosaic.server.builder.tile.builders.progress.CircularProgressIndicator
 import dev.catbit.mosaic.server.builder.tile.builders.search.SearchBar
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
+import dev.catbit.mosaic.server.builder.tile.gone
+import dev.catbit.mosaic.server.builder.tile.visible
+import dev.catbit.mosaic.server.builder.trigger.on_scrolled.onScrolledToBottom
+import dev.catbit.mosaic.server.builder.trigger.on_scrolled.onScrolledToTop
 import io.ktor.server.response.respond
 import io.ktor.server.routing.RoutingCall
+import kotlin.repeat
 
 suspend fun RoutingCall.respondA() {
     respond(
@@ -40,179 +47,166 @@ suspend fun RoutingCall.respondA() {
             ) {
                 Column(
                     style = {
-                        margin(top = 24)
                         size(height = fillVertically())
                     }
                 ) {
-                    SearchBar(
-                        placeholder = "Search something...",
-                        leadingIcon = {
-                            Icon(
-                                icon = icon("search")
-                            )
-                        },
+                    Row(
                         style = {
-                            margin(horizontal = 24)
+                            margin(horizontal = 24, bottom = 24)
                         }
-                    )
-
-                    LazyTiles(
-                        id = "LAZY#1",
-                        placeholderTiles = {
-                            Shimmer(
-                                style = {
-                                    clip(roundedCornerShape(16))
-                                    size(
-                                        height = fixedVertically(200)
-                                    )
-                                    margin(horizontal = 24, top = 24)
-                                }
-                            ) {
-                                Box(
-                                    style = {
-                                        background(color(themeColorOutline()))
-                                        size(
-                                            height = fillVertically(),
-                                            width = fillHorizontally()
-                                        )
-                                    }
-                                )
-                            }
-                        },
-                        failureTiles = {
-                            Column(
-                                style = {
-                                    size(
-                                        height = fixedVertically(200)
-                                    )
-                                    margin(horizontal = 24)
-                                },
-                                arrangement = arrangeToCenter(),
-                                alignment = alignHorizontallyToCenter()
-                            ) {
-                                Icon(icon = icon("error"))
-                                SimpleText(text = "Erro ao carregar tiles")
-                                Button(
-                                    text = "Recarregar",
-                                    events = {
-                                        ReloadLazyTiles(
-                                            trigger = EventTriggers.onClick(),
-                                            lazyTileId = "LAZY#1"
-                                        )
-                                    }
-                                )
-                            }
-                        },
-                        url = "http://192.168.3.84:9090/tiles/a"
-                    )
-
-                    Column(
-                        style = {
-                            size(height = fillVertically())
-                        },
-                        arrangement = arrangeToCenter(),
-                        alignment = alignHorizontallyToCenter()
                     ) {
-                        SimpleText(text = "Name: ${LocalNameProvider.current()}")
-                        Button(
-                            text = "Reload",
+                        SearchBar(
+                            placeholder = "Search something...",
+                            leadingIcon = {
+                                Icon(
+                                    icon = icon("search")
+                                )
+                            },
+                            style = {
+                                size(
+                                    width = weightHorizontally(1f)
+                                )
+                            }
+                        )
+
+                        IconButton(
+                            icon = icon("refresh"),
+                            buttonType = outlinedIconButton(),
                             events = {
                                 RefreshScreen(
                                     trigger = EventTriggers.onClick()
                                 )
                             },
                             style = {
-                                margin(horizontal = 24)
+                                size(
+                                    width = fixedHorizontally(56),
+                                    height = fixedVertically(56),
+                                )
+                                margin(start = 16)
                             }
                         )
-                        Button(
-                            text = "Enable IconButton",
+                    }
+
+                    Box(
+                        alignment = alignToBottomEnd(),
+                        style = {
+                            size(
+                                width = fillHorizontally(),
+                                height = weightVertically(1f)
+                            )
+                        }
+                    ) {
+                        LazyColumn(
+                            id = "PAGINATED_LIST",
+                            scrollThreshold = 10,
+                            style = {
+                                margin(horizontal = 24)
+                            },
                             events = {
                                 UpdateTiles(
-                                    trigger = EventTriggers.onClick(),
+                                    trigger = EventTriggers.onScrolled(direction = onScrolledToTop()),
                                     updates = {
                                         update(
-                                            tileId = "MENU_TESTER",
-                                            data = mapOf("enabled" to true)
+                                            tileId = "SCROLL_TO_TOP",
+                                            data = mapOf(
+                                                "visibility" to gone()
+                                            )
                                         )
                                     }
                                 )
-                            },
-                            style = {
-                                margin(horizontal = 24)
-                            }
-                        )
-                        Button(
-                            text = "Disable IconButton",
-                            events = {
                                 UpdateTiles(
-                                    trigger = EventTriggers.onClick(),
+                                    trigger = EventTriggers.onScrolled(direction = onScrolledToBottom()),
                                     updates = {
                                         update(
-                                            tileId = "MENU_TESTER",
-                                            data = mapOf("enabled" to false)
+                                            tileId = "SCROLL_TO_TOP",
+                                            data = mapOf(
+                                                "visibility" to visible()
+                                            )
                                         )
                                     }
                                 )
-                            },
-                            style = {
-                                margin(horizontal = 24)
-                            }
-                        )
-                        TextField(
-                            id = "#TEMPLATE_HELPER",
-                            style = {
-                                margin(horizontal = 24)
-                            }
-                        )
-                        Button(
-                            text = "Trigger event",
-                            events = {
-                                GetData(
-                                    trigger = EventTriggers.onClick(),
-                                    readings = {
-                                        reading(
-                                            dataSource = tile(
-                                                tileId = "#TEMPLATE_HELPER",
-                                                dataKey = "name"
-                                            ),
-                                            accessMode = fullAccessMode()
-                                        )
-                                    },
+                                SendNetworkRequest(
+                                    id = "PAGINATION_EVENT",
+                                    trigger = EventTriggers.onScrollThresholdReached(),
+                                    url = "http://192.168.3.84:9090/pagination?page=1",
+                                    method = HttpMethod.GET,
                                     events = {
-                                        TransformData(
-                                            trigger = EventTriggers.onSuccess(),
-                                            eventTemplate = {
-                                                UpdateTiles(
-                                                    trigger = EventTriggers.onSuccess(),
-                                                    updates = {
-                                                        update(
-                                                            tileId = "#SIMPLE_TEXT",
-                                                            data = mapOf(
-                                                                "text" to "<|name|>"
-                                                            )
-                                                        )
-                                                    }
-                                                )
-                                            },
-                                            events = {
-                                                ProcessData(
-                                                    trigger = EventTriggers.onSuccess(),
-                                                    processWith = "EVENT_RUNNER",
-                                                    events = {
-                                                        TriggerEvent(
-                                                            eventId = "#DISPLAY_BOTTOM_SHEET",
-                                                            trigger = EventTriggers.onSuccess()
-                                                        )
-                                                    }
-                                                )
+                                        AddTiles(
+                                            trigger = EventTriggers.onStart(),
+                                            groupingTileId = "PAGINATED_LIST"
+                                        ) {
+                                            Row(
+                                                id = "LOADING",
+                                                alignment = alignVerticallyToCenter(),
+                                                arrangement = arrangeToCenter()
+                                            ) {
+                                                CircularProgressIndicator()
                                             }
+                                        }
+                                        RemoveTiles(
+                                            trigger = EventTriggers.onFailure(),
+                                            groupingTileId = "PAGINATED_LIST",
+                                            tileIds = listOf("LOADING")
+                                        )
+                                        AddTiles(
+                                            trigger = EventTriggers.onFailure(),
+                                            groupingTileId = "PAGINATED_LIST"
+                                        ) {
+                                            Row(
+                                                id = "LOADING",
+                                                alignment = alignVerticallyToCenter(),
+                                                arrangement = arrangeToCenter()
+                                            ) {
+                                                SimpleText("Failure loading next page")
+                                            }
+                                        }
+                                        ProcessData(
+                                            trigger = EventTriggers.onSuccess(),
+                                            processWith = "EVENT_RUNNER"
                                         )
                                     }
                                 )
+                            }
+                        ) {
+                            repeat(30) { index ->
+                                Card(
+                                    style = {
+                                        margin(top = 8)
+                                    }
+                                ) {
+                                    Row(
+                                        style = {
+                                            padding(
+                                                horizontal = 16,
+                                                vertical = 8
+                                            )
+                                        }
+                                    ) {
+                                        SimpleText(index.toString())
+                                    }
+                                }
+                            }
+                        }
+
+                        IconButton(
+                            id = "SCROLL_TO_TOP",
+                            icon = icon("arrow_upward"),
+                            buttonType = filledIconButton(),
+                            visibility = gone(),
+                            events = {
+                                ScrollColumn(
+                                    trigger = EventTriggers.onClick(),
+                                    tileId = "PAGINATED_LIST",
+                                    where = ScrollColumnTileEventSchema.Where.Top,
+                                    smoothly = true
+                                )
                             },
                             style = {
-                                margin(horizontal = 24)
+                                margin(end = 24, bottom = 24)
+                                size(
+                                    width = fixedHorizontally(56),
+                                    height = fixedVertically(56),
+                                )
                             }
                         )
                     }

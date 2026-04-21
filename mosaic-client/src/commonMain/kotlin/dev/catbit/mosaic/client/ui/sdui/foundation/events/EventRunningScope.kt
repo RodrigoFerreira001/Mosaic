@@ -97,7 +97,7 @@ data class EventRunningScope(
 //    ): T = koinScope.get(clazz, qualifier, parameters)
     ): T = KoinPlatform.getKoin().get(clazz, qualifier, parameters)
 
-    inline fun <reified T: Any> getAll(): List<T> = getAll(T::class)
+    inline fun <reified T : Any> getAll(): List<T> = getAll(T::class)
 
     fun <T : Any> getAll(
         clazz: KClass<T>,
@@ -123,14 +123,9 @@ data class EventRunningScope(
 
     fun logError(
         throwable: Throwable,
-        tag: String = "MosaicCommonError",
+        tag: String,
     ) {
-        koinScope.get<MosaicLogger>().error(
-            """
-                Tag: $tag
-                Error: ${throwable.printStackTrace()}
-            """.trimIndent()
-        )
+        koinScope.get<MosaicLogger>().error("$tag: ${throwable.stackTraceToString()}")
     }
 
     fun log(

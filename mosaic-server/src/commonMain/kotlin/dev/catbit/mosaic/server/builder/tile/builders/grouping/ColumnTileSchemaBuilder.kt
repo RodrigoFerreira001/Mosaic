@@ -20,8 +20,7 @@ internal class ColumnTileSchemaBuilder(
     private val visibility: TileSchema.Visibility,
     private val arrangement: ArrangementSchema.Vertical,
     private val alignment: AlignmentSchema.Horizontal,
-    private val isScrollable: Boolean,
-    private val lazyRender: Boolean
+    private val scrollable: Boolean,
 ) : TileSchemaBuilder<ColumnTileSchema>() {
 
     override fun build() = ColumnTileSchema(
@@ -32,8 +31,7 @@ internal class ColumnTileSchemaBuilder(
         visibility = visibility,
         arrangement = arrangement,
         alignment = alignment,
-        isScrollable = isScrollable,
-        lazyRender = lazyRender
+        scrollable = scrollable,
     )
 }
 
@@ -44,8 +42,7 @@ fun TileSchemaBuilderScope.Column(
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     arrangement: ArrangementSchema.Vertical = arrangeVerticallyToTop(),
     alignment: AlignmentSchema.Horizontal = alignHorizontallyToStart(),
-    isScrollable: Boolean = false,
-    lazyRender: Boolean = false,
+    scrollable: Boolean = false,
     tiles: TileSchemaBuilderScope.() -> Unit,
 ) {
     addBuilder(
@@ -57,8 +54,7 @@ fun TileSchemaBuilderScope.Column(
             visibility = visibility,
             arrangement = arrangement,
             alignment = alignment,
-            isScrollable = isScrollable,
-            lazyRender = lazyRender
+            scrollable = scrollable,
         )
     )
 }

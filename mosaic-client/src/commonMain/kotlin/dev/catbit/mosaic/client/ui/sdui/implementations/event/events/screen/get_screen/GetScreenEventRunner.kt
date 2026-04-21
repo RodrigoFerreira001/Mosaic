@@ -23,7 +23,10 @@ object GetScreenEventRunner : EventRunner<GetScreenEventSchema> {
                     )
                 }
                 .onFailure { failure ->
-                    logError(failure)
+                    logError(
+                        tag = "GetScreenEventRunner",
+                        throwable = failure
+                    )
                     onTrigger(
                         eventTrigger = EventTriggers.onFailure(),
                         data = failure

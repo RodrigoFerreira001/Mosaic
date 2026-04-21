@@ -7,6 +7,7 @@ import dev.catbit.mosaic.client.data.data_chest.JvmDataChest
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import java.io.File
 import java.util.prefs.Preferences
 import kotlinx.coroutines.Dispatchers
 import org.koin.core.qualifier.named
@@ -17,7 +18,10 @@ internal actual val platformModule = module {
 
     single<DataChest> {
         val applicationId = get<String>(named("APPLICATION_ID"))
-        JvmDataChest(Preferences.userRoot().node("Mosaic").node(applicationId))
+        JvmDataChest(
+            preferences = Preferences.userRoot().node("Mosaic").node(applicationId),
+            dataDir = File(System.getProperty("user.home"), "$applicationId/data").also { it.mkdirs() }
+        )
     }
 
     single<MosaicRoomDatabase> {

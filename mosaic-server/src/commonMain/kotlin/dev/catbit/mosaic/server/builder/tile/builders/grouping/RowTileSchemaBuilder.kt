@@ -20,8 +20,7 @@ internal class RowTileSchemaBuilder(
     private val visibility: TileSchema.Visibility,
     private val arrangement: ArrangementSchema.Horizontal,
     private val alignment: AlignmentSchema.Vertical,
-    private val isScrollable: Boolean,
-    private val lazyRender: Boolean
+    private val scrollable: Boolean,
 ) : TileSchemaBuilder<RowTileSchema>() {
 
     override fun build() = RowTileSchema(
@@ -32,21 +31,19 @@ internal class RowTileSchemaBuilder(
         visibility = visibility,
         arrangement = arrangement,
         alignment = alignment,
-        isScrollable = isScrollable,
-        lazyRender = lazyRender
+        scrollable = scrollable,
     )
 }
 
 fun TileSchemaBuilderScope.Row(
     id: String = randomUuid(),
-    tiles: TileSchemaBuilderScope.() -> Unit,
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     arrangement: ArrangementSchema.Horizontal = arrangeHorizontallyToStart(),
     alignment: AlignmentSchema.Vertical = alignVerticallyToTop(),
-    isScrollable: Boolean = false,
-    lazyRender: Boolean = false
+    scrollable: Boolean = false,
+    tiles: TileSchemaBuilderScope.() -> Unit
 ) {
     addBuilder(
         RowTileSchemaBuilder(
@@ -57,8 +54,7 @@ fun TileSchemaBuilderScope.Row(
             visibility = visibility,
             arrangement = arrangement,
             alignment = alignment,
-            isScrollable = isScrollable,
-            lazyRender = lazyRender
+            scrollable = scrollable,
         )
     )
 }
