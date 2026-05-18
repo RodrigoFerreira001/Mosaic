@@ -20,10 +20,8 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.core.BytePacketBuilder
-import io.ktor.utils.io.core.build
-import io.ktor.utils.io.core.writeFully
 import io.ktor.utils.io.readAvailable
+import kotlinx.io.Buffer
 import kotlinx.io.readByteArray
 
 class MosaicNetworkImpl(
@@ -103,7 +101,7 @@ class MosaicNetworkImpl(
                 }
 
                 val channel: ByteReadChannel = response.bodyAsChannel()
-                val builder = BytePacketBuilder()
+                val builder = Buffer()
                 val buffer = ByteArray(8192)
 
                 while (!channel.isClosedForRead) {
@@ -114,10 +112,10 @@ class MosaicNetworkImpl(
 
                     onBytesReceived(chunk)
 
-                    builder.writeFully(chunk)
+                    builder.write(chunk)
                 }
 
-                val completeArray = builder.build().readByteArray()
+                val completeArray = builder.readByteArray()
                 onDownloadFinished(completeArray)
             }
         } catch (e: Throwable) {

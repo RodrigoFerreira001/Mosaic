@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.android.kotlin.multiplatform.library)
+    alias(libs.plugins.android.multiplatform.library)
     alias(libs.plugins.vanniktech.mavenPublish)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.compiler)
@@ -15,26 +15,28 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
-group = "dev.catbit"
-version = "1.0.0"
+mavenPublishing {
+    coordinates(
+        groupId = "dev.catbit",
+        artifactId = "mosaic-client",
+        version = "1.0.0"
+    )
+}
 
 kotlin {
-    applyDefaultHierarchyTemplate()
 
-    androidLibrary {
+    android {
         namespace = "dev.catbit.mosaic.client"
         compileSdk = libs.versions.android.compileSdk.get().toInt()
         minSdk = libs.versions.android.minSdk.get().toInt()
 
-        withJava() // enable java compilation support
-
-        compilations.configureEach {
-            compileTaskProvider.configure {
-                compilerOptions.jvmTarget = JvmTarget.JVM_11
-            }
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
         }
 
-        androidResources.enable = true
+        androidResources {
+            enable = true
+        }
     }
 
     listOf(
@@ -45,7 +47,9 @@ kotlin {
             linkerOpts("-lsqlite3")
         }
     }
+
     jvm()
+
     wasmJs {
         browser()
         nodejs()
@@ -54,19 +58,19 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             // Mosaic core
-            implementation(project(":mosaic-core"))
+            implementation(projects.mosaicCore)
 
             // Room 3
             implementation(libs.room3.runtime)
 
             // Compose
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(compose.preview)
+            implementation(libs.compose.runtime)
+            implementation(libs.compose.foundation)
+            implementation(libs.compose.material3)
+            implementation(libs.compose.ui)
+            implementation(libs.compose.components.resources)
+            implementation(libs.compose.components.ui.tooling.preview)
+            implementation(libs.compose.ui.tooling.preview)
 
             // Navigation
             implementation(libs.compose.navigation3.ui)
@@ -134,14 +138,16 @@ kotlin {
             // OPFS file handler (dedicated Web Worker)
             implementation(npm("opfs-wasm-worker", layout.projectDirectory.dir("opfsWorker").asFile))
         }
-
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-        }
     }
 
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+}
+
+afterEvaluate {
+    tasks.named("extractAndroidMainAnnotations") {
+        dependsOn("kspAndroidMain")
     }
 }
 

@@ -6,7 +6,6 @@ import androidx.compose.animation.shrinkOut
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -22,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.SearchBarDefaults.inputFieldColors
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
@@ -186,19 +184,4 @@ object SearchBarTileRenderer : TileRenderer<SearchBarTileSchema> {
             )
         }
     }
-
-    private fun TextFieldColors.textColor(
-        enabled: Boolean,
-        isError: Boolean,
-        focused: Boolean,
-    ): Color = when {
-        !enabled -> disabledTextColor
-        isError -> errorTextColor
-        focused -> focusedTextColor
-        else -> unfocusedTextColor
-    }
-
-    private fun TextFieldColors.cursorColor(isError: Boolean): Color =
-        if (isError) errorCursorColor else cursorColor
-
 }

@@ -36,7 +36,13 @@
 - [ ] Fazer teste inicial do server + cliente (com actions de GetScreen)
 - [ ] Adicionar todos os tiles restantes (pelo menos o contrato)
 - [ ] Mudar tudo o que EventSchema e TileSchema que use List<> para utilizar ImmutableList<>
+- [ ] Revisar mecanismo de cache / offline
+- [ ] Animação entre telas
 
 # Bugs
 - [ ] Configuração está sendo perdida com config change
 - [ ] Lazy tile sendo recarregado todas as vezes quando ocorre navegação
+
+# Now
+- [ ] Edge to edge
+- [ ] Adaptive layout (maybe upgrade compose)

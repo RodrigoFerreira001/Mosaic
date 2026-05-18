@@ -9,7 +9,7 @@ inline fun <reified R> MutableStateFlow<*>.updateAs(
 ) {
     @Suppress("UNCHECKED_CAST")
     (this as? MutableStateFlow<R>)?.let {
-        withNotNull(value as? R) {
+        withNotNull(value) {
             update { block() }
         }
     }

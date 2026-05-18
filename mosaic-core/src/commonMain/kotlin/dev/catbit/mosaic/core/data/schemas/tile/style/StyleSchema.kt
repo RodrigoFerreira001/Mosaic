@@ -17,8 +17,8 @@ data class StyleSchema(
     companion object {
         fun default() = StyleSchema(
             size = SizeSchema (
-                width = SizeSchema.Behavior.Horizontal.Fill,
-                height = SizeSchema.Behavior.Vertical.Fill
+                width = SizeSchema.Behavior.Horizontal.Fill(),
+                height = SizeSchema.Behavior.Vertical.Fill()
             )
         )
     }

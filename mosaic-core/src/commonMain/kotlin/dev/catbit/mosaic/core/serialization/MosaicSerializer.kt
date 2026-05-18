@@ -116,6 +116,8 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.BoxTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CardTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CarouselTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ColumnTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.FlexBoxTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.FlowRowTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyColumnTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyRowTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.GridTileSchema
@@ -359,7 +361,9 @@ class MosaicSerializer(
             AsyncImageTileSchema::class to AsyncImageTileSchema.serializer(),
             IconTileSchema::class to IconTileSchema.serializer(),
             NestedNavigationGraphTileSchema::class to NestedNavigationGraphTileSchema.serializer(),
-            LazyTilesTileSchema::class to LazyTilesTileSchema.serializer()
+            LazyTilesTileSchema::class to LazyTilesTileSchema.serializer(),
+            FlowRowTileSchema::class to FlowRowTileSchema.serializer(),
+            FlexBoxTileSchema::class to FlexBoxTileSchema.serializer()
         )
 
     private val defaultEventSerializers

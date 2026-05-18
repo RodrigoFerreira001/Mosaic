@@ -11,7 +11,7 @@ import dev.catbit.mosaic.server.builder.event.builders.screen.RefreshScreen
 import dev.catbit.mosaic.server.builder.event.builders.tiles.AddTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.RemoveTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
-import dev.catbit.mosaic.server.builder.icon
+import dev.catbit.mosaic.server.builder.icon.icon
 import dev.catbit.mosaic.server.builder.event.builders.scroll.column.ScrollColumn
 import dev.catbit.mosaic.server.builder.placement.alignToBottomEnd
 import dev.catbit.mosaic.server.builder.placement.alignVerticallyToCenter

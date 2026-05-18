@@ -14,7 +14,27 @@ data class CarouselTileSchema(
     @SerialName("events") override val events: List<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
-    @SerialName("contentHorizontalPadding") val contentHorizontalPadding: Int,
-    @SerialName("columns") val columns: Int,
-    @SerialName("gutter") val gutter: Int
-) : TileSchema
+    @SerialName("type") val type: CarouselTypeSchema,
+    @SerialName("itemSpacing") val itemSpacing: Int = 0,
+    @SerialName("contentPadding") val contentPadding: Int = 0,
+    @SerialName("userScrollEnabled") val userScrollEnabled: Boolean = true
+) : TileSchema {
+
+    @Serializable
+    sealed interface CarouselTypeSchema {
+
+        @Serializable
+        @SerialName("multiBrowse")
+        data class MultiBrowse(
+            @SerialName("preferredItemWidth") val preferredItemWidth: Int,
+            @SerialName("minSmallItemWidth") val minSmallItemWidth: Int? = null,
+            @SerialName("maxSmallItemWidth") val maxSmallItemWidth: Int? = null
+        ) : CarouselTypeSchema
+
+        @Serializable
+        @SerialName("uncontained")
+        data class Uncontained(
+            @SerialName("itemWidth") val itemWidth: Int
+        ) : CarouselTypeSchema
+    }
+}

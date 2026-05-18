@@ -3,7 +3,7 @@ package dev.catbit.mosaic.endpoints.events
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.server.builder.event.EventList
 import dev.catbit.mosaic.server.builder.event.builders.overlays.bottom_sheet.DisplayBottomSheet
-import dev.catbit.mosaic.server.builder.icon
+import dev.catbit.mosaic.server.builder.icon.icon
 import dev.catbit.mosaic.server.builder.placement.alignHorizontallyToCenter
 import dev.catbit.mosaic.server.builder.placement.arrangeToCenter
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column

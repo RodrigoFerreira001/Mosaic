@@ -18,7 +18,7 @@ data class SizeSchema(
 
             @Serializable
             @SerialName("fill")
-            data object Fill : Horizontal
+            data class Fill(val max: Int? = null) : Horizontal
 
             @Serializable
             @SerialName("wrap")
@@ -26,9 +26,7 @@ data class SizeSchema(
 
             @Serializable
             @SerialName("fixed")
-            data class Fixed(
-                @SerialName("value") val value: Int
-            ) : Horizontal
+            data class Fixed(@SerialName("value") val value: Int) : Horizontal
 
             @Serializable
             @SerialName("weight")
@@ -39,8 +37,48 @@ data class SizeSchema(
             @Serializable
             @SerialName("span")
             data class Span(
-                @SerialName("") val value: Int
+                @SerialName("value") val value: Int
             ) : Horizontal
+
+            @Serializable
+            @SerialName("flex")
+            data class Flex(
+                @SerialName("grow") val grow: Float?,
+                @SerialName("shrink") val shrink: Float?,
+                @SerialName("basis") val basis: FlexBasis?,
+                @SerialName("alignSelf") val alignSelf: FlexAlignSelf?,
+                @SerialName("order") val order: Int?
+            ) : Horizontal {
+
+                @Serializable
+                sealed interface FlexBasis {
+                    @Serializable
+                    @SerialName("auto")
+                    data object Auto : FlexBasis
+
+                    @Serializable
+                    @SerialName("fixed")
+                    data class Fixed(
+                        @SerialName("value") val value: Int
+                    ) : FlexBasis
+
+                    @Serializable
+                    @SerialName("fraction")
+                    data class Fraction(
+                        @SerialName("value") val value: Float
+                    ) : FlexBasis
+                }
+
+                @Serializable
+                enum class FlexAlignSelf {
+                    Auto,
+                    Start,
+                    Center,
+                    End,
+                    Stretch,
+                    Baseline
+                }
+            }
         }
 
         @Serializable
@@ -49,11 +87,17 @@ data class SizeSchema(
 
             @Serializable
             @SerialName("fill")
-            data object Fill : Vertical
+            data class Fill(val max: Int? = null) : Vertical
 
             @Serializable
             @SerialName("wrap")
             data object Wrap : Vertical
+
+            @Serializable
+            @SerialName("fixed")
+            data class Fixed(
+                @SerialName("value") val value: Int
+            ) : Vertical
 
             @Serializable
             @SerialName("weight")
@@ -62,9 +106,15 @@ data class SizeSchema(
             ) : Vertical
 
             @Serializable
-            @SerialName("fixed")
-            data class Fixed(
+            @SerialName("span")
+            data class Span(
                 @SerialName("value") val value: Int
+            ) : Vertical
+
+            @Serializable
+            @SerialName("fillRow")
+            data class FillRow(
+                @SerialName("fraction") val fraction: Float = 1f
             ) : Vertical
         }
     }

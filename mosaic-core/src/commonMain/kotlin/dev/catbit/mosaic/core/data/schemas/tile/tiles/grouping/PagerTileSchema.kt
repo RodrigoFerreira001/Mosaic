@@ -21,7 +21,21 @@ data class PagerTileSchema(
     @SerialName("events") override val events: List<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
-    @SerialName("columns") val columns: Int,
-    @SerialName("gutter") val gutter: Int,
-    @SerialName("contentHorizontalPadding") val contentHorizontalPadding: Int
-) : TileSchema
+    @SerialName("pageSize") val pageSize: PageSizeSchema = PageSizeSchema.Fill,
+    @SerialName("pageSpacing") val pageSpacing: Int = 0,
+    @SerialName("contentPadding") val contentPadding: Int = 0,
+    @SerialName("beyondViewportPageCount") val beyondViewportPageCount: Int = 0
+) : TileSchema {
+
+    @Serializable
+    sealed interface PageSizeSchema {
+
+        @Serializable
+        @SerialName("fill")
+        data object Fill : PageSizeSchema
+
+        @Serializable
+        @SerialName("fixed")
+        data class Fixed(@SerialName("value") val value: Int) : PageSizeSchema
+    }
+}

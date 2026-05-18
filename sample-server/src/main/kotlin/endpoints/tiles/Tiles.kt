@@ -1,6 +1,6 @@
 package dev.catbit.mosaic.endpoints.tiles
 
-import dev.catbit.mosaic.server.builder.icon
+import dev.catbit.mosaic.server.builder.icon.icon
 import dev.catbit.mosaic.server.builder.placement.alignHorizontallyToCenter
 import dev.catbit.mosaic.server.builder.placement.arrangeToCenter
 import dev.catbit.mosaic.server.builder.tile.TileList
