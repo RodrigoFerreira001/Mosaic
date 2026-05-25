@@ -3,7 +3,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.grouping
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyTilesTileSchema
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
@@ -38,7 +38,7 @@ internal class LazyTilesTileSchemaBuilder(
 }
 
 fun TileSchemaBuilderScope.LazyTiles(
-    id: String = randomUuid(),
+    id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,

@@ -6,7 +6,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.data.EvaluateDataEventSc
 import dev.catbit.mosaic.core.data.schemas.event.events.data.EvaluateDataEventSchema.Expression.DataExpression.Data
 import dev.catbit.mosaic.core.data.schemas.event.events.data.EvaluateDataEventSchema.Expression.DataExpression.Operation
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
@@ -28,7 +28,7 @@ class EvaluateDataEventBuilder(
 }
 
 fun EventSchemaBuilderScope.EvaluateData(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     expression: EvaluateDataEventSchema.Expression

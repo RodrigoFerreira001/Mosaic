@@ -38,7 +38,7 @@ data class UpdateDataEventSchema(
             @SerialName("Inline")
             data class Inline(
                 @SerialName("data")
-                val data: AnySerializable
+                val data: Map<String, AnySerializable>
             ) : UpdateDate
         }
     }

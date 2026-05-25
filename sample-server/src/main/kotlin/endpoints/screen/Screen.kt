@@ -10,7 +10,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 
 fun Route.screen() {
-    get("screen/{screenId}") {
+    get("screens/{screenId}") {
         when (val screenId = call.pathParameters["screenId"]) {
             "home" -> call.respondHome()
             "a" -> call.respondA()

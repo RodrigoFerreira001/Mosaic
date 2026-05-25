@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.event.builders.overlays.dialog
 
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DismissDialogEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -20,7 +20,7 @@ internal class DismissDialogEventBuilder(
 }
 
 fun EventSchemaBuilderScope.DismissDialog(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {}
 ) {

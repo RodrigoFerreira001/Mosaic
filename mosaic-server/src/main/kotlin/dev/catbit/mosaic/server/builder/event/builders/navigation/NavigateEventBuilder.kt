@@ -3,7 +3,7 @@ package dev.catbit.mosaic.server.builder.event.builders.navigation
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEventSchema.PopUpTo
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
@@ -38,7 +38,7 @@ fun poppingUpTo(
 )
 
 fun EventSchemaBuilderScope.Navigate(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     destination: String,

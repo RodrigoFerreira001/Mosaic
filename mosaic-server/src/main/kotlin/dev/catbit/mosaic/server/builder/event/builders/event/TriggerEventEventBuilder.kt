@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.event.builders.event
 
 import dev.catbit.mosaic.core.data.schemas.event.events.event.TriggerEventEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -22,7 +22,7 @@ internal class TriggerEventEventBuilder(
 }
 
 fun EventSchemaBuilderScope.TriggerEvent(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     eventId: String

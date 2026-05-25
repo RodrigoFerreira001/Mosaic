@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.event.builders.menu
 
 import dev.catbit.mosaic.core.data.schemas.event.events.menu.ToggleMenuEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -22,7 +22,7 @@ internal class ToggleMenuEventBuilder(
 }
 
 fun EventSchemaBuilderScope.ToggleMenu(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     menuId: String

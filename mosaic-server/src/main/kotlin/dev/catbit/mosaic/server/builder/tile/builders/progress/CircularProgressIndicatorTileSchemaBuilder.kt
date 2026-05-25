@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.progress
 
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.progress.CircularProgressIndicatorTileSchema
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -26,7 +26,7 @@ internal class CircularProgressIndicatorTileSchemaBuilder(
 }
 
 fun TileSchemaBuilderScope.CircularProgressIndicator(
-    id: String = randomUuid(),
+    id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {
         size(

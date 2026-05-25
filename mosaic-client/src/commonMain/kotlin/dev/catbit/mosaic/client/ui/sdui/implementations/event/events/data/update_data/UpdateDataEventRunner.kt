@@ -82,6 +82,6 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
         incomingData: Any?
     ) = when (update) {
         UpdateDataEventSchema.Update.UpdateDate.Incoming -> incomingData.asMapAny()
-        is UpdateDataEventSchema.Update.UpdateDate.Inline -> update.data.asMapAny()
+        is UpdateDataEventSchema.Update.UpdateDate.Inline -> update.data
     }
 }

@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.grouping
 
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PullToRefreshTileSchema
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -28,7 +28,7 @@ internal class PullToRefreshTileSchemaBuilder(
 }
 
 fun TileSchemaBuilderScope.PullToRefresh(
-    id: String = randomUuid(),
+    id: String = randomId(),
     tiles: TileSchemaBuilderScope.() -> Unit,
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},

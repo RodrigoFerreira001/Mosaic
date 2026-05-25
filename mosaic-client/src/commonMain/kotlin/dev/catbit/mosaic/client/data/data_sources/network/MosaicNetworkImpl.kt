@@ -39,7 +39,7 @@ class MosaicNetworkImpl(
         screenId: String,
         headers: Map<String, String>?,
     ): Result<ScreenResponse> = safeNetworkCall {
-        httpClient.get(urlString = "$baseUrl/screen/$screenId") {
+        httpClient.get(urlString = "$baseUrl/screens/$screenId") {
             headers?.forEach { (key, value) ->
                 header(key, value)
             }

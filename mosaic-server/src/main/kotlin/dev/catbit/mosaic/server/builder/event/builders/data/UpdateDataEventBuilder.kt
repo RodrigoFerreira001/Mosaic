@@ -4,7 +4,8 @@ import dev.catbit.mosaic.core.data.schemas.event.data.DataSourceSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema.Update
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
+import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
 import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
@@ -28,7 +29,7 @@ internal class UpdateDataEventBuilder(
 }
 
 fun EventSchemaBuilderScope.UpdateData(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     updates: UpdateDataUpdateBuilderScope.() -> Unit
@@ -74,3 +75,7 @@ class UpdateDataUpdateBuilderScope private constructor(): GenericBuilderScope<Up
         )
     }
 }
+
+fun incomingUpdateData() = Update.UpdateDate.Incoming
+fun inlineUpdateData(data: Map<String, AnySerializable>) = Update.UpdateDate.Inline(data)
+fun inlineUpdateData(vararg data: Pair<String, AnySerializable>) = Update.UpdateDate.Inline(data.toMap())

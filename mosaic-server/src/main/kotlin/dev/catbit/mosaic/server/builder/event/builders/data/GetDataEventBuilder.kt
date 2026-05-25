@@ -5,7 +5,7 @@ import dev.catbit.mosaic.core.data.schemas.event.data.DataSourceSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.GetDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.GetDataEventSchema.Reading
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
 import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
@@ -29,7 +29,7 @@ internal class GetDataEventBuilder(
 }
 
 fun EventSchemaBuilderScope.GetData(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     readings: GetDataReadingBuilderScope.() -> Unit

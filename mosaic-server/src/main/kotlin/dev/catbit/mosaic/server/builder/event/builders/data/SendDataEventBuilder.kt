@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.event.builders.data
 
 import dev.catbit.mosaic.core.data.schemas.event.events.data.SendDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
@@ -25,7 +25,7 @@ internal class SendDataEventBuilder(
 }
 
 fun EventSchemaBuilderScope.SendData(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     dataKey: String,

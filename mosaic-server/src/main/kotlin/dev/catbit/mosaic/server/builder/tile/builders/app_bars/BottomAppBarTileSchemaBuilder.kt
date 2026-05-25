@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.app_bars
 
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.app_bars.BottomAppBarTileSchema
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -28,7 +28,7 @@ internal class BottomAppBarTileSchemaBuilder(
 }
 
 fun TileSchemaBuilderScope.BottomAppBar(
-    id: String = randomUuid(),
+    id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,

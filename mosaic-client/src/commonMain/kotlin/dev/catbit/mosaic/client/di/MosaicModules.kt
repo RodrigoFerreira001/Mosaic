@@ -7,6 +7,7 @@ import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystemImpl
 import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetwork
 import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetworkImpl
+import dev.catbit.mosaic.client.data.data_sources.network.plugins.MosaicHeadersPlugin
 import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorage
 import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorageImpl
 import dev.catbit.mosaic.client.data.repository.MosaicRepository
@@ -29,7 +30,6 @@ import dev.catbit.mosaic.client.domain.download.DownloadFileUseCase
 import dev.catbit.mosaic.client.domain.graph.GetInitialGraphUseCase
 import dev.catbit.mosaic.client.domain.screen.GetScreenUseCase
 import dev.catbit.mosaic.client.domain.send_request.SendNetworkRequestUseCase
-import dev.catbit.mosaic.client.logger.DefaultMosaicLoggerImpl
 import dev.catbit.mosaic.client.logger.MosaicLogger
 import dev.catbit.mosaic.client.ui.sdui.foundation.data_mailer.DataMailer
 import dev.catbit.mosaic.client.ui.sdui.foundation.data_processor.DataProcessor
@@ -96,9 +96,9 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.box.
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.card.CardTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.carousel.CarouselTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.grid.GridTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.lazy_column.LazyColumnTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.lazy_row.LazyRowTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.grid.GridTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.lazy_tiles.LazyTilesTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pager.PagerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pull_to_refresh.PullToRefreshTileDefinition
@@ -141,6 +141,7 @@ internal class MosaicModules(
     applicationId: String,
     baseUrl: String,
     additionalModule: Module = module { },
+    logger: MosaicLogger,
     tileDefinitions: List<TileDefinition<out TileSchema>> = emptyList(),
     eventDefinitions: List<EventDefinition<out EventSchema>> = emptyList()
 ) {
@@ -165,7 +166,7 @@ internal class MosaicModules(
         single { ScreenExtrasHolder() }
         single { NavigatorsHolder() }
         single { DataMailer() }
-        single<MosaicLogger> { DefaultMosaicLoggerImpl() }
+        single<MosaicLogger> { logger }
     }
 
     private val dataModule = module {
@@ -187,6 +188,7 @@ internal class MosaicModules(
                     install(ContentNegotiation) {
                         json(get<MosaicSerializer>().json)
                     }
+                    install(MosaicHeadersPlugin)
                 }
             )
         }

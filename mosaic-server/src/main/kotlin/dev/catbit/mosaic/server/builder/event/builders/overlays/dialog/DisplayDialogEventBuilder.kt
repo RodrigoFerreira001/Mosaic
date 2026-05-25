@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.event.builders.overlays.dialog
 
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DisplayDialogEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
@@ -27,7 +27,7 @@ internal class DisplayDialogEventBuilder(
 }
 
 fun EventSchemaBuilderScope.DisplayDialog(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     isCancellable: Boolean = true,

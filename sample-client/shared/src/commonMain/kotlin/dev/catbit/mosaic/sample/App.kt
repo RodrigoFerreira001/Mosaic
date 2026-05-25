@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.sample
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import dev.catbit.mosaic.client.application.MosaicApplication
 import dev.catbit.mosaic.sample.ui.theme.darkColorScheme
@@ -10,8 +11,11 @@ import dev.catbit.mosaic.sample.ui.theme.lightColorScheme
 fun App() {
     MosaicApplication(
         applicationId = "MosaicSample",
-        baseUrl = "http://192.168.3.84:9090",
+        baseUrl = "http://192.168.3.100:9090",
 //        baseUrl = "http://localhost:8080",
-        colorScheme = if (isSystemInDarkTheme()) darkColorScheme else lightColorScheme
+        colorScheme = if (isSystemInDarkTheme()) darkColorScheme else lightColorScheme,
+        appSplash = {
+            Text("Sample App")
+        }
     )
 }

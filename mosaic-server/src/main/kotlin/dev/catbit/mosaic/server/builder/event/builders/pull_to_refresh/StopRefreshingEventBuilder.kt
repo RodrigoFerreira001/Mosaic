@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.event.builders.pull_to_refresh
 
 import dev.catbit.mosaic.core.data.schemas.event.events.pull_to_refresh.StopRefreshingEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -22,7 +22,7 @@ internal class StopRefreshingEventBuilder(
 }
 
 fun EventSchemaBuilderScope.StopRefreshing(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     tileId: String

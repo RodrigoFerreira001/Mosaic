@@ -25,7 +25,9 @@ suspend fun RoutingCall.respondB() {
                 arrangement = arrangeToCenter(),
                 alignment = alignHorizontallyToCenter()
             ) {
-                SimpleText(text = "Tela B")
+                request.headers.forEach { key, values ->
+                    SimpleText(text = "$key $values")
+                }
                 Button(
                     text = "Reload",
                     events = {

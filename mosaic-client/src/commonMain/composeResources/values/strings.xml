@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="mosaic_failure_title">Something went wrong</string>
+    <string name="mosaic_failure_details">We couldn't load the content. Please check your connection and try again.</string>
+    <string name="mosaic_failure_retry">Try again</string>
+</resources>

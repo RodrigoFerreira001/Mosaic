@@ -152,6 +152,9 @@ afterEvaluate {
 }
 
 dependencies {
+
+    androidRuntimeClasspath(libs.compose.ui.tooling)
+
     add("kspAndroid", libs.room3.compiler)
     add("kspJvm", libs.room3.compiler)
     add("kspIosArm64", libs.room3.compiler)

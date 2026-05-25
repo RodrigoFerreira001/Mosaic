@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.event.builders.tiles
 
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.WipeTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -22,7 +22,7 @@ internal class WipeTilesEventBuilder(
 }
 
 fun EventSchemaBuilderScope.WipeTiles(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     groupingTileId: String

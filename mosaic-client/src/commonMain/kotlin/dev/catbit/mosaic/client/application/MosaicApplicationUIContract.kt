@@ -8,8 +8,7 @@ sealed interface State {
         val graph: GraphUIState
     ): State
     data class Failure(
-        val title: String,
-        val details: String
+        val loading: Boolean = false
     ) : State
 }
 

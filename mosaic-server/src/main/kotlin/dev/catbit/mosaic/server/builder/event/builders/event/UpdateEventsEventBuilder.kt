@@ -3,7 +3,7 @@ package dev.catbit.mosaic.server.builder.event.builders.event
 import dev.catbit.mosaic.core.data.schemas.event.events.event.UpdateEventsEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.event.UpdateEventsEventSchema.Update
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
@@ -28,7 +28,7 @@ internal class UpdateEventsEventBuilder(
 }
 
 fun EventSchemaBuilderScope.UpdateEvents(
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     updates: UpdateEventsUpdateBuilderScope.() -> Unit

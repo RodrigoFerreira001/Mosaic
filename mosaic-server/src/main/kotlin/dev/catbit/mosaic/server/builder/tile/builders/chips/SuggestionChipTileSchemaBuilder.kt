@@ -2,7 +2,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.chips
 
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.chips.SuggestionChipTileSchema
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -28,7 +28,7 @@ internal class SuggestionChipTileSchemaBuilder(
 }
 
 fun TileSchemaBuilderScope.SuggestionChip(
-    id: String = randomUuid(),
+    id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,

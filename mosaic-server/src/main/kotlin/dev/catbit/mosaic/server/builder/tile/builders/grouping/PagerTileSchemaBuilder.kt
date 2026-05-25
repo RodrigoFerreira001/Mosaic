@@ -3,7 +3,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.grouping
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PagerTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PagerTileSchema.PageSizeSchema
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -35,7 +35,7 @@ internal class PagerTileSchemaBuilder(
 }
 
 fun TileSchemaBuilderScope.Pager(
-    id: String = randomUuid(),
+    id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,

@@ -3,7 +3,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.menu
 import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.menu.MenuTileSchema
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
 import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
@@ -35,7 +35,7 @@ internal class MenuTileSchemaBuilder(
 }
 
 fun TileSchemaBuilderScope.Menu(
-    id: String = randomUuid(),
+    id: String = randomId(),
     tiles: TileSchemaBuilderScope.() -> Unit,
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},

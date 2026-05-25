@@ -4,7 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.AlignmentSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.ArrangementSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ColumnTileSchema
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.placement.alignHorizontallyToStart
 import dev.catbit.mosaic.server.builder.placement.arrangeVerticallyToTop
@@ -36,7 +36,7 @@ internal class ColumnTileSchemaBuilder(
 }
 
 fun TileSchemaBuilderScope.Column(
-    id: String = randomUuid(),
+    id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
