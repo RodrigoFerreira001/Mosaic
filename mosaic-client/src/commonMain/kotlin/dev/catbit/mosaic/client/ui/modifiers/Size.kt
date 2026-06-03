@@ -31,7 +31,7 @@ fun Modifier.size(size: SizeSchema): Modifier {
         .then {
             when (val width = size.width) {
                 is SizeSchema.Behavior.Horizontal.Fill -> Modifier
-                    .thenIfNotNull(width.max) { widthIn(it.dp) }.fillMaxWidth()
+                    .thenIfNotNull(width.max) { widthIn(max = it.dp) }.fillMaxWidth()
 
                 SizeSchema.Behavior.Horizontal.Wrap -> Modifier.wrapContentWidth()
 

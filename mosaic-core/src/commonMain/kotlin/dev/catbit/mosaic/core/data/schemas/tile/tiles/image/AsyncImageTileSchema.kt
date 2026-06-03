@@ -11,6 +11,29 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a remotely loaded image using Coil 3's [AsyncImage] composable. The image is
+ * fetched from [url] and displayed with the given [contentScale], [alignment], and [alpha].
+ * Optionally clips the image to its layout bounds when [clipToBounds] is `true`.
+ *
+ * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
+ * `visibility: TileSchema.Visibility`, `url: String`, `contentDescription: String?`,
+ * `contentScale: ContentScale`, `alpha: Float`, `clipToBounds: Boolean`,
+ * `alignment: AlignmentSchema.TwoDimensional`
+ *
+ * **Triggers dispatched:**
+ * - `OnAsyncImageLoadStartEventTrigger` — fired when Coil begins loading the image
+ *   (`onLoading` callback).
+ * - `OnAsyncImageLoadSuccessEventTrigger` — fired when the image is successfully decoded and
+ *   ready to display (`onSuccess` callback).
+ * - `OnAsyncImageLoadFailureEventTrigger` — fired if the image fails to load for any reason
+ *   (`onError` callback).
+ *
+ * **Notes:** All three load-state triggers are always wired regardless of whether events are
+ * registered, meaning the server can react to load outcomes by attaching event runners to any
+ * of these triggers. Content scale options are CROP, FIT, FILL_HEIGHT, FILL_WIDTH, INSIDE,
+ * and FILL_BOUNDS.
+ */
 @Triggers(
     [
         OnAsyncImageLoadFailureEventTrigger::class,

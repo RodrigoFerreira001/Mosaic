@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.DrawerValue
@@ -101,6 +102,7 @@ fun OverlayContainer(
                 ModalBottomSheet(
                     onDismissRequest = bottomSheetState::onDismissRequest,
                     sheetState = bottomSheetState.modalBottomSheetState,
+                    sheetMaxWidth = 400.dp,
                     content = bottomSheetState.content,
                     properties = ModalBottomSheetProperties(
                         shouldDismissOnBackPress = bottomSheetState.isCancellable,
@@ -111,6 +113,7 @@ fun OverlayContainer(
 
             if (dialogState.isVisible) {
                 BasicAlertDialog(
+                    modifier = Modifier.widthIn(400.dp),
                     onDismissRequest = {
                         dialogState.onDismissCallback?.invoke()
                     },

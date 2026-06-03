@@ -27,7 +27,7 @@ object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
     @Composable
     override fun TileRenderingScope.Render(tileSchema: ScreenTileSchema) {
 
-        SingleEffect {
+        LaunchedEffect(tileSchema.state) {
             triggerEvent(
                 trigger = EventTriggers.onDisplay()
             )
@@ -49,8 +49,14 @@ object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
                     is ScreenTileBroadcastData.DismissBottomSheet -> bottomSheetState.dismiss()
                     is ScreenTileBroadcastData.DismissDialog -> dialogState.dismiss()
                     is ScreenTileBroadcastData.DisplaySnackbar -> snackbarState.show(
-                        message = data.message
+                        message = data.message,
+                        duration = data.duration,
+                        actionLabel = data.actionLabel,
+                        onAction = data.onAction,
+                        onDismiss = data.onDismiss
                     )
+
+                    is ScreenTileBroadcastData.DismissSnackbar -> snackbarState.dismiss()
 
                     is ScreenTileBroadcastData.OnDisplayBottomSheetRequested -> bottomSheetState.show( // TODO Analisar como será o dismiss por swipedown
                         fill = data.fill,

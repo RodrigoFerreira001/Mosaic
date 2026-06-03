@@ -47,6 +47,8 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryChanged
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryClearedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrollThresholdReachedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarActionEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSearchEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectChangedEventTrigger
@@ -112,6 +114,8 @@ object EventTriggers {
     fun onQueryChanged() = OnQueryChangedEventTrigger
     fun onQueryCleared() = OnQueryClearedEventTrigger
     fun onSearch() = OnSearchEventTrigger
+    fun onSnackbarAction() = OnSnackbarActionEventTrigger
+    fun onSnackbarDismissed() = OnSnackbarDismissedEventTrigger
     fun onPageChanged(direction: OnPageChangedEventTrigger.Direction) = OnPageChangedEventTrigger(direction)
     fun onScrolled(direction: OnScrolledEventTrigger.ScrollDirection) = OnScrolledEventTrigger(direction)
     fun onScrollThresholdReached() = OnScrollThresholdReachedEventTrigger

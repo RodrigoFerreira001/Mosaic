@@ -16,10 +16,28 @@ object ProcessDataEventRunner : EventRunner<ProcessDataEventSchema> {
                         process(
                             data = incomingData,
                             onSuccess = { onTrigger(EventTriggers.onSuccess()) },
-                            onFailure = { failure -> onTrigger(EventTriggers.onFailure(), failure) }
+                            onFailure = { failure ->
+                                onTrigger(EventTriggers.onFailure(), failure)
+                                logError(
+                                    tag = "ProcessDataEventRunner",
+                                    throwable = failure
+                                )
+                            }
                         )
                     }
-                }
+                } ?: run {
+                onTrigger(EventTriggers.onFailure())
+                logError(
+                    tag = "ProcessDataEventRunner",
+                    throwable = Throwable("No DataProcessor found for id: ${event.processWith}")
+                )
+            }
+        } ?: run {
+            onTrigger(EventTriggers.onFailure())
+            logError(
+                tag = "ProcessDataEventRunner",
+                throwable = Throwable("No incoming data to process")
+            )
         }
     }
 }

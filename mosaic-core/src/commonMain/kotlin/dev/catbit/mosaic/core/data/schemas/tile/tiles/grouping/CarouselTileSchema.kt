@@ -6,6 +6,26 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a Material 3 horizontal carousel that displays its child tiles as browsable
+ * cards. Two carousel variants are supported via [type]:
+ * - `MultiBrowse` — shows multiple items simultaneously with a preferred item width, allowing
+ *   small peeking items at the edges. Item width bounds can be tuned via [minSmallItemWidth]
+ *   and [maxSmallItemWidth].
+ * - `Uncontained` — shows items at a fixed [itemWidth] without size constraints applied to
+ *   partial items.
+ *
+ * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
+ * `visibility: TileSchema.Visibility`, `type: CarouselTypeSchema`, `itemSpacing: Int`,
+ * `contentPadding: Int`, `userScrollEnabled: Boolean`
+ *
+ * **Triggers dispatched:** None. This tile does not dispatch any event triggers.
+ *
+ * **Notes:** Item count is derived from the size of [tiles] at render time. The
+ * [contentPadding] is applied as symmetric horizontal padding. User scrolling can be disabled
+ * via [userScrollEnabled], which is useful when programmatic scrolling is the intended
+ * interaction model.
+ */
 @Serializable
 @SerialName("Carousel")
 data class CarouselTileSchema(

@@ -26,34 +26,45 @@ object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventSchema
                     SendNetworkRequestUseCase.Params(
                         url = url,
                         httpMethod = method.toKtorHttpMethod(),
-                        headers = headers ?: if (useIncomingDataForHeaders) incomingData.asMapString() else null,
-                        body = body ?: if (!useIncomingDataForHeaders) incomingData else null
+                        headers = headers,
+                        body = body,
                     )
                 )
                     .onSuccess { response ->
 
                         val data = when {
                             response.contentType()?.match(ContentType.Application.Json) == true -> {
-                                response.body<JsonElement>().toAny()
+                                runCatching { response.body<JsonElement>() }.getOrNull()?.toAny()
                             }
 
                             else -> response.bodyAsBytes()
                         }
 
-                        onTrigger(
-                            eventTrigger = if (response.status.isSuccess()) EventTriggers.onSuccess() else EventTriggers.onFailure(),
-                            data = data
-                        )
+                        val hasCustomResponseListener =
+                            triggerOwner
+                                .events
+                                ?.any { it.trigger == EventTriggers.onNetworkResponse(response.status.value) } == true
 
-                        onTrigger(
-                            eventTrigger = EventTriggers.onNetworkResponse(response.status.value),
-                            data = data
-                        )
+                        if (hasCustomResponseListener) {
+                            onTrigger(
+                                eventTrigger = EventTriggers.onNetworkResponse(response.status.value),
+                                data = data
+                            )
+                        } else {
+                            onTrigger(
+                                eventTrigger = if (response.status.isSuccess()) EventTriggers.onSuccess() else EventTriggers.onFailure(),
+                                data = data
+                            )
+                        }
                     }
                     .onFailure { failure ->
                         onTrigger(
                             eventTrigger = EventTriggers.onFailure(),
                             data = failure
+                        )
+                        logError(
+                            tag = "SendNetworkRequestEventRunner",
+                            throwable = failure
                         )
                     }
             }

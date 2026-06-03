@@ -15,6 +15,39 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a Material 3 text input field in either a filled or outlined visual style controlled
+ * by [kind]. Supports rich decoration (icons, labels, prefix/suffix, supporting text) and
+ * full keyboard configuration.
+ *
+ * **Updatable fields (via UpdateTiles):** `value`, `enabled`, `leadingIcon`, `clickableLeadingIcon`,
+ * `trailingIcon`, `clickableTrailingIcon`, `prefixText`, `suffixText`, `placeholder`, `label`,
+ * `supportingText`, `minLines`, `maxLines`, `kind`, `state`, `keyboardOptions`,
+ * `visualTransformation`, `visibility`, `style`.
+ *
+ * **Triggers dispatched:**
+ * - [OnTextChangedEventTrigger] — fired on every keystroke when the text changes; the new text
+ *   string is passed as incomingData to downstream events. The renderer also dispatches a local
+ *   [TextFieldTileEvents.OnTextChange] so sibling tiles on the same screen can read the value.
+ * - [OnKeyboardDoneEventTrigger] — fired when the user presses the IME "Done" action.
+ * - [OnKeyboardGoEventTrigger] — fired when the user presses the IME "Go" action.
+ * - [OnKeyboardNextEventTrigger] — fired when the user presses the IME "Next" action.
+ * - [OnKeyboardPreviousEventTrigger] — fired when the user presses the IME "Previous" action.
+ * - [OnKeyboardSearchEventTrigger] — fired when the user presses the IME "Search" action.
+ * - [OnKeyboardSendEventTrigger] — fired when the user presses the IME "Send" action.
+ * - `OnLeadingIconClickEventTrigger` — fired when [clickableLeadingIcon] is true and the user
+ *   taps the leading icon (not listed in `@Triggers` but wired in the renderer).
+ * - `OnTrailingIconClickEventTrigger` — fired when [clickableTrailingIcon] is true and the
+ *   user taps the trailing icon (not listed in `@Triggers` but wired in the renderer).
+ *
+ * **Notes:** The renderer holds a local [TextFieldValue] state initialized from [value]. A
+ * [LaunchedEffect] watches [value] and syncs the local state when the server pushes a new value
+ * via UpdateTiles — the cursor is moved to the end of the new text on each sync. The trigger
+ * for text changes is only fired when the new text differs from the previously known [value],
+ * preventing feedback loops. [state] set to `ERROR` activates the Material error styling
+ * (red border and supporting text color). [visualTransformation] supports `None`, `Password`
+ * (dots), and `Custom` (character-level masking).
+ */
 @Triggers(
     [
         OnTextChangedEventTrigger::class,
@@ -27,6 +60,7 @@ import kotlinx.serialization.Serializable
     ]
 )
 @Serializable
+@SerialName("TextField")
 data class TextFieldTileSchema(
     @SerialName("id") override val id: String,
     @SerialName("events") override val events: List<EventSchema>?,

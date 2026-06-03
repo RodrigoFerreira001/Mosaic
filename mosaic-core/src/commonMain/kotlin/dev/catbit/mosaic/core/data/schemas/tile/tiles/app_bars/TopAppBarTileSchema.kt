@@ -6,6 +6,29 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a Material 3 top app bar in one of four styles controlled by [barStyle]:
+ * - `DEFAULT` → [TopAppBar] (small, title left-aligned)
+ * - `CENTER_ALIGNED` → [CenterAlignedTopAppBar] (small, title centered)
+ * - `MEDIUM` → [MediumTopAppBar] (medium height, collapsible)
+ * - `LARGE` → [LargeTopAppBar] (large height, collapsible)
+ *
+ * The [title] slot accepts any [TileSchema] as the title composable. The [navigationIcon]
+ * slot accepts an optional tile rendered as the leading icon (e.g. a back button). The
+ * [actions] slot accepts an optional list of tiles rendered as trailing action icons.
+ *
+ * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
+ * `visibility: TileSchema.Visibility`, `title: TileSchema`, `navigationIcon: TileSchema?`,
+ * `actions: List<TileSchema>?`, `barStyle: TopAppBarStyle`
+ *
+ * **Triggers dispatched:** None directly. Interaction triggers (clicks, etc.) are dispatched
+ * by child tiles placed in [navigationIcon] or [actions].
+ *
+ * **Notes:** The title, navigation icon, and action tiles are rendered as Composable lambdas
+ * passed to the Material 3 app bar components. This means those slots are not part of the
+ * normal `RenderChildren` hierarchy — each slot tile is rendered independently via
+ * `RenderChild`.
+ */
 @Serializable
 @SerialName("TopAppBar")
 data class TopAppBarTileSchema(

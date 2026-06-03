@@ -18,7 +18,8 @@ object DownloadFileEventRunner : EventRunner<DownloadFileEventSchema> {
                 get<DownloadFileUseCase>()(
                     DownloadFileUseCase.Params(
                         url = url,
-                        headers = headers ?: incomingData.asMapString(),
+                        headers = headers,
+                        body = body,
                         httpMethod = method.toKtorHttpMethod(),
                         onProgress = { progress ->
                             onTrigger(
@@ -37,11 +38,23 @@ object DownloadFileEventRunner : EventRunner<DownloadFileEventSchema> {
                                 eventTrigger = EventTriggers.onDownloadFinish(),
                                 data = totalBytes
                             )
+                            onTrigger(
+                                eventTrigger = EventTriggers.onSuccess(),
+                                data = totalBytes
+                            )
                         },
                         onDownloadFailure = { failure ->
                             onTrigger(
                                 eventTrigger = EventTriggers.onDownloadFailure(),
                                 data = failure
+                            )
+                            onTrigger(
+                                eventTrigger = EventTriggers.onFailure(),
+                                data = failure
+                            )
+                            logError(
+                                tag = "DownloadFileEventRunner",
+                                throwable = failure
                             )
                         }
                     )

@@ -7,6 +7,7 @@ import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystemImpl
 import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetwork
 import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetworkImpl
+import dev.catbit.mosaic.client.data.data_sources.network.NetworkParametersHolder
 import dev.catbit.mosaic.client.data.data_sources.network.plugins.MosaicHeadersPlugin
 import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorage
 import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorageImpl
@@ -63,12 +64,16 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_up.NavigateUpEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file.DownloadFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_network_request.SendNetworkRequestEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_body.SetIncomingDataToNetworkParamsHolderBodyEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_headers.SetIncomingDataToNetworkParamsHolderHeadersEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.dismiss.DismissBottomSheetEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.display.DisplayBottomSheetEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.dismiss.DismissDialogEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.display.DisplayDialogEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.dismiss.DismissNavigationDrawerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.display.DisplayNavigationDrawerEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.snackbar.dismiss.DismissSnackbarEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.snackbar.display.DisplaySnackbarEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.pull_to_refresh.StopRefreshingEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.change_screen_state.ChangeScreenStateEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.get_screen.GetScreenEventDefinition
@@ -106,6 +111,9 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.row.
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.shimmer.ShimmerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.image.async_image.AsyncImageTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.image.icon.IconTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.foundation.resources.DrawableResourcesHolder
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.image.image.ImageTileDefinition
+import org.jetbrains.compose.resources.DrawableResource
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.checkbox.CheckboxTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.radio_button.RadioButtonTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.switch.SwitchTileDefinition
@@ -130,6 +138,7 @@ import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.serialization.kotlinx.json.json
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.serializer
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.viewModel
@@ -143,7 +152,9 @@ internal class MosaicModules(
     additionalModule: Module = module { },
     logger: MosaicLogger,
     tileDefinitions: List<TileDefinition<out TileSchema>> = emptyList(),
-    eventDefinitions: List<EventDefinition<out EventSchema>> = emptyList()
+    eventDefinitions: List<EventDefinition<out EventSchema>> = emptyList(),
+    drawableResources: Map<String, DrawableResource> = emptyMap(),
+    additionalSerializersModule: SerializersModule = SerializersModule {  },
 ) {
 
     val modules by lazy {
@@ -167,6 +178,7 @@ internal class MosaicModules(
         single { NavigatorsHolder() }
         single { DataMailer() }
         single<MosaicLogger> { logger }
+        single { DrawableResourcesHolder(drawableResources) }
     }
 
     private val dataModule = module {
@@ -177,6 +189,8 @@ internal class MosaicModules(
                 serializer = get()
             )
         }
+
+        single { NetworkParametersHolder() }
 
         single<MosaicNetwork> {
             MosaicNetworkImpl(
@@ -189,7 +203,8 @@ internal class MosaicModules(
                         json(get<MosaicSerializer>().json)
                     }
                     install(MosaicHeadersPlugin)
-                }
+                },
+                networkParametersHolder = get()
             )
         }
 
@@ -224,7 +239,8 @@ internal class MosaicModules(
                 },
                 eventSerializers = eventDefinitions.associate { def ->
                     def.eventSchemaClass to def.eventSchemaClass.serializer()
-                }
+                },
+                additionalSerializersModule = additionalSerializersModule
             )
         }
     }
@@ -373,6 +389,7 @@ internal class MosaicModules(
         TabsTileDefinition,
         RadioButtonTileDefinition,
         AsyncImageTileDefinition,
+        ImageTileDefinition,
         IconTileDefinition,
         NestedNavigationGraphTileDefinition,
         LazyTilesTileDefinition
@@ -381,6 +398,8 @@ internal class MosaicModules(
     private val baseEventsDefinitions = listOf(
         DownloadFileEventDefinition,
         SendNetworkRequestEventDefinition,
+        SetIncomingDataToNetworkParamsHolderBodyEventDefinition,
+        SetIncomingDataToNetworkParamsHolderHeadersEventDefinition,
         NavigateEventDefinition,
         NavigateUpEventDefinition,
         ToggleMenuEventDefinition,
@@ -398,6 +417,8 @@ internal class MosaicModules(
         DisplayDialogEventDefinition,
         DismissNavigationDrawerEventDefinition,
         DisplayNavigationDrawerEventDefinition,
+        DisplaySnackbarEventDefinition,
+        DismissSnackbarEventDefinition,
         CheckForReceivedDataEventDefinition,
         GetDataEventDefinition,
         ProcessDataEventDefinition,

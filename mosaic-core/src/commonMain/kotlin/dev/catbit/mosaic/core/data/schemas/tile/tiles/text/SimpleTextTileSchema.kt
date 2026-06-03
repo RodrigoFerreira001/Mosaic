@@ -8,6 +8,20 @@ import dev.catbit.mosaic.core.data.schemas.typography.TypographySchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a non-interactive text label using Compose's [Text] composable.
+ *
+ * **Updatable fields (via UpdateTiles):** `text`, `color`, `typography`, `visibility`, `style`.
+ *
+ * **Triggers dispatched:** None — this tile has no `@Triggers` annotation and fires no events
+ * in response to user interaction.
+ *
+ * **Notes:** [color] accepts a nullable [ColorSchema]; when null the renderer falls back to
+ * [LocalTextStyle]'s inherited color (`Color.Unspecified`). [typography] maps to a Compose
+ * [TextStyle] via `toTextStyle()`; when null the ambient [LocalTextStyle] is used unchanged.
+ * The tile respects [visibility] via the `visible()` modifier — the composable is still laid
+ * out but hidden when invisible, preserving its space in the parent layout.
+ */
 @Serializable
 @SerialName("Text")
 data class SimpleTextTileSchema(

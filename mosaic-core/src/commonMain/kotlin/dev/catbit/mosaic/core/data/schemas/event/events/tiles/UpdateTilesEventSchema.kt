@@ -3,14 +3,45 @@ package dev.catbit.mosaic.core.data.schemas.event.events.tiles
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesUpdatedEventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Applies a list of data-only updates to existing tiles without altering the tile tree
+ * structure. Each [Update] entry targets a single tile by its ID and supplies a key-value
+ * map of properties to overwrite. All updates in [updates] are applied sequentially before
+ * the trigger fires.
+ *
+ * **incomingData consumed:** Not used.
+ *
+ * **Triggers fired:**
+ * - [OnTilesUpdatedEventTrigger] — fired after all updates have been applied; incomingData is
+ *   not modified by this event.
+ * - [OnSuccessEventTrigger] — fired after [OnTilesUpdatedEventTrigger], unconditionally.
+ * - [OnFailureEventTrigger] — if a tile targeted by an [Update] is not found
+ *   (TileNotFoundException); incomingData is the exception.
+ *
+ * **Failure scenarios:**
+ * - If an [Update.tileId] does not match any tile in the current tree, a TileNotFoundException
+ *   is thrown and [OnFailureEventTrigger] fires with the exception.
+ *
+ * **Notes:**
+ * - Unlike [ReplaceTilesEventSchema], this event does not change tile types or the tree
+ *   structure — it only patches mutable properties on tiles that already exist.
+ * - [Update.data] is a `Map<String, AnySerializable?>` allowing arbitrary JSON-typed values.
+ *   Keys that do not correspond to known tile properties are ignored by the renderer.
+ * - Updates are applied in the order they appear in [updates]; if the same tile is listed
+ *   twice, the second update overwrites keys set by the first.
+ */
 @Triggers(
     [
-        OnTilesUpdatedEventTrigger::class
+        OnTilesUpdatedEventTrigger::class,
+        OnSuccessEventTrigger::class,
+        OnFailureEventTrigger::class
     ]
 )
 @Serializable

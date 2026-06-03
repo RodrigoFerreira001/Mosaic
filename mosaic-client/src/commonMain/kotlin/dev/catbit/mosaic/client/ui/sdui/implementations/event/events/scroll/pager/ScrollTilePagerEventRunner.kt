@@ -4,6 +4,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pager.PagerTileBroadcastData
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.pager.ScrollPagerTileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object ScrollTilePagerEventRunner : EventRunner<ScrollPagerTileEventSchema> {
 
@@ -18,5 +19,6 @@ object ScrollTilePagerEventRunner : EventRunner<ScrollPagerTileEventSchema> {
                 }
             }
         )
+        onTrigger(EventTriggers.onSuccess())
     }
 }

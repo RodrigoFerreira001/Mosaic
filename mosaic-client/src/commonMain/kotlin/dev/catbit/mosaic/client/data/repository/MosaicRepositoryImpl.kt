@@ -45,7 +45,9 @@ class MosaicRepositoryImpl(
 
     override suspend fun getScreen(
         screenId: String,
-        headers: Map<String, String>?
+        headers: Map<String, String>?,
+        body: Any?,
+        httpMethod: HttpMethod
     ): Result<ScreenModel> = safeResult {
 
         val cachedScreen = objectStorage.getScreen(screenId)
@@ -58,6 +60,8 @@ class MosaicRepositoryImpl(
                 network.getScreen(
                     screenId = screenId,
                     headers = headers,
+                    body = body,
+                    httpMethod = httpMethod
                 ).getOrNull()?.apply {
                     objectStorage.setScreen(this)
                 } ?: cachedScreen
@@ -66,6 +70,8 @@ class MosaicRepositoryImpl(
             network.getScreen(
                 screenId = screenId,
                 headers = headers,
+                body = body,
+                httpMethod = httpMethod
             ).getOrThrow().apply {
                 objectStorage.setScreen(this)
             }
@@ -89,6 +95,7 @@ class MosaicRepositoryImpl(
     override suspend fun downloadFile(
         url: String,
         headers: Map<String, String>?,
+        body: Any?,
         httpMethod: HttpMethod,
         onProgress: (Int) -> Unit,
         onBytesReceived: (ByteArray) -> Unit,
@@ -110,7 +117,7 @@ class MosaicRepositoryImpl(
         database.getPlainData(dataKey) ?: throw DataNotFoundException(dataKey)
     }
 
-    override suspend fun getAllPlainData(): Result<Map<String, Any>> = safeResult{
+    override suspend fun getAllPlainData(): Result<Map<String, Any>> = safeResult {
         database.getAllPlainData() ?: throw DataNotFoundException("All PlainData")
     }
 
@@ -127,7 +134,8 @@ class MosaicRepositoryImpl(
     override suspend fun getPlainDataByIds(
         dataKeys: List<String>
     ): Result<Map<String, Any>> = safeResult {
-        database.getPlainDataByIds(dataKeys) ?: throw DataNotFoundException("PlainData for ids $dataKeys")
+        database.getPlainDataByIds(dataKeys)
+            ?: throw DataNotFoundException("PlainData for ids $dataKeys")
     }
 
     override suspend fun deletePlainData(
@@ -142,7 +150,7 @@ class MosaicRepositoryImpl(
         database.deletePlainDataByIds(dataKeys)
     }
 
-    override suspend fun wipePlainData(): Result<Unit> = safeResult{
+    override suspend fun wipePlainData(): Result<Unit> = safeResult {
         database.wipePlainData()
     }
 
@@ -158,8 +166,9 @@ class MosaicRepositoryImpl(
 
     override suspend fun getAllSegmentedData(
         segmentKey: String
-    ): Result<Map<String, Any>> = safeResult{
-        database.getAllSegmentedData(segmentKey) ?: throw DataNotFoundException("All SegmentedData for $segmentKey")
+    ): Result<Map<String, Any>> = safeResult {
+        database.getAllSegmentedData(segmentKey)
+            ?: throw DataNotFoundException("All SegmentedData for $segmentKey")
     }
 
     override suspend fun saveSegmentedData(
@@ -178,7 +187,8 @@ class MosaicRepositoryImpl(
         segmentKey: String,
         dataKeys: List<String>
     ): Result<Map<String, Any>> = safeResult {
-        database.getSegmentedDataByIds(segmentKey, dataKeys) ?: throw DataNotFoundException("SegmentedData for segment '$segmentKey' and ids $dataKeys")
+        database.getSegmentedDataByIds(segmentKey, dataKeys)
+            ?: throw DataNotFoundException("SegmentedData for segment '$segmentKey' and ids $dataKeys")
     }
 
     override suspend fun deleteSegmentedData(
@@ -200,7 +210,7 @@ class MosaicRepositoryImpl(
 
     override suspend fun wipeSegmentedData(
         segmentKey: String
-    ): Result<Unit> = safeResult{
+    ): Result<Unit> = safeResult {
         database.wipeSegmentedData(segmentKey)
     }
 

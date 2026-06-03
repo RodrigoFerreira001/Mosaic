@@ -5,6 +5,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.poppingUpTo
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object NavigateEventRunner : EventRunner<NavigateEventSchema> {
 
@@ -18,6 +19,14 @@ object NavigateEventRunner : EventRunner<NavigateEventSchema> {
                     inclusive = popUpTo.inclusive
                 )
             }
-        )
+        )?.also {
+            onTrigger(EventTriggers.onSuccess())
+        } ?: run {
+            onTrigger(EventTriggers.onFailure())
+            logError(
+                tag = "NavigateEventRunner",
+                throwable = Throwable("Navigation failed")
+            )
+        }
     }
 }

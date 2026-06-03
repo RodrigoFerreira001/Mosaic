@@ -12,6 +12,7 @@ class DownloadFileUseCase(
         repository.downloadFile(
             url = url,
             headers = headers,
+            body = body,
             httpMethod = httpMethod,
             onProgress = onProgress,
             onBytesReceived = onBytesReceived,
@@ -22,7 +23,8 @@ class DownloadFileUseCase(
 
     data class Params(
         val url: String,
-        val headers: Map<String, String>? = null,
+        val headers: Map<String, String>?,
+        val body: Any?,
         val httpMethod: HttpMethod,
         val onProgress: (Int) -> Unit = {},
         val onBytesReceived: (ByteArray) -> Unit = {},

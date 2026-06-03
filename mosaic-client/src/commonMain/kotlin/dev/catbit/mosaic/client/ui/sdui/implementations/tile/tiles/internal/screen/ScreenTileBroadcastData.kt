@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen
 
+import androidx.compose.material3.SnackbarDuration
 import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
 
 sealed interface ScreenTileBroadcastData : BroadcastData {
@@ -25,7 +26,15 @@ sealed interface ScreenTileBroadcastData : BroadcastData {
 
     data class DisplaySnackbar(
         override val tileId: String? = null,
-        val message: String
+        val message: String,
+        val duration: SnackbarDuration = SnackbarDuration.Short,
+        val actionLabel: String? = null,
+        val onAction: (() -> Unit)? = null,
+        val onDismiss: (() -> Unit)? = null
+    ) : ScreenTileBroadcastData
+
+    data class DismissSnackbar(
+        override val tileId: String? = null,
     ) : ScreenTileBroadcastData
 
     data class DisplayNavigationDrawer(

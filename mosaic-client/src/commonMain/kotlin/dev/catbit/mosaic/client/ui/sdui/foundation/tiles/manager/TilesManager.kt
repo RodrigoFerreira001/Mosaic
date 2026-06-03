@@ -21,8 +21,9 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scre
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
+import dev.catbit.mosaic.client.exceptions.EventNotFoundException
+import dev.catbit.mosaic.client.exceptions.TileNotFoundException
 import dev.catbit.mosaic.core.extensions.runSafely
-import dev.catbit.mosaic.core.extensions.withNotNull
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import org.koin.core.scope.Scope
 
@@ -69,7 +70,8 @@ class TilesManager(
         tiles: List<TileSchema>,
         navigationDrawerTiles: List<TileSchema>? = null,
         events: List<EventSchema>?,
-        onUpdateStateRequest: (TileSchema) -> Unit
+        onUpdateStateRequest: (TileSchema) -> Unit,
+        state: ScreenTileSchema.State
     ) {
         runSafely {
             onUpdateRequest = onUpdateStateRequest
@@ -80,6 +82,7 @@ class TilesManager(
                         tiles = tiles,
                         navigationDrawerTiles = navigationDrawerTiles,
                         events = events,
+                        state = state
                     )
                 )
             } as ScreenTileHolder
@@ -93,9 +96,13 @@ class TilesManager(
 
     override fun addTile(
         tileSchema: TileSchema,
-        where: InsertionPosition
+        where: InsertionPosition,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             screenTileHolder.addChild(
                 child = with(tileHolderBuilderManager) {
                     builderScope.build(tileSchema)
@@ -103,15 +110,20 @@ class TilesManager(
                 where = where
             )
             updateState()
+            onSuccess()
         }
     }
 
     override fun addTile(
         tileSchema: TileSchema,
         groupingTileId: String,
-        where: InsertionPosition
+        where: InsertionPosition,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
                 tileHolder.addChild(
                     child = with(tileHolderBuilderManager) {
@@ -120,15 +132,22 @@ class TilesManager(
                     where = where
                 )
                 owner.updateState()
+                onSuccess()
+            } ?: run {
+                onError(TileNotFoundException("No tile with id '$groupingTileId' found"))
             }
         }
     }
 
     override fun addTiles(
         tileSchemas: List<TileSchema>,
-        where: InsertionPosition
+        where: InsertionPosition,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             screenTileHolder.addChildren(
                 children = with(tileHolderBuilderManager) {
                     tileSchemas.map { tileSchema ->
@@ -138,15 +157,20 @@ class TilesManager(
                 where = where
             )
             updateState()
+            onSuccess()
         }
     }
 
     override fun addTiles(
         tileSchemas: List<TileSchema>,
         groupingTileId: String,
-        where: InsertionPosition
+        where: InsertionPosition,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
                 tileHolder.addChildren(
                     children = with(tileHolderBuilderManager) {
@@ -157,56 +181,96 @@ class TilesManager(
                     where = where
                 )
                 owner.updateState()
+                onSuccess()
+            } ?: run {
+                onError(TileNotFoundException("No tile with id '$groupingTileId' found"))
             }
-        }
-    }
-
-    override fun removeTile(
-        tileId: String
-    ) {
-        runSafely {
-            screenTileHolder.getTileHolder(screenTileHolerId)?.removeChild(tileId)
-            updateState()
         }
     }
 
     override fun removeTile(
         tileId: String,
-        groupingTileId: String
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
         runSafely {
-            getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
-                tileHolder.removeChild(tileId)
-                owner.updateState()
+            screenTileHolder
+                .getTileHolder(screenTileHolerId)
+                ?.let {
+                    it.removeChild(tileId)
+                    updateState()
+                    onSuccess()
+                } ?: run {
+                onError(TileNotFoundException("No tile with id '$tileId' found"))
             }
         }
     }
 
-    override fun removeTiles(
-        tileIds: List<String>
+    override fun removeTile(
+        tileId: String,
+        groupingTileId: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
-            screenTileHolder.getTileHolder(screenTileHolerId)?.removeChildren(tileIds)
-            updateState()
+        runSafely(
+            onError = onError
+        ) {
+            getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
+                tileHolder.removeChild(tileId)
+                owner.updateState()
+                onSuccess()
+            } ?: run {
+                onError(TileNotFoundException("No tile with id '$tileId' found"))
+            }
         }
     }
 
     override fun removeTiles(
         tileIds: List<String>,
-        groupingTileId: String
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
+            screenTileHolder
+                .getTileHolder(screenTileHolerId)
+                ?.let {
+                    it.removeChildren(tileIds)
+                    updateState()
+                    onSuccess()
+                } ?: run {
+                onError(TileNotFoundException("No tile with id '$screenTileHolerId' found"))
+            }
+        }
+    }
+
+    override fun removeTiles(
+        tileIds: List<String>,
+        groupingTileId: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
+    ) {
+        runSafely(
+            onError = onError
+        ) {
             getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
                 tileHolder.removeChildren(tileIds)
                 owner.updateState()
+            } ?: run {
+                onError(TileNotFoundException("No tile with id '$groupingTileId' found"))
             }
         }
     }
 
     override fun replaceTiles(
-        tileSchemas: List<TileSchema>
+        tileSchemas: List<TileSchema>,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             screenTileHolder.getTileHolder(screenTileHolerId)?.apply {
                 wipeChildren()
                 addChildren(
@@ -216,16 +280,23 @@ class TilesManager(
                         }
                     }
                 )
+                updateState()
+                onSuccess()
+            } ?: run {
+                onError(TileNotFoundException("No tile with id '$screenTileHolerId' found"))
             }
-            updateState()
         }
     }
 
     override fun replaceTiles(
         tileSchemas: List<TileSchema>,
-        groupingTileId: String
+        groupingTileId: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
                 tileHolder.apply {
                     wipeChildren()
@@ -238,26 +309,40 @@ class TilesManager(
                     )
                 }
                 owner.updateState()
+                onSuccess()
+            } ?: run {
+                onError(TileNotFoundException("No tile with id '$groupingTileId' found"))
             }
         }
     }
 
     override fun wipeTiles(
-        groupingTileId: String
+        groupingTileId: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
                 tileHolder.wipeChildren()
                 owner.updateState()
+                onSuccess()
+            } ?: run {
+                onError(TileNotFoundException("No tile with id '$groupingTileId' found"))
             }
         }
     }
 
     override fun updateTile(
         tileId: String,
-        updateData: Map<String, Any?>
+        updateData: Map<String, Any?>,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             getTileHolderAndOwner(
                 tileId = tileId,
                 includeEventsOnSearch = true
@@ -266,28 +351,42 @@ class TilesManager(
                     updateScope.update(updateData)
                 }
                 owner.updateState()
+                onSuccess()
+            } ?: run {
+                onError(TileNotFoundException("No tile with id '$tileId' found"))
             }
         }
     }
 
     override fun onEvent(
         tileId: String,
-        event: TileEvent
+        event: TileEvent,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             getTileHolderAndOwner(tileId)?.let { (tileHolder, owner) ->
                 with(tileHolder) {
                     tileEventScope.onTileEvent(event)
                 }
                 owner.updateState()
+                onSuccess()
+            } ?: run {
+                onError(TileNotFoundException("No tile with id '$tileId' found"))
             }
         }
     }
 
     override fun onGroupEvent(
-        event: TileGroupEvent
+        event: TileGroupEvent,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             getTileHoldersByGroupEventAndOwner(event)?.let { (tileHolders, owner) ->
                 tileHolders.forEach { tileHolder ->
                     with(tileHolder) {
@@ -295,24 +394,35 @@ class TilesManager(
                     }
                 }
                 owner.updateState()
+                onSuccess()
+            } ?: run {
+                onError(TileNotFoundException("No tiles found for group event '$event'"))
             }
         }
     }
 
     override fun getEventSchema(
         eventId: String
-    ): EventSchema? = screenTileHolder.getEventHolder(eventId)?.get() ?: parent?.getEventSchema(eventId)
+    ): EventSchema? =
+        screenTileHolder.getEventHolder(eventId)?.get() ?: parent?.getEventSchema(eventId)
 
     override fun updateEventHolder(
         eventId: String,
-        data: Map<String, Any?>
+        data: Map<String, Any?>,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     ) {
-        runSafely {
+        runSafely(
+            onError = onError
+        ) {
             getEventHolderAndOwner(eventId)?.let { (eventHolder, owner) ->
                 with(eventHolder) {
                     updateScope.update(data)
                 }
                 owner.updateState()
+                onSuccess()
+            } ?: run {
+                onError(EventNotFoundException("No event with id '$eventId' found"))
             }
         }
     }
@@ -368,9 +478,10 @@ class TilesManager(
     fun getTileHoldersByGroupEventAndOwner(
         event: TileGroupEvent
     ): Pair<List<TileHolder<*>>, TilesManager>? {
-        return screenTileHolder.getTileHoldersByGroupEvent(event).takeIf { it.isNotEmpty() }?.let { tileHolders ->
-            tileHolders to this
-        } ?: parent?.getTileHoldersByGroupEventAndOwner(event)
+        return screenTileHolder.getTileHoldersByGroupEvent(event).takeIf { it.isNotEmpty() }
+            ?.let { tileHolders ->
+                tileHolders to this
+            } ?: parent?.getTileHoldersByGroupEventAndOwner(event)
     }
 
     fun getEventHolderAndOwner(

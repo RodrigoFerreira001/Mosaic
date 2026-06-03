@@ -6,6 +6,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileSchema
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.coroutines.CoroutineScope
@@ -38,7 +39,8 @@ internal class MosaicScreenStateHolder(
         tilesManager.setup(
             tiles = initialTiles,
             events = initialEvents,
-            onUpdateStateRequest = ::onUpdateStateRequest
+            onUpdateStateRequest = ::onUpdateStateRequest,
+            state = ScreenTileSchema.State.INITIAL
         )
     }
 
@@ -49,7 +51,8 @@ internal class MosaicScreenStateHolder(
                 tilesManager.setup(
                     tiles = initialTiles,
                     events = initialEvents,
-                    onUpdateStateRequest = ::onUpdateStateRequest
+                    onUpdateStateRequest = ::onUpdateStateRequest,
+                    state = ScreenTileSchema.State.INITIAL
                 )
             }
 
@@ -58,7 +61,8 @@ internal class MosaicScreenStateHolder(
                 tilesManager.setup(
                     tiles = failureTiles,
                     events = failureEvents,
-                    onUpdateStateRequest = ::onUpdateStateRequest
+                    onUpdateStateRequest = ::onUpdateStateRequest,
+                    state = ScreenTileSchema.State.FAILURE
                 )
             }
 
@@ -68,7 +72,8 @@ internal class MosaicScreenStateHolder(
                     tiles = state.screenModel.tiles,
                     navigationDrawerTiles = state.screenModel.navigationDrawerTiles,
                     events = state.screenModel.events,
-                    onUpdateStateRequest = ::onUpdateStateRequest
+                    onUpdateStateRequest = ::onUpdateStateRequest,
+                    state = ScreenTileSchema.State.DISPLAYING
                 )
             }
         }
@@ -88,11 +93,13 @@ internal class MosaicScreenStateHolder(
             is UIEvent.TileEventHolderUIEvent ->
                 tilesManager.onEvent(
                     tileId = event.event.tileId,
-                    event = event.event.event,
+                    event = event.event.event
                 )
 
             is UIEvent.TileGroupEventHolderUIEvent ->
-                tilesManager.onGroupEvent(event.event.event)
+                tilesManager.onGroupEvent(
+                    event = event.event.event
+                )
 
             is UIEvent.EventSchemaHolderUIEvent -> {
                 eventManager.runEvents(

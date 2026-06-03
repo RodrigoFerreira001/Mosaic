@@ -1,6 +1,8 @@
 package dev.catbit.mosaic.client.logger
 
-abstract class MosaicLogger(var level: Level = Level.INFO) {
+abstract class MosaicLogger(
+    val level: Level = Level.INFO
+) {
 
     abstract fun display(level: Level, msg: String)
 

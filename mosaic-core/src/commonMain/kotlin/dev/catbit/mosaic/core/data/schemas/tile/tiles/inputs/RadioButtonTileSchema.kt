@@ -8,6 +8,22 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a Material 3 radio button whose selected state is fully server-controlled via
+ * [selected]. Multiple radio buttons sharing the same [groupId] form a logical selection group.
+ *
+ * **Updatable fields (via UpdateTiles):** `selected`, `enabled`, `visibility`, `style`.
+ *
+ * **Triggers dispatched:**
+ * - [OnSelectEventTrigger] — fired when the user taps this radio button. Carries no incomingData.
+ *
+ * **Notes:** On tap, in addition to firing [OnSelectEventTrigger], the renderer dispatches a
+ * group-level [RadioButtonTileGroupEvents.OnRadioSelected] event carrying both this tile's [id]
+ * and the [groupId]. This group event allows other radio buttons in the same group to deselect
+ * themselves without a server round-trip. The [selected] field is server-owned — the radio
+ * button is a controlled component and will not stay visually selected until the server sends
+ * an UpdateTiles payload. [enabled] prevents interaction when false.
+ */
 @Triggers(
     [
         OnSelectEventTrigger::class,

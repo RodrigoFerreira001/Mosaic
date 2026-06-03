@@ -1,6 +1,8 @@
 package dev.catbit.mosaic.core.serialization
 
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.data.AccessModeSchema
+import dev.catbit.mosaic.core.data.schemas.event.data.DataSourceSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.CheckForReceivedDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.EvaluateDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.GetDataEventSchema
@@ -19,12 +21,16 @@ import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEvent
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateUpEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendNetworkRequestEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderBodyEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderHeadersEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DismissBottomSheetEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DisplayBottomSheetEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DismissDialogEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DisplayDialogEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer.DismissNavigationDrawerEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer.DisplayNavigationDrawerEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.overlays.snackbar.DismissSnackbarEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.overlays.snackbar.DisplaySnackbarEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.pull_to_refresh.StopRefreshingEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.screen.ChangeScreenStateEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.screen.GetScreenEventSchema
@@ -42,6 +48,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.tiles.UpdateTilesEventSc
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.WipeTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.InlineEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAdaptiveNavigationItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadSuccessEventTrigger
@@ -73,8 +80,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSta
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAdaptiveNavigationItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationBarItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationDrawerDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntryChangedEventTrigger
@@ -82,12 +87,15 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEn
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationRailItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsAcquiredEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPullEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryClearedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrollThresholdReachedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarActionEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSearchEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectChangedEventTrigger
@@ -118,9 +126,9 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CarouselTileSchem
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ColumnTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.FlexBoxTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.FlowRowTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.GridTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyColumnTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyRowTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.GridTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyTilesTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PagerTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PullToRefreshTileSchema
@@ -128,10 +136,13 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.RowTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ShimmerTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.AsyncImageTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.IconTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.ImageTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.CheckboxTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.RadioButtonTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.SwitchTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema.KeyboardOptions
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema.VisualTransformation
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.menu.MenuTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.AdaptiveNavigationTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NavigationBarTileSchema
@@ -151,13 +162,15 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.plus
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.serializer
 
 class MosaicSerializer(
     tileSerializers: Map<KClass<out TileSchema>, KSerializer<out TileSchema>> = mapOf(),
     eventSerializers: Map<KClass<out EventSchema>, KSerializer<out EventSchema>> = mapOf(),
-    eventTriggerSerializers: Map<KClass<out EventTrigger>, KSerializer<out EventTrigger>> = mapOf()
+    eventTriggerSerializers: Map<KClass<out EventTrigger>, KSerializer<out EventTrigger>> = mapOf(), // TODO Alterar para EventTriggerDefinition
+    additionalSerializersModule: SerializersModule = SerializersModule {  }
 ) {
 
     @Suppress("UNCHECKED_CAST")
@@ -181,6 +194,206 @@ class MosaicSerializer(
                 }
             }
 
+            // Tile nested types
+            polymorphic(VisualTransformation::class) {
+                subclass(VisualTransformation.None::class, VisualTransformation.None.serializer())
+                subclass(VisualTransformation.Password::class, VisualTransformation.Password.serializer())
+                subclass(VisualTransformation.Custom::class, VisualTransformation.Custom.serializer())
+            }
+
+            polymorphic(KeyboardOptions.KeyboardCapitalization::class) {
+                subclass(KeyboardOptions.KeyboardCapitalization.Unspecified::class, KeyboardOptions.KeyboardCapitalization.Unspecified.serializer())
+                subclass(KeyboardOptions.KeyboardCapitalization.None::class, KeyboardOptions.KeyboardCapitalization.None.serializer())
+                subclass(KeyboardOptions.KeyboardCapitalization.Characters::class, KeyboardOptions.KeyboardCapitalization.Characters.serializer())
+                subclass(KeyboardOptions.KeyboardCapitalization.Words::class, KeyboardOptions.KeyboardCapitalization.Words.serializer())
+                subclass(KeyboardOptions.KeyboardCapitalization.Sentences::class, KeyboardOptions.KeyboardCapitalization.Sentences.serializer())
+            }
+
+            polymorphic(KeyboardOptions.KeyboardType::class) {
+                subclass(KeyboardOptions.KeyboardType.Unspecified::class, KeyboardOptions.KeyboardType.Unspecified.serializer())
+                subclass(KeyboardOptions.KeyboardType.Text::class, KeyboardOptions.KeyboardType.Text.serializer())
+                subclass(KeyboardOptions.KeyboardType.Ascii::class, KeyboardOptions.KeyboardType.Ascii.serializer())
+                subclass(KeyboardOptions.KeyboardType.Number::class, KeyboardOptions.KeyboardType.Number.serializer())
+                subclass(KeyboardOptions.KeyboardType.Phone::class, KeyboardOptions.KeyboardType.Phone.serializer())
+                subclass(KeyboardOptions.KeyboardType.Uri::class, KeyboardOptions.KeyboardType.Uri.serializer())
+                subclass(KeyboardOptions.KeyboardType.Email::class, KeyboardOptions.KeyboardType.Email.serializer())
+                subclass(KeyboardOptions.KeyboardType.Password::class, KeyboardOptions.KeyboardType.Password.serializer())
+                subclass(KeyboardOptions.KeyboardType.NumberPassword::class, KeyboardOptions.KeyboardType.NumberPassword.serializer())
+                subclass(KeyboardOptions.KeyboardType.Decimal::class, KeyboardOptions.KeyboardType.Decimal.serializer())
+            }
+
+            polymorphic(KeyboardOptions.ImeAction::class) {
+                subclass(KeyboardOptions.ImeAction.Unspecified::class, KeyboardOptions.ImeAction.Unspecified.serializer())
+                subclass(KeyboardOptions.ImeAction.Default::class, KeyboardOptions.ImeAction.Default.serializer())
+                subclass(KeyboardOptions.ImeAction.None::class, KeyboardOptions.ImeAction.None.serializer())
+                subclass(KeyboardOptions.ImeAction.Go::class, KeyboardOptions.ImeAction.Go.serializer())
+                subclass(KeyboardOptions.ImeAction.Search::class, KeyboardOptions.ImeAction.Search.serializer())
+                subclass(KeyboardOptions.ImeAction.Send::class, KeyboardOptions.ImeAction.Send.serializer())
+                subclass(KeyboardOptions.ImeAction.Previous::class, KeyboardOptions.ImeAction.Previous.serializer())
+                subclass(KeyboardOptions.ImeAction.Next::class, KeyboardOptions.ImeAction.Next.serializer())
+                subclass(KeyboardOptions.ImeAction.Done::class, KeyboardOptions.ImeAction.Done.serializer())
+            }
+
+            polymorphic(CarouselTileSchema.CarouselTypeSchema::class) {
+                subclass(CarouselTileSchema.CarouselTypeSchema.MultiBrowse::class, CarouselTileSchema.CarouselTypeSchema.MultiBrowse.serializer())
+                subclass(CarouselTileSchema.CarouselTypeSchema.Uncontained::class, CarouselTileSchema.CarouselTypeSchema.Uncontained.serializer())
+            }
+
+            polymorphic(GridTileSchema.GridTrackSchema::class) {
+                subclass(GridTileSchema.GridTrackSchema.Fixed::class, GridTileSchema.GridTrackSchema.Fixed.serializer())
+                subclass(GridTileSchema.GridTrackSchema.Fraction::class, GridTileSchema.GridTrackSchema.Fraction.serializer())
+                subclass(GridTileSchema.GridTrackSchema.Flexible::class, GridTileSchema.GridTrackSchema.Flexible.serializer())
+                subclass(GridTileSchema.GridTrackSchema.Auto::class, GridTileSchema.GridTrackSchema.Auto.serializer())
+                subclass(GridTileSchema.GridTrackSchema.MaxContent::class, GridTileSchema.GridTrackSchema.MaxContent.serializer())
+                subclass(GridTileSchema.GridTrackSchema.MinContent::class, GridTileSchema.GridTrackSchema.MinContent.serializer())
+            }
+
+            polymorphic(PagerTileSchema.PageSizeSchema::class) {
+                subclass(PagerTileSchema.PageSizeSchema.Fill::class, PagerTileSchema.PageSizeSchema.Fill.serializer())
+                subclass(PagerTileSchema.PageSizeSchema.Fixed::class, PagerTileSchema.PageSizeSchema.Fixed.serializer())
+            }
+
+            // Event nested types
+            polymorphic(DataSourceSchema::class) {
+                subclass(DataSourceSchema.SegmentedDataBase::class, DataSourceSchema.SegmentedDataBase.serializer())
+                subclass(DataSourceSchema.PlainDataBase::class, DataSourceSchema.PlainDataBase.serializer())
+                subclass(DataSourceSchema.ScreenNavigationData::class, DataSourceSchema.ScreenNavigationData.serializer())
+                subclass(DataSourceSchema.ScreenPlainData::class, DataSourceSchema.ScreenPlainData.serializer())
+                subclass(DataSourceSchema.ScreenSegmentedData::class, DataSourceSchema.ScreenSegmentedData.serializer())
+                subclass(DataSourceSchema.Tile::class, DataSourceSchema.Tile.serializer())
+            }
+
+            polymorphic(AccessModeSchema::class) {
+                subclass(AccessModeSchema.Full::class, AccessModeSchema.Full.serializer())
+                subclass(AccessModeSchema.Batch::class, AccessModeSchema.Batch.serializer())
+                subclass(AccessModeSchema.Single::class, AccessModeSchema.Single.serializer())
+            }
+
+            polymorphic(UpdateDataEventSchema.Update.UpdateDate::class) {
+                subclass(UpdateDataEventSchema.Update.UpdateDate.Incoming::class, UpdateDataEventSchema.Update.UpdateDate.Incoming.serializer())
+                subclass(UpdateDataEventSchema.Update.UpdateDate.Inline::class, UpdateDataEventSchema.Update.UpdateDate.Inline.serializer())
+            }
+
+            polymorphic(EvaluateDataEventSchema.Expression::class) {
+                subclass(EvaluateDataEventSchema.Expression.NotExpression::class, EvaluateDataEventSchema.Expression.NotExpression.serializer())
+                subclass(EvaluateDataEventSchema.Expression.OrExpression::class, EvaluateDataEventSchema.Expression.OrExpression.serializer())
+                subclass(EvaluateDataEventSchema.Expression.AndExpression::class, EvaluateDataEventSchema.Expression.AndExpression.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression::class, EvaluateDataEventSchema.Expression.DataExpression.serializer())
+            }
+
+            polymorphic(EvaluateDataEventSchema.Expression.DataExpression.Data::class) {
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Data.IncomingData::class, EvaluateDataEventSchema.Expression.DataExpression.Data.IncomingData.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Data.DataSourceData::class, EvaluateDataEventSchema.Expression.DataExpression.Data.DataSourceData.serializer())
+            }
+
+            polymorphic(EvaluateDataEventSchema.Expression.DataExpression.Operation::class) {
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.NullOperation.IsNull::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.NullOperation.IsNull.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.NullOperation.IsNotNull::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.NullOperation.IsNotNull.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsEqualsTo::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsEqualsTo.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsLengthSmallerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsLengthSmallerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsLengthSmallerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsLengthSmallerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsLengthEqualsTo::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsLengthEqualsTo.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsLengthBiggerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsLengthBiggerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsLengthBiggerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsLengthBiggerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.MatchesRegex::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.MatchesRegex.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.Contains::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.Contains.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.StartsWith::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.StartsWith.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.EndsWith::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.EndsWith.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.EqualsIgnoreCase::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.EqualsIgnoreCase.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsBlank::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsBlank.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsNotBlank::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.StringOperation.IsNotBlank.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsEven::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsEven.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsOdd::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsOdd.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsSmallerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsSmallerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsSmallerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsSmallerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsEqualsTo::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsEqualsTo.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsBiggerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsBiggerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsBiggerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.IntOperation.IsBiggerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.LongOperation.IsSmallerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.LongOperation.IsSmallerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.LongOperation.IsSmallerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.LongOperation.IsSmallerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.LongOperation.IsEqualsTo::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.LongOperation.IsEqualsTo.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.LongOperation.IsBiggerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.LongOperation.IsBiggerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.LongOperation.IsBiggerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.LongOperation.IsBiggerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.FloatOperation.IsSmallerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.FloatOperation.IsSmallerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.FloatOperation.IsSmallerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.FloatOperation.IsSmallerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.FloatOperation.IsEqualsTo::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.FloatOperation.IsEqualsTo.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.FloatOperation.IsBiggerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.FloatOperation.IsBiggerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.FloatOperation.IsBiggerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.FloatOperation.IsBiggerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.DoubleOperation.IsSmallerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.DoubleOperation.IsSmallerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.DoubleOperation.IsSmallerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.DoubleOperation.IsSmallerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.DoubleOperation.IsEqualsTo::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.DoubleOperation.IsEqualsTo.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.DoubleOperation.IsBiggerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.DoubleOperation.IsBiggerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.DoubleOperation.IsBiggerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.DoubleOperation.IsBiggerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.BooleanOperation.IsFalse::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.BooleanOperation.IsFalse.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.BooleanOperation.IsTrue::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.BooleanOperation.IsTrue.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.ContainsKey::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.ContainsKey.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.ContainsValue::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.ContainsValue.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsEmpty::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsEmpty.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsNotEmpty::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsNotEmpty.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsSizeSmallerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsSizeSmallerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsSizeSmallerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsSizeSmallerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsSizeEqualsTo::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsSizeEqualsTo.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsSizeBiggerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsSizeBiggerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsSizeBiggerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.IsSizeBiggerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.ValueAtKeyEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.MapOperation.ValueAtKeyEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.Contains::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.Contains.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.In::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.In.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsEmpty::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsEmpty.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsNotEmpty::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsNotEmpty.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsSizeSmallerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsSizeSmallerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsSizeSmallerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsSizeSmallerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsSizeEqualsTo::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsSizeEqualsTo.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsSizeBiggerThan::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsSizeBiggerThan.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsSizeBiggerThanOrEquals::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.IsSizeBiggerThanOrEquals.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.ContainsAll::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.ContainsAll.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.ContainsAny::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.ListOperation.ContainsAny.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.LocalDateTimeOperation.IsEqualTo::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.LocalDateTimeOperation.IsEqualTo.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.LocalDateTimeOperation.IsBefore::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.LocalDateTimeOperation.IsBefore.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.LocalDateTimeOperation.IsAfter::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.LocalDateTimeOperation.IsAfter.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.LocalDateTimeOperation.IsWeekend::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.LocalDateTimeOperation.IsWeekend.serializer())
+                subclass(EvaluateDataEventSchema.Expression.DataExpression.Operation.LocalDateTimeOperation.IsWeekday::class, EvaluateDataEventSchema.Expression.DataExpression.Operation.LocalDateTimeOperation.IsWeekday.serializer())
+            }
+
+            polymorphic(ChangeScreenStateEventSchema.State::class) {
+                subclass(ChangeScreenStateEventSchema.State.Success::class, ChangeScreenStateEventSchema.State.Success.serializer())
+                subclass(ChangeScreenStateEventSchema.State.Failure::class, ChangeScreenStateEventSchema.State.Failure.serializer())
+                subclass(ChangeScreenStateEventSchema.State.Initial::class, ChangeScreenStateEventSchema.State.Initial.serializer())
+            }
+
+            polymorphic(AddTilesEventSchema.InsertionPosition::class) {
+                subclass(AddTilesEventSchema.InsertionPosition.Start::class, AddTilesEventSchema.InsertionPosition.Start.serializer())
+                subclass(AddTilesEventSchema.InsertionPosition.End::class, AddTilesEventSchema.InsertionPosition.End.serializer())
+                subclass(AddTilesEventSchema.InsertionPosition.BeforeTile::class, AddTilesEventSchema.InsertionPosition.BeforeTile.serializer())
+                subclass(AddTilesEventSchema.InsertionPosition.AfterTile::class, AddTilesEventSchema.InsertionPosition.AfterTile.serializer())
+                subclass(AddTilesEventSchema.InsertionPosition.AtIndex::class, AddTilesEventSchema.InsertionPosition.AtIndex.serializer())
+            }
+
+            polymorphic(ScrollColumnTileEventSchema.Where::class) {
+                subclass(ScrollColumnTileEventSchema.Where.Top::class, ScrollColumnTileEventSchema.Where.Top.serializer())
+                subclass(ScrollColumnTileEventSchema.Where.To::class, ScrollColumnTileEventSchema.Where.To.serializer())
+                subclass(ScrollColumnTileEventSchema.Where.Bottom::class, ScrollColumnTileEventSchema.Where.Bottom.serializer())
+            }
+
+            polymorphic(ScrollRowTileEventSchema.Where::class) {
+                subclass(ScrollRowTileEventSchema.Where.Start::class, ScrollRowTileEventSchema.Where.Start.serializer())
+                subclass(ScrollRowTileEventSchema.Where.To::class, ScrollRowTileEventSchema.Where.To.serializer())
+                subclass(ScrollRowTileEventSchema.Where.End::class, ScrollRowTileEventSchema.Where.End.serializer())
+            }
+
+            polymorphic(ScrollPagerTileEventSchema.Where::class) {
+                subclass(ScrollPagerTileEventSchema.Where.Begin::class, ScrollPagerTileEventSchema.Where.Begin.serializer())
+                subclass(ScrollPagerTileEventSchema.Where.PreviousPage::class, ScrollPagerTileEventSchema.Where.PreviousPage.serializer())
+                subclass(ScrollPagerTileEventSchema.Where.NextPage::class, ScrollPagerTileEventSchema.Where.NextPage.serializer())
+                subclass(ScrollPagerTileEventSchema.Where.End::class, ScrollPagerTileEventSchema.Where.End.serializer())
+            }
+
+            polymorphic(OnPageChangedEventTrigger.Direction::class) {
+                subclass(OnPageChangedEventTrigger.Direction.Start::class, OnPageChangedEventTrigger.Direction.Start.serializer())
+                subclass(OnPageChangedEventTrigger.Direction.End::class, OnPageChangedEventTrigger.Direction.End.serializer())
+                subclass(OnPageChangedEventTrigger.Direction.Any::class, OnPageChangedEventTrigger.Direction.Any.serializer())
+                subclass(OnPageChangedEventTrigger.Direction.Index::class, OnPageChangedEventTrigger.Direction.Index.serializer())
+            }
+
             polymorphic(EventTrigger::class) {
                 (defaultEventTriggerSerializers + eventTriggerSerializers).forEach { (kClass, serializer) ->
                     subclass(
@@ -189,7 +402,7 @@ class MosaicSerializer(
                     )
                 }
             }
-        }
+        }.plus(additionalSerializersModule)
         explicitNulls = false
         encodeDefaults = true
     }
@@ -309,6 +522,8 @@ class MosaicSerializer(
             OnScrolledEventTrigger::class to OnScrolledEventTrigger.serializer(),
             OnScrollThresholdReachedEventTrigger::class to OnScrollThresholdReachedEventTrigger.serializer(),
             OnSearchEventTrigger::class to OnSearchEventTrigger.serializer(),
+            OnSnackbarActionEventTrigger::class to OnSnackbarActionEventTrigger.serializer(),
+            OnSnackbarDismissedEventTrigger::class to OnSnackbarDismissedEventTrigger.serializer(),
             OnSelectChangedEventTrigger::class to OnSelectChangedEventTrigger.serializer(),
             OnSelectEventTrigger::class to OnSelectEventTrigger.serializer(),
             OnStartEventTrigger::class to OnStartEventTrigger.serializer(),
@@ -359,6 +574,7 @@ class MosaicSerializer(
             TabsTileSchema::class to TabsTileSchema.serializer(),
             RadioButtonTileSchema::class to RadioButtonTileSchema.serializer(),
             AsyncImageTileSchema::class to AsyncImageTileSchema.serializer(),
+            ImageTileSchema::class to ImageTileSchema.serializer(),
             IconTileSchema::class to IconTileSchema.serializer(),
             NestedNavigationGraphTileSchema::class to NestedNavigationGraphTileSchema.serializer(),
             LazyTilesTileSchema::class to LazyTilesTileSchema.serializer(),
@@ -386,12 +602,16 @@ class MosaicSerializer(
             NavigateUpEventSchema::class to NavigateUpEventSchema.serializer(),
             DownloadFileEventSchema::class to DownloadFileEventSchema.serializer(),
             SendNetworkRequestEventSchema::class to SendNetworkRequestEventSchema.serializer(),
+            SetIncomingDataToNetworkParamsHolderBodyEventSchema::class to SetIncomingDataToNetworkParamsHolderBodyEventSchema.serializer(),
+            SetIncomingDataToNetworkParamsHolderHeadersEventSchema::class to SetIncomingDataToNetworkParamsHolderHeadersEventSchema.serializer(),
             DismissBottomSheetEventSchema::class to DismissBottomSheetEventSchema.serializer(),
             DisplayBottomSheetEventSchema::class to DisplayBottomSheetEventSchema.serializer(),
             DismissDialogEventSchema::class to DismissDialogEventSchema.serializer(),
             DisplayDialogEventSchema::class to DisplayDialogEventSchema.serializer(),
             DismissNavigationDrawerEventSchema::class to DismissNavigationDrawerEventSchema.serializer(),
             DisplayNavigationDrawerEventSchema::class to DisplayNavigationDrawerEventSchema.serializer(),
+            DisplaySnackbarEventSchema::class to DisplaySnackbarEventSchema.serializer(),
+            DismissSnackbarEventSchema::class to DismissSnackbarEventSchema.serializer(),
             StopRefreshingEventSchema::class to StopRefreshingEventSchema.serializer(),
             ChangeScreenStateEventSchema::class to ChangeScreenStateEventSchema.serializer(),
             GetScreenEventSchema::class to GetScreenEventSchema.serializer(),

@@ -3,6 +3,7 @@ package dev.catbit.mosaic.client.domain.screen
 import dev.catbit.mosaic.client.data.repository.MosaicRepository
 import dev.catbit.mosaic.core.data.models.screen.ScreenModel
 import dev.catbit.mosaic.core.domain.base.UseCase
+import io.ktor.http.HttpMethod
 
 class GetScreenUseCase(
     private val repository: MosaicRepository
@@ -11,12 +12,16 @@ class GetScreenUseCase(
     override suspend fun execute(params: Params) = with(params) {
         repository.getScreen(
             screenId = screenId,
-            headers = headers
+            headers = headers,
+            body = body,
+            httpMethod = httpMethod
         )
     }
 
     data class Params(
         val screenId: String,
-        val headers: Map<String, String>?
+        val headers: Map<String, String>?,
+        val body: Any?,
+        val httpMethod: HttpMethod,
     )
 }

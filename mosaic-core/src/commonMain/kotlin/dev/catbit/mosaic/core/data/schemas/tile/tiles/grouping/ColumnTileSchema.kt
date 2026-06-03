@@ -12,6 +12,25 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a vertical column that stacks its child tiles from top to bottom using Compose's
+ * [Column] layout. When [scrollable] is `true`, a vertical scroll state is attached and the
+ * column can be programmatically scrolled via a [ColumnTileBroadcastData] channel
+ * (ScrollToTop, ScrollTo, ScrollToBottom).
+ *
+ * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
+ * `visibility: TileSchema.Visibility`, `arrangement: ArrangementSchema.Vertical`,
+ * `alignment: AlignmentSchema.Horizontal`, `scrollable: Boolean`
+ *
+ * **Triggers dispatched:** `OnScrolledEventTrigger` — fired continuously while the user
+ * scrolls, carrying `ScrollDirection.Bottom` (forward) or `ScrollDirection.Top` (backward).
+ * `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when the column itself is tapped
+ * or long-pressed (requires events to be wired on the schema).
+ *
+ * **Notes:** The column exposes a [LocalColumnScope] CompositionLocal so that direct children
+ * that need a [ColumnScope] modifier (e.g. `weight`) can access it. Scroll broadcast commands
+ * are received on the same channel type used by [LazyColumnTileSchema].
+ */
 @Triggers(
     [
         OnClickEventTrigger::class,

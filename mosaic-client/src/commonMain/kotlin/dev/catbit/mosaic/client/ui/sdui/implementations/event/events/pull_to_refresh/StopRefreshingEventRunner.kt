@@ -4,13 +4,19 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pull_to_refresh.PullToRefreshTileEvents
 import dev.catbit.mosaic.core.data.schemas.event.events.pull_to_refresh.StopRefreshingEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object StopRefreshingEventRunner : EventRunner<StopRefreshingEventSchema> {
 
     override fun EventRunningScope.runEvent(event: StopRefreshingEventSchema) {
         tilesEventDispatcher.onEvent(
             tileId = event.tileId,
-            event = PullToRefreshTileEvents.StopRefreshing
+            event = PullToRefreshTileEvents.StopRefreshing,
+            onError = {
+                onTrigger(EventTriggers.onFailure(), data = it)
+                logError(tag = "StopRefreshingEventRunner", throwable = it)
+            },
+            onSuccess = { onTrigger(EventTriggers.onSuccess()) }
         )
     }
 }

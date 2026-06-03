@@ -8,17 +8,23 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 interface TilesEventDispatcher {
     fun onEvent(
         tileId: String,
-        event: TileEvent
+        event: TileEvent,
+        onError: (Throwable) -> Unit = {},
+        onSuccess: () -> Unit = {}
     )
 
     fun onGroupEvent(
-        event: TileGroupEvent
+        event: TileGroupEvent,
+        onError: (Throwable) -> Unit = {},
+        onSuccess: () -> Unit = {}
     )
 
     fun getEventSchema(eventId: String): EventSchema?
 
     fun updateEventHolder(
         eventId: String,
-        data: Map<String, Any?>
+        data: Map<String, Any?>,
+        onError: (Throwable) -> Unit = {},
+        onSuccess: () -> Unit = {}
     )
 }

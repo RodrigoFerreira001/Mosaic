@@ -3,6 +3,37 @@ package dev.catbit.mosaic.core.data.schemas.tile.placement
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Alignment value for positioning children inside a container tile.
+ *
+ * Three sub-interfaces exist for different container types:
+ * - [Vertical] — used as the `alignment` parameter of a `ColumnTile` (cross-axis, horizontal alignment).
+ *   Maps to `Alignment.Vertical`: [Vertical.Top] → `Alignment.Top`, [Vertical.Center] → `Alignment.CenterVertically`,
+ *   [Vertical.Bottom] → `Alignment.Bottom`.
+ * - [Horizontal] — used as the `alignment` parameter of a `RowTile` (cross-axis, vertical alignment).
+ *   Maps to `Alignment.Horizontal`: [Horizontal.Start] → `Alignment.Start`, [Horizontal.Center] → `Alignment.CenterHorizontally`,
+ *   [Horizontal.End] → `Alignment.End`.
+ * - [TwoDimensional] — used as the `contentAlignment` of a `BoxTile`. Maps to `Alignment` (e.g.
+ *   [TwoDimensional.Center] → `Alignment.Center`, [TwoDimensional.TopStart] → `Alignment.TopStart`).
+ *
+ * **DSL helpers (mosaic-server):**
+ * ```kotlin
+ * // For Column (horizontal cross-axis):
+ * alignHorizontallyToStart()
+ * alignHorizontallyToCenter()
+ * alignHorizontallyToEnd()
+ *
+ * // For Row (vertical cross-axis):
+ * alignVerticallyToTop()
+ * alignVerticallyToCenter()
+ * alignVerticallyToBottom()
+ *
+ * // For Box (two-dimensional):
+ * alignToTopStart()      alignToTopCenter()      alignToTopEnd()
+ * alignToCenterStart()   alignToCenter()         alignToCenterEnd()
+ * alignToBottomStart()   alignToBottomCenter()   alignToBottomEnd()
+ * ```
+ */
 @Serializable
 sealed interface AlignmentSchema {
 

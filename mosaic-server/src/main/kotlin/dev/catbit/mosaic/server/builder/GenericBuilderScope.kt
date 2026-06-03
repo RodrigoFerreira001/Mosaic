@@ -6,8 +6,8 @@ import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 abstract class GenericBuilderScope<Model, Builder : GenericBuilder<Model>> {
 
     private val builders = mutableListOf<Builder>()
-    internal fun build() = builders.map { it.build() }
-    internal fun addBuilder(builder: Builder) {
+    fun build() = builders.map { it.build() }
+    fun addBuilder(builder: Builder) {
         builders.add(
             builder.apply { compositionLocals = this@GenericBuilderScope.compositionLocals.toMap() }
         )

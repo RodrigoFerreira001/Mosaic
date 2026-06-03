@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.refresh_screen
 
 import dev.catbit.mosaic.client.domain.screen.GetScreenUseCase
+import dev.catbit.mosaic.client.extensions.toKtorHttpMethod
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
@@ -15,10 +16,14 @@ object RefreshScreenEventRunner : EventRunner<RefreshScreenEventSchema> {
         @Suppress("UNCHECKED_CAST")
         runSuspendOnStateHolderScope {
             get<GetScreenUseCase>()(
-                GetScreenUseCase.Params(
-                    screenId = screenId,
-                    headers = incomingData?.asMapAny()?.filterValues { it is String } as? Map<String, String>
-                )
+                with(event) {
+                    GetScreenUseCase.Params(
+                        screenId = screenId,
+                        headers = headers,
+                        body = body,
+                        httpMethod = method.toKtorHttpMethod()
+                    )
+                }
             )
                 .onSuccess { screenModel ->
                     screenBehaviorsHolder.setState(ScreenBehaviorsHolder.State.Success(screenModel))

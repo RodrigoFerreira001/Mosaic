@@ -15,8 +15,6 @@ import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.ByteReadChannel
@@ -26,7 +24,8 @@ import kotlinx.io.readByteArray
 
 class MosaicNetworkImpl(
     private val baseUrl: String,
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val networkParametersHolder: NetworkParametersHolder
 ) : MosaicNetwork {
 
     override suspend fun getInitialGraph(): Result<GraphResponse> = safeNetworkCall {
@@ -38,11 +37,19 @@ class MosaicNetworkImpl(
     override suspend fun getScreen(
         screenId: String,
         headers: Map<String, String>?,
+        body: Any?,
+        httpMethod: HttpMethod
     ): Result<ScreenResponse> = safeNetworkCall {
         httpClient.get(urlString = "$baseUrl/screens/$screenId") {
-            headers?.forEach { (key, value) ->
+            method = httpMethod
+
+            val (bodyParam, headersParams) = networkParametersHolder.consume()
+
+            (headersParams.orEmpty() + headers.orEmpty()).forEach { (key, value) ->
                 header(key, value)
             }
+
+            (body ?: bodyParam)?.let(::setBody)
         }
     }.map { httpResponse ->
         httpResponse.body()
@@ -54,17 +61,16 @@ class MosaicNetworkImpl(
         body: Any?,
         httpMethod: HttpMethod
     ) = runCatching {
-        httpClient.request(
-            urlString = url
-        ) {
+        httpClient.request(urlString = url) {
             method = httpMethod
-            body?.let {
-                header(HttpHeaders.ContentType, ContentType.Application.Json)
-                setBody(body)
-            }
-            headers?.forEach { (key, value) ->
+
+            val (bodyParam, headersParams) = networkParametersHolder.consume()
+
+            (headersParams.orEmpty() + headers.orEmpty()).forEach { (key, value) ->
                 header(key, value)
             }
+
+            (body ?: bodyParam)?.let(::setBody)
         }
     }
 
@@ -80,9 +86,14 @@ class MosaicNetworkImpl(
         try {
             httpClient.prepareRequest(urlString = url) {
                 method = httpMethod
-                headers?.forEach { (key, value) ->
+
+                val (bodyParam, headersParams) = networkParametersHolder.consume()
+
+                (headersParams.orEmpty() + headers.orEmpty()).forEach { (key, value) ->
                     header(key, value)
                 }
+
+                (body ?: bodyParam)?.let(::setBody)
 
                 onDownload { bytesSentTotal, contentLength ->
                     if (contentLength != null && contentLength > 0) {

@@ -8,6 +8,27 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Reads the contents of a locally stored file identified by [fileName]. The runner is currently
+ * a placeholder (`println`) — the actual file read and trigger-firing logic has not yet been
+ * implemented.
+ *
+ * **incomingData consumed:** Not used by the current placeholder runner. Once implemented,
+ * [fileName] is the sole input; no incomingData is required.
+ *
+ * **Triggers fired (intended, not yet implemented):**
+ * - [OnSuccessEventTrigger] — intended to fire after the file is read successfully, with the
+ *   file contents (binary or text) available as incomingData for downstream events.
+ * - [OnFailureEventTrigger] — intended to fire when the file cannot be read (e.g., file not
+ *   found, permission denied, or I/O error).
+ *
+ * **Failure scenarios:** Not applicable — the runner is a no-op placeholder. When implemented,
+ * the primary failure condition is [fileName] not existing in the app's private storage.
+ *
+ * **Notes:** [fileName] identifies the target file by name within the app's private storage
+ * scope. The intended incomingData format for the success payload (raw bytes, Base64 string,
+ * etc.) is not yet defined by the implementation.
+ */
 @Triggers(
     [
         OnSuccessEventTrigger::class,

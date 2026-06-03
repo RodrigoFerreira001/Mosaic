@@ -11,7 +11,9 @@ interface MosaicRepository {
 
     suspend fun getScreen(
         screenId: String,
-        headers: Map<String, String>?
+        headers: Map<String, String>?,
+        body: Any?,
+        httpMethod: HttpMethod
     ): Result<ScreenModel>
 
     suspend fun sendHttpRequest(
@@ -24,6 +26,7 @@ interface MosaicRepository {
     suspend fun downloadFile(
         url: String,
         headers: Map<String, String>?,
+        body: Any?,
         httpMethod: HttpMethod,
         onProgress: (Int) -> Unit = {},
         onBytesReceived: (ByteArray) -> Unit = {},

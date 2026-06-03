@@ -9,6 +9,21 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a Material 3 icon button in one of four visual styles controlled by [buttonType].
+ * The button displays a single [icon] with no label.
+ *
+ * **Updatable fields (via UpdateTiles):** `icon`, `buttonType`, `enabled`, `visibility`, `style`.
+ *
+ * **Triggers dispatched:**
+ * - [OnClickEventTrigger] — fired when the user taps the icon button.
+ *
+ * **Notes:** The [icon] field is required (non-nullable); unlike [ButtonTileSchema] there is
+ * no loading state or text. [buttonType] maps to [IconButton] (DEFAULT), [FilledIconButton]
+ * (FILLED), [FilledTonalIconButton] (FILLED_TONAL), or [OutlinedIconButton] (OUTLINED).
+ * The [enabled] flag controls whether the button is interactive; a disabled button receives no
+ * touch events and the icon is rendered with reduced opacity by the Material theme.
+ */
 @Triggers(
     [
         OnClickEventTrigger::class

@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.server.builder.tile.builders.navigation
 
+import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
@@ -28,6 +29,9 @@ internal class AdaptiveNavigationTileSchemaBuilder(
     private val header: (TileSchemaBuilderScope.() -> Unit)?,
     private val footer: (TileSchemaBuilderScope.() -> Unit)?,
     private val entries: AdaptiveNavigationEntryBuilderScope.() -> Unit,
+    private val defaultTransition: ContentTransitionSchema? = null,
+    private val defaultPopTransition: ContentTransitionSchema? = null,
+    private val defaultPredictivePopTransition: ContentTransitionSchema? = null,
 ) : TileSchemaBuilder<AdaptiveNavigationTileSchema>() {
 
     override fun build() = AdaptiveNavigationTileSchema(
@@ -41,6 +45,9 @@ internal class AdaptiveNavigationTileSchemaBuilder(
         header = header?.let { TileSchemaBuilderScope().apply(it).build().firstOrNull() },
         footer = footer?.let { TileSchemaBuilderScope().apply(it).build().firstOrNull() },
         entries = AdaptiveNavigationEntryBuilderScope().apply(entries).build(),
+        defaultTransition = defaultTransition,
+        defaultPopTransition = defaultPopTransition,
+        defaultPredictivePopTransition = defaultPredictivePopTransition,
     )
 }
 
@@ -54,6 +61,9 @@ fun TileSchemaBuilderScope.AdaptiveNavigation(
     selectedEntryId: String = startEntryId,
     header: (TileSchemaBuilderScope.() -> Unit)? = null,
     footer: (TileSchemaBuilderScope.() -> Unit)? = null,
+    defaultTransition: ContentTransitionSchema? = null,
+    defaultPopTransition: ContentTransitionSchema? = null,
+    defaultPredictivePopTransition: ContentTransitionSchema? = null,
     entries: AdaptiveNavigationEntryBuilderScope.() -> Unit,
 ) {
     addBuilder(
@@ -68,6 +78,9 @@ fun TileSchemaBuilderScope.AdaptiveNavigation(
             header = header,
             footer = footer,
             entries = entries,
+            defaultTransition = defaultTransition,
+            defaultPopTransition = defaultPopTransition,
+            defaultPredictivePopTransition = defaultPredictivePopTransition,
         )
     )
 }
@@ -80,6 +93,9 @@ class AdaptiveNavigationEntryBuilder(
     private val initialEvents: EventSchemaBuilderScope.() -> Unit,
     private val failureTiles: TileSchemaBuilderScope.() -> Unit,
     private val failureEvents: EventSchemaBuilderScope.() -> Unit,
+    private val transition: ContentTransitionSchema? = null,
+    private val popTransition: ContentTransitionSchema? = null,
+    private val predictivePopTransition: ContentTransitionSchema? = null,
 ) : GenericBuilder<AdaptiveNavigationTileSchema.NavigationEntry>() {
 
     override fun build() = AdaptiveNavigationTileSchema.NavigationEntry(
@@ -90,6 +106,9 @@ class AdaptiveNavigationEntryBuilder(
         initialEvents = EventSchemaBuilderScope().apply(initialEvents).build(),
         failureTiles = TileSchemaBuilderScope().apply(failureTiles).build(),
         failureEvents = EventSchemaBuilderScope().apply(failureEvents).build(),
+        transition = transition,
+        popTransition = popTransition,
+        predictivePopTransition = predictivePopTransition,
     )
 }
 
@@ -120,6 +139,9 @@ class AdaptiveNavigationEntryBuilderScope private constructor() :
         },
         failureTiles: TileSchemaBuilderScope.() -> Unit = {},
         failureEvents: EventSchemaBuilderScope.() -> Unit = {},
+        transition: ContentTransitionSchema? = null,
+        popTransition: ContentTransitionSchema? = null,
+        predictivePopTransition: ContentTransitionSchema? = null,
     ) {
         addBuilder(
             AdaptiveNavigationEntryBuilder(
@@ -130,6 +152,9 @@ class AdaptiveNavigationEntryBuilderScope private constructor() :
                 initialEvents = initialEvents,
                 failureTiles = failureTiles,
                 failureEvents = failureEvents,
+                transition = transition,
+                popTransition = popTransition,
+                predictivePopTransition = predictivePopTransition,
             )
         )
     }

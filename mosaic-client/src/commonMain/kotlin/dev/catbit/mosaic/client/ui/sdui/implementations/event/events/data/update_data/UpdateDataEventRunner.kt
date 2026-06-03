@@ -8,6 +8,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.core.data.schemas.event.data.DataSourceSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.data.UpdateDataEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.domain.base.IO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -74,6 +75,7 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
                         }
                 }
             }
+            onTrigger(EventTriggers.onSuccess())
         }
     }
 

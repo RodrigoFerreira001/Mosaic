@@ -45,9 +45,17 @@ internal class MosaicApplicationStateHolder(
                         graph = with(graphModel) {
                             GraphUIState(
                                 entries = entries.map { entry ->
-                                    GraphUIState.Entry(entry.screenId)
+                                    GraphUIState.Entry(
+                                        screenId = entry.screenId,
+                                        transition = entry.transition,
+                                        popTransition = entry.popTransition,
+                                        predictivePopTransition = entry.predictivePopTransition,
+                                    )
                                 },
-                                startEntryId = startEntryId
+                                startEntryId = startEntryId,
+                                defaultTransition = defaultTransition,
+                                defaultPopTransition = defaultPopTransition,
+                                defaultPredictivePopTransition = defaultPredictivePopTransition,
                             )
                         }
                     )
@@ -78,7 +86,10 @@ internal class MosaicApplicationStateHolder(
                     initialTiles = initialTiles,
                     initialEvents = initialEvents,
                     failureTiles = failureTiles,
-                    failureEvents = failureEvents
+                    failureEvents = failureEvents,
+                    transition = transition,
+                    popTransition = popTransition,
+                    predictivePopTransition = predictivePopTransition,
                 )
             }
         }

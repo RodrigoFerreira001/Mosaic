@@ -3,9 +3,11 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.che
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.core.data.schemas.event.events.system.CheckIfHasInternetConnectionEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object CheckIfHasInternetConnectionEventRunner : EventRunner<CheckIfHasInternetConnectionEventSchema> {
     override fun EventRunningScope.runEvent(event: CheckIfHasInternetConnectionEventSchema) {
         println("executed CheckIfHasInternetConnectionEvent")
+        onTrigger(EventTriggers.onSuccess())
     }
 }

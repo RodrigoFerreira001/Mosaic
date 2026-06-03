@@ -63,3 +63,12 @@ fun TileSchemaBuilderScope.Button(
         )
     )
 }
+
+fun filledButton() = ButtonTileSchema.Type.FILLED
+fun elevatedButton() = ButtonTileSchema.Type.ELEVATED
+fun filledTonalButton() = ButtonTileSchema.Type.FILLED_TONAL
+fun outlinedButton() = ButtonTileSchema.Type.OUTLINED
+fun textButton() = ButtonTileSchema.Type.TEXT
+
+fun squareButton() = ButtonTileSchema.Shape.SQUARE
+fun roundedButton() = ButtonTileSchema.Shape.ROUNDED

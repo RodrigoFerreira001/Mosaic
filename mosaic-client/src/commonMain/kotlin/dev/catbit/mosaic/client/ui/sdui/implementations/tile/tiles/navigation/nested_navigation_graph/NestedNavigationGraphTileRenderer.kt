@@ -1,5 +1,8 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.nested_navigation_graph
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.visible
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -14,6 +17,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import dev.catbit.mosaic.client.extensions.toContentTransform
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTilesManager
@@ -69,7 +73,10 @@ object NestedNavigationGraphTileRenderer : TileRenderer<NestedNavigationGraphTil
                             initialTiles = initialTiles,
                             initialEvents = initialEvents,
                             failureTiles = failureTiles,
-                            failureEvents = failureEvents
+                            failureEvents = failureEvents,
+                            transition = transition,
+                            popTransition = popTransition,
+                            predictivePopTransition = predictivePopTransition,
                         )
                     }
                 }
@@ -90,6 +97,27 @@ object NestedNavigationGraphTileRenderer : TileRenderer<NestedNavigationGraphTil
                     .styledWith(style),
                 backStack = backStack,
                 onBack = { navigationController.goBack() },
+                transitionSpec = {
+                    val targetKey = targetState.key as? ScreenNavKey
+                    val entryTransition = targetKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.transition }
+                    val resolved = entryTransition ?: defaultTransition
+                    resolved?.toContentTransform()
+                        ?: (EnterTransition.None togetherWith ExitTransition.None)
+                },
+                popTransitionSpec = {
+                    val initialKey = initialState.key as? ScreenNavKey
+                    val entryTransition = initialKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.popTransition }
+                    val resolved = entryTransition ?: defaultPopTransition
+                    resolved?.toContentTransform()
+                        ?: (EnterTransition.None togetherWith ExitTransition.None)
+                },
+                predictivePopTransitionSpec = {
+                    val initialKey = initialState.key as? ScreenNavKey
+                    val entryTransition = initialKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.predictivePopTransition }
+                    val resolved = entryTransition ?: defaultPredictivePopTransition
+                    resolved?.toContentTransform()
+                        ?: (EnterTransition.None togetherWith ExitTransition.None)
+                },
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator()

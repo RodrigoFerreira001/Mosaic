@@ -1,5 +1,8 @@
 package dev.catbit.mosaic.client.application
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ColorScheme
@@ -34,11 +38,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import dev.catbit.mosaic.client.generated.resources.Res
-import dev.catbit.mosaic.client.generated.resources.mosaic_failure_details
-import dev.catbit.mosaic.client.generated.resources.mosaic_failure_retry
-import dev.catbit.mosaic.client.generated.resources.mosaic_failure_title
-import org.jetbrains.compose.resources.stringResource
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
@@ -47,8 +46,15 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import dev.catbit.mosaic.client.extensions.toContentTransform
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenExtrasHolder
+import org.jetbrains.compose.resources.DrawableResource
 import dev.catbit.mosaic.client.di.MosaicModules
+import dev.catbit.mosaic.client.generated.resources.Res
 import dev.catbit.mosaic.client.generated.resources.ic_mosaic_logo
+import dev.catbit.mosaic.client.generated.resources.mosaic_failure_details
+import dev.catbit.mosaic.client.generated.resources.mosaic_failure_retry
+import dev.catbit.mosaic.client.generated.resources.mosaic_failure_title
 import dev.catbit.mosaic.client.logger.DefaultMosaicLogger
 import dev.catbit.mosaic.client.logger.MosaicLogger
 import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbol
@@ -67,6 +73,7 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.KoinApplication
 import org.koin.compose.koinInject
@@ -86,6 +93,8 @@ fun MosaicApplication(
     logger: MosaicLogger = DefaultMosaicLogger(),
     tileDefinitions: List<TileDefinition<out TileSchema>> = emptyList(),
     eventDefinitions: List<EventDefinition<out EventSchema>> = emptyList(),
+    additionalSerializersModule: SerializersModule = SerializersModule {  },
+    drawableResources: Map<String, DrawableResource> = emptyMap(),
     appSplash: @Composable BoxScope.() -> Unit,
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     shapes: Shapes = MaterialTheme.shapes,
@@ -101,7 +110,9 @@ fun MosaicApplication(
                     additionalModule = additionalKoinModule,
                     logger = logger,
                     tileDefinitions = tileDefinitions,
-                    eventDefinitions = eventDefinitions
+                    eventDefinitions = eventDefinitions,
+                    additionalSerializersModule = additionalSerializersModule,
+                    drawableResources = drawableResources,
                 ).modules
             )
         },
@@ -178,6 +189,8 @@ private fun MosaicApplicationSuccessContent(
         )
     }
 
+    val screenExtrasHolder = koinInject<ScreenExtrasHolder>()
+
     OverlayContainer(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -185,6 +198,27 @@ private fun MosaicApplicationSuccessContent(
             modifier = Modifier.fillMaxSize(),
             backStack = backStack,
             onBack = { navigationController.goBack() },
+            transitionSpec = {
+                val targetKey = targetState.key as? ScreenNavKey
+                val entryTransition = targetKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.transition }
+                val resolved = entryTransition ?: uiState.graph.defaultTransition
+                resolved?.toContentTransform()
+                    ?: (EnterTransition.None togetherWith ExitTransition.None)
+            },
+            popTransitionSpec = {
+                val initialKey = initialState.key as? ScreenNavKey
+                val entryTransition = initialKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.popTransition }
+                val resolved = entryTransition ?: uiState.graph.defaultPopTransition
+                resolved?.toContentTransform()
+                    ?: (EnterTransition.None togetherWith ExitTransition.None)
+            },
+            predictivePopTransitionSpec = {
+                val initialKey = initialState.key as? ScreenNavKey
+                val entryTransition = initialKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.predictivePopTransition }
+                val resolved = entryTransition ?: uiState.graph.defaultPredictivePopTransition
+                resolved?.toContentTransform()
+                    ?: (EnterTransition.None togetherWith ExitTransition.None)
+            },
             entryDecorators = listOf(
                 rememberSaveableStateHolderNavEntryDecorator(),
                 rememberViewModelStoreNavEntryDecorator()
@@ -297,7 +331,9 @@ private fun MosaicApplicationFailureContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .widthIn(max = 400.dp)
+                .fillMaxWidth(),
             onClick = {
                 onEvent(Event.OnTryAgainClick)
             },
@@ -349,5 +385,4 @@ private fun MosaicApplicationFailureContentPreview() {
             onEvent = {}
         )
     }
-
 }

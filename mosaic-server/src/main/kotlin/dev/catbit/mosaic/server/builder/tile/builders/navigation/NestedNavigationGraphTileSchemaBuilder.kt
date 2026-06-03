@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.server.builder.tile.builders.navigation
 
+import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NestedNavigationGraphTileSchema
@@ -24,6 +25,9 @@ internal class NestedNavigationGraphTileSchemaBuilder(
     private val navigatorId: String,
     private val startEntryId: String,
     private val entries: NestedNavigationGraphEntryBuilderScope.() -> Unit,
+    private val defaultTransition: ContentTransitionSchema? = null,
+    private val defaultPopTransition: ContentTransitionSchema? = null,
+    private val defaultPredictivePopTransition: ContentTransitionSchema? = null,
 ) : TileSchemaBuilder<NestedNavigationGraphTileSchema>() {
 
     override fun build() = NestedNavigationGraphTileSchema(
@@ -33,7 +37,10 @@ internal class NestedNavigationGraphTileSchemaBuilder(
         visibility = visibility,
         navigatorId = navigatorId,
         entries = NestedNavigationGraphEntryBuilderScope().apply(entries).build(),
-        startEntryId = startEntryId
+        startEntryId = startEntryId,
+        defaultTransition = defaultTransition,
+        defaultPopTransition = defaultPopTransition,
+        defaultPredictivePopTransition = defaultPredictivePopTransition,
     )
 }
 
@@ -44,6 +51,9 @@ fun TileSchemaBuilderScope.NestedNavigationGraph(
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     navigatorId: String,
     startEntryId: String,
+    defaultTransition: ContentTransitionSchema? = null,
+    defaultPopTransition: ContentTransitionSchema? = null,
+    defaultPredictivePopTransition: ContentTransitionSchema? = null,
     entries: NestedNavigationGraphEntryBuilderScope.() -> Unit
 ) {
     addBuilder(
@@ -54,7 +64,10 @@ fun TileSchemaBuilderScope.NestedNavigationGraph(
             visibility = visibility,
             navigatorId = navigatorId,
             entries = entries,
-            startEntryId = startEntryId
+            startEntryId = startEntryId,
+            defaultTransition = defaultTransition,
+            defaultPopTransition = defaultPopTransition,
+            defaultPredictivePopTransition = defaultPredictivePopTransition,
         )
     )
 }
@@ -65,6 +78,9 @@ class NestedNavigationGraphEntryBuilder(
     private val initialEvents: EventSchemaBuilderScope.() -> Unit = {},
     private val failureTiles: TileSchemaBuilderScope.() -> Unit = {},
     private val failureEvents: EventSchemaBuilderScope.() -> Unit = {},
+    private val transition: ContentTransitionSchema? = null,
+    private val popTransition: ContentTransitionSchema? = null,
+    private val predictivePopTransition: ContentTransitionSchema? = null,
 ) : GenericBuilder<NestedNavigationGraphTileSchema.Entry>() {
 
     override fun build() = NestedNavigationGraphTileSchema.Entry(
@@ -72,7 +88,10 @@ class NestedNavigationGraphEntryBuilder(
         initialTiles = TileSchemaBuilderScope().apply(initialTiles).build(),
         initialEvents = EventSchemaBuilderScope().apply(initialEvents).build(),
         failureTiles = TileSchemaBuilderScope().apply(failureTiles).build(),
-        failureEvents = EventSchemaBuilderScope().apply(failureEvents).build()
+        failureEvents = EventSchemaBuilderScope().apply(failureEvents).build(),
+        transition = transition,
+        popTransition = popTransition,
+        predictivePopTransition = predictivePopTransition,
     )
 }
 
@@ -101,6 +120,9 @@ class NestedNavigationGraphEntryBuilderScope private constructor():
         },
         failureTiles: TileSchemaBuilderScope.() -> Unit = {},
         failureEvents: EventSchemaBuilderScope.() -> Unit = {},
+        transition: ContentTransitionSchema? = null,
+        popTransition: ContentTransitionSchema? = null,
+        predictivePopTransition: ContentTransitionSchema? = null,
     ) {
         addBuilder(
             NestedNavigationGraphEntryBuilder(
@@ -108,7 +130,10 @@ class NestedNavigationGraphEntryBuilderScope private constructor():
                 initialTiles = initialTiles,
                 initialEvents = initialEvents,
                 failureTiles = failureTiles,
-                failureEvents = failureEvents
+                failureEvents = failureEvents,
+                transition = transition,
+                popTransition = popTransition,
+                predictivePopTransition = predictivePopTransition,
             )
         )
     }

@@ -312,6 +312,79 @@ fun Data.valueAtKeyEquals(key: String, value: AnySerializable) = data(
     operation = Operation.MapOperation.ValueAtKeyEquals(key, value)
 )
 
+fun Data.valueAtKey(key: String) = KeyedData(this, key)
+
+class KeyedData(
+    private val data: Data,
+    private val key: String
+) {
+    private fun build(operation: Operation): EvaluateDataEventSchema.Expression =
+        EvaluateDataEventSchema.Expression.DataExpression(
+            data = data,
+            operation = Operation.MapOperation.ValueAtKeyValidate(key, operation)
+        )
+
+    // Null
+    fun isNull() = build(Operation.NullOperation.IsNull)
+    fun isNotNull() = build(Operation.NullOperation.IsNotNull)
+
+    // String
+    fun isEqualsTo(target: String) = build(Operation.StringOperation.IsEqualsTo(target))
+    fun isLengthSmallerThan(length: Int) = build(Operation.StringOperation.IsLengthSmallerThan(length))
+    fun isLengthSmallerThanOrEquals(length: Int) = build(Operation.StringOperation.IsLengthSmallerThanOrEquals(length))
+    fun isLengthEqualsTo(length: Int) = build(Operation.StringOperation.IsLengthEqualsTo(length))
+    fun isLengthBiggerThan(length: Int) = build(Operation.StringOperation.IsLengthBiggerThan(length))
+    fun isLengthBiggerThanOrEquals(length: Int) = build(Operation.StringOperation.IsLengthBiggerThanOrEquals(length))
+    fun matchesRegex(regex: String) = build(Operation.StringOperation.MatchesRegex(regex))
+    fun containsSubstring(substring: String) = build(Operation.StringOperation.Contains(substring))
+    fun startsWith(prefix: String) = build(Operation.StringOperation.StartsWith(prefix))
+    fun endsWith(suffix: String) = build(Operation.StringOperation.EndsWith(suffix))
+    fun equalsIgnoreCase(target: String) = build(Operation.StringOperation.EqualsIgnoreCase(target))
+    fun isBlank() = build(Operation.StringOperation.IsBlank)
+    fun isNotBlank() = build(Operation.StringOperation.IsNotBlank)
+
+    // Int
+    fun isEven() = build(Operation.IntOperation.IsEven)
+    fun isOdd() = build(Operation.IntOperation.IsOdd)
+    fun isSmallerThan(target: Int) = build(Operation.IntOperation.IsSmallerThan(target))
+    fun isSmallerThanOrEquals(target: Int) = build(Operation.IntOperation.IsSmallerThanOrEquals(target))
+    fun isEqualsTo(target: Int) = build(Operation.IntOperation.IsEqualsTo(target))
+    fun isBiggerThan(target: Int) = build(Operation.IntOperation.IsBiggerThan(target))
+    fun isBiggerThanOrEquals(target: Int) = build(Operation.IntOperation.IsBiggerThanOrEquals(target))
+
+    // Long
+    fun isSmallerThan(target: Long) = build(Operation.LongOperation.IsSmallerThan(target))
+    fun isSmallerThanOrEquals(target: Long) = build(Operation.LongOperation.IsSmallerThanOrEquals(target))
+    fun isEqualsTo(target: Long) = build(Operation.LongOperation.IsEqualsTo(target))
+    fun isBiggerThan(target: Long) = build(Operation.LongOperation.IsBiggerThan(target))
+    fun isBiggerThanOrEquals(target: Long) = build(Operation.LongOperation.IsBiggerThanOrEquals(target))
+
+    // Float
+    fun isSmallerThan(target: Float) = build(Operation.FloatOperation.IsSmallerThan(target))
+    fun isSmallerThanOrEquals(target: Float) = build(Operation.FloatOperation.IsSmallerThanOrEquals(target))
+    fun isEqualsTo(target: Float) = build(Operation.FloatOperation.IsEqualsTo(target))
+    fun isBiggerThan(target: Float) = build(Operation.FloatOperation.IsBiggerThan(target))
+    fun isBiggerThanOrEquals(target: Float) = build(Operation.FloatOperation.IsBiggerThanOrEquals(target))
+
+    // Double
+    fun isSmallerThan(target: Double) = build(Operation.DoubleOperation.IsSmallerThan(target))
+    fun isSmallerThanOrEquals(target: Double) = build(Operation.DoubleOperation.IsSmallerThanOrEquals(target))
+    fun isEqualsTo(target: Double) = build(Operation.DoubleOperation.IsEqualsTo(target))
+    fun isBiggerThan(target: Double) = build(Operation.DoubleOperation.IsBiggerThan(target))
+    fun isBiggerThanOrEquals(target: Double) = build(Operation.DoubleOperation.IsBiggerThanOrEquals(target))
+
+    // Boolean
+    fun isTrue() = build(Operation.BooleanOperation.IsTrue)
+    fun isFalse() = build(Operation.BooleanOperation.IsFalse)
+
+    // LocalDateTime
+    fun isEqualTo(dateTime: LocalDateTime) = build(Operation.LocalDateTimeOperation.IsEqualTo(dateTime))
+    fun isBefore(dateTime: LocalDateTime) = build(Operation.LocalDateTimeOperation.IsBefore(dateTime))
+    fun isAfter(dateTime: LocalDateTime) = build(Operation.LocalDateTimeOperation.IsAfter(dateTime))
+    fun isWeekend() = build(Operation.LocalDateTimeOperation.IsWeekend)
+    fun isWeekday() = build(Operation.LocalDateTimeOperation.IsWeekday)
+}
+
 fun Data.listContains(value: AnySerializable) = data(
     data = this,
     operation = Operation.ListOperation.Contains(value)

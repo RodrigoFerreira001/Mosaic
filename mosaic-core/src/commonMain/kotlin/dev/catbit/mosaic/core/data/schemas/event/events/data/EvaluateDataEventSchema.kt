@@ -12,6 +12,41 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Evaluates a boolean [expression] tree against data and branches the event chain based on the
+ * result. The expression can reference [incomingData] directly or read from any supported data
+ * source, and supports logical composition via [Expression.AndExpression],
+ * [Expression.OrExpression], and [Expression.NotExpression].
+ *
+ * **incomingData consumed:** Used as the subject of [Expression.DataExpression.Data.IncomingData]
+ * nodes in the expression tree, and is forwarded unchanged as `data` on both [onSuccess] and
+ * [onFailure] triggers. It is never mutated.
+ *
+ * **Triggers fired:**
+ * - [onSuccess(incomingData)] – When the root expression evaluates to `true`. The original
+ *   `incomingData` is passed through unmodified.
+ * - [onFailure(incomingData or Throwable)] – When the root expression evaluates to `false`, in
+ *   which case `incomingData` is passed through; OR when an exception is thrown during evaluation
+ *   (e.g. a type-cast mismatch in an operation), in which case the `Throwable` is passed as data.
+ *
+ * **Failure scenarios:**
+ * - Any uncaught exception thrown during expression evaluation (e.g. casting `incomingData` to an
+ *   incompatible type, or an unsupported operation variant) fires [onFailure] with the exception.
+ *   The error is also logged via `logError`.
+ * - A `false` boolean result is treated as a "logical failure" and fires [onFailure] with the
+ *   unmodified `incomingData`. This is not an error — it is the normal branching mechanism.
+ *
+ * **Notes:**
+ * - Type-mismatch operations (e.g. applying [Expression.DataExpression.Operation.IntOperation] to
+ *   a String value) return `false` via safe casting (`as?`), not an exception, so they do not
+ *   reach [onFailure] via the catch block — they resolve as logical false.
+ * - [Expression.OrExpression] uses short-circuit evaluation: the right side is only evaluated if
+ *   the left returns `false`. Similarly, [Expression.AndExpression] short-circuits if the left
+ *   is `false`.
+ * - [Expression.DataExpression.Operation.MapOperation.ValueAtKeyValidate] is recursive: it
+ *   applies a nested [Expression.DataExpression.Operation] to the value at the given key.
+ * - All I/O (data source fetching) is dispatched on [Dispatchers.IO].
+ */
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -388,6 +423,13 @@ data class EvaluateDataEventSchema(
                     data class ValueAtKeyEquals(
                         @SerialName("key") val key: String,
                         @SerialName("value") val value: AnySerializable
+                    ) : MapOperation
+
+                    @Serializable
+                    @SerialName("Map_ValueAtKeyValidate")
+                    data class ValueAtKeyValidate(
+                        @SerialName("key") val key: String,
+                        @SerialName("validation") val validation: Operation
                     ) : MapOperation
                 }
 

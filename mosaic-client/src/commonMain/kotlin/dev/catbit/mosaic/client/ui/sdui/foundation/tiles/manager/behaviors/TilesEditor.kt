@@ -7,59 +7,83 @@ interface TilesEditor {
 
     fun addTile(
         tileSchema: TileSchema,
-        where: InsertionPosition = InsertionPosition.End
+        where: InsertionPosition = InsertionPosition.End,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 
     fun addTiles(
         tileSchemas: List<TileSchema>,
-        where: InsertionPosition = InsertionPosition.End
+        where: InsertionPosition = InsertionPosition.End,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 
     fun addTile(
         tileSchema: TileSchema,
         groupingTileId: String,
-        where: InsertionPosition = InsertionPosition.End
+        where: InsertionPosition = InsertionPosition.End,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 
     fun addTiles(
         tileSchemas: List<TileSchema>,
         groupingTileId: String,
-        where: InsertionPosition = InsertionPosition.End
-    )
-
-    fun removeTile(
-        tileId: String
+        where: InsertionPosition = InsertionPosition.End,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 
     fun removeTile(
         tileId: String,
-        groupingTileId: String
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 
-    fun removeTiles(
-        tileIds: List<String>
+    fun removeTile(
+        tileId: String,
+        groupingTileId: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 
     fun removeTiles(
         tileIds: List<String>,
-        groupingTileId: String
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
+    )
+
+    fun removeTiles(
+        tileIds: List<String>,
+        groupingTileId: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 
     fun replaceTiles(
         tileSchemas: List<TileSchema>,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 
     fun replaceTiles(
         tileSchemas: List<TileSchema>,
-        groupingTileId: String
+        groupingTileId: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 
     fun wipeTiles(
-        groupingTileId: String
+        groupingTileId: String,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 
     fun updateTile(
         tileId: String,
-        updateData: Map<String, Any?>
+        updateData: Map<String, Any?>,
+        onError: (Throwable) -> Unit,
+        onSuccess: () -> Unit
     )
 }

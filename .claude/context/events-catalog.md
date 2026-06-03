@@ -466,6 +466,32 @@ No additional fields.
 
 ---
 
+### DisplaySnackbarEventSchema
+**JSON type:** `"DisplaySnackbar"`
+
+Shows a snackbar with a message, configurable duration, and optional action button.
+
+| Field | Type | Default |
+|---|---|---|
+| `message` | `String` | required |
+| `duration` | `SnackbarDurationSchema` | `Short` |
+| `actionLabel` | `String?` | `null` |
+
+`SnackbarDurationSchema` (enum): `Short`, `Long`, `Indefinite`
+
+**Child triggers used:** `OnSnackbarAction` (when action button is clicked), `OnSnackbarDismissed` (when snackbar is dismissed)
+
+---
+
+### DismissSnackbarEventSchema
+**JSON type:** `"DismissSnackbar"`
+
+Programmatically dismisses the currently displayed snackbar. Useful for `Indefinite` duration snackbars.
+
+No additional fields.
+
+---
+
 ## Events / Meta
 
 ### TriggerEventEventSchema

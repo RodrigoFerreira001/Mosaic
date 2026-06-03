@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.server.builder.graph
 
 import dev.catbit.mosaic.core.data.responses.graph.GraphResponse.Entry
+import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
@@ -18,6 +19,9 @@ class GraphEntryBuilder(
     private val initialEvents: EventSchemaBuilderScope.() -> Unit = {},
     private val failureTiles: TileSchemaBuilderScope.() -> Unit = {},
     private val failureEvents: EventSchemaBuilderScope.() -> Unit = {},
+    private val transition: ContentTransitionSchema? = null,
+    private val popTransition: ContentTransitionSchema? = null,
+    private val predictivePopTransition: ContentTransitionSchema? = null,
 ) : GenericBuilder<Entry>() {
 
     override fun build() = Entry(
@@ -25,7 +29,10 @@ class GraphEntryBuilder(
         initialTiles = TileSchemaBuilderScope().apply(initialTiles).build(),
         initialEvents = EventSchemaBuilderScope().apply(initialEvents).build(),
         failureTiles = TileSchemaBuilderScope().apply(failureTiles).build(),
-        failureEvents = EventSchemaBuilderScope().apply(failureEvents).build()
+        failureEvents = EventSchemaBuilderScope().apply(failureEvents).build(),
+        transition = transition,
+        popTransition = popTransition,
+        predictivePopTransition = predictivePopTransition,
     )
 }
 
@@ -53,6 +60,9 @@ class GraphEntryBuilderScope private constructor(): GenericBuilderScope<Entry, G
         },
         failureTiles: TileSchemaBuilderScope.() -> Unit = {},
         failureEvents: EventSchemaBuilderScope.() -> Unit = {},
+        transition: ContentTransitionSchema? = null,
+        popTransition: ContentTransitionSchema? = null,
+        predictivePopTransition: ContentTransitionSchema? = null,
     ) {
         addBuilder(
             GraphEntryBuilder(
@@ -60,7 +70,10 @@ class GraphEntryBuilderScope private constructor(): GenericBuilderScope<Entry, G
                 initialTiles = initialTiles,
                 initialEvents = initialEvents,
                 failureTiles = failureTiles,
-                failureEvents = failureEvents
+                failureEvents = failureEvents,
+                transition = transition,
+                popTransition = popTransition,
+                predictivePopTransition = predictivePopTransition,
             )
         )
     }

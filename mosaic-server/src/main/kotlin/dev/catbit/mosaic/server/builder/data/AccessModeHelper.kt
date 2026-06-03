@@ -6,8 +6,8 @@ fun fullAccessMode() = AccessModeSchema.Full
 
 fun batchAccessMode(
     dataIds: List<String>,
-    allowMissingData: Boolean,
-    unwrapValuesToList: Boolean,
+    allowMissingData: Boolean = false,
+    unwrapValuesToList: Boolean = false,
 ) = AccessModeSchema.Batch(
     dataIds = dataIds,
     allowMissingData = allowMissingData,

@@ -9,6 +9,20 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a Material 3 [SuggestionChip] displaying a text label. The chip can be enabled or
+ * disabled via [enabled]. When tapped, it dispatches a click trigger to its child events.
+ *
+ * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
+ * `visibility: TileSchema.Visibility`, `text: String`, `enabled: Boolean`
+ *
+ * **Triggers dispatched:** `OnClickEventTrigger` — fired when the chip is tapped (only when
+ * [enabled] is `true`; disabled chips do not fire click events).
+ *
+ * **Notes:** The chip label is always a plain [Text] composable; rich content in the label
+ * is not supported. There is no leading icon slot in the current renderer, even though
+ * Material 3 [SuggestionChip] supports one.
+ */
 @Triggers(
     [
         OnClickEventTrigger::class

@@ -9,6 +9,22 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a Material 3 Floating Action Button (FAB) that displays a single [icon]. The visual
+ * footprint is controlled by [size].
+ *
+ * **Updatable fields (via UpdateTiles):** `icon`, `size`, `enabled`, `visibility`, `style`.
+ *
+ * **Triggers dispatched:**
+ * - [OnClickEventTrigger] — fired when the user taps the FAB.
+ *
+ * **Notes:** [size] maps to three Compose variants: `DEFAULT` renders a [SmallFloatingActionButton],
+ * `MEDIUM` renders a standard [FloatingActionButton], and `LARGE` renders a
+ * [LargeFloatingActionButton]. Despite the schema carrying an [enabled] field, the current
+ * renderer does not pass `enabled` to the underlying composable — the FAB is always interactive
+ * at the Compose level regardless of the schema value. [icon] is required and rendered via the
+ * shared [Icon] composable using [icon.name].
+ */
 @Triggers(
     [
         OnClickEventTrigger::class

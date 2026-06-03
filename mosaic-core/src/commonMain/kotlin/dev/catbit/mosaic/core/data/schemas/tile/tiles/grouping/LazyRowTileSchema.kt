@@ -13,6 +13,32 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a horizontally scrolling lazy list that only composes and lays out the items
+ * currently visible on screen, using Compose's [LazyRow]. Each child tile is keyed by its
+ * [id] for stable recomposition. The list state can be programmatically controlled via
+ * [RowTileBroadcastData] (ScrollToStart, ScrollTo, ScrollToEnd).
+ *
+ * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
+ * `visibility: TileSchema.Visibility`, `arrangement: ArrangementSchema.Horizontal`,
+ * `alignment: AlignmentSchema.Vertical`, `scrollThreshold: Int?`,
+ * `considerLoadingItemAtEndOnThresholdReached: Boolean`
+ *
+ * **Triggers dispatched:**
+ * - `OnScrolledEventTrigger` — fired while scrolling, with `ScrollDirection.End` (forward) or
+ *   `ScrollDirection.Start` (backward).
+ * - `OnScrollThresholdReachedEventTrigger` — fired when the user scrolls within
+ *   [scrollThreshold] items of the end of the list. Only active when [scrollThreshold] is
+ *   non-null.
+ * - `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when the list container is
+ *   tapped or long-pressed.
+ *
+ * **Notes:** Uses the same [RowTileBroadcastData] broadcast channel as [RowTileSchema], so
+ * both tile types respond to the same scroll commands. When
+ * [considerLoadingItemAtEndOnThresholdReached] is `true`, the threshold calculation accounts
+ * for a loading placeholder item appended at the trailing end of the list. The renderer sets
+ * [LocalLazyRowRenderingScope] so that children can detect they are inside a lazy context.
+ */
 @Triggers(
     [
         OnClickEventTrigger::class,

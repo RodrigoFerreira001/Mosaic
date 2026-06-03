@@ -6,6 +6,26 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a CSS flexbox-style container using the experimental Compose [FlexBox] API.
+ * The layout direction is controlled by [direction] (Row, RowReverse, Column, ColumnReverse),
+ * main-axis alignment by [justifyContent], cross-axis alignment of individual items by
+ * [alignItems], cross-axis alignment of wrapped lines by [alignContent], and wrapping
+ * behavior by [wrap]. Gaps between items are set by [columnGap] and [rowGap] in dp.
+ *
+ * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
+ * `visibility: TileSchema.Visibility`, `direction: FlexDirectionSchema`,
+ * `justifyContent: FlexJustifyContentSchema`, `alignItems: FlexAlignItemsSchema`,
+ * `alignContent: FlexAlignContentSchema`, `wrap: FlexWrapSchema`, `columnGap: Int`,
+ * `rowGap: Int`
+ *
+ * **Triggers dispatched:** `OnClickEventTrigger` — fired when the flex box container is
+ * tapped (requires events to be wired on the schema).
+ *
+ * **Notes:** Uses `@OptIn(ExperimentalFlexBoxApi::class)`. The renderer exposes
+ * [LocalFlexBoxScope] so that children that need [FlexBoxScope] modifiers (e.g. `flexGrow`,
+ * `flexShrink`, `alignSelf`) can access it. Children are composed eagerly.
+ */
 @Serializable
 @SerialName("FlexBox")
 data class FlexBoxTileSchema(

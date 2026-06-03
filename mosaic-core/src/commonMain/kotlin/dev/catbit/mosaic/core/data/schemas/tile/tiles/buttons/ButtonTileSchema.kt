@@ -10,6 +10,25 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a Material 3 button in one of five visual styles controlled by [buttonType].
+ *
+ * **Updatable fields (via UpdateTiles):** `text`, `icon`, `buttonType`, `shape`, `loading`,
+ * `enabled`, `visibility`, `style`.
+ *
+ * **Triggers dispatched:**
+ * - [OnClickEventTrigger] — fired when the user taps the button (only when [loading] is false,
+ *   because the content slot shows a spinner and the user cannot distinguish a click target).
+ * - [OnLongPressEventTrigger] — declared via `@Triggers` but not explicitly wired in the
+ *   current renderer; available for future use or custom gesture handling.
+ *
+ * **Notes:** When [loading] is `true` the text and icon are replaced by a [CircularProgressIndicator];
+ * the button itself remains pressable (the `enabled` flag is the sole interactivity gate).
+ * [icon] is rendered to the left of [text] when both are present. [shape] maps `SQUARE` to
+ * [MaterialTheme.shapes.medium] and `ROUNDED` to [CircleShape]. The renderer always fires
+ * [OnClickEventTrigger] via `triggerEvent(EventTriggers.onClick())` regardless of the
+ * [buttonType] variant.
+ */
 @Triggers(
     [
         OnClickEventTrigger::class,

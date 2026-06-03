@@ -11,6 +11,10 @@ object TransformDataEventRunner : EventRunner<TransformDataEventSchema> {
         val result = runCatching { TemplateProcessor.applyTemplate(event.template, incomingData) }
             .getOrElse {
                 onTrigger(EventTriggers.onFailure(), data = it)
+                logError(
+                    tag = "TransformDataEventRunner",
+                    throwable = it
+                )
                 return
             }
         onTrigger(EventTriggers.onSuccess(), data = result)

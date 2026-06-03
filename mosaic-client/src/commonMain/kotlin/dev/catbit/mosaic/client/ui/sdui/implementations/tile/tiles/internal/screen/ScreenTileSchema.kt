@@ -15,5 +15,10 @@ data class ScreenTileSchema(
     @SerialName("visibility") override val visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     @SerialName("navigationDrawerTiles") val navigationDrawerTiles: List<TileSchema>?,
     @SerialName("currentBottomSheetTiles") val currentBottomSheetTiles: List<TileSchema>? = null,
-    @SerialName("currentDialogSheetTiles") val currentDialogSheetTiles: List<TileSchema>? = null
-) : TileSchema
+    @SerialName("currentDialogSheetTiles") val currentDialogSheetTiles: List<TileSchema>? = null,
+    @SerialName("state") val state: State
+) : TileSchema {
+    enum class State {
+        INITIAL, DISPLAYING, FAILURE
+    }
+}

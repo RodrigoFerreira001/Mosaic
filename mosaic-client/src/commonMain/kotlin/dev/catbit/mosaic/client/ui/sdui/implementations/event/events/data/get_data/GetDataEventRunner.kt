@@ -159,7 +159,6 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
                             }
 
                             accumulator[accessMode.dataId] = value
-                            // Single does not upgrade resultLevel; it stays at ANY unless another reading upgrades it
                         }
                     }
                 }

@@ -11,7 +11,9 @@ interface MosaicNetwork {
 
     suspend fun getScreen(
         screenId: String,
-        headers: Map<String, String>?
+        headers: Map<String, String>?,
+        body: Any?,
+        httpMethod: HttpMethod
     ): Result<ScreenResponse>
 
     suspend fun sendHttpRequest(

@@ -4,6 +4,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileBroadcastData
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.column.ScrollColumnTileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object ScrollTileColumnEventRunner : EventRunner<ScrollColumnTileEventSchema> {
 
@@ -27,5 +28,6 @@ object ScrollTileColumnEventRunner : EventRunner<ScrollColumnTileEventSchema> {
                 )
             }
         )
+        onTrigger(EventTriggers.onSuccess())
     }
 }

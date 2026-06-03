@@ -41,6 +41,10 @@ object EvaluateDataEventRunner : EventRunner<EvaluateDataEventSchema> {
                     onTrigger(EventTriggers.onSuccess(), data = incomingData)
                 } else {
                     onTrigger(EventTriggers.onFailure(), data = incomingData)
+                    logError(
+                        tag = "EvaluateDataEventRunner",
+                        throwable = Throwable("Expression evaluated to false")
+                    )
                 }
             }
         }
@@ -216,6 +220,7 @@ object EvaluateDataEventRunner : EventRunner<EvaluateDataEventSchema> {
         is Operation.MapOperation.IsSizeBiggerThan -> (value as? Map<*, *>)?.size?.let { it > operation.size } ?: false
         is Operation.MapOperation.IsSizeBiggerThanOrEquals -> (value as? Map<*, *>)?.size?.let { it >= operation.size } ?: false
         is Operation.MapOperation.ValueAtKeyEquals -> (value as? Map<*, *>)?.get(operation.key) == operation.value
+        is Operation.MapOperation.ValueAtKeyValidate -> (value as? Map<*, *>)?.get(operation.key)?.let { applyOperation(it, operation.validation) } ?: false
 
         // List
         is Operation.ListOperation.Contains -> (value as? List<*>)?.contains(operation.value) ?: false

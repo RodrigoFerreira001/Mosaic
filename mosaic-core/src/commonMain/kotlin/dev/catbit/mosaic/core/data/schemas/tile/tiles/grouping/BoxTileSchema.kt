@@ -10,6 +10,19 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a stacking container that overlays its child tiles on top of each other using
+ * Compose's [Box] layout. Children are aligned according to [alignment].
+ *
+ * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
+ * `visibility: TileSchema.Visibility`, `alignment: AlignmentSchema.TwoDimensional`
+ *
+ * **Triggers dispatched:** `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when
+ * the box itself is tapped or long-pressed (requires events to be wired on the schema).
+ *
+ * **Notes:** Unlike [ColumnTileSchema] and [RowTileSchema], this tile does not support
+ * scrolling and does not expose a scoped CompositionLocal for child scope modifiers.
+ */
 @Triggers(
     [
         OnClickEventTrigger::class,

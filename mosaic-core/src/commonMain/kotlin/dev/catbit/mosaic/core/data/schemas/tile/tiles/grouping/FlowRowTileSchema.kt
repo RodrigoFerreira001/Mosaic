@@ -7,6 +7,22 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * Renders a horizontally-wrapping flow layout using Compose's [FlowRow]. Children are placed
+ * left-to-right and wrap onto new rows when they exceed the available width. The maximum
+ * number of items per row is capped by [maxItemsInEachRow].
+ *
+ * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
+ * `visibility: TileSchema.Visibility`, `horizontalArrangement: ArrangementSchema.Horizontal`,
+ * `verticalArrangement: ArrangementSchema.Vertical`, `maxItemsInEachRow: Int`
+ *
+ * **Triggers dispatched:** `OnClickEventTrigger` — fired when the flow row container is
+ * tapped (requires events to be wired on the schema).
+ *
+ * **Notes:** The renderer exposes [LocalFlowRowScope] so that children that need
+ * [FlowRowScope] modifiers (e.g. `fillMaxRowHeight`, `weight`) can access it. Children are
+ * composed eagerly (not lazy).
+ */
 @Serializable
 @SerialName("FlowRow")
 data class FlowRowTileSchema(

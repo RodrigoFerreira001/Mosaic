@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.responses.graph
 
+import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.SerialName
@@ -12,10 +13,15 @@ data class GraphResponse(
     @SerialName("startEntryId")
     val startEntryId: String,
     @SerialName("ttl")
-    val ttl: String? = null
+    val ttl: String? = null,
+    @SerialName("defaultTransition")
+    val defaultTransition: ContentTransitionSchema? = null,
+    @SerialName("defaultPopTransition")
+    val defaultPopTransition: ContentTransitionSchema? = null,
+    @SerialName("defaultPredictivePopTransition")
+    val defaultPredictivePopTransition: ContentTransitionSchema? = null,
 ) {
 
-    // TODO Definir animações
     @Serializable
     data class Entry(
         @SerialName("screenId")
@@ -28,5 +34,11 @@ data class GraphResponse(
         val failureTiles: List<TileSchema>,
         @SerialName("failureEvents")
         val failureEvents: List<EventSchema>,
+        @SerialName("transition")
+        val transition: ContentTransitionSchema? = null,
+        @SerialName("popTransition")
+        val popTransition: ContentTransitionSchema? = null,
+        @SerialName("predictivePopTransition")
+        val predictivePopTransition: ContentTransitionSchema? = null,
     )
 }
