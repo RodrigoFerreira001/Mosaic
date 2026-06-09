@@ -104,6 +104,7 @@ class MosaicRepositoryImpl(
     ) = network.downloadFile(
         url = url,
         headers = headers,
+        body = body,
         httpMethod = httpMethod,
         onProgress = onProgress,
         onBytesReceived = onBytesReceived,

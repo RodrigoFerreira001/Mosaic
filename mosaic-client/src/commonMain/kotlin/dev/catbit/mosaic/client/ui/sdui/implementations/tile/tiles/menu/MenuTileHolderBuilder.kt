@@ -12,8 +12,8 @@ object MenuTileHolderBuilder : TileHolderBuilder<MenuTileSchema, MenuTileHolder>
         MenuTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.map { eventModel -> buildEventHolder(eventModel) }?.toMutableList(),
-            tiles = tiles.map { tileModel -> buildTileHolder(tileModel) }.toMutableList()
+            events = events?.buildEventHolders(),
+            tiles = tiles.buildTileHolders()
         )
     }
 }

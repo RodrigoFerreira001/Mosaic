@@ -26,6 +26,7 @@ interface MosaicNetwork {
     suspend fun downloadFile(
         url: String,
         headers: Map<String, String>? = null,
+        body: Any?,
         httpMethod: HttpMethod,
         onProgress: (Int) -> Unit = {},
         onBytesReceived: (ByteArray) -> Unit = {},

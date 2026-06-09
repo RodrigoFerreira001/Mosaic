@@ -77,6 +77,7 @@ class MosaicNetworkImpl(
     override suspend fun downloadFile(
         url: String,
         headers: Map<String, String>?,
+        body: Any?,
         httpMethod: HttpMethod,
         onProgress: (Int) -> Unit,
         onBytesReceived: (ByteArray) -> Unit,

@@ -33,7 +33,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSta
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAdaptiveNavigationItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationBarItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationDrawerDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntryChangedEventTrigger
@@ -101,7 +100,6 @@ object EventTriggers {
     fun onTrailingIconClick() = OnTrailingIconClickEventTrigger
     fun onLongPress() = OnLongPressEventTrigger
     fun onMenuItemClick(itemId: String) = OnMenuItemClickEventTrigger(itemId)
-    fun onAdaptiveNavigationItemClick(itemId: String) = OnAdaptiveNavigationItemClickEventTrigger(itemId)
     fun onNavigationBarItemClick(itemId: String) = OnNavigationBarItemClickEventTrigger(itemId)
     fun onNavigationDrawerDismissed() = OnNavigationDrawerDismissedEventTrigger
     fun onNavigationEntryChanged() = OnNavigationEntryChangedEventTrigger

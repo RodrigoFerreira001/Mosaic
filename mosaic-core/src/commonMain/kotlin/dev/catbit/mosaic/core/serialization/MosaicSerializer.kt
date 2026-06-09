@@ -48,7 +48,6 @@ import dev.catbit.mosaic.core.data.schemas.event.events.tiles.UpdateTilesEventSc
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.WipeTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.InlineEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAdaptiveNavigationItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadSuccessEventTrigger
@@ -144,7 +143,6 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema.KeyboardOptions
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema.VisualTransformation
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.menu.MenuTileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.AdaptiveNavigationTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NavigationBarTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NavigationRailTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NestedNavigationGraphTileSchema
@@ -505,7 +503,6 @@ class MosaicSerializer(
             OnLoadTilesSuccessEventTrigger::class to OnLoadTilesSuccessEventTrigger.serializer(),
             OnLongPressEventTrigger::class to OnLongPressEventTrigger.serializer(),
             OnMenuItemClickEventTrigger::class to OnMenuItemClickEventTrigger.serializer(),
-            OnAdaptiveNavigationItemClickEventTrigger::class to OnAdaptiveNavigationItemClickEventTrigger.serializer(),
             OnNavigationBarItemClickEventTrigger::class to OnNavigationBarItemClickEventTrigger.serializer(),
             OnPageChangedEventTrigger::class to OnPageChangedEventTrigger.serializer(),
             OnNavigationDrawerDismissedEventTrigger::class to OnNavigationDrawerDismissedEventTrigger.serializer(),
@@ -564,7 +561,6 @@ class MosaicSerializer(
             IconButtonTileSchema::class to IconButtonTileSchema.serializer(),
             CheckboxTileSchema::class to CheckboxTileSchema.serializer(),
             SuggestionChipTileSchema::class to SuggestionChipTileSchema.serializer(),
-            AdaptiveNavigationTileSchema::class to AdaptiveNavigationTileSchema.serializer(),
             NavigationBarTileSchema::class to NavigationBarTileSchema.serializer(),
             NavigationRailTileSchema::class to NavigationRailTileSchema.serializer(),
             CircularProgressIndicatorTileSchema::class to CircularProgressIndicatorTileSchema.serializer(),

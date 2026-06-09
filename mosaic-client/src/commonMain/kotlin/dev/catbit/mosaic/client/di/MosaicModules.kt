@@ -120,7 +120,6 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.switch
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu.MenuTileDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.adaptive_navigation.AdaptiveNavigationTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.navigation_bar.NavigationBarTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.navigation_rail.NavigationRailTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.nested_navigation_graph.NestedNavigationGraphTileDefinition
@@ -379,7 +378,6 @@ internal class MosaicModules(
         IconButtonTileDefinition,
         CheckboxTileDefinition,
         SuggestionChipTileDefinition,
-        AdaptiveNavigationTileDefinition,
         NavigationBarTileDefinition,
         NavigationRailTileDefinition,
         CircularProgressIndicatorTileDefinition,

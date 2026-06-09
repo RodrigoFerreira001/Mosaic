@@ -24,7 +24,11 @@ internal class FloatingActionButtonTileSchemaBuilder(
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
         visibility = visibility,
-        icon = icon,
+        icon = when(size) {
+            FloatingActionButtonTileSchema.Size.DEFAULT -> icon.copy(size = 24)
+            FloatingActionButtonTileSchema.Size.MEDIUM -> icon.copy(size = 28)
+            FloatingActionButtonTileSchema.Size.LARGE -> icon.copy(size = 36)
+        },
         size = size,
         enabled = enabled
     )
@@ -33,11 +37,16 @@ internal class FloatingActionButtonTileSchemaBuilder(
 fun TileSchemaBuilderScope.FloatingActionButton(
     id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
-    style: StyleSchemaBuilderScope.() -> Unit = {},
+    style: StyleSchemaBuilderScope.() -> Unit = {
+        size(
+            width = wrapHorizontally(),
+            height = wrapVertically()
+        )
+    },
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     icon: IconSchema,
     size: FloatingActionButtonTileSchema.Size = FloatingActionButtonTileSchema.Size.DEFAULT,
-    enabled: Boolean
+    enabled: Boolean = true
 ) {
     addBuilder(
         FloatingActionButtonTileSchemaBuilder(
@@ -51,3 +60,7 @@ fun TileSchemaBuilderScope.FloatingActionButton(
         )
     )
 }
+
+fun defaultFloatingActionButon() = FloatingActionButtonTileSchema.Size.DEFAULT
+fun mediumFloatingActionButon() = FloatingActionButtonTileSchema.Size.MEDIUM
+fun largeFloatingActionButon() = FloatingActionButtonTileSchema.Size.LARGE
