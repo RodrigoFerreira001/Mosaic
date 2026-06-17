@@ -8,8 +8,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -55,13 +53,7 @@ class GetDataReadingBuilder(
     )
 }
 
-class GetDataReadingBuilderScope private constructor(): GenericBuilderScope<Reading, GetDataReadingBuilder>() {
-
-    companion object {
-        internal operator fun invoke(
-            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
-        ) = GetDataReadingBuilderScope().apply { pushLocals(compositionLocals) }
-    }
+class GetDataReadingBuilderScope : GenericBuilderScope<Reading, GetDataReadingBuilder>() {
 
     fun reading(
         dataSource: DataSourceSchema,

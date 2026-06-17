@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.color
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -34,6 +35,7 @@ import kotlinx.serialization.Serializable
  * `themeColorSurfaceBright()`, `themeColorSurfaceContainerLowest()`, `themeColorSurfaceContainerLow()`,
  * `themeColorSurfaceContainer()`, `themeColorSurfaceContainerHigh()`, `themeColorSurfaceContainerHighest()`.
  */
+@Immutable
 @Serializable
 sealed interface ColorSchema {
 

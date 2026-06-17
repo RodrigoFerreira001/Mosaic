@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileGroupEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
@@ -8,8 +9,10 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTileRend
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
+import kotlinx.collections.immutable.ImmutableList
 
-class TileRenderingScope(
+@Stable
+data class TileRenderingScope(
     private val tileId: String,
     private val events: List<EventSchema>?,
     val onEvent: (UIEvent) -> Unit
@@ -52,7 +55,7 @@ class TileRenderingScope(
 
     @Composable
     fun RenderChildren(
-        tileSchemas: List<TileSchema>,
+        tileSchemas: ImmutableList<TileSchema>,
     ) {
         with(LocalTileRendererManager.current) {
             tileSchemas.forEach { tileModel ->

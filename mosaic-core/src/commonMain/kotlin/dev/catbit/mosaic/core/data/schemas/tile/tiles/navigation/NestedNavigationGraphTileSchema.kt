@@ -1,5 +1,7 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation
 
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
@@ -9,6 +11,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders an embedded Navigation 3 [NavDisplay] that hosts a full navigation back-stack of
@@ -20,7 +23,7 @@ import kotlinx.serialization.Serializable
  * is pushed onto the stack.
  *
  * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `entries: List<Entry>`, `startEntryId: String`,
+ * `visibility: TileSchema.Visibility`, `entries: SerializableImmutableList<Entry>`, `startEntryId: String`,
  * `defaultTransition: ContentTransitionSchema?`, `defaultPopTransition: ContentTransitionSchema?`,
  * `defaultPredictivePopTransition: ContentTransitionSchema?`
  *
@@ -36,6 +39,7 @@ import kotlinx.serialization.Serializable
  * [ScreenNavKey], which is serialized for saved-state restoration across process death.
  * ViewModel scope is preserved per entry via [rememberViewModelStoreNavEntryDecorator].
  */
+@Immutable
 @Triggers(
     [
         OnNavigationEntryChangedEventTrigger::class,
@@ -46,11 +50,11 @@ import kotlinx.serialization.Serializable
 @SerialName("NestedNavigationGraph")
 data class NestedNavigationGraphTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("navigatorId") val navigatorId: String,
-    @SerialName("entries") val entries: List<Entry>,
+    @SerialName("entries") val entries: SerializableImmutableList<Entry>,
     @SerialName("startEntryId") val startEntryId: String,
     @SerialName("defaultTransition") val defaultTransition: ContentTransitionSchema? = null,
     @SerialName("defaultPopTransition") val defaultPopTransition: ContentTransitionSchema? = null,
@@ -60,10 +64,10 @@ data class NestedNavigationGraphTileSchema(
     @Serializable
     data class Entry(
         @SerialName("screenId") val screenId: String,
-        @SerialName("initialTiles") val initialTiles: List<TileSchema>,
-        @SerialName("initialEvents") val initialEvents: List<EventSchema>,
-        @SerialName("failureTiles") val failureTiles: List<TileSchema>,
-        @SerialName("failureEvents") val failureEvents: List<EventSchema>,
+        @SerialName("initialTiles") val initialTiles: SerializableImmutableList<TileSchema>,
+        @SerialName("initialEvents") val initialEvents: SerializableImmutableList<EventSchema>,
+        @SerialName("failureTiles") val failureTiles: SerializableImmutableList<TileSchema>,
+        @SerialName("failureEvents") val failureEvents: SerializableImmutableList<EventSchema>,
         @SerialName("transition") val transition: ContentTransitionSchema? = null,
         @SerialName("popTransition") val popTransition: ContentTransitionSchema? = null,
         @SerialName("predictivePopTransition") val predictivePopTransition: ContentTransitionSchema? = null,

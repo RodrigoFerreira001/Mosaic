@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.style
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.color.ColorSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -24,6 +25,7 @@ import kotlinx.serialization.Serializable
  * // border(color = ..., thickness = 1, radius = 8) ← WRONG — radius must be RadiusSchema, not Int
  * ```
  */
+@Immutable
 @Serializable
 data class BorderSchema(
     @SerialName("color") val color: ColorSchema,

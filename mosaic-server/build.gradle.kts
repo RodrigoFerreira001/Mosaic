@@ -17,6 +17,9 @@ kotlin {
 }
 
 dependencies {
+    // Test
+    testImplementation(libs.kotlin.test)
+
     // Mosaic core
     implementation(projects.mosaicCore)
 
@@ -28,4 +31,7 @@ dependencies {
 
     // Kotlinx Datetime
     implementation(libs.kotlinx.datetime)
+
+    // Kotlinx Collections Immutable
+    implementation(libs.kotlinx.collections.immutable)
 }

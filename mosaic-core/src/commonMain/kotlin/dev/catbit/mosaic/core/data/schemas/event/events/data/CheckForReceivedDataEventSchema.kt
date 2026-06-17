@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.data
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Checks the [DataMailer] in-process message bus for a value stored under [dataKey] and, if
@@ -34,6 +36,7 @@ import kotlinx.serialization.Serializable
  *   the [DataMailer] implementation — this schema does not specify retention semantics.
  * - This event is synchronous: it does not suspend or dispatch to a background dispatcher.
  */
+@Immutable
 @Triggers(
     [
         OnDataReceivedEventTrigger::class,
@@ -46,6 +49,6 @@ import kotlinx.serialization.Serializable
 data class CheckForReceivedDataEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("dataKey") val dataKey: String
 ) : EventSchema

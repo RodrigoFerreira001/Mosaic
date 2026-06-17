@@ -1,11 +1,13 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.menu
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a [Box] that overlays a [DropdownMenu] on top of its [tiles] children. The [tiles]
@@ -14,7 +16,7 @@ import kotlinx.serialization.Serializable
  * [DropdownMenuItem] with a text label and optional leading/trailing icons.
  *
  * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `tiles: List<TileSchema>`, `items: List<MenuItem>`,
+ * `visibility: TileSchema.Visibility`, `tiles: SerializableImmutableList<TileSchema>`, `items: SerializableImmutableList<MenuItem>`,
  * `expanded: Boolean`
  *
  * **Triggers dispatched:** `OnMenuItemClickEventTrigger` — fired when any menu item is
@@ -27,15 +29,16 @@ import kotlinx.serialization.Serializable
  * `false`. The [MenuItem.leadingIcon] and [MenuItem.trailingIcon] are rendered using the
  * icon name string directly.
  */
+@Immutable
 @Serializable
 @SerialName("Menu")
 data class MenuTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
-    @SerialName("tiles") val tiles: List<TileSchema>,
-    @SerialName("items") val items: List<MenuItem>,
+    @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
+    @SerialName("items") val items: SerializableImmutableList<MenuItem>,
     @SerialName("expanded") val expanded: Boolean
 ) : TileSchema {
 

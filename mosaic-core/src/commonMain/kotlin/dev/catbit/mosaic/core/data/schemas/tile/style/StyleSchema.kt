@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.style
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.color.ColorSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -25,6 +26,7 @@ import kotlinx.serialization.Serializable
  *   `clip` alone is sufficient for a rounded background.
  * - `background` currently only supports solid colors (gradient/blur are planned but not implemented).
  */
+@Immutable
 @Serializable
 data class StyleSchema(
     @SerialName("size") val size: SizeSchema,

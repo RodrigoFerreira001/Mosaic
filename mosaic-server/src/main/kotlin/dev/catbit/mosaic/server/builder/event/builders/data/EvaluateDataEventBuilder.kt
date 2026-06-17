@@ -10,6 +10,7 @@ import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.LocalDateTime
 
 class EvaluateDataEventBuilder(
@@ -392,7 +393,7 @@ fun Data.listContains(value: AnySerializable) = data(
 
 fun Data.inList(list: List<AnySerializable>) = data(
     data = this,
-    operation = Operation.ListOperation.In(list)
+    operation = Operation.ListOperation.In(list.toImmutableList())
 )
 
 fun Data.isListEmpty() = data(
@@ -432,12 +433,12 @@ fun Data.isListSizeBiggerThanOrEquals(size: Int) = data(
 
 fun Data.listContainsAll(items: List<AnySerializable>) = data(
     data = this,
-    operation = Operation.ListOperation.ContainsAll(items)
+    operation = Operation.ListOperation.ContainsAll(items.toImmutableList())
 )
 
 fun Data.listContainsAny(items: List<AnySerializable>) = data(
     data = this,
-    operation = Operation.ListOperation.ContainsAny(items)
+    operation = Operation.ListOperation.ContainsAny(items.toImmutableList())
 )
 
 fun Data.isEqualTo(dateTime: LocalDateTime) = data(

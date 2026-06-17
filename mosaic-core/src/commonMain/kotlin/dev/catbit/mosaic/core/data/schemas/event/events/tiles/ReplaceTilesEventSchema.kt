@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.tiles
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Replaces the entire child list of a grouping tile with a new set of server-supplied tiles.
@@ -32,6 +34,7 @@ import kotlinx.serialization.Serializable
  * - Sending an empty [tiles] list produces the same result as [WipeTilesEventSchema] for
  *   the target grouping tile.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -43,7 +46,7 @@ import kotlinx.serialization.Serializable
 data class ReplaceTilesEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("groupingTileId") val groupingTileId: String,
-    @SerialName("tileIds") val tiles: List<TileSchema>,
+    @SerialName("tileIds") val tiles: SerializableImmutableList<TileSchema>,
 ) : EventSchema

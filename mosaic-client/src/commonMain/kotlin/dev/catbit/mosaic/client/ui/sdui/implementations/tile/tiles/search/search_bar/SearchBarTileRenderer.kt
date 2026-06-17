@@ -1,12 +1,11 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.search.search_bar
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandIn
-import androidx.compose.animation.shrinkOut
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -78,13 +77,13 @@ object SearchBarTileRenderer : TileRenderer<SearchBarTileSchema> {
                     }
                 },
                 trailingIcon = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                    Box(
+                        contentAlignment = Alignment.Center
                     ) {
                         AnimatedVisibility(
                             visible = query.isNotEmpty(),
-                            enter = expandIn(expandFrom = Alignment.Center),
-                            exit = shrinkOut(shrinkTowards = Alignment.Center),
+                            enter = fadeIn(),
+                            exit = fadeOut(),
                         ) {
                             IconButton(
                                 modifier = Modifier.handPointer(),
@@ -97,6 +96,15 @@ object SearchBarTileRenderer : TileRenderer<SearchBarTileSchema> {
                                     iconName = "clear",
                                     size = 24.dp
                                 )
+                            }
+                        }
+                        AnimatedVisibility(
+                            visible = query.isEmpty(),
+                            enter = fadeIn(),
+                            exit = fadeOut(),
+                        ) {
+                            trailingIcon?.let {
+                                RenderChild(it)
                             }
                         }
                     }

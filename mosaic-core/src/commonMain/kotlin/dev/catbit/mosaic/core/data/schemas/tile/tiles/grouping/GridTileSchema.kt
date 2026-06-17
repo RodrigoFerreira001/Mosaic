@@ -1,10 +1,13 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 /**
  * Renders a CSS-grid-like two-dimensional layout using the experimental Compose
@@ -13,9 +16,9 @@ import kotlinx.serialization.Serializable
  * MaxContent, or MinContent). Items flow in the direction specified by [flow]
  * (Row-first or Column-first). Gaps between tracks are set by [columnGap] and [rowGap] in dp.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `columns: List<GridTrackSchema>`,
- * `rows: List<GridTrackSchema>`, `columnGap: Int`, `rowGap: Int`, `flow: GridFlowSchema`
+ * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
+ * `visibility: TileSchema.Visibility`, `columns: SerializableImmutableList<GridTrackSchema>`,
+ * `rows: SerializableImmutableList<GridTrackSchema>`, `columnGap: Int`, `rowGap: Int`, `flow: GridFlowSchema`
  *
  * **Triggers dispatched:** `OnClickEventTrigger` — fired when the grid container is tapped
  * (requires events to be wired on the schema).
@@ -25,16 +28,17 @@ import kotlinx.serialization.Serializable
  * `columnSpan` and `rowSpan`. Children are rendered via `forEach` (not lazy) so all items
  * are composed eagerly.
  */
+@Immutable
 @Serializable
 @SerialName("Grid")
 data class GridTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("tiles") val tiles: List<TileSchema>,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
-    @SerialName("columns") val columns: List<GridTrackSchema>,
-    @SerialName("rows") val rows: List<GridTrackSchema> = emptyList(),
+    @SerialName("columns") val columns: SerializableImmutableList<GridTrackSchema>,
+    @SerialName("rows") val rows: SerializableImmutableList<GridTrackSchema> = persistentListOf(),
     @SerialName("columnGap") val columnGap: Int = 0,
     @SerialName("rowGap") val rowGap: Int = 0,
     @SerialName("flow") val flow: GridFlowSchema = GridFlowSchema.Row

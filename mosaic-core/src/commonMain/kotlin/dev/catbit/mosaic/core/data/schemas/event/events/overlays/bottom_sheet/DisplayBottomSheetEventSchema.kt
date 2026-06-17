@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Displays a modal bottom sheet populated with a server-defined tile tree. The sheet is shown
@@ -28,6 +30,7 @@ import kotlinx.serialization.Serializable
  * - There is currently no real identifier for the bottom sheet instance, so dismiss events
  *   always target the single active sheet (see TODO in source).
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class
@@ -38,8 +41,8 @@ import kotlinx.serialization.Serializable
 data class DisplayBottomSheetEventSchema( // TODO ter aqui um identificador real para a BS, para fins de eventos de dismiss
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
-    val tiles: List<TileSchema>,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
+    val tiles: SerializableImmutableList<TileSchema>,
     val isCancellable: Boolean,
     val fill: Boolean
 ) : EventSchema

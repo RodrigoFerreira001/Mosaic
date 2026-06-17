@@ -55,17 +55,21 @@ Removes tiles by ID from a container.
 ### UpdateTilesEventSchema
 **JSON type:** `"UpdateTiles"`
 
-Partially updates tile fields via JSON merge.
+Partially updates tile fields via JSON merge without altering tile types or tree structure.
 
 | Field | Type |
 |---|---|
 | `updates` | `List<Update>` |
 
-`Update`: `{ tileId: String, data: Map<String, AnySerializable?> }`
+`Update`: `{ tileId: String, updateData: UpdateData }`
 
-The `data` map keys must match the field names of the target `TileSchema`. Only provided keys are updated; others remain unchanged.
+`UpdateData` (sealed):
+- `Incoming` — usa o `incomingData` atual (coerced para `Map<String, Any>`); se não puder ser coercido, a entrada é ignorada silenciosamente.
+- `Inline` — `{ data: Map<String, AnySerializable?> }` com valores estáticos definidos pelo servidor.
 
-**Child trigger used:** `OnTilesUpdated`
+DSL helpers: `incomingTileUpdateData()`, `inlineTileUpdateData(data)`.
+
+**Triggers:** `OnTilesUpdated` (após todos os updates), `OnSuccess` (incondicional), `OnFailure` (tileId não encontrado; incomingData = exception)
 
 ---
 
@@ -104,6 +108,44 @@ Forces a `LazyTilesTileSchema` to re-fetch its content.
 | Field | Type |
 |---|---|
 | `lazyTileId` | `String` |
+
+---
+
+### CheckIfTileContainsChildrenEventSchema
+**JSON type:** `"CheckIfTileContainsChildren"`
+
+Checks whether a container tile currently holds children with all of the specified IDs. Fires `OnSuccess` if every ID is present, `OnFailure` otherwise. No incomingData consumed or produced.
+
+| Field | Type | Description |
+|---|---|---|
+| `groupingTileId` | `String` | ID of the target container tile |
+| `childrenIds` | `List<String>` | IDs whose presence is checked |
+
+**Triggers:** `OnSuccess` (all IDs found), `OnFailure` (one or more IDs missing)
+
+---
+
+### GetTileChildrenCountEventSchema
+**JSON type:** `"GetTileChildrenCount"`
+
+Returns the current number of direct children of a container tile. Fires `OnSuccess` with the count when the tile is found, `OnFailure` when `groupingTileId` does not match any tile in the tree.
+
+| Field | Type | Description |
+|---|---|---|
+| `groupingTileId` | `String` | ID of the target container tile |
+
+**Triggers:** `OnSuccess` (incomingData = `Int` count), `OnFailure` (tile not found)
+
+---
+
+### RunEventsEventSchema
+**JSON type:** `"RunEvents"`
+
+Container transparente que dispara todos os seus eventos filhos incondicionalmente. Usado para agrupar múltiplos eventos sob um único trigger sem transformar o incomingData.
+
+Nenhum campo adicional além dos campos base (`id`, `trigger`, `events`).
+
+**Triggers:** `OnSuccess` — após despachar os filhos.
 
 ---
 
@@ -336,7 +378,14 @@ Sends an HTTP request.
 | `body` | `AnySerializable?` | `null` |
 | `headers` | `Map<String, String>?` | `null` |
 
-**Child triggers used:** `OnStart`, `OnSuccess` (with response body), `OnFailure`, `OnNetworkResponse(httpCode)`
+**Trigger dispatch logic:**
+- `OnStart` — antes do request.
+- `OnSuccess` — resposta **2xx** sem listener customizado registrado para aquele status.
+- `OnFailure` — resposta **não-2xx** sem listener customizado, ou exceção de rede; incomingData = response body ou `Throwable`.
+- `OnNetworkResponse(statusCode)` — resposta **2xx** com listener registrado para aquele status; **substitui** `OnSuccess`.
+- `OnNetworkFailure(statusCode)` — resposta **não-2xx** com listener registrado para aquele status; **substitui** `OnFailure`. Nunca disparado em exceção de rede.
+
+Um child event ativa o dispatch customizado se declarar `OnNetworkResponse(statusCode)` **ou** `OnNetworkFailure(statusCode)` para aquele status.
 
 ---
 
@@ -353,6 +402,61 @@ Downloads a file with progress reporting.
 | `headers` | `Map<String, String>?` | `null` |
 
 **Child triggers used:** `OnStart`, `OnDownloadProgress`, `OnDownloadFinish`, `OnDownloadFailure`
+
+---
+
+### SendFileEventSchema
+**JSON type:** `"SendFile"`
+
+Uploads a file as a **raw binary body** (no multipart) with progress reporting. Designed for the signed-URL pattern: the backend issues a temporary upload URL (GCS/S3) and the client PUTs the bytes directly to storage.
+
+| Field | Type | Default |
+|---|---|---|
+| `url` | `String?` | `null` → uses the URL from `NetworkParametersHolder` (set via `SetIncomingDataToNetworkParamsHolderUrl`) |
+| `method` | `HttpMethod` | DSL default: `PUT` |
+| `headers` | `Map<String, String>?` | `null` |
+| `contentType` | `String?` | `null` → `application/octet-stream` (must match the signed content type) |
+
+**incomingData consumed:** the file bytes as `ByteArray` (e.g. from `OnDownloadFinish`). Non-`ByteArray` → `OnFailure` without request. Missing URL (schema and holder both null) → `OnFailure` with `MissingUploadUrlException`.
+
+**Trigger dispatch logic:**
+- `OnStart` — antes do upload.
+- `OnUploadProgress` — a cada mudança de percentual; incomingData = `Int` 0–100.
+- `OnSuccess` — resposta **2xx** sem listener customizado registrado para aquele status.
+- `OnFailure` — resposta **não-2xx** sem listener customizado, exceção de rede, URL ausente ou incomingData inválido.
+- `OnNetworkResponse(statusCode)` — resposta **2xx** com listener registrado para aquele status; **substitui** `OnSuccess`.
+- `OnNetworkFailure(statusCode)` — resposta **não-2xx** com listener registrado para aquele status; **substitui** `OnFailure`. Nunca disparado em exceção de rede.
+
+Um child event ativa o dispatch customizado se declarar `OnNetworkResponse(statusCode)` **ou** `OnNetworkFailure(statusCode)` para aquele status.
+
+**Typical signed-URL chain:** `SendNetworkRequest` (pede a signed URL) → `TransformData` (extrai a URL) → `SetIncomingDataToNetworkParamsHolderUrl` → evento que produz `ByteArray` → `SendFile`.
+
+---
+
+### SetIncomingDataToNetworkParamsHolderBodyEventSchema
+**JSON type:** `"SetIncomingDataToNetworkParamsHolderBody"`
+
+Stores `incomingData` as the request **body** in the `NetworkParametersHolder`, consumed by the next network event in the chain (schema `body` takes precedence). No specific fields.
+
+**Child triggers used:** `OnSuccess` (incomingData forwarded unchanged), `OnFailure` (incomingData null)
+
+---
+
+### SetIncomingDataToNetworkParamsHolderHeadersEventSchema
+**JSON type:** `"SetIncomingDataToNetworkParamsHolderHeaders"`
+
+Stores `incomingData` as request **headers** (`Map<String, String>`) in the `NetworkParametersHolder`, merged into the next network event (schema headers win on collision). No specific fields.
+
+**Child triggers used:** `OnSuccess`, `OnFailure`
+
+---
+
+### SetIncomingDataToNetworkParamsHolderUrlEventSchema
+**JSON type:** `"SetIncomingDataToNetworkParamsHolderUrl"`
+
+Stores `incomingData` (a `String`) as the request **URL** in the `NetworkParametersHolder` — the mechanism for feeding a runtime-generated signed URL into `SendFile` (used when its `url` is `null`). No specific fields.
+
+**Child triggers used:** `OnSuccess` (incomingData forwarded unchanged), `OnFailure` (incomingData null or not a String)
 
 ---
 
@@ -606,6 +710,26 @@ Requests one or more system permissions from the user.
 ---
 
 ## System
+
+### BroadcastToSystemEventSchema
+**JSON type:** `"BroadcastToSystem"`
+
+Sends a named broadcast with an arbitrary payload to the system (e.g., for cross-screen or host-app communication). Runner is a placeholder — logic not yet implemented.
+
+| Field | Type | Description |
+|---|---|---|
+| `broadcastId` | `String` | Identifier for the broadcast channel |
+| `data` | `BroadcastData` | Payload — `Incoming` (uses `incomingData`) or `Inline(data: AnySerializable)` (static value) |
+
+`BroadcastData` (sealed interface, nested in schema):
+- `Incoming` — uses the current `incomingData` as payload
+- `Inline(data: AnySerializable)` — uses a static inline value
+
+DSL helpers: `incomingBroadcastData()` / `inlineBroadcastData(data)`
+
+**Child triggers used:** `OnSuccess`, `OnFailure`
+
+---
 
 ### CheckIfHasInternetConnectionEventSchema
 **JSON type:** `"CheckIfHasInternetConnection"`

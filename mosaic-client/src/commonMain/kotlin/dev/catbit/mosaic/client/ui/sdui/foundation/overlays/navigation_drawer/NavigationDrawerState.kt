@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.overlays.navigation_drawer
 
 import androidx.compose.material3.DrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -9,6 +10,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@Stable
 class NavigationDrawerState(
     private val coroutineScope: CoroutineScope,
     internal val drawerState: DrawerState
@@ -45,6 +47,7 @@ class NavigationDrawerState(
     }
 }
 
+@Stable
 @Composable
 fun rememberNavigationDrawerState(
     drawerState: DrawerState,

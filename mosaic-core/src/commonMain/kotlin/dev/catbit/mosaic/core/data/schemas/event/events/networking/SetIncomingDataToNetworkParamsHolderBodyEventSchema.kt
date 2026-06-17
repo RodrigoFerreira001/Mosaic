@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.networking
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Stores `incomingData` as the request body in the [NetworkParametersHolder], making it available
@@ -34,6 +36,7 @@ import kotlinx.serialization.Serializable
  * })
  * ```
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -45,5 +48,5 @@ import kotlinx.serialization.Serializable
 data class SetIncomingDataToNetworkParamsHolderBodyEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?
 ) : EventSchema

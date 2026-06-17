@@ -5,9 +5,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +30,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import dev.catbit.mosaic.client.ui.modifiers.size
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.basic_dialog.LocalDialogState
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.basic_dialog.rememberDialogState
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.bottom_sheet.LocalBottomSheetState
@@ -103,7 +106,9 @@ fun OverlayContainer(
                     onDismissRequest = bottomSheetState::onDismissRequest,
                     sheetState = bottomSheetState.modalBottomSheetState,
                     sheetMaxWidth = 400.dp,
+                    dragHandle = null,
                     content = bottomSheetState.content,
+                    sheetGesturesEnabled = bottomSheetState.isCancellable,
                     properties = ModalBottomSheetProperties(
                         shouldDismissOnBackPress = bottomSheetState.isCancellable,
                         shouldDismissOnClickOutside = bottomSheetState.isCancellable

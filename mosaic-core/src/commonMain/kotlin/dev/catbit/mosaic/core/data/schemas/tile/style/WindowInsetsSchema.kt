@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.style
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -37,6 +38,7 @@ import kotlinx.serialization.Serializable
  * (e.g. status bar + IME), use [SystemBars] which covers both vertical system bars.
  */
 @Serializable
+@Immutable
 sealed interface WindowInsetsSchema {
 
     @Serializable

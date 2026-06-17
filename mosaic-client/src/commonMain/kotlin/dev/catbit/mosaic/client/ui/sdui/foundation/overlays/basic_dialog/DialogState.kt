@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.overlays.basic_dialog
 
 import androidx.compose.runtime.*
 
+@Stable
 class DialogState(initialState: Boolean) {
 
     var isVisible by mutableStateOf(initialState)
@@ -43,5 +44,6 @@ class DialogState(initialState: Boolean) {
     }
 }
 
+@Stable
 @Composable
 fun rememberDialogState() = remember { DialogState(false) }

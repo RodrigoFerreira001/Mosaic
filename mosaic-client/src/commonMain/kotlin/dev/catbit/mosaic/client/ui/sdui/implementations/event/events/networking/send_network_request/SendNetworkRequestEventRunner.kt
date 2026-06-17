@@ -16,58 +16,60 @@ import kotlinx.serialization.json.JsonElement
 
 object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventSchema> {
 
-    override fun EventRunningScope.runEvent(event: SendNetworkRequestEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: SendNetworkRequestEventSchema) {
         with(event) {
-            runSuspendOnStateHolderScope {
+            onTrigger(EventTriggers.onStart())
 
-                onTrigger(EventTriggers.onStart())
-
-                get<SendNetworkRequestUseCase>()(
-                    SendNetworkRequestUseCase.Params(
-                        url = url,
-                        httpMethod = method.toKtorHttpMethod(),
-                        headers = headers,
-                        body = body,
-                    )
+            get<SendNetworkRequestUseCase>()(
+                SendNetworkRequestUseCase.Params(
+                    url = url,
+                    httpMethod = method.toKtorHttpMethod(),
+                    headers = headers,
+                    body = body,
                 )
-                    .onSuccess { response ->
+            )
+                .onSuccess { response ->
 
-                        val data = when {
-                            response.contentType()?.match(ContentType.Application.Json) == true -> {
-                                runCatching { response.body<JsonElement>() }.getOrNull()?.toAny()
-                            }
-
-                            else -> response.bodyAsBytes()
+                    val data = when {
+                        response.contentType()?.match(ContentType.Application.Json) == true -> {
+                            runCatching { response.body<JsonElement>() }.getOrNull()?.toAny()
                         }
 
-                        val hasCustomResponseListener =
-                            triggerOwner
-                                .events
-                                ?.any { it.trigger == EventTriggers.onNetworkResponse(response.status.value) } == true
-
-                        if (hasCustomResponseListener) {
-                            onTrigger(
-                                eventTrigger = EventTriggers.onNetworkResponse(response.status.value),
-                                data = data
-                            )
-                        } else {
-                            onTrigger(
-                                eventTrigger = if (response.status.isSuccess()) EventTriggers.onSuccess() else EventTriggers.onFailure(),
-                                data = data
-                            )
-                        }
+                        else -> response.bodyAsBytes()
                     }
-                    .onFailure { failure ->
+
+                    val hasCustomResponseListener = triggerOwner.events?.any {
+                        it.trigger == EventTriggers.onNetworkResponse(response.status.value)
+                                || it.trigger == EventTriggers.onNetworkFailure(response.status.value)
+                    } == true
+
+                    if (hasCustomResponseListener && !response.status.isSuccess()) {
                         onTrigger(
-                            eventTrigger = EventTriggers.onFailure(),
-                            data = failure
+                            eventTrigger = EventTriggers.onNetworkFailure(response.status.value),
+                            data = data
                         )
-                        logError(
-                            tag = "SendNetworkRequestEventRunner",
-                            throwable = failure
+                    } else if (hasCustomResponseListener && response.status.isSuccess()) {
+                        onTrigger(
+                            eventTrigger = EventTriggers.onNetworkResponse(response.status.value),
+                            data = data
+                        )
+                    } else {
+                        onTrigger(
+                            eventTrigger = if (response.status.isSuccess()) EventTriggers.onSuccess() else EventTriggers.onFailure(),
+                            data = data
                         )
                     }
-            }
+                }
+                .onFailure { failure ->
+                    onTrigger(
+                        eventTrigger = EventTriggers.onFailure(),
+                        data = failure
+                    )
+                    logError(
+                        tag = "SendNetworkRequestEventRunner",
+                        throwable = failure
+                    )
+                }
         }
     }
 }

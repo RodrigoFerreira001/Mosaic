@@ -3,6 +3,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.laz
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyColumnTileSchema
+import dev.catbit.mosaic.core.extensions.immutableMapTo
 
 class LazyColumnTileHolder(
     override val id: String,
@@ -12,7 +13,7 @@ class LazyColumnTileHolder(
 ) : TileHolder<LazyColumnTileSchema>() {
 
     override fun get() = tile.copy(
-        tiles = tiles.map { it.get() },
-        events = events?.map { it.get() }
+        tiles = tiles.immutableMapTo { it.get() },
+        events = events?.immutableMapTo { it.get() }
     )
 }

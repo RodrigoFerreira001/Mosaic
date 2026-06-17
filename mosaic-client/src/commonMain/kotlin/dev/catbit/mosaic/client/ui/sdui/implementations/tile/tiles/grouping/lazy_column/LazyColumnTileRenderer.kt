@@ -9,16 +9,16 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
 import dev.catbit.mosaic.client.extensions.ThresholdReachedEffect
-import dev.catbit.mosaic.client.extensions.observeBroadcastChannel
+import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.extensions.onClick
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.extensions.toArrangement
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
-import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalLazyColumnRenderingScope
-import dev.catbit.mosaic.client.ui.sdui.foundation.models.LazyColumnRenderingScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalLazyItemScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileBroadcastData
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileScreenTilesBroadcastData
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger.ScrollDirection
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyColumnTileSchema
@@ -39,17 +39,17 @@ object LazyColumnTileRenderer : TileRenderer<LazyColumnTileSchema> {
 
             val lazyListState = rememberLazyListState()
 
-            observeBroadcastChannel<ColumnTileBroadcastData> { data ->
+            observeScreenTileBroadcastChannel<ColumnTileScreenTilesBroadcastData> { data ->
                 when (data) {
-                    is ColumnTileBroadcastData.ScrollToTop -> if (data.smoothly)
+                    is ColumnTileScreenTilesBroadcastData.ScrollToTop -> if (data.smoothly)
                         lazyListState.animateScrollToItem(0)
                     else lazyListState.scrollToItem(0)
 
-                    is ColumnTileBroadcastData.ScrollTo -> if (data.smoothly)
+                    is ColumnTileScreenTilesBroadcastData.ScrollTo -> if (data.smoothly)
                         lazyListState.animateScrollToItem(data.index)
                     else lazyListState.scrollToItem(data.index)
 
-                    is ColumnTileBroadcastData.ScrollToBottom -> if (data.smoothly)
+                    is ColumnTileScreenTilesBroadcastData.ScrollToBottom -> if (data.smoothly)
                         lazyListState.animateScrollToItem(tileSchema.tiles.size)
                     else lazyListState.scrollToItem(tileSchema.tiles.size)
                 }
@@ -68,20 +68,24 @@ object LazyColumnTileRenderer : TileRenderer<LazyColumnTileSchema> {
                 onScrollBackward = { triggerEvent(EventTriggers.onScrolled(ScrollDirection.Top)) }
             )
 
-            CompositionLocalProvider(
-                LocalLazyColumnRenderingScope provides LazyColumnRenderingScope.Defined
+            LazyColumn(
+                modifier = modifier,
+                state = lazyListState,
+                verticalArrangement = arrangement.toArrangement(),
+                horizontalAlignment = alignment.toAlignment(),
             ) {
-                LazyColumn(
-                    modifier = modifier,
-                    state = lazyListState,
-                    verticalArrangement = arrangement.toArrangement(),
-                    horizontalAlignment = alignment.toAlignment(),
-                ) {
-                    items(tiles, key = { it.id }) { tileSchema ->
+                items(tiles, key = { it.id }) { tileSchema ->
+                    CompositionLocalProvider(
+                        LocalLazyItemScope provides this,
+                        LocalColumnScope provides null
+                    ) {
                         RenderChild(tileSchema)
                     }
                 }
             }
+
+            //https://slack-chats.kotlinlang.org/t/29592946/hi-everyone-i-m-working-with-compose-for-web-wasm-and-i-need
+
         }
     }
 }

@@ -24,28 +24,26 @@ import kotlinx.datetime.LocalDateTime
 
 object EvaluateDataEventRunner : EventRunner<EvaluateDataEventSchema> {
 
-    override fun EventRunningScope.runEvent(event: EvaluateDataEventSchema) {
-        runSuspendOnScreenScope {
-            withContext(Dispatchers.IO) {
-                val result = runCatching { evaluate(event.expression) }
-                    .getOrElse {
-                        logError(
-                            tag = "EvaluateDataEventRunner",
-                            throwable = it
-                        )
-                        onTrigger(EventTriggers.onFailure(), data = it)
-                        return@withContext
-                    }
-
-                if (result) {
-                    onTrigger(EventTriggers.onSuccess(), data = incomingData)
-                } else {
-                    onTrigger(EventTriggers.onFailure(), data = incomingData)
+    override suspend fun EventRunningScope.runEvent(event: EvaluateDataEventSchema) {
+        withContext(Dispatchers.IO) {
+            val result = runCatching { evaluate(event.expression) }
+                .getOrElse {
                     logError(
                         tag = "EvaluateDataEventRunner",
-                        throwable = Throwable("Expression evaluated to false")
+                        throwable = it
                     )
+                    onTrigger(EventTriggers.onFailure(), data = it)
+                    return@withContext
                 }
+
+            if (result) {
+                onTrigger(EventTriggers.onSuccess(), data = incomingData)
+            } else {
+                onTrigger(EventTriggers.onFailure(), data = incomingData)
+                logError(
+                    tag = "EvaluateDataEventRunner",
+                    throwable = Throwable("Expression evaluated to false")
+                )
             }
         }
     }

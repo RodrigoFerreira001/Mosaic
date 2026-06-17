@@ -4,10 +4,12 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@Stable
 class SnackBarState(
     val snackbarHostState: SnackbarHostState,
     private val coroutineScope: CoroutineScope
@@ -22,8 +24,8 @@ class SnackBarState(
         message: String,
         duration: SnackbarDuration = SnackbarDuration.Short,
         actionLabel: String? = null,
-        onAction: (() -> Unit)? = null,
-        onDismiss: (() -> Unit)? = null
+        onAction: (suspend () -> Unit)? = null,
+        onDismiss: (suspend () -> Unit)? = null
     ) {
         coroutineScope.launch {
             val result = snackbarHostState.showSnackbar(
@@ -41,6 +43,7 @@ class SnackBarState(
     }
 }
 
+@Stable
 @Composable
 fun rememberSnackBarState(
     snackbarHostState: SnackbarHostState,

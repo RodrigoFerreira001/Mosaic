@@ -6,7 +6,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.file.SaveFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object SaveFileEventRunner : EventRunner<SaveFileEventSchema> {
-    override fun EventRunningScope.runEvent(event: SaveFileEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: SaveFileEventSchema) {
         println("executed SaveFileEvent")
         onTrigger(EventTriggers.onSuccess())
     }

@@ -6,7 +6,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.system.CheckIfHasInterne
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object CheckIfHasInternetConnectionEventRunner : EventRunner<CheckIfHasInternetConnectionEventSchema> {
-    override fun EventRunningScope.runEvent(event: CheckIfHasInternetConnectionEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: CheckIfHasInternetConnectionEventSchema) {
         println("executed CheckIfHasInternetConnectionEvent")
         onTrigger(EventTriggers.onSuccess())
     }

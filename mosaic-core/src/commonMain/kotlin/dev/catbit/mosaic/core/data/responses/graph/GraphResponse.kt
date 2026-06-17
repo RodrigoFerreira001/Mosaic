@@ -3,13 +3,15 @@ package dev.catbit.mosaic.core.data.responses.graph
 import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class GraphResponse(
     @SerialName("entries")
-    val entries: List<Entry>,
+    val entries: SerializableImmutableList<Entry>,
     @SerialName("startEntryId")
     val startEntryId: String,
     @SerialName("ttl")
@@ -27,13 +29,13 @@ data class GraphResponse(
         @SerialName("screenId")
         val screenId: String,
         @SerialName("initialTiles")
-        val initialTiles: List<TileSchema>,
+        val initialTiles: SerializableImmutableList<TileSchema>,
         @SerialName("initialEvents")
-        val initialEvents: List<EventSchema>,
+        val initialEvents: SerializableImmutableList<EventSchema>,
         @SerialName("failureTiles")
-        val failureTiles: List<TileSchema>,
+        val failureTiles: SerializableImmutableList<TileSchema>,
         @SerialName("failureEvents")
-        val failureEvents: List<EventSchema>,
+        val failureEvents: SerializableImmutableList<EventSchema>,
         @SerialName("transition")
         val transition: ContentTransitionSchema? = null,
         @SerialName("popTransition")

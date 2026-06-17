@@ -12,13 +12,11 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.WindowInsetsSchema
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 
-class StyleSchemaBuilderScope private constructor(): GenericBuilderScope<StyleSchema, GenericBuilder<StyleSchema>> (){
+class StyleSchemaBuilderScope : GenericBuilderScope<StyleSchema, GenericBuilder<StyleSchema>>() {
 
     private var size: SizeSchema = SizeSchema(
-        width = SizeSchema.Behavior.Horizontal.Fill(),
+        width = SizeSchema.Behavior.Horizontal.Wrap,
         height = SizeSchema.Behavior.Vertical.Wrap
     )
     private var margin: MarginSchema? = null
@@ -260,12 +258,6 @@ class StyleSchemaBuilderScope private constructor(): GenericBuilderScope<StyleSc
     fun windowInsetsDisplayCutout() = WindowInsetsSchema.DisplayCutout
 
     fun windowInsetsWaterfall() = WindowInsetsSchema.Waterfall
-
-    companion object {
-        internal operator fun invoke(
-            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
-        ) = StyleSchemaBuilderScope().apply { pushLocals(compositionLocals) }
-    }
 
     fun buildStyle() = StyleSchema(
         size = size,

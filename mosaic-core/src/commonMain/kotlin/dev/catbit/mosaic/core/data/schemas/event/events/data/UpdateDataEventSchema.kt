@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.data
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.data.DataSourceSchema
@@ -9,6 +10,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Writes key-value data into one or more data stores. Each entry in [updates] specifies a
@@ -38,6 +40,7 @@ import kotlinx.serialization.Serializable
  *   earlier ones (they are applied in iteration order).
  * - All I/O is dispatched on [Dispatchers.IO].
  */
+@Immutable
 @Triggers(
     [
         OnDataUpdatedEventTrigger::class,
@@ -49,11 +52,12 @@ import kotlinx.serialization.Serializable
 data class UpdateDataEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
-    @SerialName("updates") val updates: List<Update>
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
+    @SerialName("updates") val updates: SerializableImmutableList<Update>
 ) : EventSchema {
 
     @Serializable
+    @Immutable
     data class Update(
         @SerialName("dataSource") val dataSource: DataSourceSchema,
         @SerialName("updateData") val updateData: UpdateDate

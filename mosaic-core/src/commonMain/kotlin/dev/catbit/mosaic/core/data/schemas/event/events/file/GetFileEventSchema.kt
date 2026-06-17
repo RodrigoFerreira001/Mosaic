@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.file
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Reads the contents of a locally stored file identified by [fileName]. The runner is currently
@@ -29,6 +31,7 @@ import kotlinx.serialization.Serializable
  * scope. The intended incomingData format for the success payload (raw bytes, Base64 string,
  * etc.) is not yet defined by the implementation.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -40,6 +43,6 @@ import kotlinx.serialization.Serializable
 data class GetFileEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("fileName") val fileName: String
 ) : EventSchema

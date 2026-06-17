@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.image
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadFailureEventTrigger
@@ -10,6 +11,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.placement.AlignmentSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a remotely loaded image using Coil 3's [AsyncImage] composable. The image is
@@ -34,6 +36,7 @@ import kotlinx.serialization.Serializable
  * of these triggers. Content scale options are CROP, FIT, FILL_HEIGHT, FILL_WIDTH, INSIDE,
  * and FILL_BOUNDS.
  */
+@Immutable
 @Triggers(
     [
         OnAsyncImageLoadFailureEventTrigger::class,
@@ -45,7 +48,7 @@ import kotlinx.serialization.Serializable
 @SerialName("AsyncImage")
 data class AsyncImageTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("url") val url: String,

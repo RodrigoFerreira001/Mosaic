@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.event
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -9,6 +10,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesUpdated
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Patches the incomingData map of one or more already-registered event holders without
@@ -32,6 +34,7 @@ import kotlinx.serialization.Serializable
  * into events before they fire — for example, loading a selected item's ID into a delete-event
  * holder. Updates are applied eagerly and synchronously in list order.
  */
+@Immutable
 @Triggers(
     [
         OnTilesUpdatedEventTrigger::class,
@@ -44,8 +47,8 @@ import kotlinx.serialization.Serializable
 data class UpdateEventsEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
-    @SerialName("updates") val updates: List<Update>,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
+    @SerialName("updates") val updates: SerializableImmutableList<Update>,
 ) : EventSchema {
 
     @Serializable

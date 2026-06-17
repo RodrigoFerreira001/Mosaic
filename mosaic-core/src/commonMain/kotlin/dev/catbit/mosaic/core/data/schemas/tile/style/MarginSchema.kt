@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.style
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -17,6 +18,7 @@ import kotlinx.serialization.Serializable
  * // margin(16) ← DOES NOT EXIST — will not compile
  * ```
  */
+@Immutable
 @Serializable
 data class MarginSchema(
     @SerialName("top") val top: Int,

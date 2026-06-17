@@ -5,6 +5,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.TileEventScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyTilesTileSchema
+import dev.catbit.mosaic.core.extensions.immutableMapTo
 
 class LazyTilesTileHolder(
     override val id: String,
@@ -23,10 +24,10 @@ class LazyTilesTileHolder(
     }
 
     override fun get() = tile.copy(
-        failureTiles = failureTiles.map { it.get() },
-        placeholderTiles = placeholderTiles.map { it.get() },
-        events = events?.map { it.get() },
-        tiles = internalTiles?.map { it.get() }
+        failureTiles = failureTiles.immutableMapTo { it.get() },
+        placeholderTiles = placeholderTiles.immutableMapTo { it.get() },
+        events = events?.immutableMapTo { it.get() },
+        tiles = internalTiles?.immutableMapTo { it.get() }
     )
 
     override fun TileEventScope.onTileEvent(event: TileEvent) {

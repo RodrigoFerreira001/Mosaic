@@ -8,8 +8,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -55,13 +53,7 @@ class DeleteDataDeletionBuilder(
     )
 }
 
-class DeleteDataDeletionBuilderScope private constructor(): GenericBuilderScope<Deletion, DeleteDataDeletionBuilder>() {
-
-    companion object {
-        internal operator fun invoke(
-            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
-        ) = DeleteDataDeletionBuilderScope().apply { pushLocals(compositionLocals) }
-    }
+class DeleteDataDeletionBuilderScope : GenericBuilderScope<Deletion, DeleteDataDeletionBuilder>() {
 
     fun addDeletion(
         dataSource: DataSourceSchema,

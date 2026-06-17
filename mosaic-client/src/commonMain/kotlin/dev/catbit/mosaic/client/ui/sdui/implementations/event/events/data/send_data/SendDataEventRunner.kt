@@ -7,7 +7,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.data.SendDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object SendDataEventRunner : EventRunner<SendDataEventSchema> {
-    override fun EventRunningScope.runEvent(event: SendDataEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: SendDataEventSchema) {
         with(event) {
             (data ?: incomingData)?.let { validData ->
                 get<DataMailer>().sendData(

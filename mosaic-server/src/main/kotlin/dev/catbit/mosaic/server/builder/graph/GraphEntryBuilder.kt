@@ -5,8 +5,6 @@ import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.event.builders.screen.ChangeScreenState
 import dev.catbit.mosaic.server.builder.event.builders.screen.GetScreen
@@ -36,13 +34,7 @@ class GraphEntryBuilder(
     )
 }
 
-class GraphEntryBuilderScope private constructor(): GenericBuilderScope<Entry, GraphEntryBuilder>() {
-
-    companion object {
-        internal operator fun invoke(
-            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
-        ) = GraphEntryBuilderScope().apply { pushLocals(compositionLocals) }
-    }
+class GraphEntryBuilderScope : GenericBuilderScope<Entry, GraphEntryBuilder>() {
 
     fun entry(
         screenId: String,

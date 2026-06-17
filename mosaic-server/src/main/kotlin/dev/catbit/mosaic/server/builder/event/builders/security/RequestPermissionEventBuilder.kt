@@ -6,6 +6,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+import kotlinx.collections.immutable.toImmutableList
 
 internal class RequestPermissionEventBuilder(
     private val id: String,
@@ -18,7 +19,7 @@ internal class RequestPermissionEventBuilder(
         id = id,
         trigger = trigger,
         events = EventSchemaBuilderScope().apply(events).build(),
-        permissions = permissions
+        permissions = permissions.toImmutableList()
     )
 }
 

@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.data
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Delegates `incomingData` to a client-registered [DataProcessor] identified by [processWith],
@@ -38,6 +40,7 @@ import kotlinx.serialization.Serializable
  * - This event is synchronous at the runner level; the processor itself may be asynchronous
  *   depending on its implementation contract.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -49,6 +52,6 @@ import kotlinx.serialization.Serializable
 data class ProcessDataEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("processWith") val processWith: String,
 ) : EventSchema

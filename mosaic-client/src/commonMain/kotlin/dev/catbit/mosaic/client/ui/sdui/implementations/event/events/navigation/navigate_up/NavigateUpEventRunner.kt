@@ -8,7 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object NavigateUpEventRunner : EventRunner<NavigateUpEventSchema> {
 
-    override fun EventRunningScope.runEvent(event: NavigateUpEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: NavigateUpEventSchema) {
         get<NavigatorsHolder>()[event.navigatorId]?.goBack()
             ?.also {
                 onTrigger(EventTriggers.onSuccess())

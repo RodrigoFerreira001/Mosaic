@@ -1,10 +1,12 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 horizontal carousel that displays its child tiles as browsable
@@ -15,7 +17,7 @@ import kotlinx.serialization.Serializable
  * - `Uncontained` — shows items at a fixed [itemWidth] without size constraints applied to
  *   partial items.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
+ * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`, `type: CarouselTypeSchema`, `itemSpacing: Int`,
  * `contentPadding: Int`, `userScrollEnabled: Boolean`
  *
@@ -26,12 +28,13 @@ import kotlinx.serialization.Serializable
  * via [userScrollEnabled], which is useful when programmatic scrolling is the intended
  * interaction model.
  */
+@Immutable
 @Serializable
 @SerialName("Carousel")
 data class CarouselTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("tiles") val tiles: List<TileSchema>,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("type") val type: CarouselTypeSchema,

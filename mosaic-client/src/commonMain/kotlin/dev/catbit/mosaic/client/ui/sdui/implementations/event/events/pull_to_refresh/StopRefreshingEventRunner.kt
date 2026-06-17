@@ -8,15 +8,14 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object StopRefreshingEventRunner : EventRunner<StopRefreshingEventSchema> {
 
-    override fun EventRunningScope.runEvent(event: StopRefreshingEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: StopRefreshingEventSchema) {
         tilesEventDispatcher.onEvent(
             tileId = event.tileId,
-            event = PullToRefreshTileEvents.StopRefreshing,
-            onError = {
-                onTrigger(EventTriggers.onFailure(), data = it)
-                logError(tag = "StopRefreshingEventRunner", throwable = it)
-            },
-            onSuccess = { onTrigger(EventTriggers.onSuccess()) }
-        )
+            event = PullToRefreshTileEvents.StopRefreshing
+        ).onFailure {
+            onTrigger(EventTriggers.onFailure(), data = it)
+        }.onSuccess {
+            onTrigger(EventTriggers.onSuccess())
+        }
     }
 }

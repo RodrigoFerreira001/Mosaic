@@ -44,9 +44,11 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 | `shape` | `Shape` | `ROUNDED` |
 | `loading` | `Boolean` | `false` |
 | `enabled` | `Boolean` | `true` |
+| `iconPosition` | `IconPosition` | `START` |
 
 `Type`: `FILLED`, `ELEVATED`, `FILLED_TONAL`, `OUTLINED`, `TEXT`
 `Shape`: `SQUARE`, `ROUNDED`
+`IconPosition`: `START`, `END`
 
 **Supported triggers:** `OnClick`, `OnLongPress`
 
@@ -189,6 +191,31 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 ---
 
 ## Containers / Grouping
+
+### AdaptiveVisibilityTileSchema
+**JSON type:** `"AdaptiveVisibility"`
+
+| Field | Type | Default |
+|---|---|---|
+| `tiles` | `List<TileSchema>` | required |
+| `width_visibility` | `WidthVisibility` | required (DSL default: `widthVisibleUntilExtraLarge()`) |
+| `height_visibility` | `HeightVisibility` | required (DSL default: `heightVisibleUntilExpanded()`) |
+
+`WidthVisibility` / `HeightVisibility`: `{ "type": "visible_from" | "visible_until", "breakpoint": { "type": ... } }`
+
+Semântica dos modos:
+- `visible_from` — **exclusivo**: visível nos breakpoints **acima** do especificado. `fromCompact` = Medium em diante; `fromMedium` = Expanded em diante.
+- `visible_until` — **inclusivo**: visível no breakpoint especificado **e abaixo**. `untilMedium` = Compact e Medium.
+
+`WidthBreakpoint`: `compact`, `medium`, `expanded`, `large`, `extra_large`. `HeightBreakpoint`: `compact`, `medium`, `expanded`.
+
+Transparent (logical) container: observes `currentWindowAdaptiveInfoV2()` and only composes its children when **both** axes are satisfied. Creates no layout node of its own — `style` is not applied.
+
+DSL helpers (in `AdaptiveVisibilityTileSchemaBuilder.kt`): `widthVisibleFrom[Compact|Medium|Expanded|Large|ExtraLarge]()`, `widthVisibleUntil[...]()`, `heightVisibleFrom[Compact|Medium|Expanded]()`, `heightVisibleUntil[...]()`.
+
+**Supported triggers:** `OnWidthBreakpointSatisfied`, `OnWidthBreakpointNotSatisfied`, `OnHeightBreakpointSatisfied`, `OnHeightBreakpointNotSatisfied`
+
+---
 
 ### ColumnTileSchema
 **JSON type:** `"Column"`
@@ -464,12 +491,74 @@ Fetches its tile list from a remote URL on first render.
 ### SuggestionChipTileSchema
 **JSON type:** `"SuggestionChip"`
 
-| Field | Type |
-|---|---|
-| `text` | `String` |
-| `enabled` | `Boolean` |
+| Field | Type | Default |
+|---|---|---|
+| `text` | `String` | required |
+| `icon` | `IconSchema?` | `null` |
+| `enabled` | `Boolean` | required |
+| `variant` | `Variant` | `DEFAULT` |
+
+`Variant`: `DEFAULT` (flat, with border → `SuggestionChip`), `ELEVATED` (shadow, no border → `ElevatedSuggestionChip`)
 
 **Supported triggers:** `OnClick`
+
+---
+
+### AssistChipTileSchema
+**JSON type:** `"AssistChip"`
+
+| Field | Type | Default |
+|---|---|---|
+| `text` | `String` | required |
+| `leadingIcon` | `IconSchema?` | `null` |
+| `trailingIcon` | `IconSchema?` | `null` |
+| `enabled` | `Boolean` | required |
+| `variant` | `Variant` | `DEFAULT` |
+
+`Variant`: `DEFAULT` (flat, with border → `AssistChip`), `ELEVATED` (shadow, no border → `ElevatedAssistChip`)
+
+**Use case:** action chip with optional icons on both ends. Suitable as a menu trigger (e.g. leading icon + label + chevron as trailing icon, full chip click opens menu).
+
+**Supported triggers:** `OnClick`
+
+---
+
+### FilterChipTileSchema
+**JSON type:** `"FilterChip"`
+
+| Field | Type | Default |
+|---|---|---|
+| `text` | `String` | required |
+| `selected` | `Boolean` | required |
+| `leadingIcon` | `IconSchema?` | `null` |
+| `trailingIcon` | `IconSchema?` | `null` |
+| `enabled` | `Boolean` | required |
+| `variant` | `Variant` | `DEFAULT` |
+
+`Variant`: `DEFAULT` (flat → `FilterChip`), `ELEVATED` (shadow → `ElevatedFilterChip`)
+
+**Note:** When `selected = true`, M3 renders a filled container; `leadingIcon` can visually indicate selection (e.g. a checkmark icon).
+
+**Supported triggers:** `OnCheck`, `OnUncheck`, `OnCheckChanged`
+
+---
+
+### InputChipTileSchema
+**JSON type:** `"InputChip"`
+
+| Field | Type | Default |
+|---|---|---|
+| `text` | `String` | required |
+| `selected` | `Boolean` | required |
+| `leadingIcon` | `IconSchema?` | `null` |
+| `trailingIcon` | `IconSchema?` | `null` (typically a close/remove icon) |
+| `enabled` | `Boolean` | required |
+
+**Note:** No `variant` field — `InputChip` has no elevated variant in Material 3.
+
+**Note:** `trailingIcon` is purely visual. The `InputChip` composable exposes only a single `onClick` for the whole chip surface; there is no separate trailing-icon click callback.
+
+**Supported triggers:** `OnCheck`, `OnUncheck`, `OnCheckChanged`
 
 ---
 

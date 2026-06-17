@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.data
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.data.AccessModeSchema
@@ -11,6 +12,7 @@ import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Evaluates a boolean [expression] tree against data and branches the event chain based on the
@@ -47,6 +49,7 @@ import kotlinx.serialization.Serializable
  *   applies a nested [Expression.DataExpression.Operation] to the value at the given key.
  * - All I/O (data source fetching) is dispatched on [Dispatchers.IO].
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -58,7 +61,7 @@ import kotlinx.serialization.Serializable
 data class EvaluateDataEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("expression") val expression: Expression
 ) : EventSchema {
 
@@ -445,7 +448,7 @@ data class EvaluateDataEventSchema(
                     @Serializable
                     @SerialName("List_In")
                     data class In(
-                        @SerialName("list") val list: List<AnySerializable>
+                        @SerialName("list") val list: SerializableImmutableList<AnySerializable>
                     ) : ListOperation
 
                     @Serializable
@@ -489,13 +492,13 @@ data class EvaluateDataEventSchema(
                     @Serializable
                     @SerialName("List_ContainsAll")
                     data class ContainsAll(
-                        @SerialName("items") val items: List<AnySerializable>
+                        @SerialName("items") val items: SerializableImmutableList<AnySerializable>
                     ) : ListOperation
 
                     @Serializable
                     @SerialName("List_ContainsAny")
                     data class ContainsAny(
-                        @SerialName("items") val items: List<AnySerializable>
+                        @SerialName("items") val items: SerializableImmutableList<AnySerializable>
                     ) : ListOperation
                 }
 

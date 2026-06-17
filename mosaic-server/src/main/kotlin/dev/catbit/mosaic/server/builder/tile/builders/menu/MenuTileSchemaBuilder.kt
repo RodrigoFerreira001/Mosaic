@@ -6,8 +6,6 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.menu.MenuTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -36,12 +34,12 @@ internal class MenuTileSchemaBuilder(
 
 fun TileSchemaBuilderScope.Menu(
     id: String = randomId(),
-    tiles: TileSchemaBuilderScope.() -> Unit,
-    events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    expanded: Boolean = false,
     items: MenuItemSchemaBuilderScope.() -> Unit,
-    expanded: Boolean = false
+    events: EventSchemaBuilderScope.() -> Unit = {},
+    tiles: TileSchemaBuilderScope.() -> Unit,
 ) {
     addBuilder(
         MenuTileSchemaBuilder(
@@ -71,13 +69,7 @@ class MenuItemSchemaBuilder(
     )
 }
 
-class MenuItemSchemaBuilderScope private constructor(): GenericBuilderScope<MenuTileSchema.MenuItem, MenuItemSchemaBuilder>() {
-
-    companion object {
-        internal operator fun invoke(
-            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
-        ) = MenuItemSchemaBuilderScope().apply { pushLocals(compositionLocals) }
-    }
+class MenuItemSchemaBuilderScope : GenericBuilderScope<MenuTileSchema.MenuItem, MenuItemSchemaBuilder>() {
 
     fun addMenuItem(
         id: String,

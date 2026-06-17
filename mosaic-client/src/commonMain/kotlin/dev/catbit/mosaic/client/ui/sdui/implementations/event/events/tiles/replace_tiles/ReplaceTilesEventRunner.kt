@@ -6,18 +6,15 @@ import dev.catbit.mosaic.core.data.schemas.event.events.tiles.ReplaceTilesEventS
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object ReplaceTilesEventRunner : EventRunner<ReplaceTilesEventSchema> {
-    override fun EventRunningScope.runEvent(event: ReplaceTilesEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: ReplaceTilesEventSchema) {
         tilesEditor.replaceTiles(
             tileSchemas = event.tiles,
             groupingTileId = event.groupingTileId,
-            onError = {
-                onTrigger(EventTriggers.onFailure(), data = it)
-                logError(
-                    tag = "ReplaceTilesEventRunner",
-                    throwable = it
-                )
-            },
-            onSuccess = { onTrigger(EventTriggers.onSuccess()) }
-        )
+        ).onFailure { throwable ->
+            onTrigger(EventTriggers.onFailure(), data = throwable)
+            logError(tag = "ReplaceTilesEventRunner", throwable = throwable)
+        }.onSuccess {
+            onTrigger(EventTriggers.onSuccess())
+        }
     }
 }

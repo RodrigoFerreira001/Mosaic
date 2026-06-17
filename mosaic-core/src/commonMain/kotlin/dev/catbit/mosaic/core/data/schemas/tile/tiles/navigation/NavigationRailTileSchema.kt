@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationRailItemClickEventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 [NavigationRail] with a vertical list of destination items defined by
@@ -16,7 +18,7 @@ import kotlinx.serialization.Serializable
  * the bottom via a [Spacer] with `weight(1f)`.
  *
  * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `items: List<NavigationRailItem>`,
+ * `visibility: TileSchema.Visibility`, `items: SerializableImmutableList<NavigationRailItem>`,
  * `selectedItemId: String`, `header: TileSchema?`, `footer: TileSchema?`
  *
  * **Triggers dispatched:** `OnNavigationRailItemClickEventTrigger` — fired when any item is
@@ -28,6 +30,7 @@ import kotlinx.serialization.Serializable
  * rail regardless of the schema style. The [footer] tile is only rendered if non-null and is
  * always pushed to the bottom of the rail.
  */
+@Immutable
 @Triggers(
     [
         OnNavigationRailItemClickEventTrigger::class
@@ -37,10 +40,10 @@ import kotlinx.serialization.Serializable
 @SerialName("NavigationRail")
 data class NavigationRailTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
-    @SerialName("items") val items: List<NavigationRailItem>,
+    @SerialName("items") val items: SerializableImmutableList<NavigationRailItem>,
     @SerialName("selectedItemId") val selectedItemId: String,
     @SerialName("header") val header: TileSchema? = null,
     @SerialName("footer") val footer: TileSchema? = null

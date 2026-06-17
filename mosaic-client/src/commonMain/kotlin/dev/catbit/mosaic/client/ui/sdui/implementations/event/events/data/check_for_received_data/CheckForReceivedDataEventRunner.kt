@@ -7,7 +7,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.data.CheckForReceivedDat
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object CheckForReceivedDataEventRunner : EventRunner<CheckForReceivedDataEventSchema> {
-    override fun EventRunningScope.runEvent(event: CheckForReceivedDataEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: CheckForReceivedDataEventSchema) {
         get<DataMailer>().getData(event.dataKey)?.let { validData ->
             onTrigger(
                 eventTrigger = EventTriggers.onDataReceived(),

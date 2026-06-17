@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.security
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsD
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Requests one or more runtime permissions from the user on behalf of the server-driven UI.
@@ -29,6 +31,7 @@ import kotlinx.serialization.Serializable
  * single event. The platform-specific permission dialog flow and the mapping between
  * [Permissions] enum values and actual Android/iOS permission strings are not yet implemented.
  */
+@Immutable
 @Triggers(
     [
         OnPermissionsAcquiredEventTrigger::class,
@@ -41,8 +44,8 @@ import kotlinx.serialization.Serializable
 data class RequestPermissionEventSchema(
     override val id: String,
     override val trigger: EventTrigger,
-    override val events: List<EventSchema>?,
-    val permissions: List<Permissions>
+    override val events: SerializableImmutableList<EventSchema>?,
+    val permissions: SerializableImmutableList<Permissions>
 ) : EventSchema {
 
     enum class Permissions {

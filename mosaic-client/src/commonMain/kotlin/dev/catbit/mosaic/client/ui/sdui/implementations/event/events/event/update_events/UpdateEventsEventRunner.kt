@@ -6,24 +6,21 @@ import dev.catbit.mosaic.core.data.schemas.event.events.event.UpdateEventsEventS
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object UpdateEventsEventRunner : EventRunner<UpdateEventsEventSchema> {
-    override fun EventRunningScope.runEvent(event: UpdateEventsEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: UpdateEventsEventSchema) {
 
-        var errorHappened = false
+        var anyErrorOccurred = false
 
         event.updates.forEach { update ->
             tilesEventDispatcher.updateEventHolder(
                 eventId = update.eventId,
                 data = update.data,
-                onError = { errorHappened = true },
-                onSuccess = {}
-            )
+            ).onFailure {
+                anyErrorOccurred = true
+            }
         }
-        if (errorHappened) {
+
+        if (anyErrorOccurred) {
             onTrigger(EventTriggers.onFailure())
-            logError(
-                tag = "UpdateEventsEventRunner",
-                throwable = Throwable("One or more event updates failed")
-            )
         } else {
             onTrigger(EventTriggers.onSuccess())
         }

@@ -9,6 +9,7 @@ import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import kotlinx.collections.immutable.toImmutableList
 
 internal class GridTileSchemaBuilder(
     private val id: String,
@@ -30,8 +31,8 @@ internal class GridTileSchemaBuilder(
             events = EventSchemaBuilderScope().apply(events).build(),
             style = StyleSchemaBuilderScope().apply(style).buildStyle(),
             visibility = visibility,
-            columns = columns,
-            rows = rows,
+            columns = columns.toImmutableList(),
+            rows = rows.toImmutableList(),
             columnGap = columnGap,
             rowGap = rowGap,
             flow = flow

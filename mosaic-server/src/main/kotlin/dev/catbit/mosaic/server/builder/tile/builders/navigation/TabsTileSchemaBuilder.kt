@@ -6,8 +6,6 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.TabsTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -75,14 +73,8 @@ class TabItemSchemaBuilder(
     )
 }
 
-class TabItemSchemaBuilderScope private constructor() :
+class TabItemSchemaBuilderScope :
     GenericBuilderScope<TabsTileSchema.TabItem, TabItemSchemaBuilder>() {
-
-    companion object {
-        internal operator fun invoke(
-            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
-        ) = TabItemSchemaBuilderScope().apply { pushLocals(compositionLocals) }
-    }
 
     fun addTab(
         id: String,

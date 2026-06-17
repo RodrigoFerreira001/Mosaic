@@ -1,20 +1,21 @@
 # Boilerplate Templates
 
 Arquivo de referência para geração de código. Usar estes templates adapta muito mais rápido do que explorar o projeto.
-Substitua `[Name]` pelo nome do componente (ex: `TransformData`), `[name]` pela variante camelCase (ex: `transformData`), e `[package]` pelo subpacote (`data`, `event`, `navigation`, etc.).
+Substitua `[Name]` pelo nome do componente (ex: `TransformData`), `[name]` pela variante snake_case do pacote (ex: `transform_data`), e `[package]` pelo subpacote (`data`, `event`, `navigation`, `grouping`, etc.).
+
+> Templates validados contra `TriggerEventEvent*` e `ColumnTile*`/`ButtonTile*` (jun/2026). Se algo não compilar, confira essas implementações reais primeiro.
 
 ## Regras de uso
 
 1. **Sempre ler o Schema antes de gerar.** O schema define os campos específicos que entram no Builder e no Holder.
 2. **Sempre se basear nos templates abaixo** — nunca inventar estrutura nova.
-3. **Sempre usar `EventSchemaBuilderScope()` sem argumentos dentro de `build()`** — nunca construir o scope diretamente. O invoke operator em `GenericBuilder` injeta os `compositionLocals` automaticamente.
+3. **Sempre usar `EventSchemaBuilderScope()` / `TileSchemaBuilderScope()` sem argumentos dentro de `build()`** — nunca construir o scope diretamente. O invoke operator em `GenericBuilder` injeta os `compositionLocals` automaticamente.
 4. **Cenários simples:** schema com campos primitivos/strings/AnySerializable → gerar direto com os templates.
 5. **Cenários complexos → perguntar ao desenvolvedor antes de gerar.** Exemplos de complexidade:
    - Builder com escopo aninhado (ex: `GetData` tem `GetDataReadingBuilderScope` separado)
    - Holder que precisa guardar estado adicional além do schema
    - Schema com subtipos sealed (ex: `EvaluateDataEventSchema.Expression`)
-   - Tile com filhos (`tiles: List<TileHolder<*>>` não-nulo por padrão)
-   - Qualquer campo do schema que não seja primitivo, String, AnySerializable, List simples ou EventSchema
+   - Qualquer campo do schema que não seja primitivo, String, AnySerializable, List simples, EventSchema ou sealed simples já existente
 
    Nesses casos: apresentar a abordagem proposta e aguardar aprovação.
 
@@ -23,6 +24,7 @@ Substitua `[Name]` pelo nome do componente (ex: `TransformData`), `[name]` pela 
 7. **Sempre atualizar o catalog correspondente após gerar boilerplate.**
    - Novo Event → adicionar entrada em `.claude/context/events-catalog.md`
    - Novo Tile → adicionar entrada em `.claude/context/tiles-catalog.md`
+   - Novo Trigger → adicionar entrada em `.claude/context/triggers-catalog.md`
    - Formato: nome do schema, `@SerialName`, tabela de campos, triggers suportados (do `@Triggers` do schema)
    - Ler o schema para extrair essas informações — não inventar.
 
@@ -46,12 +48,14 @@ mosaic-client/.../implementations/event/events/[package]/[name]/
 
 ### `[Name]EventBuilder.kt` — mosaic-server
 
+`EventSchemaBuilder` é uma **classe abstrata** (herdar com parênteses). Ids usam `randomId()`.
+
 ```kotlin
 package dev.catbit.mosaic.server.builder.event.builders.[package]
 
 import dev.catbit.mosaic.core.data.schemas.event.events.[package].[Name]EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -60,7 +64,7 @@ internal class [Name]EventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     // ↑ adicione aqui os campos específicos do schema
-) : EventSchemaBuilder<[Name]EventSchema> {
+) : EventSchemaBuilder<[Name]EventSchema>() {
 
     override fun build() = [Name]EventSchema(
         id = id,
@@ -71,7 +75,7 @@ internal class [Name]EventBuilder(
 }
 
 fun EventSchemaBuilderScope.[Name](
-    id: String = randomUuid(),
+    id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     // ↑ adicione os parâmetros específicos
@@ -168,15 +172,31 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.core.data.schemas.event.events.[package].[Name]EventSchema
 
 object [Name]EventRunner : EventRunner<[Name]EventSchema> {
-    override fun EventRunningScope.runEvent(event: [Name]EventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: [Name]EventSchema) {
         TODO("[Name]EventRunner not yet implemented")
     }
 }
 ```
 
+> Padrão síncrono com tratamento de erro (ver `TriggerEventEventRunner`):
+> ```kotlin
+> override suspend fun EventRunningScope.runEvent(event: [Name]EventSchema) {
+>     runSafely(
+>         onError = {
+>             onTrigger(EventTriggers.onFailure(), data = it)
+>             logError(tag = "[Name]EventRunner", throwable = it)
+>         }
+>     ) {
+>         /* lógica */
+>         onTrigger(EventTriggers.onSuccess())
+>     }
+> }
+> ```
+> `runSafely` vem de `dev.catbit.mosaic.core.extensions.runSafely`.
+>
 > Padrão com coroutine (eventos assíncronos como GetData, EvaluateData):
 > ```kotlin
-> override fun EventRunningScope.runEvent(event: [Name]EventSchema) {
+> override suspend fun EventRunningScope.runEvent(event: [Name]EventSchema) {
 >     runSuspendOnScreenScope {
 >         withContext(Dispatchers.IO) {
 >             val result = runCatching { /* lógica */ }
@@ -187,18 +207,6 @@ object [Name]EventRunner : EventRunner<[Name]EventSchema> {
 >             onTrigger(EventTriggers.onSuccess(), data = result)
 >         }
 >     }
-> }
-> ```
->
-> Padrão síncrono (eventos simples como SendData, TransformData):
-> ```kotlin
-> override fun EventRunningScope.runEvent(event: [Name]EventSchema) {
->     val result = runCatching { /* lógica */ }
->         .getOrElse {
->             onTrigger(EventTriggers.onFailure(), data = it)
->             return
->         }
->     onTrigger(EventTriggers.onSuccess(), data = result)
 > }
 > ```
 
@@ -212,7 +220,7 @@ Arquivo: `mosaic-core/.../serialization/MosaicSerializer.kt`
 // 1. Adicionar import
 import dev.catbit.mosaic.core.data.schemas.event.events.[package].[Name]EventSchema
 
-// 2. Adicionar na função defaultEventSerializers (manter ordem alfabética/agrupada por categoria)
+// 2. Adicionar na propriedade defaultEventSerializers (manter agrupado por categoria)
 private val defaultEventSerializers
     get() = mapOf(
         // ...
@@ -221,18 +229,21 @@ private val defaultEventSerializers
     )
 ```
 
+> **Trigger novo?** Registrar também em `defaultEventTriggerSerializers` (mesmo arquivo, ordem alfabética) **e** criar a factory function em `EventTriggers.kt` (`fun on[X]() = On[X]EventTrigger`).
+
 ---
 
 ### Registro 2 — `MosaicModules.kt` (mosaic-client)
-
-Arquivo: `mosaic-client/.../di/MosaicModules.kt`
 
 ```kotlin
 // 1. Adicionar import
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.[package].[name].[Name]EventDefinition
 
-// 2. Adicionar na lista de definitions (manter agrupado por categoria)
-[Name]EventDefinition,
+// 2. Adicionar na lista baseEventsDefinitions (manter agrupado por categoria)
+private val baseEventsDefinitions = listOf(
+    // ...
+    [Name]EventDefinition,
+)
 ```
 
 ---
@@ -251,41 +262,64 @@ mosaic-client/.../implementations/tile/tiles/[package]/[name]/
     [Name]TileRenderer.kt
 ```
 
+Todo `TileSchema` tem os campos base `id`, `events`, `style`, `visibility` — o Builder e a DSL sempre os expõem.
+
 ---
 
 ### `[Name]TileSchemaBuilder.kt` — mosaic-server
 
+`TileSchemaBuilder` é uma **classe abstrata** (herdar com parênteses).
+
 ```kotlin
 package dev.catbit.mosaic.server.builder.tile.builders.[package]
 
+import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.[package].[Name]TileSchema
-import dev.catbit.mosaic.core.extensions.randomUuid
+import dev.catbit.mosaic.core.extensions.randomId
+import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 
 internal class [Name]TileSchemaBuilder(
     private val id: String,
+    private val events: EventSchemaBuilderScope.() -> Unit,
+    private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val visibility: TileSchema.Visibility,
     // ↑ adicione os campos específicos do schema
-) : TileSchemaBuilder<[Name]TileSchema> {
+) : TileSchemaBuilder<[Name]TileSchema>() {
 
     override fun build() = [Name]TileSchema(
         id = id,
+        events = EventSchemaBuilderScope().apply(events).build(),
+        style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        visibility = visibility,
         // ↑ mapeie os campos
     )
 }
 
 fun TileSchemaBuilderScope.[Name](
-    id: String = randomUuid(),
+    id: String = randomId(),
+    events: EventSchemaBuilderScope.() -> Unit = {},
+    style: StyleSchemaBuilderScope.() -> Unit = {},
+    visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     // ↑ parâmetros específicos
 ) {
     addBuilder(
         [Name]TileSchemaBuilder(
             id = id,
+            events = events,
+            style = style,
+            visibility = visibility,
             // ↑ passe os parâmetros
         )
     )
 }
 ```
+
+> **Tile container (com `tiles: List<TileSchema>`):** adicionar `private val tiles: TileSchemaBuilderScope.() -> Unit` no builder, mapear com `tiles = TileSchemaBuilderScope().apply(tiles).build()`, e na DSL colocar `tiles: TileSchemaBuilderScope.() -> Unit` como **último** parâmetro (trailing lambda, sem default) — ver `ColumnTileSchemaBuilder`.
+>
+> **Helpers utilitários de valores do schema** (estilo `AligmentHelper`): quando o schema tiver sealed types próprios, criar funções `fun xxxYyy() = Schema.Subtipo.Valor` no próprio arquivo do builder — ver `AdaptiveVisibilityTileSchemaBuilder`.
 
 ---
 
@@ -308,6 +342,8 @@ object [Name]TileDefinition : TileDefinition<[Name]TileSchema> {
 
 ### `[Name]TileHolder.kt` — mosaic-client
 
+Listas do holder são `MutableList`. Tile folha:
+
 ```kotlin
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.[package].[name]
 
@@ -318,8 +354,8 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.[package].[Name]TileSchema
 class [Name]TileHolder(
     override val id: String,
     override var tile: [Name]TileSchema,
-    override val events: List<EventHolder<*>>?,
-    override val tiles: List<TileHolder<*>>? = null
+    override val events: MutableList<EventHolder<*>>?,
+    override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<[Name]TileSchema>() {
 
     override fun get() = tile.copy(
@@ -328,9 +364,19 @@ class [Name]TileHolder(
 }
 ```
 
+> **Tile container:** `override val tiles: MutableList<TileHolder<*>>` (não-nulo, sem default) e `get()` também copia os filhos:
+> ```kotlin
+> override fun get() = tile.copy(
+>     tiles = tiles.map { it.get() },
+>     events = events?.map { it.get() }
+> )
+> ```
+
 ---
 
 ### `[Name]TileHolderBuilder.kt` — mosaic-client
+
+O parâmetro chama-se `tileModel` e o `BuilderScope` oferece `buildEventHolders()` / `buildTileHolders()`.
 
 ```kotlin
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.[package].[name]
@@ -342,12 +388,13 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.[package].[Name]TileSchema
 object [Name]TileHolderBuilder : TileHolderBuilder<[Name]TileSchema, [Name]TileHolder> {
 
     override fun BuilderScope.build(
-        tileSchema: [Name]TileSchema
-    ) = with(tileSchema) {
+        tileModel: [Name]TileSchema
+    ) = with(tileModel) {
         [Name]TileHolder(
             id = id,
-            tile = tileSchema,
-            events = events?.map { eventModel -> buildEventHolder(eventModel) }
+            tile = tileModel,
+            events = events?.buildEventHolders(),
+            // container: tiles = tiles.buildTileHolders()
         )
     }
 }
@@ -357,21 +404,39 @@ object [Name]TileHolderBuilder : TileHolderBuilder<[Name]TileSchema, [Name]TileH
 
 ### `[Name]TileRenderer.kt` — mosaic-client
 
+`TileRenderer` tem **um único type param** (o schema) e o `Render` é extensão de `TileRenderingScope` recebendo o schema:
+
 ```kotlin
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.[package].[name]
 
 import androidx.compose.runtime.Composable
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
+import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.[package].[Name]TileSchema
 
-object [Name]TileRenderer : TileRenderer<[Name]TileSchema, [Name]TileHolder> {
+object [Name]TileRenderer : TileRenderer<[Name]TileSchema> {
 
     @Composable
-    override fun [Name]TileHolder.Render() {
+    override fun TileRenderingScope.Render(
+        tileSchema: [Name]TileSchema
+    ) {
         TODO("[Name]TileRenderer not yet implemented")
     }
 }
 ```
+
+> Esqueleto típico de implementação real (ver `ColumnTileRenderer`):
+> ```kotlin
+> with(tileSchema) {
+>     val modifier = Modifier
+>         .visible(isVisible())                      // androidx.compose.foundation.layout.visible
+>         .styledWith(style = style, onClick = onClick(events))
+>
+>     /* composable raiz */ {
+>         RenderChildren(tiles)                      // containers
+>     }
+> }
+> ```
 
 ---
 
@@ -383,7 +448,7 @@ Arquivo: `mosaic-core/.../serialization/MosaicSerializer.kt`
 // 1. Adicionar import
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.[package].[Name]TileSchema
 
-// 2. Adicionar na função defaultTileSerializers
+// 2. Adicionar na propriedade defaultTileSerializers
 private val defaultTileSerializers
     get() = mapOf(
         // ...
@@ -400,8 +465,11 @@ private val defaultTileSerializers
 // 1. Adicionar import
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.[package].[name].[Name]TileDefinition
 
-// 2. Adicionar na lista de definitions
-[Name]TileDefinition,
+// 2. Adicionar na lista baseTilesDefinitions
+private val baseTilesDefinitions = listOf(
+    // ...
+    [Name]TileDefinition,
+)
 ```
 
 ---
@@ -410,13 +478,30 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.[package].[na
 
 ```kotlin
 incomingData: Any?                              // dado que chegou do evento anterior
-onTrigger(EventTriggers.onSuccess(), data = x) // dispara eventos filhos com trigger OnSuccess
-onTrigger(EventTriggers.onFailure(), data = x) // dispara eventos filhos com trigger OnFailure
-onTrigger(EventTriggers.onStart(), data = x)   // dispara eventos filhos com trigger OnStart
+onTrigger(EventTriggers.onSuccess(), data = x) // dispara eventos filhos com o trigger dado
+runEventInline(eventSchema, data = x)          // executa um EventSchema arbitrário imediatamente
 runSuspendOnScreenScope { }                     // lança coroutine no escopo da screen
-get<SomeUseCase>()                             // injeção via Koin
+runSuspendOnStateHolderScope { }                // lança coroutine no escopo do state holder
+broadcastData(data)                             // envia BroadcastData para os tiles da screen
+get<SomeUseCase>()                             // injeção via Koin (também getOrNull / getAll)
 incomingData.asMapAny()                        // cast para Map<String, AnySerializable>?
-logError(throwable)                            // loga erro via MosaicLogger
+incomingData.asMapString()                     // cast para Map<String, String>?
+logError(throwable = t, tag = "...")           // loga erro via MosaicLogger
+log(level, msg)                                // log genérico
+
+// Propriedades para manipular a screen:
+tilesEditor / tilesEventDispatcher / tilesOverlaysEditor / tilesValueProducer
+dataHolder / screenBehaviorsHolder
+```
+
+## TileRenderingScope — API rápida
+
+```kotlin
+triggerEvent(EventTriggers.onClick(), data = x) // dispara os events do tile com o trigger dado
+dispatchEvent(tileEvent)                        // TileEvent direcionado a este tile
+dispatchGroupEvent(tileGroupEvent)              // TileGroupEvent para um grupo
+RenderChild(tileSchema)                         // renderiza um filho
+RenderChildren(tileSchemas)                     // renderiza lista de filhos
 ```
 
 ## Tipos concretos de AnySerializable em runtime

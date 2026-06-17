@@ -128,5 +128,11 @@ abstract class TileHolder<T : TileSchema> {
         tiles?.clear()
     }
 
+    fun hasChildren(
+        childrenIds: List<String>
+    ) = tiles?.all { it.id in childrenIds } == true
+
+    fun getChildrenCount() = tiles?.size
+
     open fun produceValueWithKey(key: String): Map<String, Any>? = null
 }

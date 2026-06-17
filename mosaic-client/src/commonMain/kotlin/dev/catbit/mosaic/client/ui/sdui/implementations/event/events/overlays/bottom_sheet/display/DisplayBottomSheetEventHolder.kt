@@ -4,6 +4,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolde
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DisplayBottomSheetEventSchema
+import dev.catbit.mosaic.core.extensions.immutableMapTo
 
 class DisplayBottomSheetEventHolder(
     override val id: String,
@@ -14,7 +15,7 @@ class DisplayBottomSheetEventHolder(
 ) : EventHolder<DisplayBottomSheetEventSchema>() {
 
     override fun get() = event.copy(
-        events = events?.map { it.get() },
-        tiles = tiles.map { it.get() }
+        events = events?.immutableMapTo { it.get() },
+        tiles = tiles.immutableMapTo { it.get() }
     )
 }

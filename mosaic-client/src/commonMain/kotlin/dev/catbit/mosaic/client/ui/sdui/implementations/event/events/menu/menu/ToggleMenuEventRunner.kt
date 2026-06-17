@@ -7,15 +7,15 @@ import dev.catbit.mosaic.core.data.schemas.event.events.menu.ToggleMenuEventSche
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object ToggleMenuEventRunner : EventRunner<ToggleMenuEventSchema> {
-    override fun EventRunningScope.runEvent(event: ToggleMenuEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: ToggleMenuEventSchema) {
         tilesEventDispatcher.onEvent(
             tileId = event.menuId,
             event = MenuTileEvents.OnToggleMenu,
-            onError = {
-                onTrigger(EventTriggers.onFailure(), data = it)
-                logError(tag = "ToggleMenuEventRunner", throwable = it)
-            },
-            onSuccess = { onTrigger(EventTriggers.onSuccess()) }
-        )
+        ).onFailure { throwable ->
+            onTrigger(EventTriggers.onFailure(), data = throwable)
+            logError(tag = "ToggleMenuEventRunner", throwable = throwable)
+        }.onSuccess {
+            onTrigger(EventTriggers.onSuccess())
+        }
     }
 }

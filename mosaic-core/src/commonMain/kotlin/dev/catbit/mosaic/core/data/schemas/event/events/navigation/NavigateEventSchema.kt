@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.navigation
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Instructs the navigator identified by [navigatorId] to push [destination] onto its back stack,
@@ -31,6 +33,7 @@ import kotlinx.serialization.Serializable
  * - The merged navigation data map (`incomingData + schema data`) is what the destination screen
  *   receives as its initial `navigationData`.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -42,7 +45,7 @@ import kotlinx.serialization.Serializable
 data class NavigateEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     val destination: String,
     val navigatorId: String,
     val popUpTo: PopUpTo?,

@@ -10,6 +10,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalLazyItemScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
@@ -31,7 +32,8 @@ object CardTileRenderer : TileRenderer<CardTileSchema> {
 
             val content: @Composable ColumnScope.() -> Unit = {
                 CompositionLocalProvider(
-                    LocalColumnScope provides this
+                    LocalColumnScope provides this,
+                    LocalLazyItemScope provides null
                 ) {
                     RenderChildren(tiles)
                 }

@@ -5,6 +5,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+import kotlinx.collections.immutable.toImmutableList
 
 internal class RemoveTilesEventBuilder(
     private val id: String,
@@ -19,7 +20,7 @@ internal class RemoveTilesEventBuilder(
         trigger = trigger,
         events = EventSchemaBuilderScope().apply(events).build(),
         groupingTileId = groupingTileId,
-        tileIds = tileIds
+        tileIds = tileIds.toImmutableList()
     )
 }
 

@@ -16,7 +16,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.coroutines.EmptyCoroutineContext
 
-internal abstract class ScreenStateHolder<State, Event, Effect> : ViewModel() {
+abstract class ScreenStateHolder<State, Event, Effect> : ViewModel() {
 
     private var firstAccess = true
 

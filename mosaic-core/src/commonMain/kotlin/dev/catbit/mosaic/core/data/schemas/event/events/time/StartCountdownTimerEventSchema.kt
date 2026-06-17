@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.time
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTim
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Starts a client-side countdown timer that counts down from [setupTimeInSeconds] to zero.
@@ -28,6 +30,7 @@ import kotlinx.serialization.Serializable
  * [setupTimeInSeconds] must be a positive value; the intended behavior when zero or negative
  * is provided is undefined.
  */
+@Immutable
 @Triggers(
     [
         OnCountdownTimerFinishEventTrigger::class,
@@ -40,6 +43,6 @@ import kotlinx.serialization.Serializable
 data class StartCountdownTimerEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("setupTimeInSeconds") val setupTimeInSeconds: Long
 ) : EventSchema

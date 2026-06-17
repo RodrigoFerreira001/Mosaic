@@ -1,11 +1,13 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.image
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a single icon using the shared Mosaic [Icon] composable, which resolves the icon
@@ -21,11 +23,12 @@ import kotlinx.serialization.Serializable
  * Symbol icon, the [IconSchema] itself must specify the filled form. If the icon should be
  * interactive, wrap it in a tile that supports click triggers (e.g. [ButtonTileSchema]).
  */
+@Immutable
 @Serializable
 @SerialName("Icon")
 data class IconTileSchema(
     override val id: String,
-    override val events: List<EventSchema>?,
+    override val events: SerializableImmutableList<EventSchema>?,
     override val style: StyleSchema,
     override val visibility: TileSchema.Visibility,
     val icon: IconSchema

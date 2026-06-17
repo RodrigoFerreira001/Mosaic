@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.tiles
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Removes specific tiles from a grouping tile's child list by their IDs. The tiles are
@@ -30,6 +32,7 @@ import kotlinx.serialization.Serializable
  *   IDs are specified, but [WipeTilesEventSchema] is more efficient for clearing the entire
  *   list because it does not require enumerating individual tile IDs.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -41,7 +44,7 @@ import kotlinx.serialization.Serializable
 data class RemoveTilesEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("groupingTileId") val groupingTileId: String,
-    @SerialName("tileIds") val tileIds: List<String>
+    @SerialName("tileIds") val tileIds: SerializableImmutableList<String>
 ) : EventSchema

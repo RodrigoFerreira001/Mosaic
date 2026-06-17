@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.event
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Looks up another registered event by its [eventId] and runs it inline within the current
@@ -31,6 +33,7 @@ import kotlinx.serialization.Serializable
  * the caller's downstream events continue. Circular references between events would cause a
  * stack overflow and should be avoided.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -42,6 +45,6 @@ import kotlinx.serialization.Serializable
 data class TriggerEventEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("eventId") val eventId: String
 ) : EventSchema

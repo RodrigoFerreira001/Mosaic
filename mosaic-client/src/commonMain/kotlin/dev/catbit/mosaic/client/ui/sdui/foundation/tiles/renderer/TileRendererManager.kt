@@ -2,10 +2,12 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Stable
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlin.reflect.KClass
 
+@Stable
 class TileRendererManager(
     private val tileRenderers: Map<KClass<out TileSchema>, TileRenderer<*>>
 ) {
@@ -29,11 +31,14 @@ class TileRendererManager(
                         }
                     }
 
-                    TileRenderingScope(
-                        tileId = tileSchema.id,
-                        events = tileSchema.events,
-                        onEvent = onEvent
-                    ).Render(tileSchema)
+                    @Suppress("UNCHECKED_CAST")
+                    with(renderer as TileRenderer<TileSchema>) {
+                        TileRenderingScope(
+                            tileId = tileSchema.id,
+                            events = tileSchema.events,
+                            onEvent = onEvent
+                        ).Render(tileSchema)
+                    }
                 }
             }
         } ?: run {

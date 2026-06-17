@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.style
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -44,15 +45,18 @@ import kotlinx.serialization.Serializable
  * size(height = fillRowHeight(0.5f))              // 50% of row height
  * ```
  */
+@Immutable
 @Serializable
 data class SizeSchema(
     @SerialName("width") val width: Behavior.Horizontal,
     @SerialName("height") val height: Behavior.Vertical
 ) {
+    @Immutable
     @Serializable
     @SerialName("behavior")
     sealed interface Behavior {
 
+        @Immutable
         @Serializable
         @SerialName("horizontal")
         sealed interface Horizontal : Behavior {
@@ -91,6 +95,7 @@ data class SizeSchema(
                 @SerialName("order") val order: Int?
             ) : Horizontal {
 
+                @Immutable
                 @Serializable
                 sealed interface FlexBasis {
                     @Serializable
@@ -122,6 +127,7 @@ data class SizeSchema(
             }
         }
 
+        @Immutable
         @Serializable
         @SerialName("vertical")
         sealed interface Vertical : Behavior {

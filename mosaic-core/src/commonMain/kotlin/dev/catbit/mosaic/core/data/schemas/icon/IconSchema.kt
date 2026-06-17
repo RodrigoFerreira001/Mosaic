@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.icon
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.color.ColorSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -27,6 +28,7 @@ import kotlinx.serialization.Serializable
  * **Notes:** The `filled` parameter (bold/filled variant) is not part of this schema —
  * it is controlled per-call site in the client composable.
  */
+@Immutable
 @Serializable
 data class IconSchema(
     @SerialName("name") val name: String,

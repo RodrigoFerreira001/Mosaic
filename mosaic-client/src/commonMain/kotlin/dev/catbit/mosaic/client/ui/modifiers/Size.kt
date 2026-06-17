@@ -20,6 +20,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnSc
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalFlexBoxScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalFlowRowScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalGridScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalLazyItemScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalRowScope
 import dev.catbit.mosaic.core.data.schemas.tile.style.SizeSchema
 
@@ -38,10 +39,12 @@ fun Modifier.size(size: SizeSchema): Modifier {
                 is SizeSchema.Behavior.Horizontal.Fixed -> Modifier.width(width.value.dp)
 
                 is SizeSchema.Behavior.Horizontal.Weight -> {
-                    LocalRowScope.current?.let { rowScope ->
-                        with(rowScope) { Modifier.weight(width.value) }
+                    LocalLazyItemScope.current?.let { lazyItemScope ->
+                        with(lazyItemScope) { fillParentMaxWidth(width.value) }
                     } ?: LocalFlowRowScope.current?.let { flowRowScope ->
                         with(flowRowScope) { Modifier.weight(width.value) }
+                    } ?: LocalRowScope.current?.let { rowScope ->
+                        with(rowScope) { Modifier.weight(width.value) }
                     } ?: Modifier
                 }
 
@@ -106,7 +109,9 @@ fun Modifier.size(size: SizeSchema): Modifier {
                 SizeSchema.Behavior.Vertical.Wrap -> Modifier.wrapContentHeight()
 
                 is SizeSchema.Behavior.Vertical.Weight -> {
-                    LocalColumnScope.current?.let { columnScope ->
+                    LocalLazyItemScope.current?.let { lazyItemScope ->
+                        with(lazyItemScope) { fillParentMaxHeight(height.value) }
+                    } ?: LocalColumnScope.current?.let { columnScope ->
                         with(columnScope) { Modifier.weight(height.value) }
                     } ?: Modifier
                 }

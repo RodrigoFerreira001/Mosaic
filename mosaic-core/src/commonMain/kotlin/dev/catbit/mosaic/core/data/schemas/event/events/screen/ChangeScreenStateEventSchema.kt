@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.screen
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Immediately transitions the current screen to one of three visual states — [State.Success],
@@ -36,6 +38,7 @@ import kotlinx.serialization.Serializable
  * - [State.Initial] resets the screen to its loading/initial appearance; [State.Failure] renders
  *   the error state.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -47,7 +50,7 @@ import kotlinx.serialization.Serializable
 data class ChangeScreenStateEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("state") val state: State
 ) : EventSchema {
 
@@ -63,11 +66,11 @@ data class ChangeScreenStateEventSchema(
             @Serializable
             data class ScreenData(
                 @SerialName("tiles")
-                val tiles: List<TileSchema>,
+                val tiles: SerializableImmutableList<TileSchema>,
                 @SerialName("navigationDrawerTiles")
-                val navigationDrawerTiles: List<TileSchema>?,
+                val navigationDrawerTiles: SerializableImmutableList<TileSchema>?,
                 @SerialName("events")
-                val events: List<EventSchema>?
+                val events: SerializableImmutableList<EventSchema>?
             )
         }
 

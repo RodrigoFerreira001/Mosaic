@@ -1,8 +1,10 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.buttons.button
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.visible
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -45,8 +47,22 @@ object ButtonTileRenderer : TileRenderer<ButtonTileSchema> {
                         color = LocalContentColor.current
                     )
                 } else {
-                    icon?.let { Icon(it.name) }
-                    Text(text)
+                    when (iconPosition) {
+                        ButtonTileSchema.IconPosition.START -> {
+                            icon?.let {
+                                Icon(it)
+                                Spacer(Modifier.width(8.dp))
+                            }
+                            Text(text)
+                        }
+                        ButtonTileSchema.IconPosition.END -> {
+                            Text(text)
+                            icon?.let {
+                                Spacer(Modifier.width(8.dp))
+                                Icon(it)
+                            }
+                        }
+                    }
                 }
             }
 

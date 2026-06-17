@@ -7,18 +7,16 @@ import dev.catbit.mosaic.core.data.schemas.event.events.tiles.ReloadLazyTilesEve
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object ReloadLazyTilesEventRunner : EventRunner<ReloadLazyTilesEventSchema> {
-    override fun EventRunningScope.runEvent(event: ReloadLazyTilesEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: ReloadLazyTilesEventSchema) {
         tilesEventDispatcher.onEvent(
             tileId = event.lazyTileId,
             event = LazyTilesTileEvents.OnReloadTiles,
-            onError = {
-                onTrigger(EventTriggers.onFailure(), data = it)
-                logError(
-                    tag = "ReloadLazyTilesEventRunner",
-                    throwable = it
-                )
-            },
-            onSuccess = { onTrigger(EventTriggers.onSuccess()) }
         )
+            .onSuccess {
+                onTrigger(EventTriggers.onSuccess())
+            }
+            .onFailure {
+                onTrigger(EventTriggers.onFailure(), data = it)
+            }
     }
 }

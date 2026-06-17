@@ -38,6 +38,8 @@
 - [ ] Mudar tudo o que EventSchema e TileSchema que use List<> para utilizar ImmutableList<>
 - [ ] Revisar mecanismo de cache / offline
 - [ ] Animação entre telas
+- [ ] Padronizar logs de erros de eventos
+- [ ] Ajustar triggers de dentro de loops UpdateTilesEventRunner.kt
 
 # Bugs
 - [ ] Configuração está sendo perdida com config change

@@ -5,6 +5,7 @@ import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetwork
 import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorage
 import dev.catbit.mosaic.client.exceptions.DataNotFoundException
+import dev.catbit.mosaic.client.exceptions.NetworkResponseException
 import dev.catbit.mosaic.client.extensions.safeResult
 import dev.catbit.mosaic.core.data.models.graph.GraphModel
 import dev.catbit.mosaic.core.data.models.screen.ScreenModel
@@ -57,14 +58,21 @@ class MosaicRepositoryImpl(
             val cachedScreenTtl = cachedScreen.ttl?.toSafeLocalDateTime()
 
             if (cachedScreenTtl == null || cachedScreenTtl > currentTime) {
-                network.getScreen(
+                val networkResult = network.getScreen(
                     screenId = screenId,
                     headers = headers,
                     body = body,
                     httpMethod = httpMethod
-                ).getOrNull()?.apply {
-                    objectStorage.setScreen(this)
-                } ?: cachedScreen
+                )
+                when {
+                    networkResult.isSuccess -> {
+                        networkResult.getOrThrow().apply {
+                            objectStorage.setScreen(this)
+                        }
+                    }
+                    networkResult.exceptionOrNull() is NetworkResponseException -> throw networkResult.exceptionOrNull()!!
+                    else -> cachedScreen
+                }
             } else cachedScreen
         } else {
             network.getScreen(
@@ -97,10 +105,10 @@ class MosaicRepositoryImpl(
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        onProgress: (Int) -> Unit,
-        onBytesReceived: (ByteArray) -> Unit,
-        onDownloadFinished: (ByteArray) -> Unit,
-        onDownloadFailure: (Throwable) -> Unit
+        onProgress: suspend (Int) -> Unit,
+        onBytesReceived: suspend (ByteArray) -> Unit,
+        onDownloadFinished: suspend (ByteArray) -> Unit,
+        onDownloadFailure: suspend (Throwable) -> Unit
     ) = network.downloadFile(
         url = url,
         headers = headers,
@@ -110,6 +118,22 @@ class MosaicRepositoryImpl(
         onBytesReceived = onBytesReceived,
         onDownloadFinished = onDownloadFinished,
         onDownloadFailure = onDownloadFailure,
+    )
+
+    override suspend fun uploadFile(
+        url: String?,
+        headers: Map<String, String>?,
+        httpMethod: HttpMethod,
+        contentType: String?,
+        bytes: ByteArray,
+        onProgress: suspend (Int) -> Unit
+    ) = network.uploadFile(
+        url = url,
+        headers = headers,
+        httpMethod = httpMethod,
+        contentType = contentType,
+        bytes = bytes,
+        onProgress = onProgress,
     )
 
     override suspend fun getPlainData(

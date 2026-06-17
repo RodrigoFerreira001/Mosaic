@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.search
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTextChangedEventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a custom search bar built on [BasicTextField] with a Material 3 surface styling.
@@ -33,6 +35,7 @@ import kotlinx.serialization.Serializable
  * [query] via UpdateTiles on each `onQueryChanged` trigger to keep the displayed text in
  * sync with user input.
  */
+@Immutable
 @Triggers(
     [
         OnTextChangedEventTrigger::class
@@ -42,7 +45,7 @@ import kotlinx.serialization.Serializable
 @SerialName("SearchBar")
 data class SearchBarTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("query") val query: String = "",

@@ -2,13 +2,12 @@ package dev.catbit.mosaic.server.builder.event.builders.tiles
 
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.UpdateTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.UpdateTilesEventSchema.Update
+import dev.catbit.mosaic.core.data.schemas.event.events.tiles.UpdateTilesEventSchema.Update.UpdateData
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -45,32 +44,30 @@ fun EventSchemaBuilderScope.UpdateTiles(
 
 class UpdateTilesUpdateBuilder(
     private val tileId: String,
-    private val data: Map<String, AnySerializable?>
+    private val updateData: UpdateData
 ) : GenericBuilder<Update>() {
 
     override fun build() = Update(
         tileId = tileId,
-        data = data
+        updateData = updateData
     )
 }
 
-class UpdateTilesUpdateBuilderScope private constructor(): GenericBuilderScope<Update, UpdateTilesUpdateBuilder>() {
-
-    companion object {
-        internal operator fun invoke(
-            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
-        ) = UpdateTilesUpdateBuilderScope().apply { pushLocals(compositionLocals) }
-    }
+class UpdateTilesUpdateBuilderScope : GenericBuilderScope<Update, UpdateTilesUpdateBuilder>() {
 
     fun update(
         tileId: String,
-        data: Map<String, AnySerializable?>
+        updateData: UpdateData
     ) {
         addBuilder(
             UpdateTilesUpdateBuilder(
                 tileId = tileId,
-                data = data
+                updateData = updateData
             )
         )
     }
 }
+
+fun incomingTileUpdateData() = UpdateData.Incoming
+fun inlineTileUpdateData(data: Map<String, AnySerializable?>) = UpdateData.Inline(data)
+fun inlineTileUpdateData(vararg data: Pair<String, AnySerializable?>) = UpdateData.Inline(data.toMap())

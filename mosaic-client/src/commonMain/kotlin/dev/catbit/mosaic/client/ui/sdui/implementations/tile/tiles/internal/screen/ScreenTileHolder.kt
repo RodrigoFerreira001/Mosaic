@@ -7,6 +7,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolde
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.extensions.immutableMapTo
 
 class ScreenTileHolder(
     override val id: String,
@@ -58,11 +59,11 @@ class ScreenTileHolder(
         ?.toList()
 
     override fun get() = tile.copy(
-        tiles = tiles.map { it.get() },
-        events = events?.map { it.get() },
-        navigationDrawerTiles = navigationDrawerTiles?.map { it.get() },
-        currentBottomSheetTiles = currentBottomSheetTiles?.map { it.get() },
-        currentDialogSheetTiles = currentDialogSheetTiles?.map { it.get() },
+        tiles = tiles.immutableMapTo { it.get() },
+        events = events?.immutableMapTo { it.get() },
+        navigationDrawerTiles = navigationDrawerTiles?.immutableMapTo { it.get() },
+        currentBottomSheetTiles = currentBottomSheetTiles?.immutableMapTo { it.get() },
+        currentDialogSheetTiles = currentDialogSheetTiles?.immutableMapTo { it.get() },
     )
 
     fun setBottomSheetTiles(

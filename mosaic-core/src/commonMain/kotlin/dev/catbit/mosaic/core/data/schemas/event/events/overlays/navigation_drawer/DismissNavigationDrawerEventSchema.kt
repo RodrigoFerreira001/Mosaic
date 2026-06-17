@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationDr
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Closes the screen's navigation drawer by broadcasting a dismiss signal to the active screen.
@@ -26,6 +28,7 @@ import kotlinx.serialization.Serializable
  * The [OnNavigationDrawerDismissedEventTrigger] is typically fired by the overlay container,
  * not directly by this runner.
  */
+@Immutable
 @Triggers(
     [
         OnNavigationDrawerDismissedEventTrigger::class,
@@ -37,5 +40,5 @@ import kotlinx.serialization.Serializable
 data class DismissNavigationDrawerEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?
 ) : EventSchema

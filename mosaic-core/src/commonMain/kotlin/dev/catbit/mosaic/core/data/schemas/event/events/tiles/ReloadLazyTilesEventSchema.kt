@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.tiles
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Sends a reload signal to a specific lazy tile (e.g., LazyColumn, LazyRow) identified by
@@ -33,6 +35,7 @@ import kotlinx.serialization.Serializable
  *   is preferable to [WipeTilesEventSchema] for lazy tiles because it allows the tile to
  *   handle its own reload lifecycle (pagination reset, scroll position, etc.).
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -44,6 +47,6 @@ import kotlinx.serialization.Serializable
 data class ReloadLazyTilesEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("lazyTileId") val lazyTileId: String
 ) : EventSchema

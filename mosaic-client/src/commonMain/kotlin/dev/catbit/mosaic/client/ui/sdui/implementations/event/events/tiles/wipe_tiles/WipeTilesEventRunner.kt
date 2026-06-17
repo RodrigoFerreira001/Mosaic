@@ -6,17 +6,14 @@ import dev.catbit.mosaic.core.data.schemas.event.events.tiles.WipeTilesEventSche
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object WipeTilesEventRunner : EventRunner<WipeTilesEventSchema> {
-    override fun EventRunningScope.runEvent(event: WipeTilesEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: WipeTilesEventSchema) {
         tilesEditor.wipeTiles(
             groupingTileId = event.groupingTileId,
-            onError = {
-                onTrigger(EventTriggers.onFailure(), data = it)
-                logError(
-                    tag = "WipeTilesEventRunner",
-                    throwable = it
-                )
-            },
-            onSuccess = { onTrigger(EventTriggers.onSuccess()) }
-        )
+        ).onFailure { throwable ->
+            onTrigger(EventTriggers.onFailure(), data = throwable)
+            logError(tag = "WipeTilesEventRunner", throwable = throwable)
+        }.onSuccess {
+            onTrigger(EventTriggers.onSuccess())
+        }
     }
 }

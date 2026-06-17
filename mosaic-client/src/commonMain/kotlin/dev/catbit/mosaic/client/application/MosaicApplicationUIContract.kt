@@ -1,7 +1,9 @@
 package dev.catbit.mosaic.client.application
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.GraphUIState
 
+@Immutable
 sealed interface State {
     data object Loading : State
     data class Displaying(
@@ -12,7 +14,10 @@ sealed interface State {
     ) : State
 }
 
+@Immutable
 sealed interface Event {
     data object OnTryAgainClick: Event
 }
+
+@Immutable
 sealed interface Effect

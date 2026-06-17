@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.data
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.data.AccessModeSchema
@@ -9,6 +10,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedE
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Deletes data from one or more data stores. Each entry in [deletions] specifies a target
@@ -38,6 +40,7 @@ import kotlinx.serialization.Serializable
  *   [DataSourceSchema.SegmentedDataBase]) are deleted from persistent storage.
  * - All I/O is dispatched on [Dispatchers.IO].
  */
+@Immutable
 @Triggers(
     [
         OnDataRemovedEventTrigger::class,
@@ -49,8 +52,8 @@ import kotlinx.serialization.Serializable
 data class RemoveDataEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
-    @SerialName("deletions") val deletions: List<Deletion>
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
+    @SerialName("deletions") val deletions: SerializableImmutableList<Deletion>
 ) : EventSchema {
 
     @Serializable

@@ -7,7 +7,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.extensions.runSafely
 
 object TriggerEventEventRunner : EventRunner<TriggerEventEventSchema> {
-    override fun EventRunningScope.runEvent(event: TriggerEventEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: TriggerEventEventSchema) {
         runSafely(
             onError = {
                 onTrigger(EventTriggers.onFailure(), data = it)
@@ -18,7 +18,10 @@ object TriggerEventEventRunner : EventRunner<TriggerEventEventSchema> {
             }
         ) {
             tilesEventDispatcher.getEventSchema(event.eventId)?.let { eventSchema ->
-                runEventInline(eventSchema)
+                runEventInline(
+                    eventSchema = eventSchema,
+                    data = incomingData
+                )
                 onTrigger(EventTriggers.onSuccess())
             } ?: run {
                 onTrigger(EventTriggers.onFailure())

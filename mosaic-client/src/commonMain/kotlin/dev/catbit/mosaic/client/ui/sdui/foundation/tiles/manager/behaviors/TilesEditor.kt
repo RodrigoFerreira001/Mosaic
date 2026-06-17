@@ -8,82 +8,67 @@ interface TilesEditor {
     fun addTile(
         tileSchema: TileSchema,
         where: InsertionPosition = InsertionPosition.End,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun addTiles(
         tileSchemas: List<TileSchema>,
         where: InsertionPosition = InsertionPosition.End,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun addTile(
         tileSchema: TileSchema,
         groupingTileId: String,
         where: InsertionPosition = InsertionPosition.End,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun addTiles(
         tileSchemas: List<TileSchema>,
         groupingTileId: String,
         where: InsertionPosition = InsertionPosition.End,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun removeTile(
         tileId: String,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun removeTile(
         tileId: String,
         groupingTileId: String,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun removeTiles(
         tileIds: List<String>,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun removeTiles(
         tileIds: List<String>,
         groupingTileId: String,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun replaceTiles(
         tileSchemas: List<TileSchema>,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun replaceTiles(
         tileSchemas: List<TileSchema>,
         groupingTileId: String,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun wipeTiles(
         groupingTileId: String,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
 
     fun updateTile(
         tileId: String,
         updateData: Map<String, Any?>,
-        onError: (Throwable) -> Unit,
-        onSuccess: () -> Unit
-    )
+    ): Result<Unit>
+
+    fun checkIfTileHasChildren(
+        groupingTileId: String,
+        childrenIds: List<String>
+    ): Boolean
+
+    fun getTileChildrenCount(
+        groupingTileId: String
+    ): Int?
 }

@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.data
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Posts a value into the [DataMailer] in-process message bus under a named [dataKey], making it
@@ -32,6 +34,7 @@ import kotlinx.serialization.Serializable
  * - Pair this event with [CheckForReceivedDataEventSchema] (using the same [dataKey]) on the
  *   receiving side to retrieve the value.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -43,7 +46,7 @@ import kotlinx.serialization.Serializable
 data class SendDataEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("dataKey") val dataKey: String,
     @SerialName("data") val data: AnySerializable?
 ) : EventSchema

@@ -26,9 +26,9 @@ class DownloadFileUseCase(
         val headers: Map<String, String>?,
         val body: Any?,
         val httpMethod: HttpMethod,
-        val onProgress: (Int) -> Unit = {},
-        val onBytesReceived: (ByteArray) -> Unit = {},
-        val onDownloadFinished: (ByteArray) -> Unit = {},
-        val onDownloadFailure: (Throwable) -> Unit = {}
+        val onProgress: suspend (Int) -> Unit = {},
+        val onBytesReceived: suspend (ByteArray) -> Unit = {},
+        val onDownloadFinished: suspend (ByteArray) -> Unit = {},
+        val onDownloadFailure: suspend (Throwable) -> Unit = {}
     )
 }

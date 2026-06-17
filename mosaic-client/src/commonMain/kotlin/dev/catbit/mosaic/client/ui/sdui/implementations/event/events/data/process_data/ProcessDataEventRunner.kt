@@ -7,37 +7,25 @@ import dev.catbit.mosaic.core.data.schemas.event.events.data.ProcessDataEventSch
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object ProcessDataEventRunner : EventRunner<ProcessDataEventSchema> {
-    override fun EventRunningScope.runEvent(event: ProcessDataEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: ProcessDataEventSchema) {
+
         incomingData?.let {
             getAll<DataProcessor>()
-                .firstOrNull { it.id == event.processWith }
-                ?.let { dataProcessor ->
+                .firstOrNull { it.id == event.processWith }?.let { dataProcessor ->
                     with(dataProcessor) {
-                        process(
-                            data = incomingData,
-                            onSuccess = { onTrigger(EventTriggers.onSuccess()) },
-                            onFailure = { failure ->
-                                onTrigger(EventTriggers.onFailure(), failure)
-                                logError(
-                                    tag = "ProcessDataEventRunner",
-                                    throwable = failure
-                                )
-                            }
-                        )
+                        process(incomingData)
                     }
+                        .onFailure {
+                            onTrigger(EventTriggers.onFailure(), it)
+                        }
+                        .onSuccess {
+                            onTrigger(EventTriggers.onSuccess())
+                        }
                 } ?: run {
                 onTrigger(EventTriggers.onFailure())
-                logError(
-                    tag = "ProcessDataEventRunner",
-                    throwable = Throwable("No DataProcessor found for id: ${event.processWith}")
-                )
             }
         } ?: run {
             onTrigger(EventTriggers.onFailure())
-            logError(
-                tag = "ProcessDataEventRunner",
-                throwable = Throwable("No incoming data to process")
-            )
         }
     }
 }

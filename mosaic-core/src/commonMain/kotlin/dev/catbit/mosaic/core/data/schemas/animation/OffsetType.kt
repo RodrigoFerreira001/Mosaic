@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.animation
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -22,6 +23,7 @@ import kotlinx.serialization.Serializable
  * - Enter from right: `SlideInHorizontally(initialOffset = Full)` (offset starts at +fullSize → 0)
  * - Partial slide from below: `SlideInVertically(initialOffset = Fraction(0.3f))`
  */
+@Immutable
 @Serializable
 sealed interface OffsetType {
 

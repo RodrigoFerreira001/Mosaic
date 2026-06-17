@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectEventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 radio button whose selected state is fully server-controlled via
@@ -24,6 +26,7 @@ import kotlinx.serialization.Serializable
  * button is a controlled component and will not stay visually selected until the server sends
  * an UpdateTiles payload. [enabled] prevents interaction when false.
  */
+@Immutable
 @Triggers(
     [
         OnSelectEventTrigger::class,
@@ -33,7 +36,7 @@ import kotlinx.serialization.Serializable
 @SerialName("RadioButton")
 data class RadioButtonTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("selected") val selected: Boolean,

@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.tiles
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Inserts one or more new tiles into a grouping tile's child list at the specified
@@ -35,6 +37,7 @@ import kotlinx.serialization.Serializable
  * - A TODO in the runner notes that ID generation (e.g., `[GENERATE#1]` placeholders) is not
  *   yet implemented; tile IDs must be unique and fully specified by the server.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -46,9 +49,9 @@ import kotlinx.serialization.Serializable
 data class AddTilesEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     val groupingTileId: String,
-    val tiles: List<TileSchema>,
+    val tiles: SerializableImmutableList<TileSchema>,
     val position: InsertionPosition
 ) : EventSchema {
 

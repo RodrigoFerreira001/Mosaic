@@ -10,7 +10,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dev.catbit.mosaic.client.extensions.observeBroadcastChannel
+import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
@@ -38,21 +38,21 @@ object PagerTileRenderer : TileRenderer<PagerTileSchema> {
                     }
             }
 
-            observeBroadcastChannel<PagerTileBroadcastData> { data ->
+            observeScreenTileBroadcastChannel<PagerTileScreenTilesBroadcastData> { data ->
                 when (data) {
-                    is PagerTileBroadcastData.ScrollToBegin -> if (data.smoothly)
+                    is PagerTileScreenTilesBroadcastData.ScrollToBegin -> if (data.smoothly)
                         pagerState.animateScrollToPage(0)
                     else pagerState.scrollToPage(0)
 
-                    is PagerTileBroadcastData.ScrollToEnd -> if (data.smoothly)
+                    is PagerTileScreenTilesBroadcastData.ScrollToEnd -> if (data.smoothly)
                         pagerState.animateScrollToPage(pagerState.pageCount)
                     else pagerState.scrollToPage(pagerState.pageCount)
 
-                    is PagerTileBroadcastData.ScrollToNextPage -> if (data.smoothly)
+                    is PagerTileScreenTilesBroadcastData.ScrollToNextPage -> if (data.smoothly)
                         pagerState.animateScrollToPage(pagerState.currentPage + 1)
                     else pagerState.scrollToPage(pagerState.currentPage + 1)
 
-                    is PagerTileBroadcastData.ScrollToPreviousPage -> if (data.smoothly)
+                    is PagerTileScreenTilesBroadcastData.ScrollToPreviousPage -> if (data.smoothly)
                         pagerState.animateScrollToPage(pagerState.currentPage - 1)
                     else pagerState.scrollToPage(pagerState.currentPage - 1)
                 }

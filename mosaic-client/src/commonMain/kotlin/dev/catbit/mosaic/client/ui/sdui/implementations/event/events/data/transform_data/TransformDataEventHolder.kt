@@ -4,6 +4,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolde
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.event.events.data.TransformDataEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.extensions.immutableMapTo
 
 class TransformDataEventHolder(
     override val id: String,
@@ -14,6 +15,6 @@ class TransformDataEventHolder(
 ) : EventHolder<TransformDataEventSchema>() {
 
     override fun get() = event.copy(
-        events = events?.map { it.get() }
+        events = events?.immutableMapTo { it.get() }
     )
 }

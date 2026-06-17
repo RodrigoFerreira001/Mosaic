@@ -4,13 +4,15 @@ import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
 import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
+import dev.catbit.mosaic.core.extensions.immutableMapTo
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class GraphModel(
     @SerialName("entries")
-    val entries: List<Entry>,
+    val entries: SerializableImmutableList<Entry>,
     @SerialName("startEntryId")
     val startEntryId: String,
     @SerialName("defaultTransition")
@@ -26,13 +28,13 @@ data class GraphModel(
         @SerialName("screenId")
         val screenId: String,
         @SerialName("initialTiles")
-        val initialTiles: List<TileSchema>,
+        val initialTiles: SerializableImmutableList<TileSchema>,
         @SerialName("initialEvents")
-        val initialEvents: List<EventSchema>,
+        val initialEvents: SerializableImmutableList<EventSchema>,
         @SerialName("failureTiles")
-        val failureTiles: List<TileSchema>,
+        val failureTiles: SerializableImmutableList<TileSchema>,
         @SerialName("failureEvents")
-        val failureEvents: List<EventSchema>,
+        val failureEvents: SerializableImmutableList<EventSchema>,
         @SerialName("transition")
         val transition: ContentTransitionSchema? = null,
         @SerialName("popTransition")
@@ -49,7 +51,7 @@ data class GraphModel(
             defaultTransition = graphResponse.defaultTransition,
             defaultPopTransition = graphResponse.defaultPopTransition,
             defaultPredictivePopTransition = graphResponse.defaultPredictivePopTransition,
-            entries = graphResponse.entries.map { entry ->
+            entries = graphResponse.entries.immutableMapTo { entry ->
                 with(entry) {
                     Entry(
                         screenId = screenId,

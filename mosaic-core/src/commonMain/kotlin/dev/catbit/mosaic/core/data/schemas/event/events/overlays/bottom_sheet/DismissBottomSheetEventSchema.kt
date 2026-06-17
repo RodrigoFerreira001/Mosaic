@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnBottomSheetD
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Dismisses the currently displayed modal bottom sheet by broadcasting a dismiss signal to
@@ -25,6 +27,7 @@ import kotlinx.serialization.Serializable
  * The [OnBottomSheetDismissedEventTrigger] is typically fired by the overlay container, not
  * directly by this runner.
  */
+@Immutable
 @Triggers(
     [
         OnBottomSheetDismissedEventTrigger::class,
@@ -36,5 +39,5 @@ import kotlinx.serialization.Serializable
 data class DismissBottomSheetEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?
 ) : EventSchema

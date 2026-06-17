@@ -1,10 +1,12 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.progress
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 [LinearProgressIndicator]. When [progress] is non-null, a determinate
@@ -22,11 +24,12 @@ import kotlinx.serialization.Serializable
  * (`progress = { it }`) so that Compose can skip recomposition if only the value changes
  * without structural layout changes.
  */
+@Immutable
 @Serializable
 @SerialName("LinearProgressIndicator")
 data class LinearProgressIndicatorTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("progress") val progress: Float? = null

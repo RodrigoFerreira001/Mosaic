@@ -20,12 +20,15 @@ inline fun <reified T> compositionLocalOf(
     noinline defaultValue: () -> T
 ) = CompositionLocal(T::class, defaultValue)
 
-fun <T : GenericBuilderScope<*, *>, V> T.CompositionLocalProvider(
-    vararg providedValues: Pair<CompositionLocal<V>, ValueProvider<V>>,
+@Suppress("UNCHECKED_CAST")
+fun <T> CompositionLocal<T>.current(): T =
+    (BuildContext.get()[this]?.provide() as? T) ?: defaultValue()
+
+fun <T : GenericBuilderScope<*, *>> T.CompositionLocalProvider(
+    vararg providedValues: Pair<CompositionLocal<*>, ValueProvider<*>>,
     content: T.() -> Unit
 ) {
-    val snapshot = snapshotLocals()
-    pushLocals(providedValues.toMap())
-    content()
-    restoreLocals(snapshot)
+    BuildContext.with(BuildContext.get() + providedValues.toMap()) {
+        this.content()
+    }
 }

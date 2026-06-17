@@ -1,41 +1,41 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
+import androidx.compose.runtime.Stable
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
+import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen_tiles_broadcast.ScreenTilesBroadcastChannel
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen_tiles_broadcast.ScreenTilesBroadcastData
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.TilesManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRendererManager
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileSchema
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-internal class MosaicScreenStateHolder(
-    private val initialTiles: List<TileSchema>,
-    private val initialEvents: List<EventSchema>,
-    private val failureTiles: List<TileSchema>,
-    private val failureEvents: List<EventSchema>,
-    private val navigationData: Map<String, Any>?,
+@Stable
+class MosaicScreenStateHolder(
+    private val initialTiles: ImmutableList<TileSchema>,
+    private val initialEvents: ImmutableList<EventSchema>,
+    private val failureTiles: ImmutableList<TileSchema>,
+    private val failureEvents: ImmutableList<EventSchema>,
+    private val navigationData: ScreenNavKey.NavigationData,
     private val eventManager: EventManager,
     val tilesManager: TilesManager,
     val tileRendererManager: TileRendererManager
 ) : ScreenStateHolder<State, Event, Effect>(),
     ScreenBehaviorsHolder,
-    DataHolder by DefaultDataHolder(navigationData.orEmpty()) {
+    DataHolder by DefaultDataHolder(navigationData.data.orEmpty()) {
 
-    private val internalBroadcastChannel = MutableSharedFlow<BroadcastData>()
-    val broadcastChannel get() = internalBroadcastChannel.asSharedFlow()
+    val screenBroadcastChannel = ScreenTilesBroadcastChannel()
 
     override val internalUIState = MutableStateFlow<State>(State.Initial())
 
     init {
-        eventManager.setStateHolderCoroutineScope(stateHolderScope)
         tilesManager.setup(
             tiles = initialTiles,
             events = initialEvents,
@@ -82,7 +82,6 @@ internal class MosaicScreenStateHolder(
     override fun onEvent(event: Event) {
         when (event) {
             is Event.OnUIEvent -> onUIEvent(event)
-            is Event.OnScreenCoroutineScopeSet -> onScreenCoroutineScopeSet(event.coroutineScope)
         }
     }
 
@@ -102,18 +101,14 @@ internal class MosaicScreenStateHolder(
                 )
 
             is UIEvent.EventSchemaHolderUIEvent -> {
-                eventManager.runEvents(
-                    eventSchemas = event.event.events,
-                    data = event.event.data
-                )
+                stateHolderScope.launch {
+                    eventManager.runEvents(
+                        eventSchemas = event.event.events,
+                        data = event.event.data
+                    )
+                }
             }
         }
-    }
-
-    private fun onScreenCoroutineScopeSet(
-        coroutineScope: CoroutineScope
-    ) {
-        eventManager.setScreenCoroutineScope(coroutineScope)
     }
 
     private fun onUpdateStateRequest(rootTile: TileSchema) {
@@ -126,9 +121,9 @@ internal class MosaicScreenStateHolder(
         }
     }
 
-    override fun broadcastData(data: BroadcastData) {
+    override fun broadcastData(data: ScreenTilesBroadcastData) {
         stateHolderScope.launch {
-            internalBroadcastChannel.emit(data)
+            screenBroadcastChannel.broadcast(data)
         }
     }
 }

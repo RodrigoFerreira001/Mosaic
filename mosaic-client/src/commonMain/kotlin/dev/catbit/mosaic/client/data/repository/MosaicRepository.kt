@@ -28,11 +28,20 @@ interface MosaicRepository {
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        onProgress: (Int) -> Unit = {},
-        onBytesReceived: (ByteArray) -> Unit = {},
-        onDownloadFinished: (ByteArray) -> Unit = {},
-        onDownloadFailure: (Throwable) -> Unit = {}
+        onProgress: suspend (Int) -> Unit = {},
+        onBytesReceived: suspend (ByteArray) -> Unit = {},
+        onDownloadFinished: suspend (ByteArray) -> Unit = {},
+        onDownloadFailure: suspend (Throwable) -> Unit = {}
     ): Result<Unit>
+
+    suspend fun uploadFile(
+        url: String?,
+        headers: Map<String, String>?,
+        httpMethod: HttpMethod,
+        contentType: String?,
+        bytes: ByteArray,
+        onProgress: suspend (Int) -> Unit = {}
+    ): Result<HttpResponse>
 
     suspend fun getPlainData(
         dataKey: String

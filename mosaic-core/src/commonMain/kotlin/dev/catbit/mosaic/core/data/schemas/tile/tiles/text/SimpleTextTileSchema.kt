@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.text
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.color.ColorSchema
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import dev.catbit.mosaic.core.data.schemas.typography.TypographySchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a non-interactive text label using Compose's [Text] composable.
@@ -24,9 +26,10 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 @SerialName("Text")
+@Immutable
 data class SimpleTextTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("text") val text: String,

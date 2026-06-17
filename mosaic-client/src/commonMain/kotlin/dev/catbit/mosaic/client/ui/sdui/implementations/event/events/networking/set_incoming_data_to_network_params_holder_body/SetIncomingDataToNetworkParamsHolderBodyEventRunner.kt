@@ -9,7 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 object SetIncomingDataToNetworkParamsHolderBodyEventRunner :
     EventRunner<SetIncomingDataToNetworkParamsHolderBodyEventSchema> {
 
-    override fun EventRunningScope.runEvent(event: SetIncomingDataToNetworkParamsHolderBodyEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: SetIncomingDataToNetworkParamsHolderBodyEventSchema) {
         incomingData?.let {
             get<NetworkParametersHolder>().setBody(it)
             onTrigger(EventTriggers.onSuccess())

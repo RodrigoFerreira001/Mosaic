@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.data
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Reshapes `incomingData` by applying a [template] structure, substituting placeholders of the
@@ -43,6 +45,7 @@ import kotlinx.serialization.Serializable
  *   without placeholder substitution.
  * - This event is synchronous — it does not dispatch to a background dispatcher.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -54,6 +57,6 @@ import kotlinx.serialization.Serializable
 data class TransformDataEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("template") val template: AnySerializable
 ) : EventSchema

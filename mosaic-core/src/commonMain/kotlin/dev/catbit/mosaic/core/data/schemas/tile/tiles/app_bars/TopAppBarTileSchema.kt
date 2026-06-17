@@ -1,10 +1,12 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.app_bars
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 top app bar in one of four styles controlled by [barStyle]:
@@ -19,7 +21,7 @@ import kotlinx.serialization.Serializable
  *
  * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`, `title: TileSchema`, `navigationIcon: TileSchema?`,
- * `actions: List<TileSchema>?`, `barStyle: TopAppBarStyle`
+ * `actions: SerializableImmutableList<TileSchema>?`, `barStyle: TopAppBarStyle`
  *
  * **Triggers dispatched:** None directly. Interaction triggers (clicks, etc.) are dispatched
  * by child tiles placed in [navigationIcon] or [actions].
@@ -29,16 +31,17 @@ import kotlinx.serialization.Serializable
  * normal `RenderChildren` hierarchy — each slot tile is rendered independently via
  * `RenderChild`.
  */
+@Immutable
 @Serializable
 @SerialName("TopAppBar")
 data class TopAppBarTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("title") val title: TileSchema,
     @SerialName("navigationIcon") val navigationIcon: TileSchema? = null,
-    @SerialName("actions") val actions: List<TileSchema>? = null,
+    @SerialName("actions") val actions: SerializableImmutableList<TileSchema>? = null,
     @SerialName("barStyle") val barStyle: TopAppBarStyle = TopAppBarStyle.DEFAULT
 ) : TileSchema {
 

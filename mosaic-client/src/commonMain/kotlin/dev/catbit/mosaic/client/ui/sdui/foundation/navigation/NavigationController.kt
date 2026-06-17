@@ -1,9 +1,11 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.navigation
 
+import androidx.compose.runtime.Stable
 import androidx.navigation3.runtime.NavBackStack
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 
+@Stable
 class NavigationController(
     val backStack: NavBackStack<ScreenNavKey>
 ) {
@@ -29,7 +31,7 @@ class NavigationController(
         backStack.add(
             ScreenNavKey(
                 id = destination,
-                navigationData = navigationData
+                navigationData = ScreenNavKey.NavigationData(navigationData)
             )
         )
     }

@@ -3,13 +3,13 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.s
 import androidx.compose.material3.SnackbarDuration
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileBroadcastData
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileScreenTilesBroadcastData
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.snackbar.DisplaySnackbarEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.snackbar.SnackbarDurationSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object DisplaySnackbarEventRunner : EventRunner<DisplaySnackbarEventSchema> {
-    override fun EventRunningScope.runEvent(event: DisplaySnackbarEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: DisplaySnackbarEventSchema) {
 
         val duration = when (event.duration) {
             SnackbarDurationSchema.Short -> SnackbarDuration.Short
@@ -18,7 +18,7 @@ object DisplaySnackbarEventRunner : EventRunner<DisplaySnackbarEventSchema> {
         }
 
         broadcastData(
-            ScreenTileBroadcastData.DisplaySnackbar(
+            ScreenTileScreenTilesBroadcastData.DisplaySnackbar(
                 message = event.message,
                 duration = duration,
                 actionLabel = event.actionLabel,

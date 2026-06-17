@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.scroll.pager
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.scroll.column.ScrollColumnTileEventSchema
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEven
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Imperatively navigates a PagerTile to a target page. At runtime the runner converts the
@@ -29,6 +31,7 @@ import kotlinx.serialization.Serializable
  * and [Where.PreviousPage] move relative to the current page. [smoothly] controls whether the
  * page change is animated.
  */
+@Immutable
 @Triggers(
     [
         OnScrolledEventTrigger::class,
@@ -40,7 +43,7 @@ import kotlinx.serialization.Serializable
 data class ScrollPagerTileEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("tileId") val tileId: String,
     @SerialName("where") val where: Where,
     @SerialName("smoothly") val smoothly: Boolean

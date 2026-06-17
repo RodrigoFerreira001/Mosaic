@@ -6,7 +6,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.security.RequestPermissi
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object RequestPermissionEventRunner : EventRunner<RequestPermissionEventSchema> {
-    override fun EventRunningScope.runEvent(event: RequestPermissionEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: RequestPermissionEventSchema) {
         println("executed RequestPermissionEventModel")
         onTrigger(EventTriggers.onSuccess())
     }

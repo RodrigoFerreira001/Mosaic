@@ -1,10 +1,10 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen_tiles_broadcast.ScreenTilesBroadcastData
 import dev.catbit.mosaic.core.data.models.screen.ScreenModel
 
 interface ScreenBehaviorsHolder {
-    fun broadcastData(data: BroadcastData)
+    fun broadcastData(data: ScreenTilesBroadcastData)
     fun setState(state: State)
 
     sealed interface State {

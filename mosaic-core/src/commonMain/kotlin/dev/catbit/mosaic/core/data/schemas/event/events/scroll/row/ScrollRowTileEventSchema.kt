@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.scroll.row
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEven
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Imperatively scrolls a RowTile to a specified position. At runtime the runner converts the
@@ -27,6 +29,7 @@ import kotlinx.serialization.Serializable
  * [Where.To] scrolls to the given 0-based [index]. [smoothly] controls animation vs. instant
  * jump. Out-of-bounds index values are clamped by the underlying Compose scroll API.
  */
+@Immutable
 @Triggers(
     [
         OnScrolledEventTrigger::class,
@@ -38,7 +41,7 @@ import kotlinx.serialization.Serializable
 data class ScrollRowTileEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("tileId") val tileId: String,
     @SerialName("where") val where: Where,
     @SerialName("smoothly") val smoothly: Boolean,

@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.networking
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -14,6 +15,7 @@ import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Downloads a file from [url] via [method] and fires streaming progress triggers throughout the
@@ -50,6 +52,7 @@ import kotlinx.serialization.Serializable
  * - [OnDownloadProgressEventTrigger] and [OnDownloadPartialEventTrigger] interleave freely;
  *   both fire per received chunk.
  */
+@Immutable
 @Triggers(
     [
         OnStartEventTrigger::class,
@@ -66,7 +69,7 @@ import kotlinx.serialization.Serializable
 data class DownloadFileEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("url") val url: String,
     @SerialName("method") val method: HttpMethod,
     @SerialName("body") val body: AnySerializable?,

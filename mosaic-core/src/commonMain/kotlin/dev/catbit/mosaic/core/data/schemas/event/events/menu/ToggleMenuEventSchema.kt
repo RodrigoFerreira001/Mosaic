@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.menu
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Toggles the open/closed state of a MenuTile. At runtime the runner calls
@@ -27,6 +29,7 @@ import kotlinx.serialization.Serializable
  * menu is already open will close it, making it suitable as both an open and close action
  * depending on context.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -38,6 +41,6 @@ import kotlinx.serialization.Serializable
 data class ToggleMenuEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     val menuId: String
 ) : EventSchema

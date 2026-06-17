@@ -1,5 +1,8 @@
 package dev.catbit.mosaic.core.data.schemas.animation
 
+import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,8 +29,9 @@ import kotlinx.serialization.Serializable
  *
  * This type is used as `transition` and `popTransition` in `GraphEntryBuilder.entry(...)`.
  */
+@Immutable
 @Serializable
 data class ContentTransitionSchema(
-    @SerialName("enter") val enter: List<EnterTransitionSchema> = emptyList(),
-    @SerialName("exit") val exit: List<ExitTransitionSchema> = emptyList()
+    @SerialName("enter") val enter: SerializableImmutableList<EnterTransitionSchema> = persistentListOf(),
+    @SerialName("exit") val exit: SerializableImmutableList<ExitTransitionSchema> = persistentListOf()
 )

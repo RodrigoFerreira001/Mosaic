@@ -5,6 +5,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.TileEventScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.RadioButtonTileSchema
+import dev.catbit.mosaic.core.extensions.immutableMapTo
 
 class RadioButtonTileHolder(
     override val id: String,
@@ -14,7 +15,7 @@ class RadioButtonTileHolder(
 ) : TileHolder<RadioButtonTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.map { it.get() },
+        events = events?.immutableMapTo { it.get() },
     )
 
     override fun handlesGroupEvent(event: TileGroupEvent) = event is RadioButtonTileGroupEvents

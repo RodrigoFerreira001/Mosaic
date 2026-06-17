@@ -3,6 +3,8 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.progress.lin
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.progress.LinearProgressIndicatorTileSchema
+import dev.catbit.mosaic.core.extensions.immutableMapTo
+import kotlinx.collections.immutable.toImmutableList
 
 class LinearProgressIndicatorTileHolder(
     override val id: String,
@@ -12,6 +14,6 @@ class LinearProgressIndicatorTileHolder(
 ) : TileHolder<LinearProgressIndicatorTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.map { it.get() }
+        events = events?.immutableMapTo { it.get() }
     )
 }

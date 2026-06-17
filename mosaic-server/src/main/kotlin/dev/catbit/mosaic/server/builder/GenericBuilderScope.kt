@@ -1,31 +1,18 @@
 package dev.catbit.mosaic.server.builder
 
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
+import dev.catbit.mosaic.core.extensions.immutableMapTo
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
+import dev.catbit.mosaic.server.builder.composition_local.BuildContext
 
 abstract class GenericBuilderScope<Model, Builder : GenericBuilder<Model>> {
 
     private val builders = mutableListOf<Builder>()
-    fun build() = builders.map { it.build() }
+
+    fun build(): SerializableImmutableList<Model> = builders.immutableMapTo { builder ->
+        BuildContext.with(builder.compositionLocals) { builder.build() }
+    }
+
     fun addBuilder(builder: Builder) {
-        builders.add(
-            builder.apply { compositionLocals = this@GenericBuilderScope.compositionLocals.toMap() }
-        )
+        builders.add(builder.apply { compositionLocals = BuildContext.get() })
     }
-
-    private val compositionLocals = mutableMapOf<CompositionLocal<*>, ValueProvider<*>>()
-
-    internal fun snapshotLocals(): Map<CompositionLocal<*>, ValueProvider<*>> = compositionLocals.toMap()
-
-    internal fun pushLocals(locals: Map<CompositionLocal<*>, ValueProvider<*>>) {
-        compositionLocals.putAll(locals)
-    }
-
-    internal fun restoreLocals(snapshot: Map<CompositionLocal<*>, ValueProvider<*>>) {
-        compositionLocals.clear()
-        compositionLocals.putAll(snapshot)
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T> CompositionLocal<T>.current(): T = (compositionLocals[this]?.provide() as? T) ?: defaultValue()
 }

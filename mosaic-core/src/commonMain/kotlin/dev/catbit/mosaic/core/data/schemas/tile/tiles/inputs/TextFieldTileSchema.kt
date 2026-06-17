@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardDoneEventTrigger
@@ -14,6 +15,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 text input field in either a filled or outlined visual style controlled
@@ -48,6 +50,7 @@ import kotlinx.serialization.Serializable
  * (red border and supporting text color). [visualTransformation] supports `None`, `Password`
  * (dots), and `Custom` (character-level masking).
  */
+@Immutable
 @Triggers(
     [
         OnTextChangedEventTrigger::class,
@@ -63,7 +66,7 @@ import kotlinx.serialization.Serializable
 @SerialName("TextField")
 data class TextFieldTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("value") val value: String,

@@ -7,8 +7,6 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NestedNavigatio
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.event.builders.screen.ChangeScreenState
 import dev.catbit.mosaic.server.builder.event.builders.screen.GetScreen
@@ -95,14 +93,8 @@ class NestedNavigationGraphEntryBuilder(
     )
 }
 
-class NestedNavigationGraphEntryBuilderScope private constructor():
+class NestedNavigationGraphEntryBuilderScope :
     GenericBuilderScope<NestedNavigationGraphTileSchema.Entry, NestedNavigationGraphEntryBuilder>() {
-
-    companion object {
-        internal operator fun invoke(
-            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
-        ) = NestedNavigationGraphEntryBuilderScope().apply { pushLocals(compositionLocals) }
-    }
 
     fun entry(
         screenId: String,

@@ -74,6 +74,10 @@ JSON serialization uses `@SerialName` as the `type` discriminator.
 |---|---|---|
 | `OnDisplayEventTrigger` | `"OnDisplay"` | Tile becomes visible in Compose (DisposableEffect enter) |
 | `InlineEventTrigger` | `"Inline"` | Executed immediately when the event is processed, regardless of context |
+| `OnWidthBreakpointSatisfiedEventTrigger` | `"OnWidthBreakpointSatisfied"` | AdaptiveVisibility — width constraint becomes satisfied (first evaluation and on change) |
+| `OnWidthBreakpointNotSatisfiedEventTrigger` | `"OnWidthBreakpointNotSatisfied"` | AdaptiveVisibility — width constraint becomes unsatisfied (first evaluation and on change) |
+| `OnHeightBreakpointSatisfiedEventTrigger` | `"OnHeightBreakpointSatisfied"` | AdaptiveVisibility — height constraint becomes satisfied (first evaluation and on change) |
+| `OnHeightBreakpointNotSatisfiedEventTrigger` | `"OnHeightBreakpointNotSatisfied"` | AdaptiveVisibility — height constraint becomes unsatisfied (first evaluation and on change) |
 
 ---
 
@@ -134,6 +138,7 @@ Used as child event triggers after async operations (network, data, file, screen
 | `OnDownloadFinishEventTrigger` | `"OnDownloadFinish"` | — | DownloadFileEventSchema |
 | `OnDownloadFailureEventTrigger` | `"OnDownloadFailure"` | — | DownloadFileEventSchema |
 | `OnDownloadPartialEventTrigger` | `"OnDownloadPartial"` | — | DownloadFileEventSchema (partial progress) |
+| `OnUploadProgressEventTrigger` | `"OnUploadProgress"` | — | SendFileEventSchema (incomingData = Int 0–100, fired only when the percent changes) |
 
 ---
 

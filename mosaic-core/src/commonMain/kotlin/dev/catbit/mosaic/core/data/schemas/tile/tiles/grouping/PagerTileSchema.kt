@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedEventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a horizontal swipeable pager where each child tile occupies one page, using
@@ -15,7 +17,7 @@ import kotlinx.serialization.Serializable
  * [beyondViewportPageCount]. The pager state can be programmatically controlled via
  * [PagerTileBroadcastData] (ScrollToBegin, ScrollToEnd, ScrollToNextPage, ScrollToPreviousPage).
  *
- * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
+ * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`, `pageSize: PageSizeSchema`, `pageSpacing: Int`,
  * `contentPadding: Int`, `beyondViewportPageCount: Int`
  *
@@ -29,6 +31,7 @@ import kotlinx.serialization.Serializable
  * expose a scoped CompositionLocal for children. The initial page change from page 0 is
  * suppressed via `snapshotFlow(...).drop(1)` to avoid spurious trigger firing on composition.
  */
+@Immutable
 @Triggers(
     [
         OnPageChangedEventTrigger::class
@@ -38,8 +41,8 @@ import kotlinx.serialization.Serializable
 @SerialName("Pager")
 data class PagerTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("tiles") val tiles: List<TileSchema>,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("pageSize") val pageSize: PageSizeSchema = PageSizeSchema.Fill,

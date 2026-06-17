@@ -9,16 +9,17 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
 import dev.catbit.mosaic.client.extensions.ThresholdReachedEffect
-import dev.catbit.mosaic.client.extensions.observeBroadcastChannel
+import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.extensions.onClick
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.extensions.toArrangement
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
-import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalLazyRowRenderingScope
-import dev.catbit.mosaic.client.ui.sdui.foundation.models.LazyRowRenderingScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalFlowRowScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalLazyItemScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalRowScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.row.RowTileBroadcastData
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.row.RowTileScreenTilesBroadcastData
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger.ScrollDirection
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyRowTileSchema
@@ -39,17 +40,17 @@ object LazyRowTileRenderer : TileRenderer<LazyRowTileSchema> {
 
             val lazyListState = rememberLazyListState()
 
-            observeBroadcastChannel<RowTileBroadcastData> { data ->
+            observeScreenTileBroadcastChannel<RowTileScreenTilesBroadcastData> { data ->
                 when (data) {
-                    is RowTileBroadcastData.ScrollToStart -> if (data.smoothly)
+                    is RowTileScreenTilesBroadcastData.ScrollToStart -> if (data.smoothly)
                         lazyListState.animateScrollToItem(0)
                     else lazyListState.scrollToItem(0)
 
-                    is RowTileBroadcastData.ScrollTo -> if (data.smoothly)
+                    is RowTileScreenTilesBroadcastData.ScrollTo -> if (data.smoothly)
                         lazyListState.animateScrollToItem(data.index)
                     else lazyListState.scrollToItem(data.index)
 
-                    is RowTileBroadcastData.ScrollToEnd -> if (data.smoothly)
+                    is RowTileScreenTilesBroadcastData.ScrollToEnd -> if (data.smoothly)
                         lazyListState.animateScrollToItem(tileSchema.tiles.size)
                     else lazyListState.scrollToItem(tileSchema.tiles.size)
                 }
@@ -68,16 +69,18 @@ object LazyRowTileRenderer : TileRenderer<LazyRowTileSchema> {
                 onScrollBackward = { triggerEvent(EventTriggers.onScrolled(ScrollDirection.Start)) }
             )
 
-            CompositionLocalProvider(
-                LocalLazyRowRenderingScope provides LazyRowRenderingScope.Defined
+            LazyRow(
+                modifier = modifier,
+                state = lazyListState,
+                verticalAlignment = alignment.toAlignment(),
+                horizontalArrangement = arrangement.toArrangement(),
             ) {
-                LazyRow(
-                    modifier = modifier,
-                    state = lazyListState,
-                    verticalAlignment = alignment.toAlignment(),
-                    horizontalArrangement = arrangement.toArrangement(),
-                ) {
-                    items(tiles, key = { it.id }) { tileSchema ->
+                items(tiles, key = { it.id }) { tileSchema ->
+                    CompositionLocalProvider(
+                        LocalLazyItemScope provides this,
+                        LocalRowScope provides null,
+                        LocalFlowRowScope provides null
+                    ) {
                         RenderChild(tileSchema)
                     }
                 }

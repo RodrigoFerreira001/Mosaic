@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.buttons
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
@@ -9,6 +10,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 button in one of five visual styles controlled by [buttonType].
@@ -24,11 +26,12 @@ import kotlinx.serialization.Serializable
  *
  * **Notes:** When [loading] is `true` the text and icon are replaced by a [CircularProgressIndicator];
  * the button itself remains pressable (the `enabled` flag is the sole interactivity gate).
- * [icon] is rendered to the left of [text] when both are present. [shape] maps `SQUARE` to
- * [MaterialTheme.shapes.medium] and `ROUNDED` to [CircleShape]. The renderer always fires
- * [OnClickEventTrigger] via `triggerEvent(EventTriggers.onClick())` regardless of the
- * [buttonType] variant.
+ * [icon] position relative to [text] is controlled by [iconPosition]: `START` renders the icon
+ * before the text, `END` renders it after. [shape] maps `SQUARE` to [MaterialTheme.shapes.medium]
+ * and `ROUNDED` to [CircleShape]. The renderer always fires [OnClickEventTrigger] via
+ * `triggerEvent(EventTriggers.onClick())` regardless of the [buttonType] variant.
  */
+@Immutable
 @Triggers(
     [
         OnClickEventTrigger::class,
@@ -39,7 +42,7 @@ import kotlinx.serialization.Serializable
 @SerialName("Button")
 data class ButtonTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("text") val text: String,
@@ -47,7 +50,8 @@ data class ButtonTileSchema(
     @SerialName("buttonType") val buttonType: Type = Type.FILLED,
     @SerialName("shape") val shape: Shape = Shape.ROUNDED,
     @SerialName("loading") val loading: Boolean = false,
-    @SerialName("enabled") val enabled: Boolean = true
+    @SerialName("enabled") val enabled: Boolean = true,
+    @SerialName("iconPosition") val iconPosition: IconPosition = IconPosition.START
 ) : TileSchema {
 
     enum class Type {
@@ -60,5 +64,9 @@ data class ButtonTileSchema(
 
     enum class Shape {
         SQUARE, ROUNDED
+    }
+
+    enum class IconPosition {
+        START, END
     }
 }

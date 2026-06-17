@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.file
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Deletes a locally stored file from the device. The runner is currently a placeholder
@@ -30,6 +32,7 @@ import kotlinx.serialization.Serializable
  * injected before this event runs, or the implementation will need to derive the target from
  * the event's data map. This is a notable design asymmetry compared to the other file events.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -41,5 +44,5 @@ import kotlinx.serialization.Serializable
 data class DeleteFileEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?
 ) : EventSchema

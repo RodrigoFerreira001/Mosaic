@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.animation
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,6 +27,7 @@ import kotlinx.serialization.Serializable
  * - [OffsetType.Fixed] → exact pixel value
  * - [OffsetType.Fraction] → `(fullSize * factor).toInt()`
  */
+@Immutable
 @Serializable
 sealed interface ExitTransitionSchema {
 

@@ -10,7 +10,7 @@ object SetIncomingDataToNetworkParamsHolderHeadersEventRunner :
     EventRunner<SetIncomingDataToNetworkParamsHolderHeadersEventSchema> {
 
     @Suppress("UNCHECKED_CAST")
-    override fun EventRunningScope.runEvent(event: SetIncomingDataToNetworkParamsHolderHeadersEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: SetIncomingDataToNetworkParamsHolderHeadersEventSchema) {
         incomingData?.asMapString()?.let {
             get<NetworkParametersHolder>().setHeaders(it)
             onTrigger(EventTriggers.onSuccess())

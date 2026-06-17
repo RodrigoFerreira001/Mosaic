@@ -2,7 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.events
 
 import dev.catbit.mosaic.client.logger.Level
 import dev.catbit.mosaic.client.logger.MosaicLogger
-import dev.catbit.mosaic.client.ui.sdui.foundation.broadcast.BroadcastData
+import dev.catbit.mosaic.client.ui.sdui.foundation.screen_tiles_broadcast.ScreenTilesBroadcastData
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.DataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEditor
@@ -13,9 +13,6 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlin.reflect.KClass
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.supervisorScope
 import org.koin.core.parameter.ParametersDefinition
 import org.koin.core.qualifier.Qualifier
 import org.koin.core.scope.Scope
@@ -27,8 +24,6 @@ data class EventRunningScope(
     val incomingData: Any? = null,
     private val koinScope: Scope,
     private val eventManager: EventManager,
-    private val stateHolderCoroutineScope: CoroutineScope?,
-    private val screenCoroutineScope: CoroutineScope?,
     val tilesEditor: TilesEditor,
     val tilesEventDispatcher: TilesEventDispatcher,
     val tilesOverlaysEditor: TilesOverlaysEditor,
@@ -37,23 +32,7 @@ data class EventRunningScope(
     val screenBehaviorsHolder: ScreenBehaviorsHolder,
 ) {
 
-    fun runSuspendOnScreenScope(
-        block: suspend () -> Unit
-    ) {
-        screenCoroutineScope?.launch {
-            supervisorScope { block() }
-        }
-    }
-
-    fun runSuspendOnStateHolderScope(
-        block: suspend () -> Unit
-    ) {
-        stateHolderCoroutineScope?.launch {
-            supervisorScope { block() }
-        }
-    }
-
-    fun onTrigger(
+    suspend fun onTrigger(
         eventTrigger: EventTrigger,
         data: Any? = null
     ) {
@@ -67,7 +46,7 @@ data class EventRunningScope(
             }
     }
 
-    fun runEventInline(
+    suspend fun runEventInline(
         eventSchema: EventSchema,
         data: Any? = null
     ) {
@@ -78,7 +57,7 @@ data class EventRunningScope(
     }
 
     fun broadcastData(
-        data: BroadcastData
+        data: ScreenTilesBroadcastData
     ) {
         screenBehaviorsHolder.broadcastData(data)
     }

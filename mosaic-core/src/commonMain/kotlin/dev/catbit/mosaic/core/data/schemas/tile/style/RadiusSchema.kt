@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.style
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -17,6 +18,7 @@ import kotlinx.serialization.Serializable
  *
  * **Notes:** Corner radii are layout-direction-aware (`topStart`/`topEnd` flip in RTL layouts).
  */
+@Immutable
 @Serializable
 data class RadiusSchema(
     @SerialName("topStart") val topStart: Int,

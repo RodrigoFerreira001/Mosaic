@@ -1,8 +1,10 @@
 package dev.catbit.mosaic.core.data.schemas.event.data
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 sealed interface DataSourceSchema {
 

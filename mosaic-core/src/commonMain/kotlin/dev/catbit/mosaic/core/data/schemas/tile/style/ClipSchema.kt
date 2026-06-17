@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.style
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -19,6 +20,7 @@ import kotlinx.serialization.Serializable
  * clip(roundedCornerShape(radius = radius(topStart = 8, topEnd = 8, bottomStart = 0, bottomEnd = 0)))
  * ```
  */
+@Immutable
 @Serializable
 data class ClipSchema(
     @SerialName("shape") val shape: ShapeSchema

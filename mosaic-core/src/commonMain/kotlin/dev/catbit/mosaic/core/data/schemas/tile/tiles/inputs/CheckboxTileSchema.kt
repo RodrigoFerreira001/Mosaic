@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckChangedEventTrigger
@@ -9,6 +10,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 checkbox whose checked state is fully server-controlled via [checked].
@@ -30,6 +32,7 @@ import kotlinx.serialization.Serializable
  * [checked] value until the server pushes an UpdateTiles payload with the new value. This means
  * the tile is always controlled, not uncontrolled. [enabled] prevents interaction when false.
  */
+@Immutable
 @Triggers(
     [
         OnUncheckEventTrigger::class,
@@ -41,7 +44,7 @@ import kotlinx.serialization.Serializable
 @SerialName("Checkbox")
 data class CheckboxTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("checked") val checked: Boolean,

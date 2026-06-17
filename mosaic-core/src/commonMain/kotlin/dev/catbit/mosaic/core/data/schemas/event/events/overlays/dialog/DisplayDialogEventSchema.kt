@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Displays a dialog overlay populated with a server-defined tile tree. The dialog is shown
@@ -27,6 +29,7 @@ import kotlinx.serialization.Serializable
  * - [usePlatformDefaultWidth] defers the dialog width to the platform default when `true`;
  *   set to `false` to let the tile tree control its own width.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class
@@ -37,8 +40,8 @@ import kotlinx.serialization.Serializable
 data class DisplayDialogEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
-    val tiles: List<TileSchema>,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
+    val tiles: SerializableImmutableList<TileSchema>,
     val isCancellable: Boolean,
     val usePlatformDefaultWidth: Boolean
 ) : EventSchema

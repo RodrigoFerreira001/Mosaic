@@ -5,6 +5,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.TileEventScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NavigationRailTileSchema
+import dev.catbit.mosaic.core.extensions.immutableMapTo
 
 class NavigationRailTileHolder(
     override val id: String,
@@ -21,7 +22,7 @@ class NavigationRailTileHolder(
         }
 
     override fun get() = tile.copy(
-        events = events?.map { it.get() },
+        events = events?.immutableMapTo { it.get() },
         header = header?.get(),
         footer = footer?.get()
     )

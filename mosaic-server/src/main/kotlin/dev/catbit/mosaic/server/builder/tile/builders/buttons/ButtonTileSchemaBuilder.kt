@@ -19,7 +19,8 @@ internal class ButtonTileSchemaBuilder(
     private val buttonType: ButtonTileSchema.Type,
     private val shape: ButtonTileSchema.Shape,
     private val loading: Boolean,
-    private val enabled: Boolean
+    private val enabled: Boolean,
+    private val iconPosition: ButtonTileSchema.IconPosition
 ) : TileSchemaBuilder<ButtonTileSchema>() {
 
     override fun build() = ButtonTileSchema(
@@ -32,7 +33,8 @@ internal class ButtonTileSchemaBuilder(
         buttonType = buttonType,
         shape = shape,
         loading = loading,
-        enabled = enabled
+        enabled = enabled,
+        iconPosition = iconPosition
     )
 }
 
@@ -46,7 +48,8 @@ fun TileSchemaBuilderScope.Button(
     buttonType: ButtonTileSchema.Type = ButtonTileSchema.Type.FILLED,
     shape: ButtonTileSchema.Shape = ButtonTileSchema.Shape.ROUNDED,
     loading: Boolean = false,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    iconPosition: ButtonTileSchema.IconPosition = ButtonTileSchema.IconPosition.START
 ) {
     addBuilder(
         ButtonTileSchemaBuilder(
@@ -59,7 +62,8 @@ fun TileSchemaBuilderScope.Button(
             buttonType = buttonType,
             shape = shape,
             loading = loading,
-            enabled = enabled
+            enabled = enabled,
+            iconPosition = iconPosition
         )
     )
 }
@@ -72,3 +76,6 @@ fun textButton() = ButtonTileSchema.Type.TEXT
 
 fun squareButton() = ButtonTileSchema.Shape.SQUARE
 fun roundedButton() = ButtonTileSchema.Shape.ROUNDED
+
+fun iconAtStart() = ButtonTileSchema.IconPosition.START
+fun iconAtEnd() = ButtonTileSchema.IconPosition.END

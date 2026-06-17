@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.animation
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -22,6 +23,7 @@ import kotlinx.serialization.Serializable
  * interchangeable wherever `AnimationSpecSchema` is accepted. Spring ignores [delayMillis]
  * (there is no delay parameter in `spring()`).
  */
+@Immutable
 @Serializable
 sealed interface AnimationSpecSchema {
 

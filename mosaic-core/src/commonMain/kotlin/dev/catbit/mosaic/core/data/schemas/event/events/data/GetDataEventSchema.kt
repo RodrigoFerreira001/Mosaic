@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.data
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.data.AccessModeSchema
@@ -10,6 +11,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Reads data from one or more sources and forwards the aggregated result to downstream events.
@@ -51,6 +53,7 @@ import kotlinx.serialization.Serializable
  *   final output a Map regardless of other readings.
  * - All I/O is dispatched on [Dispatchers.IO].
  */
+@Immutable
 @Triggers(
     [
         OnStartEventTrigger::class,
@@ -63,8 +66,8 @@ import kotlinx.serialization.Serializable
 data class GetDataEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
-    @SerialName("readings") val readings: List<Reading>
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
+    @SerialName("readings") val readings: SerializableImmutableList<Reading>
 ) : EventSchema {
 
     @Serializable

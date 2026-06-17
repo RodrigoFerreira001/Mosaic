@@ -50,7 +50,7 @@ fun EventSchemaBuilderScope.TransformData(
             trigger = trigger,
             events = events,
             template = run {
-                val template = EventSchemaBuilderScope(snapshotLocals())
+                val template = EventSchemaBuilderScope()
                     .apply(eventTemplate)
                     .build()
 

@@ -6,7 +6,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.file.GetFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object GetFileEventRunner : EventRunner<GetFileEventSchema> {
-    override fun EventRunningScope.runEvent(event: GetFileEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: GetFileEventSchema) {
         println("executed GetFileEvent")
         onTrigger(EventTriggers.onSuccess())
     }

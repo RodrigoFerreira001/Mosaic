@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTabItemClickEventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 tab row with the style and scrollability determined by [tabType] and
@@ -20,7 +22,7 @@ import kotlinx.serialization.Serializable
  * Each [TabItem] can have an optional text label and an optional icon.
  *
  * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `selectedTabId: String`, `tabItems: List<TabItem>`,
+ * `visibility: TileSchema.Visibility`, `selectedTabId: String`, `tabItems: SerializableImmutableList<TabItem>`,
  * `tabType: Type`, `scrollable: Boolean`
  *
  * **Triggers dispatched:** `OnTabItemClickEventTrigger` — fired when any tab is tapped,
@@ -32,6 +34,7 @@ import kotlinx.serialization.Serializable
  * trigger and an internal `TabsTileEvents.OnTabClicked` dispatch. The [TabItem.badgeText]
  * field is defined in the schema but not yet rendered by the current renderer.
  */
+@Immutable
 @Triggers(
     [
         OnTabItemClickEventTrigger::class
@@ -41,11 +44,11 @@ import kotlinx.serialization.Serializable
 @SerialName("Tabs")
 data class TabsTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("selectedTabId") val selectedTabId: String,
-    @SerialName("tabItems") val tabItems: List<TabItem>,
+    @SerialName("tabItems") val tabItems: SerializableImmutableList<TabItem>,
     @SerialName("tabType") val tabType: Type,
     @SerialName("scrollable") val scrollable: Boolean
 ) : TileSchema {

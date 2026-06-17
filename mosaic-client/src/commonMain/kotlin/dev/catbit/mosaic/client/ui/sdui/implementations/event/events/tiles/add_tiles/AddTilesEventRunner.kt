@@ -6,21 +6,16 @@ import dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchem
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object AddTilesEventRunner : EventRunner<AddTilesEventSchema> {
-    override fun EventRunningScope.runEvent(event: AddTilesEventSchema) {
-
-        // Todo implementar aqui um mecanismo de geração de ID, por exemplo, procurar por tiles/events com [GENERATE#1]
+    override suspend fun EventRunningScope.runEvent(event: AddTilesEventSchema) {
 
         tilesEditor.addTiles(
             tileSchemas = event.tiles,
             groupingTileId = event.groupingTileId,
-            onError = {
-                onTrigger(EventTriggers.onFailure(), data = it)
-                logError(
-                    tag = "AddTilesEventRunner",
-                    throwable = it
-                )
-            },
-            onSuccess = { onTrigger(EventTriggers.onSuccess()) }
-        )
+        ).onFailure { throwable ->
+            onTrigger(EventTriggers.onFailure(), data = throwable)
+            logError(tag = "AddTilesEventRunner", throwable = throwable)
+        }.onSuccess {
+            onTrigger(EventTriggers.onSuccess())
+        }
     }
 }

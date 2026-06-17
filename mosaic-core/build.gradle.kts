@@ -45,6 +45,9 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            // Compose
+            implementation(libs.compose.runtime)
+
             // Koin
             implementation(libs.koin.core)
 
@@ -56,6 +59,9 @@ kotlin {
 
             // Kotlinx Datetime
             implementation(libs.kotlinx.datetime)
+
+            // Kotlinx Collections Immutable
+            implementation(libs.kotlinx.collections.immutable)
         }
         androidMain.dependencies {
             // Coroutines

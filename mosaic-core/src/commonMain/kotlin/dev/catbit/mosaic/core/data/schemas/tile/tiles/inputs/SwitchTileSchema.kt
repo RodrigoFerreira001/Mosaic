@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckChangedEventTrigger
@@ -9,6 +10,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 switch (toggle) whose on/off state is fully server-controlled via
@@ -31,6 +33,7 @@ import kotlinx.serialization.Serializable
  * interaction when false. The renderer is structurally identical to [CheckboxTileRenderer]
  * with the composable replaced by [Switch].
  */
+@Immutable
 @Triggers(
     [
         OnUncheckEventTrigger::class,
@@ -42,7 +45,7 @@ import kotlinx.serialization.Serializable
 @SerialName("Switch")
 data class SwitchTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("checked") val checked: Boolean,

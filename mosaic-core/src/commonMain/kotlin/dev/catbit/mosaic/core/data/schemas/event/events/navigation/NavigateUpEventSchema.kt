@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.navigation
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Instructs the navigator identified by [navigatorId] to pop the current destination off its
@@ -28,6 +30,7 @@ import kotlinx.serialization.Serializable
  * - This is the simplest navigation event: it carries no data and has no schema parameters beyond
  *   [navigatorId].
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -39,6 +42,6 @@ import kotlinx.serialization.Serializable
 data class NavigateUpEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     val navigatorId: String
 ) : EventSchema

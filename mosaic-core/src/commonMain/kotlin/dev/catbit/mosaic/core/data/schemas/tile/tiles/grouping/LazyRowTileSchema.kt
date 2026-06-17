@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
@@ -12,6 +13,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.placement.ArrangementSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a horizontally scrolling lazy list that only composes and lays out the items
@@ -19,7 +21,7 @@ import kotlinx.serialization.Serializable
  * [id] for stable recomposition. The list state can be programmatically controlled via
  * [RowTileBroadcastData] (ScrollToStart, ScrollTo, ScrollToEnd).
  *
- * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
+ * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`, `arrangement: ArrangementSchema.Horizontal`,
  * `alignment: AlignmentSchema.Vertical`, `scrollThreshold: Int?`,
  * `considerLoadingItemAtEndOnThresholdReached: Boolean`
@@ -39,6 +41,7 @@ import kotlinx.serialization.Serializable
  * for a loading placeholder item appended at the trailing end of the list. The renderer sets
  * [LocalLazyRowRenderingScope] so that children can detect they are inside a lazy context.
  */
+@Immutable
 @Triggers(
     [
         OnClickEventTrigger::class,
@@ -51,8 +54,8 @@ import kotlinx.serialization.Serializable
 @SerialName("LazyRow")
 data class LazyRowTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("tiles") val tiles: List<TileSchema>,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("arrangement") val arrangement: ArrangementSchema.Horizontal,

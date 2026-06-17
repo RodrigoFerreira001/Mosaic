@@ -7,7 +7,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object TransformDataEventRunner : EventRunner<TransformDataEventSchema> {
 
-    override fun EventRunningScope.runEvent(event: TransformDataEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: TransformDataEventSchema) {
         val result = runCatching { TemplateProcessor.applyTemplate(event.template, incomingData) }
             .getOrElse {
                 onTrigger(EventTriggers.onFailure(), data = it)

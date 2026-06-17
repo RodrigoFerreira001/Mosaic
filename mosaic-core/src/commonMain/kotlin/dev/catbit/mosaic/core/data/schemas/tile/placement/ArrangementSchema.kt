@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.placement
 
+import androidx.compose.runtime.Immutable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -40,6 +41,7 @@ import kotlinx.serialization.Serializable
  * hits an `else` in the client extensions — unknown arrangements default to Start/Top.
  */
 @Serializable
+@Immutable
 sealed interface ArrangementSchema {
 
     @Serializable

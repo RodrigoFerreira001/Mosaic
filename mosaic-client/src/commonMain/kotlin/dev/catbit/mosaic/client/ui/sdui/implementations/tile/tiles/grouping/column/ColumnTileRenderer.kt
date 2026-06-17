@@ -8,13 +8,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
-import dev.catbit.mosaic.client.extensions.observeBroadcastChannel
+import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.extensions.onClick
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.extensions.toArrangement
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.modifiers.thenIf
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalLazyItemScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
@@ -37,17 +38,17 @@ object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
 
             val scrollState = rememberScrollState()
 
-            observeBroadcastChannel<ColumnTileBroadcastData> { data ->
+            observeScreenTileBroadcastChannel<ColumnTileScreenTilesBroadcastData> { data ->
                 when (data) {
-                    is ColumnTileBroadcastData.ScrollToTop -> if (data.smoothly)
+                    is ColumnTileScreenTilesBroadcastData.ScrollToTop -> if (data.smoothly)
                         scrollState.animateScrollTo(0)
                     else scrollState.scrollTo(0)
 
-                    is ColumnTileBroadcastData.ScrollTo -> if (data.smoothly)
+                    is ColumnTileScreenTilesBroadcastData.ScrollTo -> if (data.smoothly)
                         scrollState.animateScrollTo(data.index)
                     else scrollState.scrollTo(data.index)
 
-                    is ColumnTileBroadcastData.ScrollToBottom -> if (data.smoothly)
+                    is ColumnTileScreenTilesBroadcastData.ScrollToBottom -> if (data.smoothly)
                         scrollState.animateScrollTo(scrollState.maxValue)
                     else scrollState.scrollTo(scrollState.maxValue)
                 }
@@ -66,7 +67,10 @@ object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
                 verticalArrangement = arrangement.toArrangement(),
                 horizontalAlignment = alignment.toAlignment(),
             ) {
-                CompositionLocalProvider(LocalColumnScope provides this) {
+                CompositionLocalProvider(
+                    LocalColumnScope provides this,
+                    LocalLazyItemScope provides null
+                ) {
                     RenderChildren(tiles)
                 }
             }

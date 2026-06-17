@@ -10,7 +10,6 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.Tiles
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.runSafely
-import kotlinx.coroutines.CoroutineScope
 import org.koin.core.scope.Scope
 
 class EventManager(
@@ -18,10 +17,6 @@ class EventManager(
     private val eventRunnerManager: EventRunnerManager,
     private val koinScope: Scope
 ) {
-
-    private var stateHolderCoroutineScope: CoroutineScope? = null
-    private var screenCoroutineScope: CoroutineScope? = null
-
     private lateinit var tilesEditor: TilesEditor
     private lateinit var tilesOverlaysEditor: TilesOverlaysEditor
     private lateinit var tilesEventDispatcher: TilesEventDispatcher
@@ -58,19 +53,7 @@ class EventManager(
         this.tilesValueProducer = tilesValueProducer
     }
 
-    fun setStateHolderCoroutineScope(
-        coroutineScope: CoroutineScope
-    ) {
-        stateHolderCoroutineScope = coroutineScope
-    }
-
-    fun setScreenCoroutineScope(
-        coroutineScope: CoroutineScope
-    ) {
-        screenCoroutineScope = coroutineScope
-    }
-
-    fun triggerEvents(
+    suspend fun triggerEvents(
         trigger: EventTrigger,
         data: Any? = null
     ) {
@@ -84,7 +67,7 @@ class EventManager(
             }
     }
 
-    fun runEvents(
+    suspend fun runEvents(
         eventSchemas: List<EventSchema>,
         data: Any? = null
     ) {
@@ -96,7 +79,7 @@ class EventManager(
         }
     }
 
-    fun runEvent(
+    suspend fun runEvent(
         eventSchema: EventSchema,
         data: Any? = null
     ) {
@@ -113,8 +96,6 @@ class EventManager(
                     dataHolder = dataHolder,
                     screenBehaviorsHolder = screenBehaviorsHolder,
                     koinScope = koinScope,
-                    stateHolderCoroutineScope = stateHolderCoroutineScope,
-                    screenCoroutineScope = screenCoroutineScope,
                     tilesValueProducer = tilesValueProducer
                 ).runEvent(eventSchema)
             }

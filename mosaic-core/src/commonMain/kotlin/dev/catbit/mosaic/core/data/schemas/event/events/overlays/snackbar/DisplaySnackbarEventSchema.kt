@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.overlays.snackbar
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarDism
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Displays a Material 3 snackbar with a message, an optional action label, and a configurable
@@ -33,6 +35,7 @@ import kotlinx.serialization.Serializable
  *   actually shown, so the hosting screen must keep this event's holder alive for the
  *   callbacks to be reachable.
  */
+@Immutable
 @Triggers(
     [
         OnSnackbarActionEventTrigger::class,
@@ -45,7 +48,7 @@ import kotlinx.serialization.Serializable
 data class DisplaySnackbarEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     val message: String,
     val duration: SnackbarDurationSchema = SnackbarDurationSchema.Short,
     val actionLabel: String? = null

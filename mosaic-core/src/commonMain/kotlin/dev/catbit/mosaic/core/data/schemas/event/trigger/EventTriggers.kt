@@ -21,6 +21,8 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFini
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadPartialEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnHeightBreakpointNotSatisfiedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnHeightBreakpointSatisfiedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardDoneEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardGoEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardNextEventTrigger
@@ -39,6 +41,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEn
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntrySetEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationRailItemClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsAcquiredEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
@@ -54,6 +57,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectChange
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSystemBroadcastEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTabItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTextChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesAddedEventTrigger
@@ -64,6 +68,9 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesWipedEv
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTrailingIconClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUncheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUnselectEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUploadProgressEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnWidthBreakpointNotSatisfiedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnWidthBreakpointSatisfiedEventTrigger
 
 object EventTriggers {
     fun inline() = InlineEventTrigger
@@ -87,6 +94,8 @@ object EventTriggers {
     fun onDataUpdated() = OnDataUpdatedEventTrigger
     fun onDialogDismissed() = OnDialogDismissedEventTrigger
     fun onFailure() = OnFailureEventTrigger
+    fun onHeightBreakpointSatisfied() = OnHeightBreakpointSatisfiedEventTrigger
+    fun onHeightBreakpointNotSatisfied() = OnHeightBreakpointNotSatisfiedEventTrigger
     fun onKeyboardDone() = OnKeyboardDoneEventTrigger
     fun onKeyboardGo() = OnKeyboardGoEventTrigger
     fun onKeyboardNext() = OnKeyboardNextEventTrigger
@@ -106,6 +115,7 @@ object EventTriggers {
     fun onNavigationEntrySet(screenId: String) = OnNavigationEntrySetEventTrigger(screenId)
     fun onNavigation() = OnNavigationEventTrigger
     fun onNavigationRailItemClick(itemId: String) = OnNavigationRailItemClickEventTrigger(itemId)
+    fun onNetworkFailure(httpCode: Int) = OnNetworkFailureEventTrigger(httpCode)
     fun onNetworkResponse(httpCode: Int) = OnNetworkResponseTrigger(httpCode)
     fun onPermissionsAcquired() = OnPermissionsAcquiredEventTrigger
     fun onPermissionsDenied() = OnPermissionsDeniedEventTrigger
@@ -121,6 +131,7 @@ object EventTriggers {
     fun onSelect() = OnSelectEventTrigger
     fun onStart() = OnStartEventTrigger
     fun onSuccess() = OnSuccessEventTrigger
+    fun onSystemBroadcastEventTrigger(broadcastId: String) = OnSystemBroadcastEventTrigger(broadcastId)
     fun onTabItemClick(itemId: String) = OnTabItemClickEventTrigger(itemId)
     fun onTextChanged() = OnTextChangedEventTrigger
     fun onTilesAdded() = OnTilesAddedEventTrigger
@@ -130,4 +141,7 @@ object EventTriggers {
     fun onTilesWiped() = OnTilesWipedEventTrigger
     fun onUncheck() = OnUncheckEventTrigger
     fun onUnselect() = OnUnselectEventTrigger
+    fun onUploadProgress() = OnUploadProgressEventTrigger
+    fun onWidthBreakpointSatisfied() = OnWidthBreakpointSatisfiedEventTrigger
+    fun onWidthBreakpointNotSatisfied() = OnWidthBreakpointNotSatisfiedEventTrigger
 }

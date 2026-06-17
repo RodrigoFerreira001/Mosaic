@@ -6,7 +6,7 @@ import kotlin.reflect.KClass
 class EventRunnerManager(
     private val eventRunners: Map<KClass<out EventSchema>, EventRunner<*>>
 ) {
-    fun EventRunningScope.runEvent(event: EventSchema) {
+    suspend fun EventRunningScope.runEvent(event: EventSchema) {
         eventRunners[event::class]?.let { runner ->
             with(runner) {
                 runEvent(event)

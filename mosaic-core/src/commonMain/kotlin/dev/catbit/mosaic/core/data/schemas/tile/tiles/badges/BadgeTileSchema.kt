@@ -1,10 +1,12 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.badges
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a Material 3 [Badge] — a small colored dot or pill typically used to indicate a
@@ -20,11 +22,12 @@ import kotlinx.serialization.Serializable
  * by the parent tile. It is not interactive by itself. To remove the badge, either hide it
  * via `visibility` or clear [content] and rely on a parent container to control its placement.
  */
+@Immutable
 @Serializable
 @SerialName("Badge")
 data class BadgeTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("content") val content: String? = null

@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.data.data_sources.network
 
+import dev.catbit.mosaic.client.exceptions.MissingUploadUrlException
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
 import dev.catbit.mosaic.client.extensions.safeNetworkCall
 import dev.catbit.mosaic.client.extensions.safeResult
@@ -8,6 +9,7 @@ import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.onDownload
+import io.ktor.client.plugins.onUpload
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.prepareRequest
@@ -15,7 +17,9 @@ import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
+import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
+import io.ktor.http.content.ByteArrayContent
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
@@ -79,10 +83,10 @@ class MosaicNetworkImpl(
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        onProgress: (Int) -> Unit,
-        onBytesReceived: (ByteArray) -> Unit,
-        onDownloadFinished: (ByteArray) -> Unit,
-        onDownloadFailure: (Throwable) -> Unit
+        onProgress: suspend (Int) -> Unit,
+        onBytesReceived: suspend (ByteArray) -> Unit,
+        onDownloadFinished: suspend (ByteArray) -> Unit,
+        onDownloadFailure: suspend (Throwable) -> Unit
     ) = safeResult {
         try {
             httpClient.prepareRequest(urlString = url) {
@@ -132,6 +136,49 @@ class MosaicNetworkImpl(
             }
         } catch (e: Throwable) {
             onDownloadFailure(e)
+        }
+    }
+
+    override suspend fun uploadFile(
+        url: String?,
+        headers: Map<String, String>?,
+        httpMethod: HttpMethod,
+        contentType: String?,
+        bytes: ByteArray,
+        onProgress: suspend (Int) -> Unit
+    ) = runCatching {
+
+        val (_, headersParams, urlParam) = networkParametersHolder.consume()
+
+        val targetUrl = url ?: urlParam ?: throw MissingUploadUrlException()
+
+        var lastPercent = -1
+
+        httpClient.request(urlString = targetUrl) {
+            method = httpMethod
+
+            (headersParams.orEmpty() + headers.orEmpty()).forEach { (key, value) ->
+                header(key, value)
+            }
+
+            setBody(
+                ByteArrayContent(
+                    bytes = bytes,
+                    contentType = contentType
+                        ?.let(ContentType::parse)
+                        ?: ContentType.Application.OctetStream
+                )
+            )
+
+            onUpload { bytesSentTotal, contentLength ->
+                if (contentLength != null && contentLength > 0) {
+                    val percent = (bytesSentTotal.toDouble() / contentLength * 100).toInt()
+                    if (percent != lastPercent) {
+                        lastPercent = percent
+                        onProgress(percent)
+                    }
+                }
+            }
         }
     }
 }

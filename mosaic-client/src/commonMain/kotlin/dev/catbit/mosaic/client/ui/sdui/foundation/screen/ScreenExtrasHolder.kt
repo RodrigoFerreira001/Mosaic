@@ -1,19 +1,22 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
+import androidx.compose.runtime.Stable
 import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
+import kotlinx.collections.immutable.ImmutableList
 
+@Stable
 class ScreenExtrasHolder {
 
     private val extras = mutableMapOf<String, Extra>()
 
     fun registerExtra(
         screenId: String,
-        initialTiles: List<TileSchema>,
-        initialEvents: List<EventSchema>,
-        failureTiles: List<TileSchema>,
-        failureEvents: List<EventSchema>,
+        initialTiles: ImmutableList<TileSchema>,
+        initialEvents: ImmutableList<EventSchema>,
+        failureTiles: ImmutableList<TileSchema>,
+        failureEvents: ImmutableList<EventSchema>,
         transition: ContentTransitionSchema? = null,
         popTransition: ContentTransitionSchema? = null,
         predictivePopTransition: ContentTransitionSchema? = null,
@@ -38,10 +41,10 @@ class ScreenExtrasHolder {
     }
 
     data class Extra(
-        val initialTiles: List<TileSchema>,
-        val initialEvents: List<EventSchema>,
-        val failureTiles: List<TileSchema>,
-        val failureEvents: List<EventSchema>,
+        val initialTiles: ImmutableList<TileSchema>,
+        val initialEvents: ImmutableList<EventSchema>,
+        val failureTiles: ImmutableList<TileSchema>,
+        val failureEvents: ImmutableList<EventSchema>,
         val transition: ContentTransitionSchema? = null,
         val popTransition: ContentTransitionSchema? = null,
         val predictivePopTransition: ContentTransitionSchema? = null

@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a self-loading tile container that fetches its child tiles from a remote endpoint
@@ -14,7 +16,7 @@ import kotlinx.serialization.Serializable
  * fetched tiles replace the placeholder. On failure, if [isFailureState] is `true`, the
  * [failureTiles] are rendered instead.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>?`, `style: StyleSchema`,
+ * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>?`, `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`, `isFailureState: Boolean`, `placeholderTiles`,
  * `failureTiles`, `url: String`, `method: HttpMethod`, `body: AnySerializable?`,
  * `headers: Map<String, String>?`
@@ -32,16 +34,17 @@ import kotlinx.serialization.Serializable
  * rendered directly. The response body is decoded as `List<TileSchema>` using the polymorphic
  * [MosaicSerializer]. The outer layout is always a [Column] with the given [style].
  */
+@Immutable
 @SerialName("LazyTiles")
 @Serializable
 data class LazyTilesTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
-    @SerialName("tiles") val tiles: List<TileSchema>? = null,
-    @SerialName("placeholderTiles") val placeholderTiles: List<TileSchema>,
-    @SerialName("failureTiles") val failureTiles: List<TileSchema>,
+    @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>? = null,
+    @SerialName("placeholderTiles") val placeholderTiles: SerializableImmutableList<TileSchema>,
+    @SerialName("failureTiles") val failureTiles: SerializableImmutableList<TileSchema>,
     @SerialName("isFailureState") val isFailureState: Boolean = false,
     @SerialName("url") val url: String,
     @SerialName("method") val method: HttpMethod,

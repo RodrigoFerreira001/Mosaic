@@ -3,6 +3,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.app_bars.bot
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.app_bars.BottomAppBarTileSchema
+import dev.catbit.mosaic.core.extensions.immutableMapTo
 
 class BottomAppBarTileHolder(
     override val id: String,
@@ -15,8 +16,8 @@ class BottomAppBarTileHolder(
     override val tiles = actions.toMutableList().apply { floatingActionButton?.let(::add) }
 
     override fun get() = tile.copy(
-        events = events?.map { it.get() },
-        actions = actions.map { it.get() },
+        events = events?.immutableMapTo { it.get() },
+        actions = actions.immutableMapTo { it.get() },
         floatingActionButton = floatingActionButton?.get()
     )
 }

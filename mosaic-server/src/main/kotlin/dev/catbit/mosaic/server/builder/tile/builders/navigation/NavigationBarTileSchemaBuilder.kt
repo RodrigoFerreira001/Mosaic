@@ -6,8 +6,6 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NavigationBarTi
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -65,14 +63,8 @@ class NavigationBarItemSchemaBuilder(
     )
 }
 
-class NavigationBarItemSchemaBuilderScope private constructor():
+class NavigationBarItemSchemaBuilderScope :
     GenericBuilderScope<NavigationBarTileSchema.NavigationBarItem, NavigationBarItemSchemaBuilder>() {
-
-    companion object {
-        internal operator fun invoke(
-            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
-        ) = NavigationBarItemSchemaBuilderScope().apply { pushLocals(compositionLocals) }
-    }
 
     fun item(
         id: String,

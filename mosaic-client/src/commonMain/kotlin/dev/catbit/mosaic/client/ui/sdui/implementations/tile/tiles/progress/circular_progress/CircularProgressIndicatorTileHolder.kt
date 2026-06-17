@@ -3,6 +3,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.progress.cir
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.progress.CircularProgressIndicatorTileSchema
+import dev.catbit.mosaic.core.extensions.immutableMapTo
 
 class CircularProgressIndicatorTileHolder(
     override val id: String,
@@ -12,6 +13,6 @@ class CircularProgressIndicatorTileHolder(
 ) : TileHolder<CircularProgressIndicatorTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.map { it.get() }
+        events = events?.immutableMapTo { it.get() }
     )
 }

@@ -9,7 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.extensions.runSafely
 
 object ChangeScreenStateEventRunner : EventRunner<ChangeScreenStateEventSchema> {
-    override fun EventRunningScope.runEvent(event: ChangeScreenStateEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: ChangeScreenStateEventSchema) {
         runSafely(
             onError = {
                 onTrigger(EventTriggers.onFailure())

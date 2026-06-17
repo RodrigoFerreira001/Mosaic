@@ -8,8 +8,6 @@ import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocal
-import dev.catbit.mosaic.server.builder.composition_local.ValueProvider
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
@@ -55,15 +53,9 @@ class UpdateDataUpdateBuilder(
     )
 }
 
-class UpdateDataUpdateBuilderScope private constructor(): GenericBuilderScope<Update, UpdateDataUpdateBuilder>() {
+class UpdateDataUpdateBuilderScope : GenericBuilderScope<Update, UpdateDataUpdateBuilder>() {
 
-    companion object {
-        internal operator fun invoke(
-            compositionLocals: Map<CompositionLocal<*>, ValueProvider<*>>
-        ) = UpdateDataUpdateBuilderScope().apply { pushLocals(compositionLocals) }
-    }
-
-    fun addUpdate(
+    fun update(
         dataSource: DataSourceSchema,
         updateData: Update.UpdateDate
     ) {

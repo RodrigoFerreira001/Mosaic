@@ -1,10 +1,12 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Renders a CSS flexbox-style container using the experimental Compose [FlexBox] API.
@@ -13,7 +15,7 @@ import kotlinx.serialization.Serializable
  * [alignItems], cross-axis alignment of wrapped lines by [alignContent], and wrapping
  * behavior by [wrap]. Gaps between items are set by [columnGap] and [rowGap] in dp.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: List<TileSchema>`, `style: StyleSchema`,
+ * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`, `direction: FlexDirectionSchema`,
  * `justifyContent: FlexJustifyContentSchema`, `alignItems: FlexAlignItemsSchema`,
  * `alignContent: FlexAlignContentSchema`, `wrap: FlexWrapSchema`, `columnGap: Int`,
@@ -26,12 +28,13 @@ import kotlinx.serialization.Serializable
  * [LocalFlexBoxScope] so that children that need [FlexBoxScope] modifiers (e.g. `flexGrow`,
  * `flexShrink`, `alignSelf`) can access it. Children are composed eagerly.
  */
+@Immutable
 @Serializable
 @SerialName("FlexBox")
 data class FlexBoxTileSchema(
     @SerialName("id") override val id: String,
-    @SerialName("tiles") val tiles: List<TileSchema>,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("direction") val direction: FlexDirectionSchema = FlexDirectionSchema.Row,

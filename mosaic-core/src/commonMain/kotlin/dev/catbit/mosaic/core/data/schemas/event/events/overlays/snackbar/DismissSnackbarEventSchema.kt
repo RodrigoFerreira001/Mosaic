@@ -1,11 +1,13 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.overlays.snackbar
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Programmatically dismisses the currently displayed snackbar by broadcasting a dismiss
@@ -22,6 +24,7 @@ import kotlinx.serialization.Serializable
  * Dismissing via this event does NOT fire [OnSnackbarDismissedEventTrigger] — that trigger
  * is only fired by the snackbar's own dismiss callback (see [DisplaySnackbarEventSchema]).
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class
@@ -32,5 +35,5 @@ import kotlinx.serialization.Serializable
 data class DismissSnackbarEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?
 ) : EventSchema

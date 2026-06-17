@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.pull_to_refresh
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -7,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Signals a PullToRefreshTile to stop its loading indicator and return to the idle state.
@@ -28,6 +30,7 @@ import kotlinx.serialization.Serializable
  * with failure) the server includes this event to dismiss the spinner. Failing to fire it will
  * leave the refresh indicator spinning indefinitely.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
@@ -39,6 +42,6 @@ import kotlinx.serialization.Serializable
 data class StopRefreshingEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?,
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("tileId") val tileId: String
 ) : EventSchema

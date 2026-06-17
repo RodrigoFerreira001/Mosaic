@@ -1,11 +1,13 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer
 
+import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Opens the screen's navigation drawer by broadcasting an open signal to the active screen.
@@ -23,6 +25,7 @@ import kotlinx.serialization.Serializable
  * event to have a visible effect. Sending this event when the drawer is already open is
  * a no-op on the UI side.
  */
+@Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class
@@ -33,5 +36,5 @@ import kotlinx.serialization.Serializable
 data class DisplayNavigationDrawerEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: List<EventSchema>?
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?
 ) : EventSchema

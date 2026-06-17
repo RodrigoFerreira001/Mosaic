@@ -6,18 +6,15 @@ import dev.catbit.mosaic.core.data.schemas.event.events.tiles.RemoveTilesEventSc
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object RemoveTilesEventRunner : EventRunner<RemoveTilesEventSchema> {
-    override fun EventRunningScope.runEvent(event: RemoveTilesEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: RemoveTilesEventSchema) {
         tilesEditor.removeTiles(
             tileIds = event.tileIds,
             groupingTileId = event.groupingTileId,
-            onError = {
-                onTrigger(EventTriggers.onFailure(), data = it)
-                logError(
-                    tag = "RemoveTilesEventRunner",
-                    throwable = it
-                )
-            },
-            onSuccess = { onTrigger(EventTriggers.onSuccess()) }
-        )
+        ).onFailure { throwable ->
+            onTrigger(EventTriggers.onFailure(), data = throwable)
+            logError(tag = "RemoveTilesEventRunner", throwable = throwable)
+        }.onSuccess {
+            onTrigger(EventTriggers.onSuccess())
+        }
     }
 }

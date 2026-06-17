@@ -6,7 +6,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.file.DeleteFileEventSche
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object DeleteFileEventRunner : EventRunner<DeleteFileEventSchema> {
-    override fun EventRunningScope.runEvent(event: DeleteFileEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: DeleteFileEventSchema) {
         println("executed DeleteFileEvent")
         onTrigger(EventTriggers.onSuccess())
     }
