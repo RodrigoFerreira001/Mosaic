@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NavigationRailTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
@@ -15,6 +16,7 @@ internal class NavigationRailTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val items: NavigationRailItemSchemaBuilderScope.() -> Unit,
     private val selectedItemId: String,
@@ -26,6 +28,7 @@ internal class NavigationRailTileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         items = NavigationRailItemSchemaBuilderScope().apply(items).build(),
         selectedItemId = selectedItemId,
@@ -39,6 +42,7 @@ fun TileSchemaBuilderScope.NavigationRail(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     selectedItemId: String,
     header: (TileSchemaBuilderScope.() -> Unit)? = null,
     footer: (TileSchemaBuilderScope.() -> Unit)? = null,
@@ -49,6 +53,7 @@ fun TileSchemaBuilderScope.NavigationRail(
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             items = items,
             selectedItemId = selectedItemId,
@@ -71,7 +76,8 @@ class NavigationRailItemSchemaBuilder(
     )
 }
 
-class NavigationRailItemSchemaBuilderScope : GenericBuilderScope<NavigationRailTileSchema.NavigationRailItem, NavigationRailItemSchemaBuilder>() {
+class NavigationRailItemSchemaBuilderScope :
+    GenericBuilderScope<NavigationRailTileSchema.NavigationRailItem, NavigationRailItemSchemaBuilder>() {
 
     fun addItem(
         id: String,

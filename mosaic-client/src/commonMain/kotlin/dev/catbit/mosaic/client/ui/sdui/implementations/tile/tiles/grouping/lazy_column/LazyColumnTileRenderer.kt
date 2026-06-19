@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
 import dev.catbit.mosaic.client.extensions.ThresholdReachedEffect
@@ -22,6 +23,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.colu
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger.ScrollDirection
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyColumnTileSchema
+import kotlinx.collections.immutable.toImmutableList
 
 object LazyColumnTileRenderer : TileRenderer<LazyColumnTileSchema> {
 
@@ -68,13 +70,23 @@ object LazyColumnTileRenderer : TileRenderer<LazyColumnTileSchema> {
                 onScrollBackward = { triggerEvent(EventTriggers.onScrolled(ScrollDirection.Top)) }
             )
 
+            val displayedTiles = remember(tiles, filterChildrenByTerm) {
+                (filterChildrenByTerm?.takeIf { it.isNotEmpty() }?.let { filterTerm ->
+                    tiles.filter { tile ->
+                        tile.searchableTerms?.any {
+                            it.contains(filterTerm, ignoreCase = true)
+                        } == true
+                    }
+                } ?: tiles).toImmutableList()
+            }
+
             LazyColumn(
                 modifier = modifier,
                 state = lazyListState,
                 verticalArrangement = arrangement.toArrangement(),
                 horizontalAlignment = alignment.toAlignment(),
             ) {
-                items(tiles, key = { it.id }) { tileSchema ->
+                items(displayedTiles, key = { it.id }) { tileSchema ->
                     CompositionLocalProvider(
                         LocalLazyItemScope provides this,
                         LocalColumnScope provides null

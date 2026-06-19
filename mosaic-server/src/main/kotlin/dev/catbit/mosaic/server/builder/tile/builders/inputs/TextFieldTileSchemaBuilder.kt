@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -13,6 +14,7 @@ internal class TextFieldTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val value: String,
     private val enabled: Boolean,
@@ -37,6 +39,7 @@ internal class TextFieldTileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         value = value,
         enabled = enabled,
@@ -63,6 +66,7 @@ fun TileSchemaBuilderScope.TextField(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     value: String = "",
     enabled: Boolean = true,
     leadingIcon: IconSchema? = null,
@@ -86,6 +90,7 @@ fun TileSchemaBuilderScope.TextField(
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             value = value,
             enabled = enabled,
@@ -125,11 +130,16 @@ fun keyboardOptions(
     imeAction = imeAction,
 )
 
-fun keyboardCapitalizationUnspecified() = TextFieldTileSchema.KeyboardOptions.KeyboardCapitalization.Unspecified
+fun keyboardCapitalizationUnspecified() =
+    TextFieldTileSchema.KeyboardOptions.KeyboardCapitalization.Unspecified
+
 fun keyboardCapitalizationNone() = TextFieldTileSchema.KeyboardOptions.KeyboardCapitalization.None
-fun keyboardCapitalizationCharacters() = TextFieldTileSchema.KeyboardOptions.KeyboardCapitalization.Characters
+fun keyboardCapitalizationCharacters() =
+    TextFieldTileSchema.KeyboardOptions.KeyboardCapitalization.Characters
+
 fun keyboardCapitalizationWords() = TextFieldTileSchema.KeyboardOptions.KeyboardCapitalization.Words
-fun keyboardCapitalizationSentences() = TextFieldTileSchema.KeyboardOptions.KeyboardCapitalization.Sentences
+fun keyboardCapitalizationSentences() =
+    TextFieldTileSchema.KeyboardOptions.KeyboardCapitalization.Sentences
 
 fun keyboardTypeUnspecified() = TextFieldTileSchema.KeyboardOptions.KeyboardType.Unspecified
 fun keyboardTypeText() = TextFieldTileSchema.KeyboardOptions.KeyboardType.Text
@@ -154,4 +164,5 @@ fun keyboardImeActionDone() = TextFieldTileSchema.KeyboardOptions.ImeAction.Done
 
 fun keyboardVisualTransformationNone() = TextFieldTileSchema.VisualTransformation.None
 fun keyboardVisualTransformationPassword() = TextFieldTileSchema.VisualTransformation.Password
-fun keyboardVisualTransformationCustom(mask: String) = TextFieldTileSchema.VisualTransformation.Custom(mask)
+fun keyboardVisualTransformationCustom(mask: String) =
+    TextFieldTileSchema.VisualTransformation.Custom(mask)

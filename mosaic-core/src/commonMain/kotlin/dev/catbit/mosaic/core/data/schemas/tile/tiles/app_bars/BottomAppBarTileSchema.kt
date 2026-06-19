@@ -32,6 +32,7 @@ data class BottomAppBarTileSchema(
     @SerialName("id") override val id: String,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
+    @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("actions") val actions: SerializableImmutableList<TileSchema>,
     @SerialName("floatingActionButton") val floatingActionButton: TileSchema? = null

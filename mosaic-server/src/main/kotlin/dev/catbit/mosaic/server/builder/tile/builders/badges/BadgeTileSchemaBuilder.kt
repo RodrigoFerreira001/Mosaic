@@ -3,6 +3,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.badges
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.badges.BadgeTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -12,6 +13,7 @@ internal class BadgeTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val content: String?
 ) : TileSchemaBuilder<BadgeTileSchema>() {
@@ -20,6 +22,7 @@ internal class BadgeTileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         content = content
     )
@@ -30,6 +33,7 @@ fun TileSchemaBuilderScope.Badge(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     content: String? = null
 ) {
     addBuilder(
@@ -37,6 +41,7 @@ fun TileSchemaBuilderScope.Badge(
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             content = content
         )

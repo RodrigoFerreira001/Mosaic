@@ -40,14 +40,8 @@ kotlin {
         }
     }
 
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { target ->
-        target.binaries.framework {
-            linkerOpts("-lsqlite3")
-        }
-    }
+    iosArm64()
+    iosSimulatorArm64()
 
     jvm()
 
@@ -131,6 +125,10 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             // SQLite driver
             implementation(libs.androidx.sqlite.bundled)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
         }
 
         wasmJsMain.dependencies {

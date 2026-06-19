@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.ArrangementSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.FlowRowTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallyToStart
 import dev.catbit.mosaic.server.builder.placement.arrangeVerticallyToTop
@@ -16,6 +17,7 @@ internal class FlowRowTileSchemaBuilder(
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val horizontalArrangement: ArrangementSchema.Horizontal,
     private val verticalArrangement: ArrangementSchema.Vertical,
@@ -27,6 +29,7 @@ internal class FlowRowTileSchemaBuilder(
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         horizontalArrangement = horizontalArrangement,
         verticalArrangement = verticalArrangement,
@@ -39,6 +42,7 @@ fun TileSchemaBuilderScope.FlowRow(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     horizontalArrangement: ArrangementSchema.Horizontal = arrangeHorizontallyToStart(),
     verticalArrangement: ArrangementSchema.Vertical = arrangeVerticallyToTop(),
     maxItemsInEachRow: Int = Int.MAX_VALUE,
@@ -50,6 +54,7 @@ fun TileSchemaBuilderScope.FlowRow(
             tiles = tiles,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             horizontalArrangement = horizontalArrangement,
             verticalArrangement = verticalArrangement,

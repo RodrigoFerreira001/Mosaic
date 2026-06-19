@@ -33,6 +33,7 @@ data class CardTileSchema(
     @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
+    @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("kind") val kind: Kind,
 ) : TileSchema {

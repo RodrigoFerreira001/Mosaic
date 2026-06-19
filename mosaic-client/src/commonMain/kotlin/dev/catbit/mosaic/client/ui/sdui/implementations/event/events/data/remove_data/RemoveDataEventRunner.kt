@@ -31,6 +31,8 @@ object RemoveDataEventRunner : EventRunner<RemoveDataEventSchema> {
         val removeSegmentedDataByIdsUseCase = get<RemoveSegmentedDataByIdsUseCase>()
         val wipeSegmentedDataUseCase = get<WipeSegmentedDataUseCase>()
 
+        var anyErrorOccurred = false
+
         withContext(Dispatchers.IO) {
             event.deletions.forEach { (dataSource, accessMode) ->
                 when (dataSource) {
@@ -53,30 +55,31 @@ object RemoveDataEventRunner : EventRunner<RemoveDataEventSchema> {
 
                     DataSourceSchema.PlainDataBase -> when (accessMode) {
                         AccessModeSchema.Full -> wipePlainDataUseCase(Unit)
+                            .onFailure { anyErrorOccurred = true }
                         is AccessModeSchema.Single -> removePlainDataUseCase(
                             RemovePlainDataUseCase.Params(dataKey = accessMode.dataId)
-                        )
+                        ).onFailure { anyErrorOccurred = true }
                         is AccessModeSchema.Batch -> removePlainDataByIdsUseCase(
                             RemovePlainDataByIdsUseCase.Params(dataKeys = accessMode.dataIds)
-                        )
+                        ).onFailure { anyErrorOccurred = true }
                     }
 
                     is DataSourceSchema.SegmentedDataBase -> when (accessMode) {
                         AccessModeSchema.Full -> wipeSegmentedDataUseCase(
                             WipeSegmentedDataUseCase.Params(segmentKey = dataSource.segmentId)
-                        )
+                        ).onFailure { anyErrorOccurred = true }
                         is AccessModeSchema.Single -> removeSegmentedDataUseCase(
                             RemoveSegmentedDataUseCase.Params(
                                 segmentKey = dataSource.segmentId,
                                 dataKey = accessMode.dataId
                             )
-                        )
+                        ).onFailure { anyErrorOccurred = true }
                         is AccessModeSchema.Batch -> removeSegmentedDataByIdsUseCase(
                             RemoveSegmentedDataByIdsUseCase.Params(
                                 segmentKey = dataSource.segmentId,
                                 dataKeys = accessMode.dataIds
                             )
-                        )
+                        ).onFailure { anyErrorOccurred = true }
                     }
 
                     DataSourceSchema.ScreenNavigationData -> Unit
@@ -84,6 +87,11 @@ object RemoveDataEventRunner : EventRunner<RemoveDataEventSchema> {
                 }
             }
         }
-        onTrigger(EventTriggers.onSuccess())
+
+        if (anyErrorOccurred) {
+            onTrigger(EventTriggers.onFailure())
+        } else {
+            onTrigger(EventTriggers.onSuccess())
+        }
     }
 }

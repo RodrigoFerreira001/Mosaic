@@ -1,3 +1,5 @@
+> Atualizado: jun/2026. Validado contra EventSchema, EventRunner, MosaicSerializer, e MosaicModules de cada evento.
+
 # Mosaic — Events Catalog
 
 All events implement `EventSchema`. Every event inherits these base fields:
@@ -336,6 +338,31 @@ Passes the current `incomingData` to a registered `DataProcessor` by ID.
 | `processWith` | `String` — ID of a registered `DataProcessor` |
 
 Built-in processor: `"EVENT_RUNNER"` — deserializes incoming data as events and executes them inline.
+
+---
+
+### TransformDataEventSchema
+**JSON type:** `"TransformData"`
+
+Reshapes `incomingData` by applying a template structure, substituting placeholders of the form `<|path.to.value|>` with values resolved from `incomingData`. The output mirrors the structural shape of the template (map, list, or scalar) with all placeholders replaced.
+
+| Field | Type | Description |
+|---|---|---|
+| `template` | `AnySerializable` | Template value — may be a String, Map, or List. Placeholders `<|path|>` are resolved against `incomingData`. |
+
+**Placeholder resolution:**
+- Dot-notation paths: `<|user.address.city|>`
+- Array index notation: `<|items[0].name|>`
+- A standalone placeholder (`<|path|>`) preserves the resolved value's native type (Int, Boolean, Map, etc.)
+- A placeholder embedded in surrounding text coerces the resolved value to String via `.toString()`
+- Non-string, non-Map, non-List template values (numbers, booleans) are returned as-is without substitution
+- Transformation is applied recursively to every leaf when template is a Map or List
+
+**Failure scenarios:** missing path segment (`NoSuchElementException`), wrong node type (`IllegalArgumentException`), out-of-bounds index, invalid index string.
+
+**This event is synchronous — it does not dispatch to a background dispatcher.**
+
+**Triggers:** `OnSuccess` (incomingData = fully resolved output), `OnFailure` (incomingData = `Throwable`)
 
 ---
 

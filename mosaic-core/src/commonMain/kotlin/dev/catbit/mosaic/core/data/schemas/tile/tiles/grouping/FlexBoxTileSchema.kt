@@ -36,6 +36,7 @@ data class FlexBoxTileSchema(
     @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
+    @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("direction") val direction: FlexDirectionSchema = FlexDirectionSchema.Row,
     @SerialName("justifyContent") val justifyContent: FlexJustifyContentSchema = FlexJustifyContentSchema.Start,

@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PagerTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PagerTileSchema.PageSizeSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -14,6 +15,7 @@ internal class PagerTileSchemaBuilder(
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val pageSize: PageSizeSchema,
     private val pageSpacing: Int,
@@ -26,6 +28,7 @@ internal class PagerTileSchemaBuilder(
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         pageSize = pageSize,
         pageSpacing = pageSpacing,
@@ -39,6 +42,7 @@ fun TileSchemaBuilderScope.Pager(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     pageSize: PageSizeSchema = PageSizeSchema.Fill,
     pageSpacing: Int = 0,
     contentPadding: Int = 0,
@@ -51,6 +55,7 @@ fun TileSchemaBuilderScope.Pager(
             tiles = tiles,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             pageSize = pageSize,
             pageSpacing = pageSpacing,

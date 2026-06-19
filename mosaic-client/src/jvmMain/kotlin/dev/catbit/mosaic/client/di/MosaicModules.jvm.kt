@@ -25,7 +25,10 @@ internal actual val platformModule = module {
     }
 
     single<MosaicRoomDatabase> {
-        Room.databaseBuilder<MosaicRoomDatabase>(name = "mosaic_database.db")
+
+        val applicationId: String = get(named("APPLICATION_ID"))
+
+        Room.databaseBuilder<MosaicRoomDatabase>(name = "${applicationId}_database.db")
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .build()

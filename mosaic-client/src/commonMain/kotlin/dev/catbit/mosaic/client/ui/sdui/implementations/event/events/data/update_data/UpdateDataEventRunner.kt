@@ -19,6 +19,8 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
         val updatePlainDataUseCase = get<UpdatePlainDataUseCase>()
         val updateSegmentedDataUseCase = get<UpdateSegmentedDataUseCase>()
 
+        var anyErrorOccurred = false
+
         withContext(Dispatchers.IO) {
             with(event) {
                 updates
@@ -52,7 +54,13 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
                                 entries.forEach { (dataKey, data) ->
                                     updatePlainDataUseCase(
                                         UpdatePlainDataUseCase.Params(dataKey = dataKey, data = data)
-                                    )
+                                    ).onFailure {
+                                        logError(
+                                            throwable = it,
+                                            tag = "UpdateDataEventRunner"
+                                        )
+                                        anyErrorOccurred = true
+                                    }
                                 }
                             }
 
@@ -64,7 +72,13 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
                                             dataKey = dataKey,
                                             data = data
                                         )
-                                    )
+                                    ).onFailure {
+                                        logError(
+                                            throwable = it,
+                                            tag = "UpdateDataEventRunner"
+                                        )
+                                        anyErrorOccurred = true
+                                    }
                                 }
                             }
 
@@ -74,7 +88,12 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
                     }
             }
         }
-        onTrigger(EventTriggers.onSuccess())
+
+        if (anyErrorOccurred) {
+            onTrigger(EventTriggers.onFailure())
+        } else {
+            onTrigger(EventTriggers.onSuccess())
+        }
     }
 
     private fun EventRunningScope.resolveUpdateData(

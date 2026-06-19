@@ -8,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.FlexBoxTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.FlexBoxTileSchema.FlexJustifyContentSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.FlexBoxTileSchema.FlexWrapSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -18,6 +19,7 @@ internal class FlexBoxTileSchemaBuilder(
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val direction: FlexDirectionSchema,
     private val justifyContent: FlexJustifyContentSchema,
@@ -33,6 +35,7 @@ internal class FlexBoxTileSchemaBuilder(
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         direction = direction,
         justifyContent = justifyContent,
@@ -49,6 +52,7 @@ fun TileSchemaBuilderScope.FlexBox(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     direction: FlexDirectionSchema = FlexDirectionSchema.Row,
     justifyContent: FlexJustifyContentSchema = FlexJustifyContentSchema.Start,
     alignItems: FlexAlignItemsSchema = FlexAlignItemsSchema.Start,
@@ -64,6 +68,7 @@ fun TileSchemaBuilderScope.FlexBox(
             tiles = tiles,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             direction = direction,
             justifyContent = justifyContent,

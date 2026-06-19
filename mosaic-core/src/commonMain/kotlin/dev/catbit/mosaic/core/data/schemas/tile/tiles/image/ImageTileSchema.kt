@@ -34,6 +34,7 @@ data class ImageTileSchema(
     @SerialName("id") override val id: String,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
+    @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("resourceName") val resourceName: String,
     @SerialName("contentDescription") val contentDescription: String?,

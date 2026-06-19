@@ -89,6 +89,7 @@ object SearchBarTileRenderer : TileRenderer<SearchBarTileSchema> {
                                 modifier = Modifier.handPointer(),
                                 onClick = {
                                     triggerEvent(EventTriggers.onQueryCleared())
+                                    triggerEvent(EventTriggers.onQueryChanged(), data = "")
                                     dispatchEvent(SearchBarTileEvents.OnQueryCleared)
                                 }
                             ) {

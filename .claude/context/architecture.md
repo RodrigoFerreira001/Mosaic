@@ -1,5 +1,7 @@
 # Mosaic — Architecture Reference
 
+> Atualizado: jun/2026. Para a API detalhada de cada mecanismo (EventRunningScope, TileRenderingScope, BuilderScope, DataHolder, etc.), veja [`mechanisms.md`](mechanisms.md).
+
 ## Module Dependency Graph
 
 ```
@@ -534,3 +536,15 @@ Chamar `snapshotLocals()` **dentro** do lambda causaria leitura após o cleanup 
 | JSON Merge Update | Tile updates via `JsonObject` merge — no reflection |
 | Composition over Inheritance | `TilesManager` implements 5 interfaces; `MosaicScreenStateHolder` delegates `DataHolder` |
 | CompositionLocal | `LocalTileRendererManager`, `LocalBroadcastChannel` — implicit Compose context |
+
+---
+
+## Extended Reference (outros arquivos em `.claude/context/`)
+
+| File | Content |
+|---|---|
+| `tiles-catalog.md` | Catálogo completo de todos os TileSchemas (41 tiles): campos, triggers suportados, notas |
+| `events-catalog.md` | Catálogo completo de todos os EventSchemas (49 eventos): campos, triggers filhos |
+| `triggers-catalog.md` | Todos os 72 EventTriggers: @SerialName, campos, quem dispara |
+| `mechanisms.md` | API detalhada de cada mecanismo de runtime: EventRunningScope, TileRenderingScope, BuilderScope, DataHolder, TilesEditor, etc. |
+| `boilerplate-templates.md` | Templates completos para gerar novos Tiles e Events (5 arquivos + 2 registros cada) |

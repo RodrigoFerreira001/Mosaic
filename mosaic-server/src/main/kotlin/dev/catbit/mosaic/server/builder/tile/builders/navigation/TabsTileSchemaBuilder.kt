@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.TabsTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
@@ -15,6 +16,7 @@ internal class TabsTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val selectedTabId: String,
     private val tabItems: TabItemSchemaBuilderScope.() -> Unit,
@@ -26,6 +28,7 @@ internal class TabsTileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         selectedTabId = selectedTabId,
         tabItems = TabItemSchemaBuilderScope().apply(tabItems).build(),
@@ -39,6 +42,7 @@ fun TileSchemaBuilderScope.Tabs(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     selectedTabId: String,
     tabType: TabsTileSchema.Type = TabsTileSchema.Type.PRIMARY,
     scrollable: Boolean = false,
@@ -49,6 +53,7 @@ fun TileSchemaBuilderScope.Tabs(
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             selectedTabId = selectedTabId,
             tabItems = tabItems,

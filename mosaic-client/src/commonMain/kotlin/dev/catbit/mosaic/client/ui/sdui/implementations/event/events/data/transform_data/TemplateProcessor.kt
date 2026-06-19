@@ -2,7 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.trans
 
 internal object TemplateProcessor {
 
-    private val PLACEHOLDER_REGEX = Regex("<\\|([^|>]+)\\|>")
+    private val PLACEHOLDER_REGEX = Regex("<\\|([^|>]*)\\|>")
 
     fun applyTemplate(template: Any?, data: Any?): Any? = when (template) {
         is String -> applyToString(template, data)
@@ -30,6 +30,7 @@ internal object TemplateProcessor {
     }
 
     private fun resolvePath(data: Any?, path: String): Any? {
+        if (path.isEmpty()) return data
         var current: Any? = data
         for (segment in parsePath(path)) {
             current = navigateSegment(current, segment)

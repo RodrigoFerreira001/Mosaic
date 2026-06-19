@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.AlignmentSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.BoxTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.placement.alignToTopStart
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
@@ -15,6 +16,7 @@ internal class BoxTileSchemaBuilder(
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val alignment: AlignmentSchema.TwoDimensional
 ) : TileSchemaBuilder<BoxTileSchema>() {
@@ -24,6 +26,7 @@ internal class BoxTileSchemaBuilder(
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         alignment = alignment
     )
@@ -34,6 +37,7 @@ fun TileSchemaBuilderScope.Box(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     alignment: AlignmentSchema.TwoDimensional = alignToTopStart(),
     tiles: TileSchemaBuilderScope.() -> Unit = {},
 ) {
@@ -43,6 +47,7 @@ fun TileSchemaBuilderScope.Box(
             tiles = tiles,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             alignment = alignment
         )

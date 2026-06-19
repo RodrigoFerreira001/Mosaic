@@ -5,6 +5,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NestedNavigationGraphTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.GenericBuilder
 import dev.catbit.mosaic.server.builder.GenericBuilderScope
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
@@ -19,6 +20,7 @@ internal class NestedNavigationGraphTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val navigatorId: String,
     private val startEntryId: String,
@@ -32,6 +34,7 @@ internal class NestedNavigationGraphTileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         navigatorId = navigatorId,
         entries = NestedNavigationGraphEntryBuilderScope().apply(entries).build(),
@@ -47,6 +50,7 @@ fun TileSchemaBuilderScope.NestedNavigationGraph(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     navigatorId: String,
     startEntryId: String,
     defaultTransition: ContentTransitionSchema? = null,
@@ -59,6 +63,7 @@ fun TileSchemaBuilderScope.NestedNavigationGraph(
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             navigatorId = navigatorId,
             entries = entries,

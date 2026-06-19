@@ -36,6 +36,16 @@ data class EventRunningScope(
         eventTrigger: EventTrigger,
         data: Any? = null
     ) {
+        log(
+            level = Level.DEBUG,
+            msg = """
+                @===============>
+                Event ${triggerOwner.id} says:
+                trigger: $eventTrigger
+                incomingData: $incomingData
+                <===============@
+            """.trimIndent()
+        )
         triggerOwner.events
             ?.filter { it.trigger == eventTrigger }
             ?.forEach { eventSchema ->

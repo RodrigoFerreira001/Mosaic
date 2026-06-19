@@ -48,6 +48,7 @@ data class FilterChipTileSchema(
     @SerialName("id") override val id: String,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
+    @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("text") val text: String,
     @SerialName("selected") val selected: Boolean,

@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
 import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
@@ -21,6 +22,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingS
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger.ScrollDirection
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ColumnTileSchema
+import kotlinx.collections.immutable.toImmutableList
 
 object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
 
@@ -59,6 +61,16 @@ object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
                 onScrollBackward = { triggerEvent(EventTriggers.onScrolled(ScrollDirection.Top)) }
             )
 
+            val displayedTiles = remember(tiles, filterChildrenByTerm) {
+                (filterChildrenByTerm?.takeIf { it.isNotEmpty() }?.let { filterTerm ->
+                    tiles.filter { tile ->
+                        tile.searchableTerms?.any {
+                            it.contains(filterTerm, ignoreCase = true)
+                        } == true
+                    }
+                } ?: tiles).toImmutableList()
+            }
+
             Column(
                 modifier = modifier
                     .thenIf(scrollable) {
@@ -71,7 +83,7 @@ object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
                     LocalColumnScope provides this,
                     LocalLazyItemScope provides null
                 ) {
-                    RenderChildren(tiles)
+                    RenderChildren(displayedTiles)
                 }
             }
         }

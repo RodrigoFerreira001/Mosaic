@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.AlignmentSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.AsyncImageTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -13,6 +14,7 @@ internal class AsyncImageTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val url: String,
     private val contentDescription: String?,
@@ -26,6 +28,7 @@ internal class AsyncImageTileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         url = url,
         contentDescription = contentDescription,
@@ -41,6 +44,7 @@ fun TileSchemaBuilderScope.AsyncImage(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     url: String,
     contentDescription: String? = null,
     contentScale: AsyncImageTileSchema.ContentScale = AsyncImageTileSchema.ContentScale.FIT,
@@ -53,6 +57,7 @@ fun TileSchemaBuilderScope.AsyncImage(
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             url = url,
             contentDescription = contentDescription,

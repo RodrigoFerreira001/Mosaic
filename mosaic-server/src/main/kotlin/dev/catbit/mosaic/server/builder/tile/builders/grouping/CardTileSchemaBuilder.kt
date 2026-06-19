@@ -3,6 +3,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.grouping
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CardTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -13,6 +14,7 @@ internal class CardTileSchemaBuilder(
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val kind: CardTileSchema.Kind
 ) : TileSchemaBuilder<CardTileSchema>() {
@@ -22,6 +24,7 @@ internal class CardTileSchemaBuilder(
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         kind = kind
     )
@@ -32,6 +35,7 @@ fun TileSchemaBuilderScope.Card(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     kind: CardTileSchema.Kind = CardTileSchema.Kind.DEFAULT,
     tiles: TileSchemaBuilderScope.() -> Unit,
 ) {
@@ -41,6 +45,7 @@ fun TileSchemaBuilderScope.Card(
             tiles = tiles,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             kind = kind
         )

@@ -22,6 +22,7 @@ data class ScreenTileSchema(
     @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema = StyleSchema.default(),
+    @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>? = null,
     @SerialName("visibility") override val visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     @SerialName("navigationDrawerTiles") val navigationDrawerTiles: SerializableImmutableList<TileSchema>?,
     @SerialName("currentBottomSheetTiles") val currentBottomSheetTiles: SerializableImmutableList<TileSchema>? = null,

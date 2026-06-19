@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.buttons.IconButtonTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -13,6 +14,7 @@ internal class IconButtonTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val icon: IconSchema,
     private val buttonType: IconButtonTileSchema.Type,
@@ -23,6 +25,7 @@ internal class IconButtonTileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         icon = icon,
         buttonType = buttonType,
@@ -40,6 +43,7 @@ fun TileSchemaBuilderScope.IconButton(
         )
     },
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     icon: IconSchema,
     buttonType: IconButtonTileSchema.Type = IconButtonTileSchema.Type.DEFAULT,
     enabled: Boolean = true
@@ -49,6 +53,7 @@ fun TileSchemaBuilderScope.IconButton(
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             icon = icon,
             buttonType = buttonType,

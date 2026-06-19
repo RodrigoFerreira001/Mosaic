@@ -5,6 +5,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.text.SimpleTextTileSchema
 import dev.catbit.mosaic.core.data.schemas.typography.TypographySchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -14,6 +15,7 @@ internal class SimpleTextTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val text: String,
     private val color: ColorSchema?,
@@ -24,6 +26,7 @@ internal class SimpleTextTileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         text = text,
         color = color,
@@ -42,6 +45,7 @@ fun TileSchemaBuilderScope.SimpleText(
         )
     },
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     color: ColorSchema? = null,
     typography: TypographySchema? = null
 ) {
@@ -50,6 +54,7 @@ fun TileSchemaBuilderScope.SimpleText(
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             text = text,
             color = color,

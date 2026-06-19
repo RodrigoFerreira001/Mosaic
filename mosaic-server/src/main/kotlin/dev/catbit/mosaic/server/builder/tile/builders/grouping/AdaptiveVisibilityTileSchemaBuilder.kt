@@ -11,12 +11,14 @@ import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import kotlinx.collections.immutable.toImmutableList
 
 internal class AdaptiveVisibilityTileSchemaBuilder(
     private val id: String,
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val widthVisibility: WidthVisibility,
     private val heightVisibility: HeightVisibility,
@@ -27,6 +29,7 @@ internal class AdaptiveVisibilityTileSchemaBuilder(
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         widthVisibility = widthVisibility,
         heightVisibility = heightVisibility,
@@ -38,6 +41,7 @@ fun TileSchemaBuilderScope.AdaptiveVisibility(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     widthVisibility: WidthVisibility = widthVisibleUntilExtraLarge(),
     heightVisibility: HeightVisibility = heightVisibleUntilExpanded(),
     tiles: TileSchemaBuilderScope.() -> Unit,
@@ -48,6 +52,7 @@ fun TileSchemaBuilderScope.AdaptiveVisibility(
             tiles = tiles,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             widthVisibility = widthVisibility,
             heightVisibility = heightVisibility,

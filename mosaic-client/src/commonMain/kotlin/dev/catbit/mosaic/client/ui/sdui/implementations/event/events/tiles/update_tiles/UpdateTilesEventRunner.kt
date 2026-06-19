@@ -8,6 +8,8 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object UpdateTilesEventRunner : EventRunner<UpdateTilesEventSchema> {
     override suspend fun EventRunningScope.runEvent(event: UpdateTilesEventSchema) {
+        var anyErrorOccurred = false
+
         event.updates.forEach { update ->
             val data = when (val updateData = update.updateData) {
                 is UpdateData.Incoming -> incomingData.asMapAny() ?: return@forEach
@@ -18,12 +20,16 @@ object UpdateTilesEventRunner : EventRunner<UpdateTilesEventSchema> {
                 tileId = update.tileId,
                 updateData = data,
             ).onFailure { throwable ->
-                onTrigger(EventTriggers.onFailure(), data = throwable)
+                anyErrorOccurred = true
                 logError(tag = "UpdateTilesEventRunner", throwable = throwable)
-                return
             }
         }
-        onTrigger(EventTriggers.onTilesUpdated())
-        onTrigger(EventTriggers.onSuccess())
+
+        if (anyErrorOccurred) {
+            onTrigger(EventTriggers.onFailure())
+        } else {
+            onTrigger(EventTriggers.onTilesUpdated())
+            onTrigger(EventTriggers.onSuccess())
+        }
     }
 }

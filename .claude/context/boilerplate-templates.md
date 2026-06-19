@@ -4,6 +4,8 @@ Arquivo de referência para geração de código. Usar estes templates adapta mu
 Substitua `[Name]` pelo nome do componente (ex: `TransformData`), `[name]` pela variante snake_case do pacote (ex: `transform_data`), e `[package]` pelo subpacote (`data`, `event`, `navigation`, `grouping`, etc.).
 
 > Templates validados contra `TriggerEventEvent*` e `ColumnTile*`/`ButtonTile*` (jun/2026). Se algo não compilar, confira essas implementações reais primeiro.
+> Para a API completa de `EventRunningScope`, `TileRenderingScope` e `BuilderScope`, veja [`mechanisms.md`](mechanisms.md).
+> Para criar tiles/events em uma **biblioteca externa** que depende do Mosaic, use a skill em `skill/mosaic-extension/`.
 
 ## Regras de uso
 
@@ -262,7 +264,7 @@ mosaic-client/.../implementations/tile/tiles/[package]/[name]/
     [Name]TileRenderer.kt
 ```
 
-Todo `TileSchema` tem os campos base `id`, `events`, `style`, `visibility` — o Builder e a DSL sempre os expõem.
+Todo `TileSchema` tem os campos base `id`, `events`, `style`, `searchableTerms`, `visibility` — o Builder e a DSL sempre os expõem.
 
 ---
 
@@ -276,6 +278,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.[package]
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.[package].[Name]TileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -285,6 +288,7 @@ internal class [Name]TileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     // ↑ adicione os campos específicos do schema
 ) : TileSchemaBuilder<[Name]TileSchema>() {
@@ -293,6 +297,7 @@ internal class [Name]TileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         // ↑ mapeie os campos
     )
@@ -302,6 +307,7 @@ fun TileSchemaBuilderScope.[Name](
     id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
+    searchableTerms: List<String>? = null,
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     // ↑ parâmetros específicos
 ) {
@@ -310,6 +316,7 @@ fun TileSchemaBuilderScope.[Name](
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             // ↑ passe os parâmetros
         )

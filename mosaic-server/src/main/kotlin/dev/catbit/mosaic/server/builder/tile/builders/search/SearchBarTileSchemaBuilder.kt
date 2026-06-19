@@ -3,6 +3,7 @@ package dev.catbit.mosaic.server.builder.tile.builders.search
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.search.SearchBarTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -12,6 +13,7 @@ internal class SearchBarTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val query: String,
     private val placeholder: String?,
@@ -23,11 +25,14 @@ internal class SearchBarTileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         query = query,
         placeholder = placeholder,
-        leadingIcon = leadingIcon?.let { TileSchemaBuilderScope().apply(it).build() }?.firstOrNull(),
-        trailingIcon = trailingIcon?.let { TileSchemaBuilderScope().apply(it).build() }?.firstOrNull()
+        leadingIcon = leadingIcon?.let { TileSchemaBuilderScope().apply(it).build() }
+            ?.firstOrNull(),
+        trailingIcon = trailingIcon?.let { TileSchemaBuilderScope().apply(it).build() }
+            ?.firstOrNull()
     )
 }
 
@@ -36,6 +41,7 @@ fun TileSchemaBuilderScope.SearchBar(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     query: String = "",
     placeholder: String? = null,
     leadingIcon: (TileSchemaBuilderScope.() -> Unit)? = null,
@@ -46,6 +52,7 @@ fun TileSchemaBuilderScope.SearchBar(
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             query = query,
             placeholder = placeholder,

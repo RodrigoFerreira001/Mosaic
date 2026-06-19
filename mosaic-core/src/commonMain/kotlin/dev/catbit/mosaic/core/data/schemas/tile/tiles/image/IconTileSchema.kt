@@ -30,6 +30,7 @@ data class IconTileSchema(
     override val id: String,
     override val events: SerializableImmutableList<EventSchema>?,
     override val style: StyleSchema,
+    override val searchableTerms: SerializableImmutableList<String>?,
     override val visibility: TileSchema.Visibility,
     val icon: IconSchema
 ) : TileSchema

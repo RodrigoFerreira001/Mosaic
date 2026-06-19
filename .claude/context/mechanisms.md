@@ -1,5 +1,7 @@
 # Mosaic — Mechanisms Reference
 
+> Atualizado: jun/2026. Validado contra código-fonte real (EventRunningScope, TileRenderingScope, MosaicScreenStateHolder, ScreenTilesBroadcastChannel, SystemBroadcastChannel). Para usar estes mecanismos em extensões externas, consulte a skill `skill/mosaic-extension/`.
+
 This document describes each mechanism available inside Mosaic's client runtime: what it is, what it does, what API it exposes, and how it connects to other parts of the system. Written for developers implementing new Tiles, Events, or extending the framework.
 
 ---
@@ -19,44 +21,52 @@ val triggerOwner: EventSchema                 // The event schema that is curren
 val incomingData: Any?                        // Data passed from the triggering event or action
 
 // --- Tile manipulation ---
-val tilesEditor: TilesEditor                  // add/remove/replace/update/wipe tiles
-val tilesOverlaysEditor: TilesOverlaysEditor  // bottom sheets, dialogs, drawers
-val tilesEventDispatcher: TilesEventDispatcher // dispatch TileEvent / TileGroupEvent
+val tilesEditor: TilesEditor                   // add/remove/replace/update/wipe tiles
+val tilesOverlaysEditor: TilesOverlaysEditor   // bottom sheets, dialogs
+val tilesEventDispatcher: TilesEventDispatcher // dispatch TileEvent / TileGroupEvent; look up events by id
+val tilesValueProducer: TilesValueProducer     // read values exposed by tiles (e.g. TextField content)
 
 // --- Screen data ---
-val dataHolder: DataHolder                    // in-memory screen-scoped data
+val dataHolder: DataHolder                     // in-memory screen-scoped data
 
 // --- Screen behavior ---
-val screenBehaviorsHolder: ScreenBehaviorsHolder  // change screen state (Success/Failure)
-
-// --- Coroutine execution ---
-fun runSuspendOnScreenScope(block: suspend () -> Unit)
-    // Launches on screenCoroutineScope (Compose lifetime). Use for UI-affecting async work.
-fun runSuspendOnStateHolderScope(block: suspend () -> Unit)
-    // Launches on stateHolderCoroutineScope (ViewModel lifetime). Use for long-running ops.
+val screenBehaviorsHolder: ScreenBehaviorsHolder  // change screen state (Success/Failure/Initial)
 
 // --- Child event dispatch ---
-fun onTrigger(eventTrigger: EventTrigger, data: Any? = null)
-    // Fires all child events of triggerOwner that match the given trigger.
-fun runEventInline(eventSchema: EventSchema, data: Any? = null)
-    // Executes an event schema immediately (synchronously in the current call chain).
+suspend fun onTrigger(eventTrigger: EventTrigger, data: Any? = null)
+    // Fires all child events of triggerOwner that match the trigger. Sequential, suspend.
+    // `data` becomes `incomingData` for each child event.
+suspend fun runEventInline(eventSchema: EventSchema, data: Any? = null)
+    // Executes a specific EventSchema directly (no trigger filtering). Sequential, suspend.
 
-// --- Broadcast ---
-fun broadcastData(data: BroadcastData)
-    // Emits a BroadcastData to the screen's broadcast channel.
-    // Tiles observing LocalBroadcastChannel will react.
+// --- Async execution ---
+// runEvent() is already a suspend fun — use withContext(Dispatchers.IO) directly:
+//   override suspend fun EventRunningScope.runEvent(event: MyEvent) {
+//       val result = withContext(Dispatchers.IO) { heavyWork() }
+//       onTrigger(EventTriggers.onSuccess(), result)
+//   }
+// The event manager always calls runEvent from stateHolderScope (ViewModel lifetime).
+
+// --- Broadcast (screen-scoped inter-tile) ---
+fun broadcastData(data: ScreenTilesBroadcastData)
+    // Emits to this screen's ScreenTilesBroadcastChannel (SharedFlow).
+    // TileRenderers observing LocalScreenTilesBroadcastChannel will react.
+    // Different from SystemBroadcastChannel — see section 8b.
 
 // --- Koin DI ---
-inline fun <reified T : Any> get(qualifier?, parameters?): T
-fun <T : Any> getOrNull(...): T?
-inline fun <reified T: Any> getAll(): List<T>
+inline fun <reified T : Any> get(qualifier?: Qualifier, parameters?: ParametersDefinition): T
+fun <T : Any> get(clazz: KClass<T>, qualifier?, parameters?): T
+inline fun <reified T : Any> getAll(): List<T>
+fun <T : Any> getAll(clazz: KClass<T>): List<T>
+inline fun <reified T : Any> getOrNull(qualifier?, parameters?): T?
+fun <T : Any> getOrNull(clazz: KClass<T>, qualifier?, parameters?): T?
 
 // --- Type helpers ---
 fun Any?.asMapAny(): Map<String, AnySerializable>?   // safe cast to map
 fun Any?.asMapString(): Map<String, String>?          // safe cast + filter Strings only
 
 // --- Logging ---
-fun logError(throwable: Throwable, tag: String = "MosaicCommonError")
+fun logError(throwable: Throwable, tag: String)   // tag is REQUIRED — no default
 fun log(level: Level, msg: String)
 ```
 
@@ -64,23 +74,21 @@ fun log(level: Level, msg: String)
 
 ```kotlin
 object MyEventRunner : EventRunner<MyEventSchema> {
-    override fun EventRunningScope.runEvent(event: MyEventSchema) {
-        // Synchronous tile mutations are safe here
+    override suspend fun EventRunningScope.runEvent(event: MyEventSchema) {
         tilesEditor.updateTile(event.tileId, mapOf("loading" to true))
 
-        // Async work must use a scope
-        runSuspendOnScreenScope {
-            withContext(Dispatchers.IO) {
-                val result = get<MyUseCase>()(MyUseCase.Params(...))
-            }
-            // Back on main after withContext
-            onTrigger(EventTriggers.onSuccess(), result)
+        val result = withContext(Dispatchers.IO) {
+            get<MyUseCase>().invoke(event.param)
         }
+        // Back on main dispatcher after withContext
+        onTrigger(EventTriggers.onSuccess(), data = result)
     }
 }
 ```
 
-**Connects to:** `TilesManager` (via `tilesEditor`/`tilesOverlaysEditor`/`tilesEventDispatcher`), `DefaultDataHolder` (via `dataHolder`), `MosaicScreenStateHolder` (via `screenBehaviorsHolder`), `EventManager` (via `runEventInline`/`onTrigger`), Koin (via `get()`).
+**Connects to:** `TilesManager` (via `tilesEditor` / `tilesOverlaysEditor` / `tilesEventDispatcher` / `tilesValueProducer`), `DefaultDataHolder` (via `dataHolder`), `MosaicScreenStateHolder` (via `screenBehaviorsHolder` / `broadcastData`), `EventManager` (via `runEventInline` / `onTrigger`), Koin (via `get()`).
+
+**Event chaining:** `onTrigger(trigger, data)` iterates `triggerOwner.events` filtered by trigger and runs each via `EventManager.runEvent()` sequentially. The `data` you pass becomes the child's `incomingData`. `runEventInline(schema, data)` does the same for a specific schema (no filter). Both are `suspend` — the entire chain runs in the ViewModel coroutine scope.
 
 ---
 
@@ -93,24 +101,23 @@ object MyEventRunner : EventRunner<MyEventSchema> {
 **Full API:**
 
 ```kotlin
-val tileId: String                          // ID of the tile being rendered
-val events: List<EventSchema>?              // Events associated with this tile
-val onEvent: (UIEvent) -> Unit              // Callback to dispatch events upward
+// Note: tileId and events are private — access them via tileSchema.id / tileSchema.events
+val onEvent: (UIEvent) -> Unit              // internal callback; do not call directly
 
 // --- Event dispatch ---
 fun triggerEvent(trigger: EventTrigger, data: Any? = null)
-    // Finds all events in `events` matching the trigger and dispatches them via onEvent.
-    // This is the standard way to respond to user interactions.
+    // Filters tileSchema.events by trigger, dispatches via onEvent.
+    // Standard way to respond to user interactions.
 fun dispatchEvent(tileEvent: TileEvent)
-    // Dispatches a TileEvent (e.g., to modify tile-specific state in TileHolder).
+    // Dispatches a TileEvent (tile-specific internal event to the TileHolder).
 fun dispatchGroupEvent(tileGroupEvent: TileGroupEvent)
-    // Dispatches a TileGroupEvent (e.g., scroll signals across tiles).
+    // Dispatches a TileGroupEvent (cross-tile; e.g., select-one for RadioButtons).
 
 // --- Child rendering ---
 @Composable fun RenderChild(tileSchema: TileSchema)
-    // Renders a single child tile using TileRendererManager.
-@Composable fun RenderChildren(tileSchemas: List<TileSchema>)
-    // Renders multiple children in sequence.
+    // Renders one child tile via TileRendererManager.
+@Composable fun RenderChildren(tileSchemas: ImmutableList<TileSchema>)
+    // Renders multiple children in sequence. Accepts ImmutableList (kotlinx.collections.immutable).
 ```
 
 **Usage pattern in a TileRenderer:**
@@ -305,39 +312,48 @@ fun getData(dataKey: String): Any?
 
 ---
 
-## 8. BroadcastChannel / BroadcastData
+## 8. ScreenTilesBroadcastChannel
 
-**What it is:** A `SharedFlow<BroadcastData>` provided via `LocalBroadcastChannel` CompositionLocal. Enables reactive cross-tile communication within a screen without coupling tiles together.
+**What it is:** A screen-scoped `SharedFlow<ScreenTilesBroadcastData>` for **reactive cross-tile communication within a screen**. Created by `MosaicScreenStateHolder`, provided via `LocalScreenTilesBroadcastChannel` CompositionLocal.
 
 ```kotlin
-typealias BroadcastChannel = SharedFlow<BroadcastData>
+class ScreenTilesBroadcastChannel {
+    val channel: SharedFlow<ScreenTilesBroadcastData>
+    suspend fun broadcast(data: ScreenTilesBroadcastData)
+}
 
-interface BroadcastData {
-    val tileId: String?   // null = broadcast to all; non-null = targeted
+interface ScreenTilesBroadcastData {
+    val tileId: String?   // null = broadcast to all tiles; non-null = targeted to specific tile
 }
 ```
 
 **Emitting (from EventRunners):**
 
 ```kotlin
-// in EventRunningScope
-broadcastData(MyBroadcastData(tileId = "my_column"))
+// EventRunningScope.broadcastData() delegates to ScreenBehaviorsHolder.broadcastData()
+// which calls screenBroadcastChannel.broadcast(data) on stateHolderScope
+broadcastData(ColumnTileScreenTilesBroadcastData.ScrollToTop(tileId = "my_column", smoothly = true))
 ```
 
 **Consuming (in TileRenderers):**
 
 ```kotlin
+import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalScreenTilesBroadcastChannel
+
 @Composable
 override fun TileRenderingScope.Render(tileSchema: ColumnTileSchema) {
-    val broadcastChannel = LocalBroadcastChannel.current
+    val broadcastChannel = LocalScreenTilesBroadcastChannel.current
     val listState = rememberLazyListState()
 
     LaunchedEffect(Unit) {
-        broadcastChannel.collect { data ->
-            if (data.tileId == null || data.tileId == tileId) {
+        broadcastChannel.channel.collect { data ->
+            if (data.tileId == null || data.tileId == tileSchema.id) {
                 when (data) {
-                    is ColumnTileBroadcastData.ScrollToTop -> listState.animateScrollToItem(0)
-                    is ColumnTileBroadcastData.ScrollTo -> listState.animateScrollToItem(data.index)
+                    is ColumnTileScreenTilesBroadcastData.ScrollToTop ->
+                        if (data.smoothly) listState.animateScrollToItem(0)
+                        else listState.scrollToItem(0)
+                    is ColumnTileScreenTilesBroadcastData.ScrollTo ->
+                        listState.animateScrollToItem(data.index)
                 }
             }
         }
@@ -345,7 +361,41 @@ override fun TileRenderingScope.Render(tileSchema: ColumnTileSchema) {
 }
 ```
 
-**Connects to:** `MosaicScreenStateHolder` (owns the `MutableSharedFlow`), `MosaicScreen` (provides via `LocalBroadcastChannel`).
+**Connects to:** `MosaicScreenStateHolder` (owns the `MutableSharedFlow`, emits via `broadcastData()`), `MosaicScreen` (provides via `LocalScreenTilesBroadcastChannel`).
+
+> **⚠️ Do not confuse with `SystemBroadcastChannel`** — see section 8b below. They are completely separate mechanisms.
+
+---
+
+## 8b. SystemBroadcastChannel
+
+**What it is:** An **app-scoped** broadcast channel for triggering events on tiles by a string `broadcastId`. Singleton in Koin (`applicationModule`). Completely separate from `ScreenTilesBroadcastChannel`.
+
+```kotlin
+class SystemBroadcastChannel {
+    val channel: SharedFlow<SystemBroadcastData>
+    suspend fun broadcast(broadcastId: String, data: AnySerializable)
+}
+
+data class SystemBroadcastData(
+    val broadcastId: String,
+    val data: AnySerializable,
+)
+```
+
+**Who emits:** `BroadcastToSystemEventRunner` — calls `get<SystemBroadcastChannel>().broadcast(broadcastId, data)`.
+
+**Who consumes:** `ScreenTileRenderer` (or tiles) collects `SystemBroadcastChannel.channel` and calls `EventManager.triggerEvents(OnSystemBroadcastEventTrigger(broadcastId), data)`. Tiles with `trigger = OnSystemBroadcastEventTrigger(broadcastId)` then execute.
+
+**How it differs from ScreenTilesBroadcastChannel:**
+
+| | `ScreenTilesBroadcastChannel` | `SystemBroadcastChannel` |
+|---|---|---|
+| Scope | Per-screen | App-global (singleton) |
+| Identity | `tileId: String?` | `broadcastId: String` |
+| Who emits | `EventRunningScope.broadcastData()` | `BroadcastToSystemEventRunner` |
+| Who consumes | TileRenderers via `LocalScreenTilesBroadcastChannel` | Tiles with `OnSystemBroadcastEventTrigger` |
+| Purpose | UI commands (scroll, visual state) | Server-driven tile event invocation |
 
 ---
 
@@ -417,16 +467,16 @@ fun navigateUp()
 
 ```kotlin
 fun setState(state: ScreenBehaviorsHolder.State)
-fun broadcastData(data: BroadcastData)
+fun broadcastData(data: ScreenTilesBroadcastData)
 
 sealed interface State {
-    object Success : State
-    object Failure : State
-    object Initial : State
+    data class Success(val screenModel: ScreenModel) : State  // screenModel.tiles loaded from /screens/{id}
+    data object Failure : State
+    data object Initial : State
 }
 ```
 
-**Used by:** `ChangeScreenStateEventRunner`, `GetScreenEventRunner`, `RefreshScreenEventRunner`. Setting `Failure` causes `MosaicScreenStateHolder` to swap to the failure tile tree.
+**Used by:** `ChangeScreenStateEventRunner`, `GetScreenEventRunner`, `RefreshScreenEventRunner`. Setting `Failure` swaps the tile tree to `failureTiles` (from `GraphResponse.Entry`). Setting `Success(screenModel)` replaces tiles with `screenModel.tiles` (from `ScreenResponse`). The `broadcastData()` method delegates to `MosaicScreenStateHolder.screenBroadcastChannel`.
 
 ---
 
@@ -457,6 +507,13 @@ fun wipeTiles(groupingTileId: String)
 
 // Partial property update
 fun updateTile(tileId: String, updateData: Map<String, Any?>)
+
+// Inspection
+fun checkIfTileHasChildren(groupingTileId: String, childrenIds: List<String>): Boolean
+fun getTileChildrenCount(groupingTileId: String): Int?
+
+// Note: all mutation methods return Result<Unit>. On failure (e.g. tile not found),
+// the Result wraps TileNotFoundException or TileNotGroupingException.
 ```
 
 `InsertionPosition` variants: `Start`, `End`, `Before(tileId)`, `After(tileId)`.
@@ -479,6 +536,24 @@ fun setDialogTiles(tileSchemas: List<TileSchema>)
 Clearing overlays is done by passing an empty list, or by `ScreenTileHolder` automatically handling `TileEvent.Close`.
 
 **Used by:** `DisplayBottomSheetEventRunner`, `DismissBottomSheetEventRunner`, `DisplayDialogEventRunner`, `DismissDialogEventRunner`.
+
+---
+
+## 13b. TilesValueProducer
+
+**What it is:** Read-only API for reading values **exposed by specific tiles** (e.g., the current text in a TextField, the current scroll position). Accessed via `EventRunningScope.tilesValueProducer`.
+
+```kotlin
+interface TilesValueProducer {
+    fun getValueWithKey(tileId: String, key: String): Map<String, Any>?
+}
+```
+
+**Used by:** `GetDataEventRunner` when the `DataSourceSchema` is `DataSourceSchema.Tile(tileId, dataKey)`. Each tile that exposes values implements `TileEventScope.onTileEvent(TileEvent.ProduceValue)`.
+
+**Example:** `TextFieldTileHolder` stores `"text" → currentText` on every `OnTextChanged` event. `GetData(source = DataSourceSchema.Tile("my_field", "text"))` retrieves it.
+
+**Note:** Write-back (`UpdateData`, `RemoveData`) does not support `DataSourceSchema.Tile`.
 
 ---
 
@@ -538,6 +613,7 @@ Used in data events (`GetData`, `UpdateData`, `RemoveData`) to specify which sto
 | `ScreenNavigationData` | `DataHolder.navigationData` | Current screen, **read-only** |
 | `PlainDataBase` | `MosaicDatabase` plain table | Persistent, all screens |
 | `SegmentedDataBase(segmentId)` | `MosaicDatabase` segmented table | Persistent, all screens |
+| `Tile(tileId, dataKey)` | `TilesValueProducer` (tile-exposed values) | Read-only; only `GetData` |
 
 ---
 

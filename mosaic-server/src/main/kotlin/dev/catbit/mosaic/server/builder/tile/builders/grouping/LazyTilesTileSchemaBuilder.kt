@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyTilesTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
@@ -14,6 +15,7 @@ internal class LazyTilesTileSchemaBuilder(
     private val id: String,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val failureTiles: TileSchemaBuilderScope.() -> Unit,
     private val placeholderTiles: TileSchemaBuilderScope.() -> Unit,
@@ -27,6 +29,7 @@ internal class LazyTilesTileSchemaBuilder(
         id = id,
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         failureTiles = TileSchemaBuilderScope().apply(failureTiles).build(),
         placeholderTiles = TileSchemaBuilderScope().apply(placeholderTiles).build(),
@@ -42,6 +45,7 @@ fun TileSchemaBuilderScope.LazyTiles(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     url: String,
     method: HttpMethod = HttpMethod.GET,
     body: AnySerializable? = null,
@@ -54,6 +58,7 @@ fun TileSchemaBuilderScope.LazyTiles(
             id = id,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             failureTiles = failureTiles,
             placeholderTiles = placeholderTiles,

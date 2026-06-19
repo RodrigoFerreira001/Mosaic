@@ -24,7 +24,12 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`, `arrangement: ArrangementSchema.Vertical`,
  * `alignment: AlignmentSchema.Horizontal`, `scrollThreshold: Int?`,
- * `considerLoadingItemAtEndOnThresholdReached: Boolean`
+ * `considerLoadingItemAtEndOnThresholdReached: Boolean`,
+ * `searchableTerms: SerializableImmutableList<String>?`, `filterChildrenByTerm: String?`
+ *
+ * **Filtering:** When [filterChildrenByTerm] is non-null, only child tiles whose
+ * [TileSchema.searchableTerms] list contains the term (case-insensitive) are rendered.
+ * Children with a `null` [TileSchema.searchableTerms] are always shown regardless of the active term.
  *
  * **Triggers dispatched:**
  * - `OnScrolledEventTrigger` — fired while scrolling, with `ScrollDirection.Bottom` (forward)
@@ -58,6 +63,8 @@ data class LazyColumnTileSchema(
     @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
+    @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
+    @SerialName("filterChildrenByTerm") val filterChildrenByTerm: String?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("arrangement") val arrangement: ArrangementSchema.Vertical,
     @SerialName("alignment") val alignment: AlignmentSchema.Horizontal,

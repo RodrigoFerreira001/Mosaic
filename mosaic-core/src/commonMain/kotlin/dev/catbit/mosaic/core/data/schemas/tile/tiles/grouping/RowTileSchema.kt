@@ -48,6 +48,7 @@ data class RowTileSchema(
     @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
+    @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("arrangement") val arrangement: ArrangementSchema.Horizontal,
     @SerialName("alignment") val alignment: AlignmentSchema.Vertical,

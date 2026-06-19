@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 -c \"\nimport sys, json\ntry:\n    d = json.load(sys.stdin)\n    f = d.get('tool_input', {}).get('file_path', '')\n    patterns = ['Schema.kt', 'EventRunner.kt', 'TileRenderer.kt', 'Builder.kt']\n    if any(p in f for p in patterns):\n        print('REMINDER (Rule 8): You modified a Schema, EventRunner, TileRenderer, or Builder file.')\n        print('Update the corresponding catalog in .claude/context/ before finishing:')\n        print('  - *Schema.kt       → tiles-catalog.md or events-catalog.md')\n        print('  - *EventRunner.kt  → events-catalog.md (implementation status)')\n        print('  - *TileRenderer.kt → tiles-catalog.md (implementation status)')\n        print('  - *Builder.kt      → no catalog update needed unless new schema fields')\nexcept Exception:\n    pass\n\""
+          }
+        ]
+      }
+    ]
+  }
+}

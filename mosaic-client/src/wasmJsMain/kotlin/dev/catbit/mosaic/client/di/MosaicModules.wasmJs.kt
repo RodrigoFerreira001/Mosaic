@@ -5,9 +5,12 @@ import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import dev.catbit.mosaic.client.data.data_chest.DataChest
 import dev.catbit.mosaic.client.data.data_chest.WasmJsDataChest
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
+import dev.catbit.mosaic.core.domain.base.IO
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.js.Js
 import kotlinx.browser.localStorage
+import kotlinx.coroutines.Dispatchers
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import org.w3c.dom.Worker
 
@@ -20,8 +23,12 @@ internal actual val platformModule = module {
     }
 
     single<MosaicRoomDatabase> {
-        Room.databaseBuilder<MosaicRoomDatabase>(name = "mosaic_database.db")
+
+        val applicationId: String = get(named("APPLICATION_ID"))
+
+        Room.databaseBuilder<MosaicRoomDatabase>(name = "${applicationId}_database.db")
             .setDriver(WebWorkerSQLiteDriver(jsWorker()))
+            .setQueryCoroutineContext(Dispatchers.IO)
             .build()
     }
 }

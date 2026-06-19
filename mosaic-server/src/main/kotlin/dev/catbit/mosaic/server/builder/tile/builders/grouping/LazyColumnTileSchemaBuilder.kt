@@ -5,6 +5,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.placement.AlignmentSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.ArrangementSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyColumnTileSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.placement.alignHorizontallyToStart
 import dev.catbit.mosaic.server.builder.placement.arrangeVerticallyToTop
@@ -17,6 +18,8 @@ internal class LazyColumnTileSchemaBuilder(
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
+    private val filterChildrenByTerm: String?,
     private val visibility: TileSchema.Visibility,
     private val arrangement: ArrangementSchema.Vertical,
     private val alignment: AlignmentSchema.Horizontal,
@@ -29,6 +32,8 @@ internal class LazyColumnTileSchemaBuilder(
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
+        filterChildrenByTerm = filterChildrenByTerm,
         visibility = visibility,
         arrangement = arrangement,
         alignment = alignment,
@@ -42,6 +47,8 @@ fun TileSchemaBuilderScope.LazyColumn(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
+    filterChildrenByTerm: String? = null,
     arrangement: ArrangementSchema.Vertical = arrangeVerticallyToTop(),
     alignment: AlignmentSchema.Horizontal = alignHorizontallyToStart(),
     scrollThreshold: Int? = null,
@@ -54,6 +61,8 @@ fun TileSchemaBuilderScope.LazyColumn(
             tiles = tiles,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
+            filterChildrenByTerm = filterChildrenByTerm,
             visibility = visibility,
             arrangement = arrangement,
             alignment = alignment,

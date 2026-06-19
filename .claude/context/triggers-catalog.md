@@ -1,8 +1,10 @@
 # Mosaic — EventTriggers Catalog
 
-`EventTrigger` is a marker interface. Every `EventSchema` has one trigger that defines **when** it fires. Child events in the `events` list are dispatched using specific triggers after the parent event executes.
+> Atualizado: jun/2026. Validado contra MosaicSerializer.defaultEventTriggerSerializers, anotações `@Triggers` nos Schemas, e implementações de TileRenderer/EventRunner.
 
-JSON serialization uses `@SerialName` as the `type` discriminator.
+`EventTrigger` é uma interface marcador. Cada `EventSchema` tem um trigger que define **quando** ele dispara. Eventos filhos no campo `events` são despachados usando triggers específicos após o evento pai executar.
+
+JSON serialization usa `@SerialName` como discriminador de tipo (`"type"` field).
 
 ---
 
@@ -39,18 +41,20 @@ JSON serialization uses `@SerialName` as the `type` discriminator.
 
 | Trigger | @SerialName | Fields | Fired By |
 |---|---|---|---|
-| `OnClickEventTrigger` | `"OnClick"` | — | Button, IconButton, FAB, Row, Column, Box, SuggestionChip |
+| `OnClickEventTrigger` | `"OnClick"` | — | Button, IconButton, FAB, Row, Column, Box, Card, SuggestionChip, AssistChip, FilterChip, InputChip |
 | `OnLongPressEventTrigger` | `"OnLongPress"` | — | Button, Row, Column, Box |
-| `OnCheckEventTrigger` | `"OnCheck"` | — | Checkbox, Switch (when checked = true) |
-| `OnUncheckEventTrigger` | `"OnUncheck"` | — | Checkbox, Switch (when checked = false) |
-| `OnCheckChangedEventTrigger` | `"OnCheckChanged"` | — | Checkbox, Switch (on any change) |
-| `OnSelectEventTrigger` | `"OnSelected"` | — | RadioButton |
-| `OnSelectChangedEventTrigger` | `"OnSelectChanged"` | — | Selection components |
-| `OnTextChangedEventTrigger` | `"OnTextChanged"` | — | TextField, SearchBar |
+| `OnCheckEventTrigger` | `"OnCheck"` | — | Checkbox, Switch, FilterChip, InputChip (quando checked = true) |
+| `OnUncheckEventTrigger` | `"OnUncheck"` | — | Checkbox, Switch, FilterChip, InputChip (quando checked = false) |
+| `OnCheckChangedEventTrigger` | `"OnCheckChanged"` | — | Checkbox, Switch, FilterChip, InputChip (qualquer mudança) |
+| `OnSelectEventTrigger` | `"OnSelected"` | — | RadioButton (ao tocar) |
+| `OnUnselectEventTrigger` | `"OnUnselected"` | — | RadioButton (auto-deselecionado quando outro do grupo é selecionado) |
+| `OnSelectChangedEventTrigger` | `"OnSelectChanged"` | — | Componentes de seleção |
+| `OnTextChangedEventTrigger` | `"OnTextChanged"` | — | TextField, SearchBar (a cada keystroke) |
+| `OnSearchEventTrigger` | `"OnSearch"` | — | SearchBar (ação IME Search submetida) |
 | `OnQueryChangedEventTrigger` | `"OnQueryChanged"` | — | SearchBar |
-| `OnQueryClearedEventTrigger` | `"OnQueryCleared"` | — | SearchBar |
-| `OnLeadingIconClickEventTrigger` | `"OnLeadingIconClick"` | — | SearchBar |
-| `OnTrailingIconClickEventTrigger` | `"OnTrailingIconClick"` | — | SearchBar |
+| `OnQueryClearedEventTrigger` | `"OnQueryCleared"` | — | SearchBar (botão limpar tapped) |
+| `OnLeadingIconClickEventTrigger` | `"OnLeadingIconClick"` | — | TextField (se clickableLeadingIcon=true), SearchBar |
+| `OnTrailingIconClickEventTrigger` | `"OnTrailingIconClick"` | — | TextField (se clickableTrailingIcon=true) |
 | `OnPullEventTrigger` | `"OnPull"` | — | PullToRefresh |
 
 ---
@@ -72,24 +76,24 @@ JSON serialization uses `@SerialName` as the `type` discriminator.
 
 | Trigger | @SerialName | Fired When |
 |---|---|---|
-| `OnDisplayEventTrigger` | `"OnDisplay"` | Tile becomes visible in Compose (DisposableEffect enter) |
-| `InlineEventTrigger` | `"Inline"` | Executed immediately when the event is processed, regardless of context |
-| `OnWidthBreakpointSatisfiedEventTrigger` | `"OnWidthBreakpointSatisfied"` | AdaptiveVisibility — width constraint becomes satisfied (first evaluation and on change) |
-| `OnWidthBreakpointNotSatisfiedEventTrigger` | `"OnWidthBreakpointNotSatisfied"` | AdaptiveVisibility — width constraint becomes unsatisfied (first evaluation and on change) |
-| `OnHeightBreakpointSatisfiedEventTrigger` | `"OnHeightBreakpointSatisfied"` | AdaptiveVisibility — height constraint becomes satisfied (first evaluation and on change) |
-| `OnHeightBreakpointNotSatisfiedEventTrigger` | `"OnHeightBreakpointNotSatisfied"` | AdaptiveVisibility — height constraint becomes unsatisfied (first evaluation and on change) |
+| `OnDisplayEventTrigger` | `"OnDisplay"` | Tile entra na composição (DisposableEffect enter) |
+| `InlineEventTrigger` | `"Inline"` | Executado imediatamente quando o evento é processado, independente de contexto |
+| `OnWidthBreakpointSatisfiedEventTrigger` | `"OnWidthBreakpointSatisfied"` | AdaptiveVisibility — restrição de largura satisfeita (primeira avaliação e em mudanças) |
+| `OnWidthBreakpointNotSatisfiedEventTrigger` | `"OnWidthBreakpointNotSatisfied"` | AdaptiveVisibility — restrição de largura não satisfeita |
+| `OnHeightBreakpointSatisfiedEventTrigger` | `"OnHeightBreakpointSatisfied"` | AdaptiveVisibility — restrição de altura satisfeita |
+| `OnHeightBreakpointNotSatisfiedEventTrigger` | `"OnHeightBreakpointNotSatisfied"` | AdaptiveVisibility — restrição de altura não satisfeita |
 
 ---
 
 ## Operation Lifecycle Triggers
 
-Used as child event triggers after async operations (network, data, file, screen).
+Usados como child event triggers após operações assíncronas (network, data, file, screen).
 
 | Trigger | @SerialName | Fired When |
 |---|---|---|
-| `OnStartEventTrigger` | `"OnStart"` | Operation begins |
-| `OnSuccessEventTrigger` | `"OnSuccess"` | Operation completes successfully |
-| `OnFailureEventTrigger` | `"OnFailure"` | Operation fails |
+| `OnStartEventTrigger` | `"OnStart"` | Operação inicia |
+| `OnSuccessEventTrigger` | `"OnSuccess"` | Operação completa com sucesso |
+| `OnFailureEventTrigger` | `"OnFailure"` | Operação falha; `incomingData` = a `Throwable` |
 
 ---
 
@@ -110,8 +114,8 @@ Used as child event triggers after async operations (network, data, file, screen
 | Trigger | @SerialName | Fields | Fired By |
 |---|---|---|---|
 | `OnNavigationEventTrigger` | `"OnNavigation"` | — | NavigateEventSchema, NavigateUpEventSchema |
-| `OnNavigationEntryChangedEventTrigger` | `"OnNavigationEntryChanged"` | — | NestedNavigationGraphTileSchema (on any entry change) |
-| `OnNavigationEntrySetEventTrigger` | `"OnNavigationEntrySet"` | `screenId: String` | NestedNavigationGraphTileSchema (when set to a specific screen) |
+| `OnNavigationEntryChangedEventTrigger` | `"OnNavigationEntryChanged"` | — | NestedNavigationGraphTileSchema (em qualquer mudança de entry) |
+| `OnNavigationEntrySetEventTrigger` | `"OnNavigationEntrySet"` | `screenId: String` | NestedNavigationGraphTileSchema (quando ativado em screen específica) |
 | `OnNavigationBarItemClickEventTrigger` | `"OnNavigationBarItemClick"` | `itemId: String` | NavigationBarTileSchema |
 | `OnNavigationRailItemClickEventTrigger` | `"OnNavigationRailItemClick"` | `itemId: String` | NavigationRailTileSchema |
 | `OnTabItemClickEventTrigger` | `"OnTabItemClick"` | `itemId: String` | TabsTileSchema |
@@ -133,12 +137,13 @@ Used as child event triggers after async operations (network, data, file, screen
 
 | Trigger | @SerialName | Fields | Fired By |
 |---|---|---|---|
-| `OnNetworkResponseTrigger` | `"OnNetworkResponse"` | `httpCode: Int` | SendNetworkRequestEventSchema (matches specific HTTP code) |
-| `OnDownloadProgressEventTrigger` | `"OnDownloadProgress"` | — | DownloadFileEventSchema (each progress update) |
+| `OnNetworkResponseTrigger` | `"OnNetworkResponse"` | `httpCode: Int` | SendNetworkRequestEventSchema (match de HTTP code específico) |
+| `OnNetworkFailureEventTrigger` | `"OnNetworkFailure"` | `httpCode: Int` | SendNetworkRequestEventSchema (falha com código HTTP específico) |
+| `OnDownloadProgressEventTrigger` | `"OnDownloadProgress"` | — | DownloadFileEventSchema (cada update de progresso) |
 | `OnDownloadFinishEventTrigger` | `"OnDownloadFinish"` | — | DownloadFileEventSchema |
 | `OnDownloadFailureEventTrigger` | `"OnDownloadFailure"` | — | DownloadFileEventSchema |
-| `OnDownloadPartialEventTrigger` | `"OnDownloadPartial"` | — | DownloadFileEventSchema (partial progress) |
-| `OnUploadProgressEventTrigger` | `"OnUploadProgress"` | — | SendFileEventSchema (incomingData = Int 0–100, fired only when the percent changes) |
+| `OnDownloadPartialEventTrigger` | `"OnDownloadPartial"` | — | DownloadFileEventSchema (progresso parcial) |
+| `OnUploadProgressEventTrigger` | `"OnUploadProgress"` | — | SendFileEventSchema (incomingData = Int 0–100, fired apenas quando o % muda) |
 
 ---
 
@@ -159,6 +164,8 @@ Used as child event triggers after async operations (network, data, file, screen
 | `OnDialogDismissedEventTrigger` | `"OnDialogDismissed"` | DismissDialogEventSchema |
 | `OnBottomSheetDismissedEventTrigger` | `"OnBottomSheetDismissed"` | DismissBottomSheetEventSchema |
 | `OnNavigationDrawerDismissedEventTrigger` | `"OnNavigationDrawerDismissed"` | DismissNavigationDrawerEventSchema |
+| `OnSnackbarActionEventTrigger` | `"OnSnackbarAction"` | DisplaySnackbarEventSchema (ação da snackbar clicada) |
+| `OnSnackbarDismissedEventTrigger` | `"OnSnackbarDismissed"` | DisplaySnackbarEventSchema (snackbar dispensada) |
 
 ---
 
@@ -166,7 +173,7 @@ Used as child event triggers after async operations (network, data, file, screen
 
 | Trigger | @SerialName | Fields | Fired By |
 |---|---|---|---|
-| `OnMenuItemClickEventTrigger` | `"OnMenuItemClick"` | `itemId: String` | ToggleMenuEventSchema |
+| `OnMenuItemClickEventTrigger` | `"OnMenuItemClick"` | `itemId: String` | MenuTileSchema |
 
 ---
 
@@ -174,8 +181,8 @@ Used as child event triggers after async operations (network, data, file, screen
 
 | Trigger | @SerialName | Fired By |
 |---|---|---|
-| `OnCountdownTimerTickEventTrigger` | `"OnCountdownTimerTick"` | StartCountdownTimerEventSchema (each tick) |
-| `OnCountdownTimerFinishEventTrigger` | `"OnCountdownTimerFinish"` | StartCountdownTimerEventSchema (end) |
+| `OnCountdownTimerTickEventTrigger` | `"OnCountdownTimerTick"` | StartCountdownTimerEventSchema (cada tick) |
+| `OnCountdownTimerFinishEventTrigger` | `"OnCountdownTimerFinish"` | StartCountdownTimerEventSchema (fim) |
 
 ---
 
@@ -192,8 +199,29 @@ Used as child event triggers after async operations (network, data, file, screen
 
 | Trigger | @SerialName | Fields | Fired By |
 |---|---|---|---|
-| `OnScrolledEventTrigger` | `"OnScrolled"` | `direction: ScrollDirection` (Top, Bottom, Start, End) | ScrollColumnTileEventSchema, ScrollRowTileEventSchema, ScrollPagerTileEventSchema |
+| `OnScrolledEventTrigger` | `"OnScrolled"` | `direction: ScrollDirection` (Top, Bottom, Start, End) | Column (scrollable), Row (scrollable), LazyColumn, LazyRow |
+| `OnScrollThresholdReachedEventTrigger` | `"OnScrollThresholdReached"` | — | LazyColumnTileSchema, LazyRowTileSchema (quando fração `scrollThreshold` é atingida) |
 | `OnPageChangedEventTrigger` | `"OnPageChanged"` | `direction: Direction` (Start, End, Any, Index(index: Int)) | PagerTileSchema |
+
+---
+
+## LazyTiles Loading Triggers
+
+Disparados pelo `LazyTilesTileSchema` durante o ciclo de vida do fetch remoto de tiles.
+
+| Trigger | @SerialName | Fired When |
+|---|---|---|
+| `OnLoadTilesStartEventTrigger` | `"OnLoadTilesStart"` | Fetch inicia |
+| `OnLoadTilesSuccessEventTrigger` | `"OnLoadTilesSuccess"` | Tiles carregados com sucesso |
+| `OnLoadTilesFailureEventTrigger` | `"OnLoadTilesFailure"` | Fetch falhou |
+
+---
+
+## System Triggers
+
+| Trigger | @SerialName | Fields | Fired By |
+|---|---|---|---|
+| `OnSystemBroadcastEventTrigger` | `"OnSystemBroadcast"` | `broadcastId: String` | `BroadcastToSystemEventSchema` — despacha broadcast para a screen; eventos na screen com este trigger e matching `broadcastId` são executados |
 
 ---
 
@@ -201,18 +229,20 @@ Used as child event triggers after async operations (network, data, file, screen
 
 | Category | Count |
 |---|---|
-| User Interaction | 13 |
+| User Interaction | 15 |
 | Keyboard | 6 |
-| Lifecycle / Display | 2 |
-| Operation Lifecycle (Start/Success/Failure) | 3 |
+| Lifecycle / Display | 6 |
+| Operation Lifecycle | 3 |
 | Tile State | 5 |
 | Navigation | 6 |
 | Data | 4 |
-| Network | 5 |
+| Network | 7 |
 | Image Loading | 3 |
-| Overlays | 3 |
+| Overlay | 5 |
 | Menu | 1 |
 | Timer | 2 |
 | Permission | 2 |
-| Scroll / Page | 2 |
-| **Total** | **56** |
+| Scroll / Page | 3 |
+| LazyTiles Loading | 3 |
+| System | 1 |
+| **Total** | **72** |

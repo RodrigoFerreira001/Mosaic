@@ -4,6 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CarouselTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CarouselTileSchema.CarouselTypeSchema
 import dev.catbit.mosaic.core.extensions.randomId
+import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
@@ -14,6 +15,7 @@ internal class CarouselTileSchemaBuilder(
     private val tiles: TileSchemaBuilderScope.() -> Unit,
     private val events: EventSchemaBuilderScope.() -> Unit,
     private val style: StyleSchemaBuilderScope.() -> Unit,
+    private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val type: CarouselTypeSchema,
     private val itemSpacing: Int,
@@ -26,6 +28,7 @@ internal class CarouselTileSchemaBuilder(
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
         events = EventSchemaBuilderScope().apply(events).build(),
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
+        searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
         type = type,
         itemSpacing = itemSpacing,
@@ -39,6 +42,7 @@ fun TileSchemaBuilderScope.Carousel(
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    searchableTerms: List<String>? = null,
     type: CarouselTypeSchema,
     itemSpacing: Int = 0,
     contentPadding: Int = 0,
@@ -51,6 +55,7 @@ fun TileSchemaBuilderScope.Carousel(
             tiles = tiles,
             events = events,
             style = style,
+            searchableTerms = searchableTerms,
             visibility = visibility,
             type = type,
             itemSpacing = itemSpacing,

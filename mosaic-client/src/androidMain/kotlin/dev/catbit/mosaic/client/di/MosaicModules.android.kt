@@ -7,7 +7,9 @@ import dev.catbit.mosaic.client.data.data_chest.DataChest
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
+import kotlinx.coroutines.Dispatchers
 import org.koin.core.module.Module
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 internal actual val platformModule: Module = module {
@@ -25,9 +27,14 @@ internal actual val platformModule: Module = module {
     }
 
     single<MosaicRoomDatabase> {
+
+        val applicationId: String = get(named("APPLICATION_ID"))
+
         Room.databaseBuilder<MosaicRoomDatabase>(
             context = get<Context>(),
-            name = "mosaic_database.db"
-        ).build()
+            name = "${applicationId}_database.db"
+        )
+            .setQueryCoroutineContext(Dispatchers.IO)
+            .build()
     }
 }
