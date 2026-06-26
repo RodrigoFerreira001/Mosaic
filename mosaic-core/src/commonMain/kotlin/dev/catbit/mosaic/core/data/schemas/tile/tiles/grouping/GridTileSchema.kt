@@ -1,7 +1,9 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
 import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
@@ -20,7 +22,8 @@ import kotlinx.collections.immutable.persistentListOf
  * `visibility: TileSchema.Visibility`, `columns: SerializableImmutableList<GridTrackSchema>`,
  * `rows: SerializableImmutableList<GridTrackSchema>`, `columnGap: Int`, `rowGap: Int`, `flow: GridFlowSchema`
  *
- * **Triggers dispatched:** `OnClickEventTrigger` — fired when the grid container is tapped
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition. `OnClickEventTrigger` — fired when the grid container is tapped
  * (requires events to be wired on the schema).
  *
  * **Notes:** Uses `@OptIn(ExperimentalGridApi::class)`. The renderer exposes
@@ -29,6 +32,7 @@ import kotlinx.collections.immutable.persistentListOf
  * are composed eagerly.
  */
 @Immutable
+@Triggers([OnDisplayEventTrigger::class])
 @Serializable
 @SerialName("Grid")
 data class GridTileSchema(

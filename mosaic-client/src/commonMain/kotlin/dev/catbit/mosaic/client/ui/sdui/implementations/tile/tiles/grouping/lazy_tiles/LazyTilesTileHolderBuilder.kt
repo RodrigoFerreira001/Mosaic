@@ -12,7 +12,7 @@ object LazyTilesTileHolderBuilder : TileHolderBuilder<LazyTilesTileSchema, LazyT
         LazyTilesTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             placeholderTiles = placeholderTiles.buildTileHolders(),
             failureTiles = failureTiles.buildTileHolders()
         )

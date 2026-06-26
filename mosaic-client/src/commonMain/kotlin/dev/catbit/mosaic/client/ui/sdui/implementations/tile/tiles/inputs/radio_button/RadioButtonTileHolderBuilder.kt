@@ -12,7 +12,7 @@ object RadioButtonTileHolderBuilder : TileHolderBuilder<RadioButtonTileSchema, R
         RadioButtonTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

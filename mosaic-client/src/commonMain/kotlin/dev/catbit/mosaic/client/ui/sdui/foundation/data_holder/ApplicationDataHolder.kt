@@ -1,6 +1,6 @@
-package dev.catbit.mosaic.client.ui.sdui.foundation.screen
+package dev.catbit.mosaic.client.ui.sdui.foundation.data_holder
 
-interface DataHolder {
+interface ApplicationDataHolder {
 
     fun addPlainData(
         data: Any,
@@ -37,12 +37,6 @@ interface DataHolder {
         segmentId: String
     ): Map<String, Any>
 
-    fun getNavigationData(
-        dataId: String
-    ): Any?
-
-    fun getAllNavigationData(): Map<String, Any>
-
     fun wipePlainData()
 
     fun wipeSegmentedData(
@@ -52,9 +46,7 @@ interface DataHolder {
     fun wipeSegmentedData()
 }
 
-class DefaultDataHolder(
-    private val navigationData: Map<String, Any>
-) : DataHolder {
+class DefaultApplicationDataHolder : ApplicationDataHolder {
 
     private val plainData: MutableMap<String, Any> = mutableMapOf()
     private val segmentedData: MutableMap<String, MutableMap<String, Any>> = mutableMapOf()
@@ -96,12 +88,6 @@ class DefaultDataHolder(
 
     override fun getAllSegmentedData(segmentId: String): Map<String, Any> =
         segmentedData[segmentId]?.toMap() ?: emptyMap()
-
-    override fun getNavigationData(dataId: String): Any? =
-        navigationData[dataId]
-
-    override fun getAllNavigationData(): Map<String, Any> =
-        navigationData.toMap()
 
     override fun wipePlainData() {
         plainData.clear()

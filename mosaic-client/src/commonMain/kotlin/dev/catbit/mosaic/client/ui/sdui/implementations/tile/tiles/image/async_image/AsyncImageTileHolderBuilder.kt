@@ -12,7 +12,7 @@ object AsyncImageTileHolderBuilder : TileHolderBuilder<AsyncImageTileSchema, Asy
         AsyncImageTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

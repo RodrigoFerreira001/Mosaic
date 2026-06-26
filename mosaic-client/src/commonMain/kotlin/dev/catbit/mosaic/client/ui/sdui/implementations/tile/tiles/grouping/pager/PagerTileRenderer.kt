@@ -11,6 +11,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
+import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
@@ -24,6 +25,9 @@ object PagerTileRenderer : TileRenderer<PagerTileSchema> {
 
     @Composable
     override fun TileRenderingScope.Render(tileSchema: PagerTileSchema) {
+
+        OnDisplayEffect()
+
         with(tileSchema) {
             val pagerState = rememberPagerState(pageCount = { tiles.size })
 

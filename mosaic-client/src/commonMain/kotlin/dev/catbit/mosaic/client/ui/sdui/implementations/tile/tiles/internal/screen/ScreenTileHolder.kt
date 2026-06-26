@@ -12,7 +12,7 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class ScreenTileHolder(
     override val id: String,
     override var tile: ScreenTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>,
     private val navigationDrawerTiles: List<TileHolder<*>>?,
     private var currentBottomSheetTiles: List<TileHolder<*>>? = null,
@@ -60,7 +60,7 @@ class ScreenTileHolder(
 
     override fun get() = tile.copy(
         tiles = tiles.immutableMapTo { it.get() },
-        events = events?.immutableMapTo { it.get() },
+        events = events.immutableMapTo { it.get() },
         navigationDrawerTiles = navigationDrawerTiles?.immutableMapTo { it.get() },
         currentBottomSheetTiles = currentBottomSheetTiles?.immutableMapTo { it.get() },
         currentDialogSheetTiles = currentDialogSheetTiles?.immutableMapTo { it.get() },

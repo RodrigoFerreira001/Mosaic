@@ -13,8 +13,8 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Stable
 data class TileRenderingScope(
-    private val tileId: String,
-    private val events: List<EventSchema>?,
+    val tileId: String,
+    val events: ImmutableList<EventSchema>?,
     val onEvent: (UIEvent) -> Unit
 ) {
     fun dispatchEvent(tileEvent: TileEvent) {

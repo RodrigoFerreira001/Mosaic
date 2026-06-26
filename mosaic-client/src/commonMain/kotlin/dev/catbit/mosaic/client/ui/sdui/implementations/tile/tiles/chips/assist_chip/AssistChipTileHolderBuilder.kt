@@ -12,7 +12,7 @@ object AssistChipTileHolderBuilder : TileHolderBuilder<AssistChipTileSchema, Ass
         AssistChipTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

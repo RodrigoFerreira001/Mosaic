@@ -3,6 +3,7 @@ package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPullEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
@@ -19,7 +20,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`, `isRefreshing: Boolean`
  *
- * **Triggers dispatched:** `OnPullEventTrigger` — fired via the internal
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition. `OnPullEventTrigger` — fired via the internal
  * `PullToRefreshTileEvents.OnRefreshStart` dispatch when the user completes the pull gesture.
  *
  * **Notes:** The server must toggle [isRefreshing] to `false` via UpdateTiles once the
@@ -31,6 +33,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 @Immutable
 @Triggers(
     [
+        OnDisplayEventTrigger::class,
         OnPullEventTrigger::class
     ]
 )

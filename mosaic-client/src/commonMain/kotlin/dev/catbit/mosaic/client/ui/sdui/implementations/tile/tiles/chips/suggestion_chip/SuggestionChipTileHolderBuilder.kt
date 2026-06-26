@@ -12,7 +12,7 @@ object SuggestionChipTileHolderBuilder : TileHolderBuilder<SuggestionChipTileSch
         SuggestionChipTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

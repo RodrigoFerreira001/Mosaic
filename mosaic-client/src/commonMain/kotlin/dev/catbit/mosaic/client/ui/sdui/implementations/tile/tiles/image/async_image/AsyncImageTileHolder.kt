@@ -8,11 +8,11 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class AsyncImageTileHolder(
     override val id: String,
     override var tile: AsyncImageTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<AsyncImageTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() }
+        events = events.immutableMapTo { it.get() }
     )
 }

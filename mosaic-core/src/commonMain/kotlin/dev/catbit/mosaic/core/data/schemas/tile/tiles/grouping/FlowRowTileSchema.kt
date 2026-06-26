@@ -1,7 +1,9 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
 import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.ArrangementSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
@@ -18,7 +20,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * `visibility: TileSchema.Visibility`, `horizontalArrangement: ArrangementSchema.Horizontal`,
  * `verticalArrangement: ArrangementSchema.Vertical`, `maxItemsInEachRow: Int`
  *
- * **Triggers dispatched:** `OnClickEventTrigger` — fired when the flow row container is
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition. `OnClickEventTrigger` — fired when the flow row container is
  * tapped (requires events to be wired on the schema).
  *
  * **Notes:** The renderer exposes [LocalFlowRowScope] so that children that need
@@ -26,6 +29,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * composed eagerly (not lazy).
  */
 @Immutable
+@Triggers([OnDisplayEventTrigger::class])
 @Serializable
 @SerialName("FlowRow")
 data class FlowRowTileSchema(

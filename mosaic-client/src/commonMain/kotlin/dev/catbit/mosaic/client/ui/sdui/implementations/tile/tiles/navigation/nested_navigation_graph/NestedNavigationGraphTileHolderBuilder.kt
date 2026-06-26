@@ -12,7 +12,7 @@ object NestedNavigationGraphTileHolderBuilder : TileHolderBuilder<NestedNavigati
         NestedNavigationGraphTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

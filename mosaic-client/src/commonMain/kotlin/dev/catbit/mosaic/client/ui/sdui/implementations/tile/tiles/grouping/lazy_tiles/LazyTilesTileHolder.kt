@@ -10,7 +10,7 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class LazyTilesTileHolder(
     override val id: String,
     override var tile: LazyTilesTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     val failureTiles: MutableList<TileHolder<*>>,
     val placeholderTiles: MutableList<TileHolder<*>>
 ) : TileHolder<LazyTilesTileSchema>() {
@@ -26,7 +26,7 @@ class LazyTilesTileHolder(
     override fun get() = tile.copy(
         failureTiles = failureTiles.immutableMapTo { it.get() },
         placeholderTiles = placeholderTiles.immutableMapTo { it.get() },
-        events = events?.immutableMapTo { it.get() },
+        events = events.immutableMapTo { it.get() },
         tiles = internalTiles?.immutableMapTo { it.get() }
     )
 

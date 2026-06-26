@@ -1,6 +1,8 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.screen
 
 import androidx.compose.runtime.Stable
+import dev.catbit.mosaic.client.ui.sdui.foundation.data_holder.DefaultScreenDataHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.data_holder.ScreenDataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
@@ -29,7 +31,7 @@ class MosaicScreenStateHolder(
     val tileRendererManager: TileRendererManager
 ) : ScreenStateHolder<State, Event, Effect>(),
     ScreenBehaviorsHolder,
-    DataHolder by DefaultDataHolder(navigationData.data.orEmpty()) {
+    ScreenDataHolder by DefaultScreenDataHolder(navigationData.data.orEmpty()) {
 
     val screenBroadcastChannel = ScreenTilesBroadcastChannel()
 

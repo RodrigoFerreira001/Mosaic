@@ -33,6 +33,8 @@ import dev.catbit.mosaic.client.domain.screen.GetScreenUseCase
 import dev.catbit.mosaic.client.domain.send_request.SendNetworkRequestUseCase
 import dev.catbit.mosaic.client.domain.upload.UploadFileUseCase
 import dev.catbit.mosaic.client.logger.MosaicLogger
+import dev.catbit.mosaic.client.ui.sdui.foundation.data_holder.ApplicationDataHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.data_holder.DefaultApplicationDataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.data_mailer.DataMailer
 import dev.catbit.mosaic.client.ui.sdui.foundation.data_processor.DataProcessor
 import dev.catbit.mosaic.client.ui.sdui.foundation.data_processor.processors.EventRunnerDataProcessor
@@ -73,6 +75,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_body.SetIncomingDataToNetworkParamsHolderBodyEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_headers.SetIncomingDataToNetworkParamsHolderHeadersEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_query_parameters.SetIncomingDataToNetworkParamsHolderQueryParametersEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_url.SetIncomingDataToNetworkParamsHolderUrlEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.dismiss.DismissBottomSheetEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.display.DisplayBottomSheetEventDefinition
@@ -128,6 +131,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.image.async_i
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.image.icon.IconTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.image.image.ImageTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.checkbox.CheckboxTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.dropdown_list.DropdownListTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.radio_button.RadioButtonTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.switch.SwitchTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.inputs.text_field.TextFieldTileDefinition
@@ -195,6 +199,7 @@ internal class MosaicModules(
         single<MosaicLogger> { logger }
         single { DrawableResourcesHolder(drawableResources) }
         single { SystemBroadcastChannel() }
+        single<ApplicationDataHolder> { DefaultApplicationDataHolder() }
     }
 
     private val dataModule = module {
@@ -220,7 +225,8 @@ internal class MosaicModules(
                     }
                     install(MosaicHeadersPlugin)
                 },
-                networkParametersHolder = get()
+                networkParametersHolder = get(),
+                mosaicSerializer = get()
             )
         }
 
@@ -399,6 +405,7 @@ internal class MosaicModules(
         BadgeTileDefinition,
         IconButtonTileDefinition,
         CheckboxTileDefinition,
+        DropdownListTileDefinition,
         AssistChipTileDefinition,
         FilterChipTileDefinition,
         InputChipTileDefinition,
@@ -424,6 +431,7 @@ internal class MosaicModules(
         SendNetworkRequestEventDefinition,
         SetIncomingDataToNetworkParamsHolderBodyEventDefinition,
         SetIncomingDataToNetworkParamsHolderHeadersEventDefinition,
+        SetIncomingDataToNetworkParamsHolderQueryParametersEventDefinition,
         SetIncomingDataToNetworkParamsHolderUrlEventDefinition,
         NavigateEventDefinition,
         NavigateUpEventDefinition,

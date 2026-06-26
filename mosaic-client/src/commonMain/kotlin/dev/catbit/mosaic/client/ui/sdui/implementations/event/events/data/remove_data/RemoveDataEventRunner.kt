@@ -1,16 +1,12 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.remove_data
 
 import dev.catbit.mosaic.client.domain.data.plain.RemovePlainDataByIdsUseCase
-import dev.catbit.mosaic.client.domain.data.plain.RemovePlainDataByIdsUseCase.*
 import dev.catbit.mosaic.client.domain.data.plain.RemovePlainDataUseCase
-import dev.catbit.mosaic.client.domain.data.plain.RemovePlainDataUseCase.*
 import dev.catbit.mosaic.client.domain.data.plain.WipePlainDataUseCase
 import dev.catbit.mosaic.client.domain.data.segmented.RemoveSegmentedDataByIdsUseCase
-import dev.catbit.mosaic.client.domain.data.segmented.RemoveSegmentedDataByIdsUseCase.*
 import dev.catbit.mosaic.client.domain.data.segmented.RemoveSegmentedDataUseCase
-import dev.catbit.mosaic.client.domain.data.segmented.RemoveSegmentedDataUseCase.*
 import dev.catbit.mosaic.client.domain.data.segmented.WipeSegmentedDataUseCase
-import dev.catbit.mosaic.client.domain.data.segmented.WipeSegmentedDataUseCase.*
+import dev.catbit.mosaic.client.ui.sdui.foundation.data_holder.ApplicationDataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.core.data.schemas.event.data.AccessModeSchema
@@ -30,26 +26,44 @@ object RemoveDataEventRunner : EventRunner<RemoveDataEventSchema> {
         val removeSegmentedDataUseCase = get<RemoveSegmentedDataUseCase>()
         val removeSegmentedDataByIdsUseCase = get<RemoveSegmentedDataByIdsUseCase>()
         val wipeSegmentedDataUseCase = get<WipeSegmentedDataUseCase>()
+        val applicationDataHolder = get<ApplicationDataHolder>()
 
         var anyErrorOccurred = false
 
         withContext(Dispatchers.IO) {
             event.deletions.forEach { (dataSource, accessMode) ->
                 when (dataSource) {
-                    DataSourceSchema.ScreenPlainData -> when (accessMode) {
-                        AccessModeSchema.Full -> dataHolder.wipePlainData()
-                        is AccessModeSchema.Single -> dataHolder.removePlainData(accessMode.dataId)
-                        is AccessModeSchema.Batch -> accessMode.dataIds.forEach { dataHolder.removePlainData(it) }
+                    DataSourceSchema.ApplicationPlainData -> when (accessMode) {
+                        AccessModeSchema.Full -> applicationDataHolder.wipePlainData()
+                        is AccessModeSchema.Single -> applicationDataHolder.removePlainData(accessMode.dataId)
+                        is AccessModeSchema.Batch -> accessMode.dataIds.forEach { applicationDataHolder.removePlainData(it) }
                     }
 
-                    is DataSourceSchema.ScreenSegmentedData -> when (accessMode) {
-                        AccessModeSchema.Full -> dataHolder.wipeSegmentedData(dataSource.segmentId)
-                        is AccessModeSchema.Single -> dataHolder.removeSegmentedData(
+                    is DataSourceSchema.ApplicationSegmentedData -> when (accessMode) {
+                        AccessModeSchema.Full -> applicationDataHolder.wipeSegmentedData(dataSource.segmentId)
+                        is AccessModeSchema.Single -> applicationDataHolder.removeSegmentedData(
                             segmentId = dataSource.segmentId,
                             dataId = accessMode.dataId
                         )
                         is AccessModeSchema.Batch -> accessMode.dataIds.forEach {
-                            dataHolder.removeSegmentedData(segmentId = dataSource.segmentId, dataId = it)
+                            applicationDataHolder.removeSegmentedData(segmentId = dataSource.segmentId, dataId = it)
+                        }
+                    }
+
+                    DataSourceSchema.ScreenPlainData -> when (accessMode) {
+                        AccessModeSchema.Full -> screenDataHolder.wipePlainData()
+                        is AccessModeSchema.Single -> screenDataHolder.removePlainData(accessMode.dataId)
+                        is AccessModeSchema.Batch -> accessMode.dataIds.forEach { screenDataHolder.removePlainData(it) }
+                    }
+
+                    is DataSourceSchema.ScreenSegmentedData -> when (accessMode) {
+                        AccessModeSchema.Full -> screenDataHolder.wipeSegmentedData(dataSource.segmentId)
+                        is AccessModeSchema.Single -> screenDataHolder.removeSegmentedData(
+                            segmentId = dataSource.segmentId,
+                            dataId = accessMode.dataId
+                        )
+                        is AccessModeSchema.Batch -> accessMode.dataIds.forEach {
+                            screenDataHolder.removeSegmentedData(segmentId = dataSource.segmentId, dataId = it)
                         }
                     }
 

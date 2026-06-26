@@ -13,7 +13,7 @@ object CircularProgressIndicatorTileHolderBuilder :
         CircularProgressIndicatorTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

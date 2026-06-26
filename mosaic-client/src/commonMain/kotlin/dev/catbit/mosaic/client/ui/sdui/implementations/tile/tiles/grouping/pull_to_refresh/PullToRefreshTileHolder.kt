@@ -10,13 +10,13 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class PullToRefreshTileHolder(
     override val id: String,
     override var tile: PullToRefreshTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>
 ) : TileHolder<PullToRefreshTileSchema>() {
 
     override fun get() = tile.copy(
         tiles = tiles.immutableMapTo { it.get() },
-        events = events?.immutableMapTo { it.get() }
+        events = events.immutableMapTo { it.get() }
     )
 
     override fun TileEventScope.onTileEvent(event: TileEvent) {

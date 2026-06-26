@@ -12,7 +12,7 @@ object FilterChipTileHolderBuilder : TileHolderBuilder<FilterChipTileSchema, Fil
         FilterChipTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

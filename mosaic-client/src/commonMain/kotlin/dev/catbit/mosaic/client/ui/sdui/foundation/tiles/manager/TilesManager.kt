@@ -60,7 +60,8 @@ class TilesManager(
 
     private val updateScope by lazy {
         UpdateScope(
-            serializer = serializer
+            serializer = serializer,
+            builderScope = builderScope
         )
     }
 

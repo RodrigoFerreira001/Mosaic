@@ -1,6 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.events
 
-import dev.catbit.mosaic.client.ui.sdui.foundation.screen.DataHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.data_holder.ScreenDataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEditor
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventDispatcher
@@ -22,7 +22,7 @@ class EventManager(
     private lateinit var tilesEventDispatcher: TilesEventDispatcher
     private lateinit var tilesEventHolder: TilesEventHolder
     private lateinit var screenBehaviorsHolder: ScreenBehaviorsHolder
-    private lateinit var dataHolder: DataHolder
+    private lateinit var screenDataHolder: ScreenDataHolder
     private lateinit var tilesValueProducer: TilesValueProducer
 
     fun attachTilesEditor(tilesEditor: TilesEditor) {
@@ -41,8 +41,8 @@ class EventManager(
         this.screenBehaviorsHolder = screenBehaviorsHolder
     }
 
-    fun attachDataHolder(dataHolder: DataHolder) {
-        this.dataHolder = dataHolder
+    fun attachDataHolder(screenDataHolder: ScreenDataHolder) {
+        this.screenDataHolder = screenDataHolder
     }
 
     fun attachTilesEventDispatcher(tilesEventDispatcher: TilesEventDispatcher) {
@@ -93,7 +93,7 @@ class EventManager(
                     tilesEditor = tilesEditor,
                     tilesOverlaysEditor = tilesOverlaysEditor,
                     tilesEventDispatcher = tilesEventDispatcher,
-                    dataHolder = dataHolder,
+                    screenDataHolder = screenDataHolder,
                     screenBehaviorsHolder = screenBehaviorsHolder,
                     koinScope = koinScope,
                     tilesValueProducer = tilesValueProducer

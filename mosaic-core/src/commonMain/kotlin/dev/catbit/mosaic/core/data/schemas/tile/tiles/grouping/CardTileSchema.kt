@@ -1,7 +1,9 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
 import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
@@ -17,7 +19,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`, `kind: Kind`
  *
- * **Triggers dispatched:** `OnClickEventTrigger` — fired every time the card is tapped. The
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition. `OnClickEventTrigger` — fired every time the card is tapped. The
  * click handler is always wired regardless of whether child events are present.
  *
  * **Notes:** The card uses a [ColumnScope] internally, so it exposes [LocalColumnScope] to
@@ -26,6 +29,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * is null, meaning child events must be registered to observe clicks.
  */
 @Immutable
+@Triggers([OnDisplayEventTrigger::class])
 @Serializable
 @SerialName("Card")
 data class CardTileSchema(

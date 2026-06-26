@@ -12,7 +12,7 @@ object SimpleTextTileHolderBuilder : TileHolderBuilder<SimpleTextTileSchema, Sim
         SimpleTextTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

@@ -6,6 +6,7 @@ import dev.catbit.mosaic.client.domain.data.plain.GetPlainDataUseCase
 import dev.catbit.mosaic.client.domain.data.segmented.GetAllSegmentedDataUseCase
 import dev.catbit.mosaic.client.domain.data.segmented.GetSegmentedDataByIdsUseCase
 import dev.catbit.mosaic.client.domain.data.segmented.GetSegmentedDataUseCase
+import dev.catbit.mosaic.client.ui.sdui.foundation.data_holder.ApplicationDataHolder
 import dev.catbit.mosaic.client.exceptions.DataNotFoundException
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
@@ -32,6 +33,7 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
             val getSegmentedDataUseCase = get<GetSegmentedDataUseCase>()
             val getSegmentedDataByIdsUseCase = get<GetSegmentedDataByIdsUseCase>()
             val getAllSegmentedDataUseCase = get<GetAllSegmentedDataUseCase>()
+            val applicationDataHolder = get<ApplicationDataHolder>()
 
             // Accumulates all key-value results across readings.
             // Later readings overwrite earlier ones on key collision.
@@ -59,14 +61,20 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
                                         return@withContext
                                     }
 
+                            DataSourceSchema.ApplicationPlainData ->
+                                applicationDataHolder.getAllPlainData()
+
+                            is DataSourceSchema.ApplicationSegmentedData ->
+                                applicationDataHolder.getAllSegmentedData(source.segmentId)
+
                             DataSourceSchema.ScreenPlainData ->
-                                dataHolder.getAllPlainData()
+                                screenDataHolder.getAllPlainData()
 
                             is DataSourceSchema.ScreenSegmentedData ->
-                                dataHolder.getAllSegmentedData(source.segmentId)
+                                screenDataHolder.getAllSegmentedData(source.segmentId)
 
                             DataSourceSchema.ScreenNavigationData ->
-                                dataHolder.getAllNavigationData()
+                                screenDataHolder.getAllNavigationData()
 
                             is DataSourceSchema.Tile ->
                                 tilesValueProducer.getValueWithKey(
@@ -87,14 +95,20 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
                             is DataSourceSchema.SegmentedDataBase ->
                                 getSegmentedDataByIdsUseCase(GetSegmentedDataByIdsUseCase.Params(source.segmentId, accessMode.dataIds)).getOrElse { emptyMap() }
 
+                            DataSourceSchema.ApplicationPlainData ->
+                                accessMode.dataIds.associateWith { applicationDataHolder.getPlainData(it) }
+
+                            is DataSourceSchema.ApplicationSegmentedData ->
+                                accessMode.dataIds.associateWith { applicationDataHolder.getSegmentedData(it, source.segmentId) }
+
                             DataSourceSchema.ScreenPlainData ->
-                                accessMode.dataIds.associateWith { dataHolder.getPlainData(it) }
+                                accessMode.dataIds.associateWith { screenDataHolder.getPlainData(it) }
 
                             is DataSourceSchema.ScreenSegmentedData ->
-                                accessMode.dataIds.associateWith { dataHolder.getSegmentedData(it, source.segmentId) }
+                                accessMode.dataIds.associateWith { screenDataHolder.getSegmentedData(it, source.segmentId) }
 
                             DataSourceSchema.ScreenNavigationData ->
-                                accessMode.dataIds.associateWith { dataHolder.getNavigationData(it) }
+                                accessMode.dataIds.associateWith { screenDataHolder.getNavigationData(it) }
 
                             is DataSourceSchema.Tile ->
                                 tilesValueProducer.getValueWithKey(
@@ -133,14 +147,20 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
                             is DataSourceSchema.SegmentedDataBase ->
                                 getSegmentedDataUseCase(GetSegmentedDataUseCase.Params(source.segmentId, accessMode.dataId)).getOrNull()
 
+                            DataSourceSchema.ApplicationPlainData ->
+                                applicationDataHolder.getPlainData(accessMode.dataId)
+
+                            is DataSourceSchema.ApplicationSegmentedData ->
+                                applicationDataHolder.getSegmentedData(accessMode.dataId, source.segmentId)
+
                             DataSourceSchema.ScreenPlainData ->
-                                dataHolder.getPlainData(accessMode.dataId)
+                                screenDataHolder.getPlainData(accessMode.dataId)
 
                             is DataSourceSchema.ScreenSegmentedData ->
-                                dataHolder.getSegmentedData(accessMode.dataId, source.segmentId)
+                                screenDataHolder.getSegmentedData(accessMode.dataId, source.segmentId)
 
                             DataSourceSchema.ScreenNavigationData ->
-                                dataHolder.getNavigationData(accessMode.dataId)
+                                screenDataHolder.getNavigationData(accessMode.dataId)
 
                             is DataSourceSchema.Tile ->
                                 tilesValueProducer.getValueWithKey(

@@ -8,12 +8,12 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class LazyRowTileHolder(
     override val id: String,
     override var tile: LazyRowTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>
 ) : TileHolder<LazyRowTileSchema>() {
 
     override fun get() = tile.copy(
         tiles = tiles.immutableMapTo { it.get() },
-        events = events?.immutableMapTo { it.get() }
+        events = events.immutableMapTo { it.get() }
     )
 }

@@ -10,6 +10,7 @@ import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_L
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXTRA_LARGE_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
@@ -25,6 +26,9 @@ object AdaptiveVisibilityTileRenderer : TileRenderer<AdaptiveVisibilityTileSchem
     override fun TileRenderingScope.Render(
         tileSchema: AdaptiveVisibilityTileSchema
     ) {
+
+        OnDisplayEffect()
+
         with(tileSchema) {
             val windowSizeClass = currentWindowAdaptiveInfoV2().windowSizeClass
             val widthSatisfied = windowSizeClass.satisfies(widthVisibility)

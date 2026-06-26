@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
@@ -20,6 +21,9 @@ object CarouselTileRenderer : TileRenderer<CarouselTileSchema> {
 
     @Composable
     override fun TileRenderingScope.Render(tileSchema: CarouselTileSchema) {
+
+        OnDisplayEffect()
+
         with(tileSchema) {
             val modifier = Modifier
                 .visible(isVisible())

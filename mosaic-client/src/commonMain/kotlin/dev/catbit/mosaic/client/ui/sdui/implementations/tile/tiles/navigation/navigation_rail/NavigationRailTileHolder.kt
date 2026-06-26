@@ -10,7 +10,7 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class NavigationRailTileHolder(
     override val id: String,
     override var tile: NavigationRailTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     private val header: TileHolder<*>?,
     private val footer: TileHolder<*>?
 ) : TileHolder<NavigationRailTileSchema>() {
@@ -22,7 +22,7 @@ class NavigationRailTileHolder(
         }
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() },
+        events = events.immutableMapTo { it.get() },
         header = header?.get(),
         footer = footer?.get()
     )

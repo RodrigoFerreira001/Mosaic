@@ -11,7 +11,7 @@ object ImageTileHolderBuilder : TileHolderBuilder<ImageTileSchema, ImageTileHold
         ImageTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

@@ -10,8 +10,8 @@ object FlowRowTileHolderBuilder : TileHolderBuilder<FlowRowTileSchema, FlowRowTi
         FlowRowTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.map { buildEventHolder(it) }?.toMutableList(),
-            tiles = tiles.map { buildTileHolder(it) }.toMutableList()
+            events = events.buildEventHolders(),
+            tiles = tiles.buildTileHolders()
         )
     }
 }

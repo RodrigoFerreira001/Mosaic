@@ -12,7 +12,7 @@ object LazyColumnTileHolderBuilder : TileHolderBuilder<LazyColumnTileSchema, Laz
         LazyColumnTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             tiles = tiles.buildTileHolders()
         )
     }

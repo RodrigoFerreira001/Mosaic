@@ -5,6 +5,8 @@ import androidx.room3.Room
 import dev.catbit.mosaic.client.data.data_chest.AndroidDataChest
 import dev.catbit.mosaic.client.data.data_chest.DataChest
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
+import dev.catbit.mosaic.client.permission.AndroidPermissionManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.permission.PermissionManager
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import kotlinx.coroutines.Dispatchers
@@ -15,6 +17,8 @@ import org.koin.dsl.module
 internal actual val platformModule: Module = module {
 
     single<HttpClient> { HttpClient(OkHttp) }
+
+    single<PermissionManager> { AndroidPermissionManager(get<Context>()) }
 
     single<DataChest> {
         with(get<Context>()) {

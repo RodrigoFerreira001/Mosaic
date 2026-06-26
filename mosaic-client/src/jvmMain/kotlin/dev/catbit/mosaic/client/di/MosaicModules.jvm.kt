@@ -5,6 +5,8 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import dev.catbit.mosaic.client.data.data_chest.DataChest
 import dev.catbit.mosaic.client.data.data_chest.JvmDataChest
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
+import dev.catbit.mosaic.client.permission.JvmPermissionManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.permission.PermissionManager
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.okhttp.OkHttp
 import java.io.File
@@ -15,6 +17,8 @@ import org.koin.dsl.module
 
 internal actual val platformModule = module {
     single<HttpClient> { HttpClient(OkHttp) }
+
+    single<PermissionManager> { JvmPermissionManager() }
 
     single<DataChest> {
         val applicationId = get<String>(named("APPLICATION_ID"))

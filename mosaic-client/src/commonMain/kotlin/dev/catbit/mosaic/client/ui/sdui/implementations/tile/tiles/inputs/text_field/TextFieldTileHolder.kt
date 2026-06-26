@@ -10,12 +10,12 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class TextFieldTileHolder(
     override val id: String,
     override var tile: TextFieldTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<TextFieldTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() }
+        events = events.immutableMapTo { it.get() }
     )
 
     override fun TileEventScope.onTileEvent(event: TileEvent) {

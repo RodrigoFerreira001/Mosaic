@@ -9,11 +9,11 @@ import kotlinx.collections.immutable.toImmutableList
 class LinearProgressIndicatorTileHolder(
     override val id: String,
     override var tile: LinearProgressIndicatorTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<LinearProgressIndicatorTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() }
+        events = events.immutableMapTo { it.get() }
     )
 }

@@ -15,6 +15,9 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedE
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataSentEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataUpdatedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDialogDismissedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListCloseEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListItemSelectedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListOpenEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
@@ -43,6 +46,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEv
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationRailItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionRationaleEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsAcquiredEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryChangedEventTrigger
@@ -80,7 +84,7 @@ object EventTriggers {
     fun onBottomSheetDismissed() = OnBottomSheetDismissedEventTrigger
     fun onClick() = OnClickEventTrigger
     fun onCheckChanged() = OnCheckChangedEventTrigger
-    fun onCheckEvent() = OnCheckEventTrigger
+    fun onCheck() = OnCheckEventTrigger
     fun onOnCountdownTimerTick() = OnCountdownTimerTickEventTrigger
     fun onOnCountdownTimerFinish() = OnCountdownTimerFinishEventTrigger
     fun onDisplay() = OnDisplayEventTrigger
@@ -93,6 +97,9 @@ object EventTriggers {
     fun onDataSent() = OnDataSentEventTrigger
     fun onDataUpdated() = OnDataUpdatedEventTrigger
     fun onDialogDismissed() = OnDialogDismissedEventTrigger
+    fun onDropdownListClose() = OnDropdownListCloseEventTrigger
+    fun onDropdownListItemSelected(id: String) = OnDropdownListItemSelectedEventTrigger(id)
+    fun onDropdownListOpen() = OnDropdownListOpenEventTrigger
     fun onFailure() = OnFailureEventTrigger
     fun onHeightBreakpointSatisfied() = OnHeightBreakpointSatisfiedEventTrigger
     fun onHeightBreakpointNotSatisfied() = OnHeightBreakpointNotSatisfiedEventTrigger
@@ -119,6 +126,7 @@ object EventTriggers {
     fun onNetworkResponse(httpCode: Int) = OnNetworkResponseTrigger(httpCode)
     fun onPermissionsAcquired() = OnPermissionsAcquiredEventTrigger
     fun onPermissionsDenied() = OnPermissionsDeniedEventTrigger
+    fun onPermissionRationale() = OnPermissionRationaleEventTrigger
     fun onQueryChanged() = OnQueryChangedEventTrigger
     fun onQueryCleared() = OnQueryClearedEventTrigger
     fun onSearch() = OnSearchEventTrigger

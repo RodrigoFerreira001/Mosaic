@@ -12,7 +12,7 @@ object SearchBarTileHolderBuilder : TileHolderBuilder<SearchBarTileSchema, Searc
         SearchBarTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.map { eventModel -> buildEventHolder(eventModel) }?.toMutableList(),
+            events = events.buildEventHolders(),
             leadingIconHolder = leadingIcon?.let { buildTileHolder(it) },
             trailingIconHolder = trailingIcon?.let { buildTileHolder(it) }
         )

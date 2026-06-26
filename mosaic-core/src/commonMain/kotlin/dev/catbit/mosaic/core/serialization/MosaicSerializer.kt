@@ -25,6 +25,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendFileEvent
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendNetworkRequestEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderBodyEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderHeadersEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderUrlEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DismissBottomSheetEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DisplayBottomSheetEventSchema
@@ -58,6 +59,9 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLo
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnBottomSheetDismissedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListCloseEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListItemSelectedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListOpenEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
@@ -154,6 +158,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.AsyncImageTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.IconTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.ImageTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.CheckboxTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.DropdownListTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.RadioButtonTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.SwitchTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema
@@ -925,6 +930,9 @@ class MosaicSerializer(
             OnCountdownTimerTickEventTrigger::class to OnCountdownTimerTickEventTrigger.serializer(),
             OnCountdownTimerFinishEventTrigger::class to OnCountdownTimerFinishEventTrigger.serializer(),
             OnDisplayEventTrigger::class to OnDisplayEventTrigger.serializer(),
+            OnDropdownListCloseEventTrigger::class to OnDropdownListCloseEventTrigger.serializer(),
+            OnDropdownListItemSelectedEventTrigger::class to OnDropdownListItemSelectedEventTrigger.serializer(),
+            OnDropdownListOpenEventTrigger::class to OnDropdownListOpenEventTrigger.serializer(),
             OnDataReceivedEventTrigger::class to OnDataReceivedEventTrigger.serializer(),
             OnDataRemovedEventTrigger::class to OnDataRemovedEventTrigger.serializer(),
             OnDataSentEventTrigger::class to OnDataSentEventTrigger.serializer(),
@@ -1011,6 +1019,7 @@ class MosaicSerializer(
             FloatingActionButtonTileSchema::class to FloatingActionButtonTileSchema.serializer(),
             IconButtonTileSchema::class to IconButtonTileSchema.serializer(),
             CheckboxTileSchema::class to CheckboxTileSchema.serializer(),
+            DropdownListTileSchema::class to DropdownListTileSchema.serializer(),
             AssistChipTileSchema::class to AssistChipTileSchema.serializer(),
             FilterChipTileSchema::class to FilterChipTileSchema.serializer(),
             InputChipTileSchema::class to InputChipTileSchema.serializer(),
@@ -1057,6 +1066,7 @@ class MosaicSerializer(
             SetIncomingDataToNetworkParamsHolderBodyEventSchema::class to SetIncomingDataToNetworkParamsHolderBodyEventSchema.serializer(),
             SetIncomingDataToNetworkParamsHolderUrlEventSchema::class to SetIncomingDataToNetworkParamsHolderUrlEventSchema.serializer(),
             SetIncomingDataToNetworkParamsHolderHeadersEventSchema::class to SetIncomingDataToNetworkParamsHolderHeadersEventSchema.serializer(),
+            SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema::class to SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema.serializer(),
             DismissBottomSheetEventSchema::class to DismissBottomSheetEventSchema.serializer(),
             DisplayBottomSheetEventSchema::class to DisplayBottomSheetEventSchema.serializer(),
             DismissDialogEventSchema::class to DismissDialogEventSchema.serializer(),

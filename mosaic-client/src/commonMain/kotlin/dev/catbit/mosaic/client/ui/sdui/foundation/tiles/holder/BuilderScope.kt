@@ -30,11 +30,11 @@ class BuilderScope(
     fun buildEventHolder(eventSchema: EventSchema): EventHolder<*> =
         with(eventHolderBuilderManager) { build(eventSchema) }
 
-    fun List<EventSchema>.buildEventHolders(): MutableList<EventHolder<*>> =
-        map { eventModel -> buildEventHolder(eventModel) }.toMutableList()
+    fun List<EventSchema>?.buildEventHolders(): MutableList<EventHolder<*>> =
+        this?.map { eventModel -> buildEventHolder(eventModel) }?.toMutableList() ?: mutableListOf()
 
-    fun List<TileSchema>.buildTileHolders(): MutableList<TileHolder<*>> =
-        map { tileModel -> buildTileHolder(tileModel) }.toMutableList()
+    fun List<TileSchema>?.buildTileHolders(): MutableList<TileHolder<*>> =
+        this?.map { tileModel -> buildTileHolder(tileModel) }?.toMutableList() ?: mutableListOf()
 
     // Serializer helpers
 

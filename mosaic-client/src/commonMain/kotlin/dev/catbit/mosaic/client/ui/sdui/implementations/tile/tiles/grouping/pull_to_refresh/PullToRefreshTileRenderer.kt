@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.pul
 
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PullToRefreshTileSchema
@@ -12,6 +13,9 @@ object PullToRefreshTileRenderer : TileRenderer<PullToRefreshTileSchema> {
     override fun TileRenderingScope.Render(
         tileSchema: PullToRefreshTileSchema,
     ) {
+
+        OnDisplayEffect()
+
         with(tileSchema) {
             PullToRefreshBox(
                 isRefreshing = isRefreshing,

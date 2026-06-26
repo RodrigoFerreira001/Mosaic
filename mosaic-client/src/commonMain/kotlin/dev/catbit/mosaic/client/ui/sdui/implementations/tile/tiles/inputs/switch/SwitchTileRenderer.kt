@@ -24,7 +24,7 @@ object SwitchTileRenderer : TileRenderer<SwitchTileSchema> {
                 enabled = enabled,
                 checked = checked,
                 onCheckedChange = { checked ->
-                    triggerEvent(if (checked) EventTriggers.onCheckEvent() else EventTriggers.onUncheck())
+                    triggerEvent(if (checked) EventTriggers.onCheck() else EventTriggers.onUncheck())
                     triggerEvent(EventTriggers.onCheckChanged())
                     dispatchEvent(SwitchTileEvents.OnCheckChanged(checked))
                 }

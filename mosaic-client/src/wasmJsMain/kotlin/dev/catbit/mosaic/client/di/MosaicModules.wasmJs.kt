@@ -5,6 +5,8 @@ import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import dev.catbit.mosaic.client.data.data_chest.DataChest
 import dev.catbit.mosaic.client.data.data_chest.WasmJsDataChest
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
+import dev.catbit.mosaic.client.permission.WasmJsPermissionManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.permission.PermissionManager
 import dev.catbit.mosaic.core.domain.base.IO
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.js.Js
@@ -17,6 +19,8 @@ import org.w3c.dom.Worker
 @OptIn(ExperimentalWasmJsInterop::class)
 internal actual val platformModule = module {
     single<HttpClient> { HttpClient(Js) }
+
+    single<PermissionManager> { WasmJsPermissionManager() }
 
     single<DataChest> {
         WasmJsDataChest(localStorage)

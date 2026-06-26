@@ -1,9 +1,8 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.update_data
 
 import dev.catbit.mosaic.client.domain.data.plain.UpdatePlainDataUseCase
-import dev.catbit.mosaic.client.domain.data.plain.UpdatePlainDataUseCase.*
 import dev.catbit.mosaic.client.domain.data.segmented.UpdateSegmentedDataUseCase
-import dev.catbit.mosaic.client.domain.data.segmented.UpdateSegmentedDataUseCase.*
+import dev.catbit.mosaic.client.ui.sdui.foundation.data_holder.ApplicationDataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
 import dev.catbit.mosaic.core.data.schemas.event.data.DataSourceSchema
@@ -18,6 +17,7 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
 
         val updatePlainDataUseCase = get<UpdatePlainDataUseCase>()
         val updateSegmentedDataUseCase = get<UpdateSegmentedDataUseCase>()
+        val applicationDataHolder = get<ApplicationDataHolder>()
 
         var anyErrorOccurred = false
 
@@ -34,15 +34,31 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
                         }
 
                         when (dataSource) {
+                            DataSourceSchema.ApplicationPlainData -> {
+                                entries.forEach { (dataKey, data) ->
+                                    applicationDataHolder.addPlainData(dataId = dataKey, data = data)
+                                }
+                            }
+
+                            is DataSourceSchema.ApplicationSegmentedData -> {
+                                entries.forEach { (dataKey, data) ->
+                                    applicationDataHolder.addSegmentedData(
+                                        segmentId = dataSource.segmentId,
+                                        dataId = dataKey,
+                                        data = data
+                                    )
+                                }
+                            }
+
                             DataSourceSchema.ScreenPlainData -> {
                                 entries.forEach { (dataKey, data) ->
-                                    dataHolder.addPlainData(dataId = dataKey, data = data)
+                                    screenDataHolder.addPlainData(dataId = dataKey, data = data)
                                 }
                             }
 
                             is DataSourceSchema.ScreenSegmentedData -> {
                                 entries.forEach { (dataKey, data) ->
-                                    dataHolder.addSegmentedData(
+                                    screenDataHolder.addSegmentedData(
                                         segmentId = dataSource.segmentId,
                                         dataId = dataKey,
                                         data = data

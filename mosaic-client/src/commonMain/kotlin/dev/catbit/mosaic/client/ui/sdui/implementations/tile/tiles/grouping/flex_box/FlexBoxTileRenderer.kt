@@ -13,6 +13,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.catbit.mosaic.client.extensions.onClick
+import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalFlexBoxScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
@@ -24,6 +25,9 @@ object FlexBoxTileRenderer : TileRenderer<FlexBoxTileSchema> {
 
     @Composable
     override fun TileRenderingScope.Render(tileSchema: FlexBoxTileSchema) {
+
+        OnDisplayEffect()
+
         with(tileSchema) {
             FlexBox(
                 modifier = Modifier

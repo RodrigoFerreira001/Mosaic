@@ -12,7 +12,7 @@ object CarouselTileHolderBuilder : TileHolderBuilder<CarouselTileSchema, Carouse
         CarouselTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             tiles = tiles.buildTileHolders()
         )
     }

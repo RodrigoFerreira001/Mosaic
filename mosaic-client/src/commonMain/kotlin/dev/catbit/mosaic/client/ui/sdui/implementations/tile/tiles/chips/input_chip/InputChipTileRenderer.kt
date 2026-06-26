@@ -26,7 +26,7 @@ object InputChipTileRenderer : TileRenderer<InputChipTileSchema> {
                 selected = selected,
                 onClick = {
                     val newSelected = !selected
-                    triggerEvent(if (newSelected) EventTriggers.onCheckEvent() else EventTriggers.onUncheck())
+                    triggerEvent(if (newSelected) EventTriggers.onCheck() else EventTriggers.onUncheck())
                     triggerEvent(EventTriggers.onCheckChanged())
                     dispatchEvent(InputChipTileEvents.OnCheckChanged(newSelected))
                 },

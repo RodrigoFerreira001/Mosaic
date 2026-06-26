@@ -13,7 +13,7 @@ object AdaptiveVisibilityTileHolderBuilder :
         AdaptiveVisibilityTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             tiles = tiles.buildTileHolders()
         )
     }

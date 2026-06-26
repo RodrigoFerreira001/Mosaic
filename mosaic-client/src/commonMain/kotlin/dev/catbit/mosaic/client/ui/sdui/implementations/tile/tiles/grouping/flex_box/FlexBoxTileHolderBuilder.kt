@@ -10,8 +10,8 @@ object FlexBoxTileHolderBuilder : TileHolderBuilder<FlexBoxTileSchema, FlexBoxTi
         FlexBoxTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.map { buildEventHolder(it) }?.toMutableList(),
-            tiles = tiles.map { buildTileHolder(it) }.toMutableList()
+            events = events.buildEventHolders(),
+            tiles = tiles.buildTileHolders()
         )
     }
 }

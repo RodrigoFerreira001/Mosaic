@@ -5,6 +5,8 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import dev.catbit.mosaic.client.data.data_chest.DataChest
 import dev.catbit.mosaic.client.data.data_chest.IOSDataChest
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
+import dev.catbit.mosaic.client.permission.IOSPermissionManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.permission.PermissionManager
 import dev.catbit.mosaic.core.domain.base.IO
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.darwin.Darwin
@@ -22,6 +24,8 @@ import platform.Foundation.NSUserDomainMask
 @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
 internal actual val platformModule = module {
     single<HttpClient> { HttpClient(Darwin) }
+
+    single<PermissionManager> { IOSPermissionManager() }
 
     single<DataChest> {
         IOSDataChest(NSUserDefaults.standardUserDefaults())

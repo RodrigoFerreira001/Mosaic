@@ -3,6 +3,7 @@ package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
@@ -21,7 +22,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * `visibility: TileSchema.Visibility`, `pageSize: PageSizeSchema`, `pageSpacing: Int`,
  * `contentPadding: Int`, `beyondViewportPageCount: Int`
  *
- * **Triggers dispatched:** `OnPageChangedEventTrigger` — fired on every page change (after the
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition. `OnPageChangedEventTrigger` — fired on every page change (after the
  * first page, i.e., the initial render does not trigger it). Each change emits up to three
  * triggers: `Direction.Any` (always), `Direction.Start` (if the new page is page 0),
  * `Direction.End` (if the new page is the last page), and `Direction.Index(page)` (always,
@@ -34,6 +36,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 @Immutable
 @Triggers(
     [
+        OnDisplayEventTrigger::class,
         OnPageChangedEventTrigger::class
     ]
 )

@@ -13,7 +13,7 @@ object FloatingActionButtonTileHolderBuilder :
         FloatingActionButtonTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
         )
     }
 }

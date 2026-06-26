@@ -1,7 +1,9 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
 import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
@@ -21,7 +23,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * `visibility: TileSchema.Visibility`, `type: CarouselTypeSchema`, `itemSpacing: Int`,
  * `contentPadding: Int`, `userScrollEnabled: Boolean`
  *
- * **Triggers dispatched:** None. This tile does not dispatch any event triggers.
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition.
  *
  * **Notes:** Item count is derived from the size of [tiles] at render time. The
  * [contentPadding] is applied as symmetric horizontal padding. User scrolling can be disabled
@@ -29,6 +32,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * interaction model.
  */
 @Immutable
+@Triggers([OnDisplayEventTrigger::class])
 @Serializable
 @SerialName("Carousel")
 data class CarouselTileSchema(

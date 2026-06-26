@@ -6,6 +6,7 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
@@ -28,6 +29,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * The holder is always consumed on execution.
  *
  * **Triggers fired:**
+ * - [onStart()] – fired immediately before the network request is issued.
  * - [onSuccess()] – server returned a valid `ScreenModel`; incomingData becomes the `ScreenModel`.
  * - [onFailure()] – fired on failure when no child event declares a matching [onNetworkFailure(httpCode)]
  *   trigger; incomingData becomes the `Throwable`. Logged via `logError`. Always fired for
@@ -45,11 +47,11 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * - Unlike [RefreshScreenEventSchema], this event does NOT automatically apply the fetched
  *   `ScreenModel` to the screen state. Chain a [ChangeScreenStateEventSchema] on [onSuccess()]
  *   to apply the result.
- * - No [onStart()] trigger is fired.
  */
 @Immutable
 @Triggers(
     [
+        OnStartEventTrigger::class,
         OnSuccessEventTrigger::class,
         OnFailureEventTrigger::class,
         OnNetworkFailureEventTrigger::class

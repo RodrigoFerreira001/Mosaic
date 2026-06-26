@@ -8,12 +8,12 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class PagerTileHolder(
     override val id: String,
     override var tile: PagerTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>
 ) : TileHolder<PagerTileSchema>() {
 
     override fun get() = tile.copy(
         tiles = tiles.immutableMapTo { it.get() },
-        events = events?.immutableMapTo { it.get() }
+        events = events.immutableMapTo { it.get() }
     )
 }

@@ -9,5 +9,6 @@ fun Modifier.thenIf(
     ifFalse: (@Composable Modifier.() -> Modifier)? = null,
     ifTrue: @Composable Modifier.() -> Modifier
 ): Modifier {
-    return if (condition) this then(ifTrue()) else ifFalse?.let { it() } ?: this
+    return if (condition) this.then(Modifier.ifTrue())
+    else ifFalse?.let { this.then(Modifier.it()) } ?: this
 }

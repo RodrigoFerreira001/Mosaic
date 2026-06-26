@@ -8,5 +8,5 @@ fun <T> Modifier.thenIfNotNull(
     value: T?,
     block: @Composable Modifier.(T) -> Modifier
 ): Modifier {
-    return value?.let { this then(block(it)) } ?: this
+    return value?.let { this.then(Modifier.block(it)) } ?: this
 }

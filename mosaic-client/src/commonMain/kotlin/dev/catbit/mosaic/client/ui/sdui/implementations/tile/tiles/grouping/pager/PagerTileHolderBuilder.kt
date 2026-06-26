@@ -12,7 +12,7 @@ object PagerTileHolderBuilder : TileHolderBuilder<PagerTileSchema, PagerTileHold
         PagerTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             tiles = tiles.buildTileHolders()
         )
     }

@@ -13,8 +13,8 @@ object AddTilesEventHolderBuilder : EventHolderBuilder<AddTilesEventSchema, AddT
             id = id,
             event = eventSchema,
             trigger = trigger,
-            events = events?.map { eventModel -> buildEventHolder(eventModel) },
-            tiles = tiles.map { tileModel -> buildTileHolder(tileModel) }
+            events = events.buildEventHolders(),
+            tiles = tiles.buildTileHolders()
         )
     }
 }

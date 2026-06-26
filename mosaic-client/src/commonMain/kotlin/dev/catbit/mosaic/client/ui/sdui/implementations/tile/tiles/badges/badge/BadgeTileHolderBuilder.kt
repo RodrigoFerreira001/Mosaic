@@ -12,7 +12,7 @@ object BadgeTileHolderBuilder : TileHolderBuilder<BadgeTileSchema, BadgeTileHold
         BadgeTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

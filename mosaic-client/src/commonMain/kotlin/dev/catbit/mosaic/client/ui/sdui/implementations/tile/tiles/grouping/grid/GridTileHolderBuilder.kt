@@ -12,7 +12,7 @@ object GridTileHolderBuilder : TileHolderBuilder<GridTileSchema, GridTileHolder>
         GridTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             tiles = tiles.buildTileHolders()
         )
     }

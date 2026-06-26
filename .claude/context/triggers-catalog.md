@@ -188,10 +188,11 @@ Usados como child event triggers após operações assíncronas (network, data, 
 
 ## Permission Triggers
 
-| Trigger | @SerialName | Fired By |
-|---|---|---|
-| `OnPermissionsAcquiredEventTrigger` | `"OnPermissionsAcquired"` | RequestPermissionEventSchema |
-| `OnPermissionsDeniedEventTrigger` | `"OnPermissionsDenied"` | RequestPermissionEventSchema |
+| Trigger | @SerialName | Fired By | Notes |
+|---|---|---|---|
+| `OnPermissionsAcquiredEventTrigger` | `"OnPermissionsAcquired"` | RequestPermissionEventSchema | Todas as permissões concedidas |
+| `OnPermissionsDeniedEventTrigger` | `"OnPermissionsDenied"` | RequestPermissionEventSchema | Negado permanentemente (Android: `shouldShowRationale == false`) |
+| `OnPermissionRationaleEventTrigger` | `"OnPermissionRationale"` | RequestPermissionEventSchema | **Android only** — usuário negou uma vez, pode pedir novamente com explicação (`shouldShowRationale == true`) |
 
 ---
 
@@ -241,8 +242,18 @@ Disparados pelo `LazyTilesTileSchema` durante o ciclo de vida do fetch remoto de
 | Overlay | 5 |
 | Menu | 1 |
 | Timer | 2 |
-| Permission | 2 |
+| Permission | 3 |
 | Scroll / Page | 3 |
 | LazyTiles Loading | 3 |
 | System | 1 |
-| **Total** | **72** |
+| **Total** | **73** |
+
+---
+
+## Dropdown List Triggers
+
+| Trigger | @SerialName | Fields | Fired By |
+|---|---|---|---|
+| `OnDropdownListItemSelectedEventTrigger` | `"OnDropdownListItemSelected"` | `id: String` | `DropdownListTileSchema` — fired when user selects an option; incomingData = selected option `id` |
+| `OnDropdownListOpenEventTrigger` | `"OnDropdownListOpen"` | — | `DropdownListTileSchema` — fired when dropdown menu opens |
+| `OnDropdownListCloseEventTrigger` | `"OnDropdownListClose"` | — | `DropdownListTileSchema` — fired when dropdown menu closes |

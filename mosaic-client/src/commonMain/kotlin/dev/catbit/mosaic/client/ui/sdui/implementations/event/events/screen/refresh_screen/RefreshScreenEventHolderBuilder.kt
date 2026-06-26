@@ -11,7 +11,7 @@ object RefreshScreenEventHolderBuilder : EventHolderBuilder<RefreshScreenEventSc
                 id = id,
                 event = eventSchema,
                 trigger = trigger,
-                events = events?.map { eventModel -> buildEventHolder(eventModel) }
+                events = events.buildEventHolders()
             )
         }
 }

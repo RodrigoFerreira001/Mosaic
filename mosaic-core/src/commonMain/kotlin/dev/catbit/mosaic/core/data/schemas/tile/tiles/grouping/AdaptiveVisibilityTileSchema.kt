@@ -3,6 +3,7 @@ package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnHeightBreakpointNotSatisfiedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnHeightBreakpointSatisfiedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnWidthBreakpointNotSatisfiedEventTrigger
@@ -32,7 +33,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * its own, so its children participate directly in the parent layout and the inherited [style]
  * field is not applied.
  *
- * **Triggers dispatched:** `OnWidthBreakpointSatisfiedEventTrigger` /
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition. `OnWidthBreakpointSatisfiedEventTrigger` /
  * `OnWidthBreakpointNotSatisfiedEventTrigger` and `OnHeightBreakpointSatisfiedEventTrigger` /
  * `OnHeightBreakpointNotSatisfiedEventTrigger` — fired on the first evaluation and whenever the
  * evaluation result of the corresponding axis changes.
@@ -40,6 +42,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 @Immutable
 @Triggers(
     [
+        OnDisplayEventTrigger::class,
         OnWidthBreakpointSatisfiedEventTrigger::class,
         OnWidthBreakpointNotSatisfiedEventTrigger::class,
         OnHeightBreakpointSatisfiedEventTrigger::class,

@@ -1,0 +1,11 @@
+package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_query_parameters
+
+import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema
+
+object SetIncomingDataToNetworkParamsHolderQueryParametersEventDefinition :
+    EventDefinition<SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema> {
+    override val eventSchemaClass = SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema::class
+    override val eventRunner = SetIncomingDataToNetworkParamsHolderQueryParametersEventRunner
+    override val eventHolderBuilder = SetIncomingDataToNetworkParamsHolderQueryParametersEventHolderBuilder
+}

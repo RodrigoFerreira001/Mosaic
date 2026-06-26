@@ -8,11 +8,11 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class AssistChipTileHolder(
     override val id: String,
     override var tile: AssistChipTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<AssistChipTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() }
+        events = events.immutableMapTo { it.get() }
     )
 }

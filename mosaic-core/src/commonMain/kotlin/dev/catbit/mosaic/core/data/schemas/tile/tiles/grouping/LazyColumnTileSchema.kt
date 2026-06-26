@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrollThresholdReachedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
@@ -32,6 +33,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * Children with a `null` [TileSchema.searchableTerms] are always shown regardless of the active term.
  *
  * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition.
  * - `OnScrolledEventTrigger` — fired while scrolling, with `ScrollDirection.Bottom` (forward)
  *   or `ScrollDirection.Top` (backward).
  * - `OnScrollThresholdReachedEventTrigger` — fired when the user scrolls within
@@ -50,6 +52,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 @Immutable
 @Triggers(
     [
+        OnDisplayEventTrigger::class,
         OnClickEventTrigger::class,
         OnLongPressEventTrigger::class,
         OnScrolledEventTrigger::class,

@@ -12,7 +12,7 @@ object SwitchTileHolderBuilder : TileHolderBuilder<SwitchTileSchema, SwitchTileH
         SwitchTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

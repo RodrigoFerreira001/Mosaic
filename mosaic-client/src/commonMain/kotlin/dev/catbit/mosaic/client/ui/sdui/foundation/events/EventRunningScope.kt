@@ -3,7 +3,7 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.events
 import dev.catbit.mosaic.client.logger.Level
 import dev.catbit.mosaic.client.logger.MosaicLogger
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen_tiles_broadcast.ScreenTilesBroadcastData
-import dev.catbit.mosaic.client.ui.sdui.foundation.screen.DataHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.data_holder.ScreenDataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEditor
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEventDispatcher
@@ -28,7 +28,7 @@ data class EventRunningScope(
     val tilesEventDispatcher: TilesEventDispatcher,
     val tilesOverlaysEditor: TilesOverlaysEditor,
     val tilesValueProducer: TilesValueProducer,
-    val dataHolder: DataHolder,
+    val screenDataHolder: ScreenDataHolder,
     val screenBehaviorsHolder: ScreenBehaviorsHolder,
 ) {
 

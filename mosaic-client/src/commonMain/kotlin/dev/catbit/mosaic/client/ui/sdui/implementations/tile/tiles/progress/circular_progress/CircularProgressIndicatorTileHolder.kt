@@ -8,11 +8,11 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class CircularProgressIndicatorTileHolder(
     override val id: String,
     override var tile: CircularProgressIndicatorTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<CircularProgressIndicatorTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() }
+        events = events.immutableMapTo { it.get() }
     )
 }

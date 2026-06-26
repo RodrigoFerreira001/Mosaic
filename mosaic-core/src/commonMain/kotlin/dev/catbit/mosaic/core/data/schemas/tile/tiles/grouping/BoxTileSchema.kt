@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.AlignmentSchema
@@ -19,7 +20,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`, `alignment: AlignmentSchema.TwoDimensional`
  *
- * **Triggers dispatched:** `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition. `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when
  * the box itself is tapped or long-pressed (requires events to be wired on the schema).
  *
  * **Notes:** Unlike [ColumnTileSchema] and [RowTileSchema], this tile does not support
@@ -28,6 +30,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 @Immutable
 @Triggers(
     [
+        OnDisplayEventTrigger::class,
         OnClickEventTrigger::class,
         OnLongPressEventTrigger::class
     ]

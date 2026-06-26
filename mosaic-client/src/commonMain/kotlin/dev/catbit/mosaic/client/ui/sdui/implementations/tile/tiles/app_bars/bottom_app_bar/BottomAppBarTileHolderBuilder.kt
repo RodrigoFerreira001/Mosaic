@@ -12,7 +12,7 @@ object BottomAppBarTileHolderBuilder : TileHolderBuilder<BottomAppBarTileSchema,
         BottomAppBarTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             actions = actions.buildTileHolders(),
             floatingActionButton = floatingActionButton?.let { buildTileHolder(it) }
         )

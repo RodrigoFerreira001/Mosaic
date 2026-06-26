@@ -8,7 +8,7 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class TopAppBarTileHolder(
     override val id: String,
     override var tile: TopAppBarTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     private val title: TileHolder<*>,
     private val navigationIcon: TileHolder<*>?,
     private val actions: List<TileHolder<*>>?
@@ -21,7 +21,7 @@ class TopAppBarTileHolder(
         }
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() },
+        events = events.immutableMapTo { it.get() },
         title = title.get(),
         navigationIcon = navigationIcon?.get(),
         actions = actions?.immutableMapTo { it.get() },

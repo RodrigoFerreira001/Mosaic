@@ -14,7 +14,7 @@ object StopRefreshingEventHolderBuilder :
             id = id,
             event = eventSchema,
             trigger = trigger,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

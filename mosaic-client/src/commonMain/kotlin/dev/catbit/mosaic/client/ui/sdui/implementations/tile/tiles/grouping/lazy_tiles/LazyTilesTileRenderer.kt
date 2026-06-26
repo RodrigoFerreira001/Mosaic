@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.domain.send_request.SendNetworkRequestUseCase
 import dev.catbit.mosaic.client.extensions.toKtorHttpMethod
+import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.ui.effects.SingleEffect
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
@@ -28,6 +29,8 @@ object LazyTilesTileRenderer : TileRenderer<LazyTilesTileSchema> {
     override fun TileRenderingScope.Render(
         tileSchema: LazyTilesTileSchema,
     ) {
+
+        OnDisplayEffect()
 
         val sendNetworkRequestUseCase = koinInject<SendNetworkRequestUseCase>()
         val mosaicSerializer = koinInject<MosaicSerializer>()

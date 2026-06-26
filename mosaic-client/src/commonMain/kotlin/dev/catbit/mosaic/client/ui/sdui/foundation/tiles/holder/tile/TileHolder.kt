@@ -9,12 +9,9 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolde
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
-import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import dev.catbit.mosaic.core.extensions.runSafely
 import dev.catbit.mosaic.core.extensions.toJsonElement
 import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.Json.Default.encodeToJsonElement
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.serializer
@@ -23,7 +20,7 @@ abstract class TileHolder<T : TileSchema> {
     abstract val id: String
     protected abstract var tile: T
 
-    protected abstract val events: MutableList<EventHolder<*>>?
+    protected abstract val events: MutableList<EventHolder<*>>
     protected abstract val tiles: MutableList<TileHolder<*>>?
 
     open fun getTileHolder(
@@ -32,7 +29,7 @@ abstract class TileHolder<T : TileSchema> {
     ): TileHolder<*>? =
         if (tileId == id) this
         else tiles?.firstNotNullOfOrNull { it.getTileHolder(tileId, includeEventsOnSearch) }
-            ?: if (includeEventsOnSearch) events?.firstNotNullOfOrNull { it.getTileHolder(tileId) } else null
+            ?: if (includeEventsOnSearch) events.firstNotNullOfOrNull { it.getTileHolder(tileId) } else null
 
     open fun getTileHoldersByGroupEvent(
         event: TileGroupEvent
@@ -44,15 +41,15 @@ abstract class TileHolder<T : TileSchema> {
     open fun handlesGroupEvent(event: TileGroupEvent): Boolean = false
 
     open fun getEventHolder(eventId: String): EventHolder<*>? =
-        events?.firstNotNullOfOrNull { it.getEventHolder(eventId) }
+        events.firstNotNullOfOrNull { it.getEventHolder(eventId) }
             ?: tiles?.firstNotNullOfOrNull { it.getEventHolder(eventId) }
 
     open fun getEventsByTrigger(
         eventTrigger: EventTrigger
     ): List<EventSchema>? = events
-        ?.filter { it.trigger == eventTrigger }
-        ?.map { it.get() }
-        ?.plus(tiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
+        .filter { it.trigger == eventTrigger }
+        .map { it.get() }
+        .plus(tiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
 
     abstract fun get(): T
 
@@ -89,6 +86,19 @@ abstract class TileHolder<T : TileSchema> {
                 deserializer = tile::class.serializer(),
                 element = updatedObject
             )
+
+            val currentEvents = events.map { it.get() }
+
+            if (tile.events != currentEvents) {
+                events.apply {
+                    clear()
+                    with(builderScope) {
+                        tile.events?.buildEventHolders()
+                    }?.let {
+                        events.addAll(it)
+                    }
+                }
+            }
         }
     }
 

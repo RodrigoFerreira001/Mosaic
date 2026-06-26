@@ -12,7 +12,7 @@ object InputChipTileHolderBuilder : TileHolderBuilder<InputChipTileSchema, Input
         InputChipTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

@@ -12,7 +12,7 @@ object CheckboxTileHolderBuilder : TileHolderBuilder<CheckboxTileSchema, Checkbo
         CheckboxTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

@@ -12,7 +12,7 @@ object IconTileHolderBuilder : TileHolderBuilder<IconTileSchema, IconTileHolder>
         IconTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

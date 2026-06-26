@@ -9,6 +9,16 @@ import kotlinx.serialization.Serializable
 sealed interface DataSourceSchema {
 
     @Serializable
+    @SerialName("ApplicationPlainData")
+    data object ApplicationPlainData : DataSourceSchema
+
+    @Serializable
+    @SerialName("ApplicationSegmentedData")
+    data class ApplicationSegmentedData(
+        @SerialName("segmentId") val segmentId: String
+    ) : DataSourceSchema
+
+    @Serializable
     @SerialName("SegmentedDataBase")
     data class SegmentedDataBase(
         @SerialName("segmentId") val segmentId: String

@@ -1,7 +1,9 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
 import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
@@ -17,7 +19,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
  * `visibility: TileSchema.Visibility`
  *
- * **Triggers dispatched:** None. This tile does not dispatch any event triggers.
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition.
  *
  * **Notes:** The shimmer effect is always active while the tile is visible; there is no
  * on/off flag. To stop the shimmer, the server should replace or hide this tile via
@@ -25,6 +28,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * shapes should be provided as child tiles to produce a meaningful skeleton UI.
  */
 @Immutable
+@Triggers([OnDisplayEventTrigger::class])
 @Serializable
 @SerialName("Shimmer")
 data class ShimmerTileSchema(

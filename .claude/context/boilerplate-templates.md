@@ -30,6 +30,12 @@ Substitua `[Name]` pelo nome do componente (ex: `TransformData`), `[name]` pela 
    - Formato: nome do schema, `@SerialName`, tabela de campos, triggers suportados (do `@Triggers` do schema)
    - Ler o schema para extrair essas informações — não inventar.
 
+8. **Sempre atualizar os arquivos de referência da skill após gerar boilerplate.**
+   - Novo Tile → adicionar entrada em `skill/mosaic/references/tiles.md`
+   - Novo Trigger → adicionar entrada em `skill/mosaic/references/triggers.md`
+   - Novo Event → adicionar entrada em `skill/mosaic/references/events.md`
+   - Os arquivos da skill são a fonte de verdade para geração futura de código — manter em sincronia com os catalogs.
+
 ---
 
 ## Evento — 5 arquivos + 2 registros
@@ -156,7 +162,7 @@ object [Name]EventHolderBuilder : EventHolderBuilder<[Name]EventSchema, [Name]Ev
             id = id,
             event = eventSchema,
             trigger = trigger,
-            events = events?.map { eventModel -> buildEventHolder(eventModel) }
+            events = events.buildEventHolders()
         )
     }
 }
@@ -361,7 +367,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.[package].[Name]TileSchema
 class [Name]TileHolder(
     override val id: String,
     override var tile: [Name]TileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<[Name]TileSchema>() {
 
@@ -400,7 +406,7 @@ object [Name]TileHolderBuilder : TileHolderBuilder<[Name]TileSchema, [Name]TileH
         [Name]TileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             // container: tiles = tiles.buildTileHolders()
         )
     }

@@ -12,7 +12,7 @@ object MenuTileHolderBuilder : TileHolderBuilder<MenuTileSchema, MenuTileHolder>
         MenuTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             tiles = tiles.buildTileHolders()
         )
     }

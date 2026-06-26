@@ -13,6 +13,7 @@ import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.extensions.onClick
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.extensions.toArrangement
+import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.modifiers.thenIf
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
@@ -30,6 +31,9 @@ object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
     override fun TileRenderingScope.Render(
         tileSchema: ColumnTileSchema
     ) {
+
+        OnDisplayEffect()
+
         with(tileSchema) {
             val modifier = Modifier
                 .visible(isVisible())

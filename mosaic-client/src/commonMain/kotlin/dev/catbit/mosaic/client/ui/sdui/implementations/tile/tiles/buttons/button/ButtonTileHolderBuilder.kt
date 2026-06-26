@@ -12,7 +12,7 @@ object ButtonTileHolderBuilder : TileHolderBuilder<ButtonTileSchema, ButtonTileH
         ButtonTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

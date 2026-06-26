@@ -12,7 +12,7 @@ object NavigationRailTileHolderBuilder : TileHolderBuilder<NavigationRailTileSch
         NavigationRailTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             header = header?.let { buildTileHolder(it) },
             footer = header?.let { buildTileHolder(it) }
         )

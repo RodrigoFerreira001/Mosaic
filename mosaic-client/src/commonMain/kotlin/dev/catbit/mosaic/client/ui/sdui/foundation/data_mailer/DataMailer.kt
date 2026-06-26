@@ -13,5 +13,7 @@ class DataMailer {
 
     fun getData(
         dataKey: String
-    ): Any? = dataStore[dataKey]
+    ): Any? = dataStore[dataKey]?.also {
+        dataStore.remove(dataKey)
+    }
 }

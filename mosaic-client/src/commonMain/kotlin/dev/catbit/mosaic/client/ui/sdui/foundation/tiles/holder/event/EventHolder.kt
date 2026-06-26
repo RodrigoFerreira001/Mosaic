@@ -34,6 +34,9 @@ abstract class EventHolder<T : EventSchema> {
 
     @OptIn(InternalSerializationApi::class)
     fun UpdateScope.update(updateData: Map<String, Any?>) {
+
+        // TODO Maybe, just maybe, change this part to an event update with new events or tiles, can update the current tile and event holders
+
         runSafely {
             val updateObject = updateData.toJsonElement().jsonObject
             val eventObject = serializer.encodeEventToJsonElement(event).jsonObject

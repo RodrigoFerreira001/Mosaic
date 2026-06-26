@@ -12,7 +12,7 @@ object TabsTileHolderBuilder : TileHolderBuilder<TabsTileSchema, TabsTileHolder>
         TabsTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
@@ -24,7 +25,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * `visibility: TileSchema.Visibility`, `arrangement: ArrangementSchema.Horizontal`,
  * `alignment: AlignmentSchema.Vertical`, `scrollable: Boolean`
  *
- * **Triggers dispatched:** `OnScrolledEventTrigger` — fired continuously while the user
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition. `OnScrolledEventTrigger` — fired continuously while the user
  * scrolls, carrying `ScrollDirection.End` (forward) or `ScrollDirection.Start` (backward).
  * `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when the row itself is tapped
  * or long-pressed.
@@ -36,6 +38,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 @Immutable
 @Triggers(
     [
+        OnDisplayEventTrigger::class,
         OnClickEventTrigger::class,
         OnLongPressEventTrigger::class,
         OnScrolledEventTrigger::class

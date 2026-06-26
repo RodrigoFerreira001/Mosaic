@@ -10,13 +10,13 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class MenuTileHolder(
     override val id: String,
     override var tile: MenuTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>
 ) : TileHolder<MenuTileSchema>() {
 
     override fun get() = tile.copy(
         tiles = tiles.immutableMapTo { it.get() },
-        events = events?.immutableMapTo { it.get() }
+        events = events.immutableMapTo { it.get() }
     )
 
     override fun TileEventScope.onTileEvent(event: TileEvent) {

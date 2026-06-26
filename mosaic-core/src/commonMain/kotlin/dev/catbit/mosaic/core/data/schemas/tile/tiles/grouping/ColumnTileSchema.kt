@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
@@ -29,7 +30,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * [TileSchema.searchableTerms] list contains the term (case-insensitive) are rendered.
  * Children with a `null` [TileSchema.searchableTerms] are always shown regardless of the active term.
  *
- * **Triggers dispatched:** `OnScrolledEventTrigger` — fired continuously while the user
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition. `OnScrolledEventTrigger` — fired continuously while the user
  * scrolls, carrying `ScrollDirection.Bottom` (forward) or `ScrollDirection.Top` (backward).
  * `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when the column itself is tapped
  * or long-pressed (requires events to be wired on the schema).
@@ -41,6 +43,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 @Immutable
 @Triggers(
     [
+        OnDisplayEventTrigger::class,
         OnClickEventTrigger::class,
         OnLongPressEventTrigger::class,
         OnScrolledEventTrigger::class

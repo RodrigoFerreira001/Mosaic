@@ -11,14 +11,14 @@ import kotlinx.collections.immutable.toImmutableList
 class SearchBarTileHolder(
     override val id: String,
     override var tile: SearchBarTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     private val leadingIconHolder: TileHolder<*>?,
     private val trailingIconHolder: TileHolder<*>?,
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<SearchBarTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() },
+        events = events.immutableMapTo { it.get() },
         leadingIcon = leadingIconHolder?.get(),
         trailingIcon = trailingIconHolder?.get()
     )

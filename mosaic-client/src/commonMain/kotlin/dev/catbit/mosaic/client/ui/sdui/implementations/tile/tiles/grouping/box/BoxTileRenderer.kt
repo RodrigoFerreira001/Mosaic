@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.visible
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.extensions.onClick
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
@@ -18,6 +19,9 @@ object BoxTileRenderer : TileRenderer<BoxTileSchema> {
     override fun TileRenderingScope.Render(
         tileSchema: BoxTileSchema,
     ) {
+
+        OnDisplayEffect()
+
         with(tileSchema) {
             Box(
                 modifier = Modifier

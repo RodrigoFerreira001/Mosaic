@@ -8,7 +8,7 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class BottomAppBarTileHolder(
     override val id: String,
     override var tile: BottomAppBarTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     private val actions: List<TileHolder<*>>,
     private val floatingActionButton: TileHolder<*>?,
 ) : TileHolder<BottomAppBarTileSchema>() {
@@ -16,7 +16,7 @@ class BottomAppBarTileHolder(
     override val tiles = actions.toMutableList().apply { floatingActionButton?.let(::add) }
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() },
+        events = events.immutableMapTo { it.get() },
         actions = actions.immutableMapTo { it.get() },
         floatingActionButton = floatingActionButton?.get()
     )

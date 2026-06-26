@@ -9,11 +9,11 @@ import kotlinx.collections.immutable.toImmutableList
 class SimpleTextTileHolder(
     override val id: String,
     override var tile: SimpleTextTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<SimpleTextTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() }
+        events = events.immutableMapTo { it.get() }
     )
 }

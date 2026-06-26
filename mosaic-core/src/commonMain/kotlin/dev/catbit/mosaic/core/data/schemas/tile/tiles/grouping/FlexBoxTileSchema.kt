@@ -1,7 +1,9 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
 import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
@@ -21,7 +23,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * `alignContent: FlexAlignContentSchema`, `wrap: FlexWrapSchema`, `columnGap: Int`,
  * `rowGap: Int`
  *
- * **Triggers dispatched:** `OnClickEventTrigger` — fired when the flex box container is
+ * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
+ * composition. `OnClickEventTrigger` — fired when the flex box container is
  * tapped (requires events to be wired on the schema).
  *
  * **Notes:** Uses `@OptIn(ExperimentalFlexBoxApi::class)`. The renderer exposes
@@ -29,6 +32,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * `flexShrink`, `alignSelf`) can access it. Children are composed eagerly.
  */
 @Immutable
+@Triggers([OnDisplayEventTrigger::class])
 @Serializable
 @SerialName("FlexBox")
 data class FlexBoxTileSchema(

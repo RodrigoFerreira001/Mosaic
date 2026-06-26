@@ -36,7 +36,13 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
 
-    jvm()
+    jvm {
+        compilations.configureEach {
+            compileTaskProvider.configure {
+                compilerOptions.jvmTarget = JvmTarget.JVM_21
+            }
+        }
+    }
 
     wasmJs {
         browser()

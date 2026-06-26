@@ -11,9 +11,9 @@ object ScreenTileHolderBuilder : TileHolderBuilder<ScreenTileSchema, ScreenTileH
         ScreenTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.map { eventModel -> buildEventHolder(eventModel) }?.toMutableList(),
-            tiles = tiles.map { tileModel -> buildTileHolder(tileModel) }.toMutableList(),
-            navigationDrawerTiles = navigationDrawerTiles?.map { tileModel -> buildTileHolder(tileModel) },
+            events = events.buildEventHolders(),
+            tiles = tiles.buildTileHolders(),
+            navigationDrawerTiles = navigationDrawerTiles?.buildTileHolders(),
         )
     }
 }

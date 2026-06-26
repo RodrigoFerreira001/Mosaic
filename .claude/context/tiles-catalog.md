@@ -26,9 +26,22 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 | `text` | `String` | required |
 | `color` | `ColorSchema?` | `null` (falls back to `LocalTextStyle` color) |
 | `typography` | `TypographySchema?` | `null` (falls back to `LocalTextStyle`) |
+| `autoSize` | `AutoSizeSchema?` | `null` (no auto-sizing) |
+| `fontSize` | `Float?` | `null` (sp — falls back to `TextUnit.Unspecified`) |
+| `fontStyle` | `FontStyleSchema?` | `null` — `NORMAL`, `ITALIC` |
+| `fontWeight` | `FontWeightSchema?` | `null` — `THIN`, `EXTRA_LIGHT`, `LIGHT`, `NORMAL`, `MEDIUM`, `SEMI_BOLD`, `BOLD`, `EXTRA_BOLD`, `BLACK` |
+| `fontFamily` | `FontFamilySchema?` | `null` — `DEFAULT`, `SERIF`, `SANS_SERIF`, `MONOSPACE`, `CURSIVE` |
+| `letterSpacing` | `Float?` | `null` (sp — falls back to `TextUnit.Unspecified`) |
+| `textDecoration` | `TextDecorationSchema?` | `null` — `NONE`, `UNDERLINE`, `LINE_THROUGH` |
+| `textAlign` | `TextAlignSchema?` | `null` — `LEFT`, `RIGHT`, `CENTER`, `JUSTIFY`, `START`, `END` |
+| `lineHeight` | `Float?` | `null` (sp — falls back to `TextUnit.Unspecified`) |
+| `overflow` | `TextOverflowSchema?` | `null` → `CLIP` — `CLIP`, `ELLIPSIS`, `VISIBLE` |
+| `softWrap` | `Boolean?` | `null` → `true` |
+| `maxLines` | `Int?` | `null` → `Int.MAX_VALUE` |
+| `minLines` | `Int?` | `null` → `1` |
 
-`ColorSchema`: `{ "argb": "#AARRGGBB" }`
-`TypographySchema`: `{ "fontSize": Int, "fontWeight": Int (100–900), "letterSpacing": Float? }`
+`AutoSizeSchema.StepBased`: `{ "type": "StepBased", "minFontSize": Float, "maxFontSize": Float, "stepSize": Float? }` — values in sp.
+Individual text properties (`fontSize`, `fontWeight`, etc.) override the corresponding values from `typography` when both are set.
 
 **Supported triggers:** none
 
@@ -313,7 +326,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Exposes `LocalColumnScope` CompositionLocal for children that need `ColumnScope` modifiers (e.g. `weight`). Broadcast channel (shared with `LazyColumnTileSchema`): `ScrollToTop`, `ScrollTo(index)`, `ScrollToBottom`. When `filterChildrenByTerm` is non-null, only children whose `searchableTerms` contains the term (case-insensitive) are rendered; children with `null` `searchableTerms` are always shown.
 
-**Supported triggers:** `OnClick`, `OnLongPress`, `OnScrolled`
+**Supported triggers:** `OnDisplay`, `OnClick`, `OnLongPress`, `OnScrolled`
 
 ---
 
@@ -331,7 +344,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Uses Compose `LazyColumn` — only visible items are composed. Items are keyed by tile id. Exposes `LocalLazyColumnRenderingScope` CompositionLocal (provides `LazyItemScope`). `scrollThreshold` fires `OnScrollThresholdReached` when the user scrolls within that many items of the end. Broadcast channel shared with `ColumnTileSchema`: `ScrollToTop`, `ScrollTo(index)`, `ScrollToBottom`. When `filterChildrenByTerm` is non-null, only children whose `searchableTerms` contains the term (case-insensitive) are rendered; children with `null` `searchableTerms` are always shown.
 
-**Supported triggers:** `OnScrolled`, `OnScrollThresholdReached`, `OnClick`, `OnLongPress`
+**Supported triggers:** `OnDisplay`, `OnScrolled`, `OnScrollThresholdReached`, `OnClick`, `OnLongPress`
 
 ---
 
@@ -347,7 +360,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Exposes `LocalRowScope` CompositionLocal for children that need `RowScope` modifiers (e.g. `weight`). Broadcast channel (shared with `LazyRowTileSchema`): `ScrollToStart`, `ScrollTo(index)`, `ScrollToEnd`.
 
-**Supported triggers:** `OnClick`, `OnLongPress`, `OnScrolled`
+**Supported triggers:** `OnDisplay`, `OnClick`, `OnLongPress`, `OnScrolled`
 
 ---
 
@@ -364,7 +377,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Uses Compose `LazyRow` — only visible items are composed. Items are keyed by tile id. Exposes `LocalLazyRowRenderingScope` CompositionLocal (provides `LazyItemScope`). `scrollThreshold` fires `OnScrollThresholdReached` with direction `End` or `Start`. Broadcast channel shared with `RowTileSchema`: `ScrollToStart`, `ScrollTo(index)`, `ScrollToEnd`.
 
-**Supported triggers:** `OnScrolled`, `OnScrollThresholdReached`, `OnClick`, `OnLongPress`
+**Supported triggers:** `OnDisplay`, `OnScrolled`, `OnScrollThresholdReached`, `OnClick`, `OnLongPress`
 
 ---
 
@@ -378,7 +391,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Stacking container — children overlay on top of each other. No scroll. No scoped CompositionLocal.
 
-**Supported triggers:** `OnClick`, `OnLongPress`
+**Supported triggers:** `OnDisplay`, `OnClick`, `OnLongPress`
 
 ---
 
@@ -394,7 +407,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Uses `ColumnScope` internally. Exposes `LocalColumnScope`. Always fires `OnClick` regardless of events registration.
 
-**Supported triggers:** `OnClick`
+**Supported triggers:** `OnDisplay`, `OnClick`
 
 ---
 
@@ -422,7 +435,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Uses Compose experimental Grid API (`@OptIn(ExperimentalGridApi)`). Eager composition (not lazy). Exposes `LocalGridScope` CompositionLocal for children needing grid placement modifiers (columnSpan, rowSpan).
 
-**Supported triggers:** `OnClick`
+**Supported triggers:** `OnDisplay`, `OnClick`
 
 ---
 
@@ -448,7 +461,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Uses Compose experimental FlexBox API (`@OptIn(ExperimentalFlexBoxApi)`). Exposes `LocalFlexBoxScope` CompositionLocal for children needing flex modifiers (flexGrow, flexShrink, alignSelf).
 
-**Supported triggers:** `OnClick`
+**Supported triggers:** `OnDisplay`, `OnClick`
 
 ---
 
@@ -464,7 +477,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Uses Compose `FlowRow` — items wrap to the next row when the row is full. Eager composition (not lazy). Exposes `LocalFlowRowScope` CompositionLocal for children.
 
-**Supported triggers:** `OnClick`
+**Supported triggers:** `OnDisplay`, `OnClick`
 
 ---
 
@@ -485,7 +498,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 `OnPageChanged` triggers fired per change: `Direction.Any` (always), `Direction.Start` (if new page is 0), `Direction.End` (if new page is last), `Direction.Index(n)` (always, carrying zero-based page index).
 
-**Supported triggers:** `OnPageChanged`
+**Supported triggers:** `OnDisplay`, `OnPageChanged`
 
 ---
 
@@ -504,7 +517,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Material 3 horizontal carousel. `contentPadding` applied as symmetric horizontal padding. `userScrollEnabled = false` for programmatic-only scrolling.
 
-**Supported triggers:** none
+**Supported triggers:** `OnDisplay`
 
 ---
 
@@ -517,7 +530,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Always active while visible. To stop shimmer: replace or hide the tile. Uses `compose-shimmer` library.
 
-**Supported triggers:** none
+**Supported triggers:** `OnDisplay`
 
 ---
 
@@ -531,7 +544,7 @@ JSON serialization uses `@SerialName` as the `type` discriminator field.
 
 **Note:** Uses Material 3 `PullToRefreshBox`. Server must toggle `isRefreshing = false` via `UpdateTiles` when refresh completes. `style`/`visibility` are not forwarded to `PullToRefreshBox`.
 
-**Supported triggers:** `OnPull`
+**Supported triggers:** `OnDisplay`, `OnPull`
 
 ---
 
@@ -557,7 +570,7 @@ Semantics:
 
 DSL helpers (in `AdaptiveVisibilityTileSchemaBuilder.kt`): `widthVisibleFrom[Compact|Medium|Expanded|Large|ExtraLarge]()`, `widthVisibleUntil[...]()`, `heightVisibleFrom[Compact|Medium|Expanded]()`, `heightVisibleUntil[...]()`.
 
-**Supported triggers:** `OnWidthBreakpointSatisfied`, `OnWidthBreakpointNotSatisfied`, `OnHeightBreakpointSatisfied`, `OnHeightBreakpointNotSatisfied`
+**Supported triggers:** `OnDisplay`, `OnWidthBreakpointSatisfied`, `OnWidthBreakpointNotSatisfied`, `OnHeightBreakpointSatisfied`, `OnHeightBreakpointNotSatisfied`
 
 ---
 
@@ -581,7 +594,7 @@ Self-loading tile container that fetches child tiles from a remote endpoint on f
 
 **Note:** Network call via `SingleEffect` (one-shot). If `tiles` is non-null, fetch is skipped. Response decoded as `List<TileSchema>`. Outer layout is `Column`. Use `ReloadLazyTilesEventSchema` to force re-fetch.
 
-**Supported triggers:** `OnLoadTilesStart`, `OnLoadTilesSuccess`, `OnLoadTilesFailure`
+**Supported triggers:** `OnDisplay`, `OnLoadTilesStart`, `OnLoadTilesSuccess`, `OnLoadTilesFailure`
 
 ---
 
@@ -769,3 +782,28 @@ Self-loading tile container that fetches child tiles from a remote endpoint on f
 **Note:** `Box` overlaying a `DropdownMenu` on top of anchor content (`tiles`). `expanded` state is server-driven. When user dismisses menu externally, renderer dispatches `MenuTileEvents.OnToggleMenu` → `MenuTileHolder` toggles `tile.expanded`. Max dropdown height 400 dp. Complex builder scenario — `MenuTileSchemaBuilder` has nested `MenuItem` builders; always study the existing implementation before modifying.
 
 **Supported triggers:** `OnMenuItemClick`
+
+---
+
+## Inputs
+
+### DropdownListTileSchema
+**JSON type:** `"DropdownList"`
+
+| Field | Type | Default |
+|---|---|---|
+| `expanded` | `Boolean` | `false` (server sempre envia `false`; cliente gerencia estado) |
+| `options` | `List<SelectOption>` | required |
+| `selectedOptionId` | `String` | required — deve ser um id presente em `options` (validado no builder) |
+| `enabled` | `Boolean` | `true` |
+| `kind` | `Kind` (`FILLED`, `OUTLINED`) | `OUTLINED` |
+
+`SelectOption`: `{ id: String, label: String }`
+
+**Form tile:** `produceValueWithKey` sempre retorna `mapOf(key to selectedOptionId)`. Não há estado nullable — `selectedOptionId` é sempre válido. Para representar um estado "selecione uma opção", inclua uma opção dedicada em `options` e passe seu id como `selectedOptionId` inicial.
+
+**Updatable fields (via UpdateTiles):** `selectedOptionId`, `enabled`, `options`, `kind`, `visibility`, `style`.
+
+**Note:** `ExposedDropdownMenuBox` Material 3. O toggle e dismiss são gerenciados pelo cliente via `DropdownListTileEvents` (`OnDropdownListToggle`, `OnDropdownListDismissRequest`, `OnItemSelected`). O servidor nunca envia `expanded = true`.
+
+**Supported triggers:** `OnDropdownListItemSelected(id)`, `OnDropdownListOpen`, `OnDropdownListClose`

@@ -8,6 +8,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalColumnScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalLazyItemScope
@@ -22,6 +23,9 @@ object CardTileRenderer : TileRenderer<CardTileSchema> {
     override fun TileRenderingScope.Render(
         tileSchema: CardTileSchema,
     ) {
+
+        OnDisplayEffect()
+
         with(tileSchema) {
 
             val modifier = Modifier

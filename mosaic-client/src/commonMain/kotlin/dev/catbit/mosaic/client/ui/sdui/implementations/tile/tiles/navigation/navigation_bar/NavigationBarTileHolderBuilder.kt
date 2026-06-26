@@ -12,7 +12,7 @@ object NavigationBarTileHolderBuilder : TileHolderBuilder<NavigationBarTileSchem
         NavigationBarTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

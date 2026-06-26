@@ -11,8 +11,8 @@ object TextFieldTileHolderBuilder : TileHolderBuilder<TextFieldTileSchema, TextF
     ): TextFieldTileHolder = with(tileModel) {
         TextFieldTileHolder(
             id = id,
-            tile = this,
-            events = events?.buildEventHolders()
+            tile = tileModel,
+            events = events.buildEventHolders()
         )
     }
 }

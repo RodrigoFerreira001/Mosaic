@@ -12,7 +12,7 @@ object LinearProgressIndicatorTileHolderBuilder : TileHolderBuilder<LinearProgre
         LinearProgressIndicatorTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders()
+            events = events.buildEventHolders()
         )
     }
 }

@@ -8,11 +8,11 @@ import dev.catbit.mosaic.core.extensions.immutableMapTo
 class NestedNavigationGraphTileHolder(
     override val id: String,
     override var tile: NestedNavigationGraphTileSchema,
-    override val events: MutableList<EventHolder<*>>?,
+    override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<NestedNavigationGraphTileSchema>() {
 
     override fun get() = tile.copy(
-        events = events?.immutableMapTo { it.get() },
+        events = events.immutableMapTo { it.get() },
     )
 }

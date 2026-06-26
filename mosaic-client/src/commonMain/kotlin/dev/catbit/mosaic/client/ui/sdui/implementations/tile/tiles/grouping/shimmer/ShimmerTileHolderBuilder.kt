@@ -12,7 +12,7 @@ object ShimmerTileHolderBuilder : TileHolderBuilder<ShimmerTileSchema, ShimmerTi
         ShimmerTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             tiles = tiles.buildTileHolders()
         )
     }

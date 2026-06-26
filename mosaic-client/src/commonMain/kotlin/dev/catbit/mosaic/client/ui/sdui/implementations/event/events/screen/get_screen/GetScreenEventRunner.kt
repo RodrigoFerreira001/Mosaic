@@ -12,6 +12,8 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkFailu
 object GetScreenEventRunner : EventRunner<GetScreenEventSchema> {
     override suspend fun EventRunningScope.runEvent(event: GetScreenEventSchema) {
 
+        onTrigger(EventTriggers.onStart())
+
         @Suppress("UNCHECKED_CAST")
         get<GetScreenUseCase>()(
             with(event) {

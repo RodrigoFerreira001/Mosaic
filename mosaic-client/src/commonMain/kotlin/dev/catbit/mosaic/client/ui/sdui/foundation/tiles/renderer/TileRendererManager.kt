@@ -20,25 +20,13 @@ class TileRendererManager(
     ) {
         tileRenderers[tileSchema::class]?.let { renderer ->
             if (!tileSchema.isGone()) {
-                with(renderer) {
-
-                    DisposableEffect(tileSchema) {
-
-                        // trigger display event
-
-                        onDispose {
-                            // trigger dispose event
-                        }
-                    }
-
-                    @Suppress("UNCHECKED_CAST")
-                    with(renderer as TileRenderer<TileSchema>) {
-                        TileRenderingScope(
-                            tileId = tileSchema.id,
-                            events = tileSchema.events,
-                            onEvent = onEvent
-                        ).Render(tileSchema)
-                    }
+                @Suppress("UNCHECKED_CAST")
+                with(renderer as TileRenderer<TileSchema>) {
+                    TileRenderingScope(
+                        tileId = tileSchema.id,
+                        events = tileSchema.events,
+                        onEvent = onEvent
+                    ).Render(tileSchema)
                 }
             }
         } ?: run {

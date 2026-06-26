@@ -12,7 +12,7 @@ object PullToRefreshTileHolderBuilder : TileHolderBuilder<PullToRefreshTileSchem
         PullToRefreshTileHolder(
             id = id,
             tile = tileModel,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             tiles = tiles.buildTileHolders()
         )
     }

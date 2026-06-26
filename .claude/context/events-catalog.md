@@ -204,11 +204,21 @@ Pops the back stack by one entry.
 ### GetScreenEventSchema
 **JSON type:** `"GetScreen"`
 
-Fetches screen content from the server for the current screen ID.
+Fetches screen content from the server for the current screen ID. Does NOT automatically apply the fetched `ScreenModel` to the screen state — chain a `ChangeScreenState` on `OnSuccess` to apply the result.
 
-No additional fields.
+| Field | Type | Default |
+|---|---|---|
+| `method` | `HttpMethod` | `GET` |
+| `body` | `AnySerializable?` | `null` |
+| `headers` | `Map<String, String>?` | `null` |
 
-**Child triggers used:** `OnSuccess` (with `ScreenModel`), `OnFailure`
+Body/headers resolution: same as `SendNetworkRequest` — schema value takes precedence over `NetworkParametersHolder`; holder is always consumed.
+
+**Child triggers used:**
+- `OnStart` — antes do request.
+- `OnSuccess` — resposta bem-sucedida; incomingData = `ScreenModel`.
+- `OnFailure` — falha sem matching `OnNetworkFailure`; incomingData = `Throwable`. Sempre disparado em exceção de rede ou erro de deserialização.
+- `OnNetworkFailure(httpCode)` — resposta não-2xx com child event declarando matching `OnNetworkFailure(httpCode)`; **substitui** `OnFailure`; incomingData = `NetworkResponseException`.
 
 ---
 
@@ -282,6 +292,8 @@ Reads data from a `DataSourceSchema` using an `AccessModeSchema`.
 `DataSourceSchema` (sealed interface):
 - `PlainDataBase` — flat persistent DB
 - `SegmentedDataBase(segmentId: String)` — segmented persistent DB
+- `ApplicationPlainData` — app-scoped plain memory (compartilhado entre todas as telas, vive até o app encerrar)
+- `ApplicationSegmentedData(segmentId: String)` — app-scoped segmented memory (idem, por segmento)
 - `ScreenPlainData` — screen-scoped plain memory
 - `ScreenSegmentedData(segmentId: String)` — screen-scoped segmented memory
 - `ScreenNavigationData` — data passed via navigation
@@ -484,6 +496,15 @@ Stores `incomingData` as request **headers** (`Map<String, String>`) in the `Net
 Stores `incomingData` (a `String`) as the request **URL** in the `NetworkParametersHolder` — the mechanism for feeding a runtime-generated signed URL into `SendFile` (used when its `url` is `null`). No specific fields.
 
 **Child triggers used:** `OnSuccess` (incomingData forwarded unchanged), `OnFailure` (incomingData null or not a String)
+
+---
+
+### SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema
+**JSON type:** `"SetIncomingDataToNetworkParamsHolderQueryParameters"`
+
+Stores `incomingData` as **query parameters** (`Map<String, Any?>`) in the `NetworkParametersHolder`, appended to the URL of the next network event (`SendNetworkRequest`, `GetScreen`, `DownloadFile`). Null values within the map are skipped. No specific fields.
+
+**Child triggers used:** `OnSuccess` (incomingData forwarded unchanged), `OnFailure` (incomingData null or not a Map)
 
 ---
 
@@ -724,7 +745,7 @@ Stops the pull-to-refresh animation on a `PullToRefreshTileSchema`.
 ### RequestPermissionEventSchema
 **JSON type:** `"RequestPermission"`
 
-Requests one or more system permissions from the user.
+Requests one or more runtime permissions from the user using each platform's native mechanism.
 
 | Field | Type |
 |---|---|
@@ -732,7 +753,9 @@ Requests one or more system permissions from the user.
 
 `Permissions`: `CAMERA`, `GALLERY`, `STORAGE`, `MICROPHONE`, `LOCATION`, `NOTIFICATION`, `CONTACTS`
 
-**Child triggers used:** `OnPermissionsAcquired`, `OnPermissionsDenied`
+**Child triggers used:** `onPermissionsAcquired`, `onPermissionsDenied`, `onPermissionRationale` (Android only — first denial, can ask again), `onSuccess`, `onFailure`
+
+> ⚠️ **Requisito do app consumidor:** as permissões solicitadas devem estar declaradas no `AndroidManifest.xml` (Android) e no `Info.plist` com a `NSXxxUsageDescription` correspondente (iOS). Sem essas entradas, a solicitação falha em runtime.
 
 ---
 

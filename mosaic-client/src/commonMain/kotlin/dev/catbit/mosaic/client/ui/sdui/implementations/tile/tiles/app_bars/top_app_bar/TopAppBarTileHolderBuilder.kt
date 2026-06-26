@@ -12,7 +12,7 @@ object TopAppBarTileHolderBuilder : TileHolderBuilder<TopAppBarTileSchema, TopAp
         TopAppBarTileHolder(
             id = id,
             tile = this,
-            events = events?.buildEventHolders(),
+            events = events.buildEventHolders(),
             title = buildTileHolder(title),
             navigationIcon = navigationIcon?.let { buildTileHolder(it)},
             actions = actions?.buildTileHolders(),

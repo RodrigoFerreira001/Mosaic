@@ -1,7 +1,9 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 
 import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
@@ -22,6 +24,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * `headers: Map<String, String>?`
  *
  * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition.
  * - `OnLoadTilesStartEventTrigger` — fired immediately before the network request is sent.
  * - `OnLoadTilesSuccessEventTrigger` — fired after the response is successfully decoded into
  *   a list of [TileSchema].
@@ -35,6 +38,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * [MosaicSerializer]. The outer layout is always a [Column] with the given [style].
  */
 @Immutable
+@Triggers([OnDisplayEventTrigger::class])
 @SerialName("LazyTiles")
 @Serializable
 data class LazyTilesTileSchema(
