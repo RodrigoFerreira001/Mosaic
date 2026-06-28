@@ -15,7 +15,7 @@ fun main() {
 }
 
 fun Application.module() {
-    configureRouting()
-    configureSerialization()
     configureCORS()
+    configureSerialization()
+    configureRouting()
 }

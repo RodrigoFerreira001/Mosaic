@@ -1,6 +1,5 @@
 package dev.catbit.mosaic.endpoints.initial_graph
 
-import dev.catbit.mosaic.server.builder.composition_local.CompositionLocalProvider
 import dev.catbit.mosaic.server.builder.graph.Graph
 import dev.catbit.mosaic.server.builder.placement.alignHorizontallyToCenter
 import dev.catbit.mosaic.server.builder.placement.arrangeToCenter

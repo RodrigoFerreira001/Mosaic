@@ -807,3 +807,20 @@ Self-loading tile container that fetches child tiles from a remote endpoint on f
 **Note:** `ExposedDropdownMenuBox` Material 3. O toggle e dismiss são gerenciados pelo cliente via `DropdownListTileEvents` (`OnDropdownListToggle`, `OnDropdownListDismissRequest`, `OnItemSelected`). O servidor nunca envia `expanded = true`.
 
 **Supported triggers:** `OnDropdownListItemSelected(id)`, `OnDropdownListOpen`, `OnDropdownListClose`
+
+---
+
+## System
+
+### SystemBroadcastListenerTileSchema
+**JSON type:** `"SystemBroadcastListener"`
+
+Transparent container tile that renders its children directly while hosting `onSystemBroadcast` event listeners. Place anywhere in the tile tree to react to system broadcasts without introducing any visual wrapping layout.
+
+| Field | Type | Default |
+|---|---|---|
+| `tiles` | `List<TileSchema>` | required |
+
+**Updatable fields (via UpdateTiles):** `tiles`, `visibility`, `style`.
+
+**Supported triggers:** `OnSystemBroadcast(broadcastId)` — fired automatically by the renderer via `observeSystemBroadcastChannel` whenever a `BroadcastToSystem` event with a matching `broadcastId` is emitted anywhere in the app. The broadcast payload (`data`) is forwarded as `incomingData` to child events.

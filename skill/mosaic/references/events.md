@@ -1149,6 +1149,55 @@ DeleteFile(trigger = EventTriggers.onSuccess())
 
 ---
 
+### OpenFilePicker
+**Purpose:** Opens the system file picker, allowing the user to select a file. Reads the file bytes on selection and forwards them as `incomingData` to child events.
+**When to use:** Any flow requiring the user to select a file from their device — upload, attach, import.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.file.OpenFilePicker`
+**Helper imports:** `import dev.catbit.mosaic.server.builder.event.builders.file.*`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `fileType` | `FileType` | required | Use helpers: `imageFileType()`, `videoFileType()`, `imageAndVideoFileType()`, `fileFileType(vararg types)` |
+| `pickMode` | `PickMode` | `singlePickMode()` | Currently only single selection supported |
+
+**FileType helpers:**
+- `imageFileType()` → `FileType.Image`
+- `videoFileType()` → `FileType.Video`
+- `imageAndVideoFileType()` → `FileType.ImageAndVideo`
+- `fileFileType("pdf", "png", "txt")` → `FileType.File(types)`
+
+**PickMode helpers:**
+- `singlePickMode()` → `PickMode.Single`
+
+**Triggers fired:**
+- `onStart()` — file selected, bytes are being read
+- `onSuccess(ByteArray)` — file bytes available as `incomingData`; chain with `SendFile` or `SaveFile`
+- `onFailure()` — user cancelled the picker or an exception occurred
+
+**Example:**
+```kotlin
+OpenFilePicker(
+    trigger = EventTriggers.onClick(),
+    fileType = imageFileType(),
+    events = {
+        SendFile(
+            trigger = EventTriggers.onSuccess(),
+            url = "/api/upload/avatar",
+            method = HttpMethod.POST,
+        )
+        UpdateTiles(
+            trigger = EventTriggers.onFailure(),
+            updates = {
+                update(tileId = "error_text", updateData = inlineTileUpdateData("visibility" to "VISIBLE"))
+            }
+        )
+    }
+)
+```
+
+---
+
 ## Menu
 
 ### ToggleMenu

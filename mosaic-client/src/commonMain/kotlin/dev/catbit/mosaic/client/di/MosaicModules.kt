@@ -66,6 +66,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trigg
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.update_events.UpdateEventsEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.delete_file.DeleteFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.get_file.GetFileEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.open_file_picker.OpenFilePickerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.save_file.SaveFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu.ToggleMenuEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
@@ -144,6 +145,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.navigation.ta
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.progress.circular_progress.CircularProgressIndicatorTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.progress.linear_progress.LinearProgressIndicatorTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.search.search_bar.SearchBarTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.system.system_broadcast_listener.SystemBroadcastListenerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.simple_text.SimpleTextTileDefinition
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -399,6 +401,7 @@ internal class MosaicModules(
         ShimmerTileDefinition,
         TextFieldTileDefinition,
         SimpleTextTileDefinition,
+        SystemBroadcastListenerTileDefinition,
         MenuTileDefinition,
         TopAppBarTileDefinition,
         BottomAppBarTileDefinition,
@@ -473,6 +476,7 @@ internal class MosaicModules(
         CheckIfHasInternetConnectionEventDefinition,
         DeleteFileEventDefinition,
         GetFileEventDefinition,
+        OpenFilePickerEventDefinition,
         SaveFileEventDefinition,
         StartCountdownTimerEventDefinition,
         UpdateEventsEventDefinition,

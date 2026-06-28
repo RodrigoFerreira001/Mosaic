@@ -393,7 +393,11 @@ fun myScreen() = Screen(
             // ...
         )
     },
-    tiles = {                                // tile tree
+    navigationDrawerTiles = {               // optional — tiles rendered inside a ModalNavigationDrawer
+        Column { /* nav items */ }
+    },
+    ttl = LocalDateTime(2026, 12, 31, 0, 0), // optional — cache expiry; client re-fetches after this datetime
+    tiles = {                                // tile tree (trailing lambda)
         Column(id = "root") {
             SimpleText(id = "title", text = "Hello")
         }
@@ -406,18 +410,30 @@ For navigation graphs (multiple screens with back-stack):
 ```kotlin
 fun myGraph() = Graph(
     startEntryId = "login",
-    defaultTransition = slideOverTransition(),
+    ttl = LocalDateTime(2026, 12, 31, 0, 0), // optional — cache expiry
+    defaultTransition = slideOverTransition(),          // optional
+    defaultPopTransition = slideOverTransition(),       // optional — back-stack pop
+    defaultPredictivePopTransition = slideOverTransition(), // optional — predictive back gesture
     entries = {
         entry(
             screenId = "login",
-            initialTiles = { /* TileSchemaBuilderScope */ },
-            initialEvents = { /* EventSchemaBuilderScope — onDisplay etc. */ },
-            failureTiles = { SimpleText(id = "err", text = "Error") }
+            initialTiles = { /* TileSchemaBuilderScope — shown while loading */ },
+            initialEvents = {
+                // default already wired: GetScreen(onDisplay) → ChangeScreenState(onSuccess)
+                // override only when you need custom loading behavior
+            },
+            failureTiles = { SimpleText(id = "err", text = "Error") }, // shown on Failure state
+            failureEvents = { /* EventSchemaBuilderScope — e.g. retry button events */ },
+            transition = slideOverTransition(),         // optional — overrides defaultTransition for this entry
+            popTransition = slideOverTransition(),      // optional
+            predictivePopTransition = slideOverTransition(), // optional
         )
-        entry(screenId = "home", initialTiles = { /* ... */ })
+        entry(screenId = "home") // initialEvents default: GetScreen(onDisplay) → ChangeScreenState(onSuccess)
     }
 )
 ```
+
+> **`entry` default `initialEvents`:** automatically wired as `GetScreen(trigger = onDisplay()) { ChangeScreenState(trigger = onSuccess(), state = successState()) }`. Override only when custom loading logic is needed.
 
 ---
 

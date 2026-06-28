@@ -16,6 +16,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.event.TriggerEventEventS
 import dev.catbit.mosaic.core.data.schemas.event.events.event.UpdateEventsEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.file.DeleteFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.file.GetFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.file.OpenFilePickerEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.file.SaveFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.menu.ToggleMenuEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEventSchema
@@ -59,9 +60,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLo
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnBottomSheetDismissedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListCloseEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListItemSelectedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListOpenEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
@@ -76,6 +74,9 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListCloseEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListItemSelectedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListOpenEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnHeightBreakpointNotSatisfiedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnHeightBreakpointSatisfiedEventTrigger
@@ -172,6 +173,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.TabsTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.progress.CircularProgressIndicatorTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.progress.LinearProgressIndicatorTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.search.SearchBarTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.system.SystemBroadcastListenerTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.text.SimpleTextTileSchema
 import dev.catbit.mosaic.core.serialization.serializers.ImmutableListSerializer
 import kotlin.reflect.KClass
@@ -185,7 +187,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.modules.EmptySerializersModule
 import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import kotlinx.serialization.modules.plus
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.serializer
@@ -847,6 +848,33 @@ class MosaicSerializer(
                     OnPageChangedEventTrigger.Direction.Index.serializer()
                 )
             }
+
+            polymorphic(OpenFilePickerEventSchema.FileType::class) {
+                subclass(
+                    OpenFilePickerEventSchema.FileType.Image::class,
+                    OpenFilePickerEventSchema.FileType.Image.serializer()
+                )
+                subclass(
+                    OpenFilePickerEventSchema.FileType.Video::class,
+                    OpenFilePickerEventSchema.FileType.Video.serializer()
+                )
+                subclass(
+                    OpenFilePickerEventSchema.FileType.ImageAndVideo::class,
+                    OpenFilePickerEventSchema.FileType.ImageAndVideo.serializer()
+                )
+                subclass(
+                    OpenFilePickerEventSchema.FileType.File::class,
+                    OpenFilePickerEventSchema.FileType.File.serializer()
+                )
+            }
+
+            polymorphic(OpenFilePickerEventSchema.PickMode::class) {
+                subclass(
+                    OpenFilePickerEventSchema.PickMode.Single::class,
+                    OpenFilePickerEventSchema.PickMode.Single.serializer()
+                )
+            }
+
         }.plus(additionalSerializersModule)
         explicitNulls = false
         encodeDefaults = true
@@ -1013,6 +1041,7 @@ class MosaicSerializer(
             TextFieldTileSchema::class to TextFieldTileSchema.serializer(),
             MenuTileSchema::class to MenuTileSchema.serializer(),
             SimpleTextTileSchema::class to SimpleTextTileSchema.serializer(),
+            SystemBroadcastListenerTileSchema::class to SystemBroadcastListenerTileSchema.serializer(),
             TopAppBarTileSchema::class to TopAppBarTileSchema.serializer(),
             BottomAppBarTileSchema::class to BottomAppBarTileSchema.serializer(),
             BadgeTileSchema::class to BadgeTileSchema.serializer(),
@@ -1056,6 +1085,7 @@ class MosaicSerializer(
             UpdateEventsEventSchema::class to UpdateEventsEventSchema.serializer(),
             DeleteFileEventSchema::class to DeleteFileEventSchema.serializer(),
             GetFileEventSchema::class to GetFileEventSchema.serializer(),
+            OpenFilePickerEventSchema::class to OpenFilePickerEventSchema.serializer(),
             SaveFileEventSchema::class to SaveFileEventSchema.serializer(),
             ToggleMenuEventSchema::class to ToggleMenuEventSchema.serializer(),
             NavigateEventSchema::class to NavigateEventSchema.serializer(),

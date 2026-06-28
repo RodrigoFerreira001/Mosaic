@@ -19,4 +19,5 @@ dependencies {
     implementation(libs.kotlinx.datetime)
     implementation(libs.ktor.server.cors)
     implementation(libs.logback.classic)
+    implementation(libs.kotlinx.collections.immutable)
 }

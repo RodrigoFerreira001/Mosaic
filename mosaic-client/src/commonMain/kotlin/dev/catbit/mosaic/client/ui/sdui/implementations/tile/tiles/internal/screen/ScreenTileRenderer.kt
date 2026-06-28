@@ -79,7 +79,7 @@ object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
                 }
             }
 
-            observeSystemBroadcastChannel { data ->
+            observeSystemBroadcastChannel(tileSchema) { data ->
                 triggerEvent(
                     trigger = EventTriggers.onSystemBroadcastEventTrigger(data.broadcastId),
                     data = data.data

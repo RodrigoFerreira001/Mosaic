@@ -548,6 +548,23 @@ No additional fields.
 
 ---
 
+### OpenFilePickerEventSchema
+**JSON type:** `"OpenFilePicker"`
+
+Opens the system file picker, allowing the user to select a file. On selection, reads the file bytes and fires `onSuccess(ByteArray)`. Cancellation fires `onFailure()`.
+
+| Field | Type | Default |
+|---|---|---|
+| `fileType` | `FileType` | required |
+| `pickMode` | `PickMode` | `Single` |
+
+`FileType` (sealed): `Image`, `Video`, `ImageAndVideo`, `File(types: List<String>)` — file extensions (e.g. `"pdf"`, `"png"`).
+`PickMode` (sealed): `Single`.
+
+**Child triggers fired:** `OnStart` (file selected, reading bytes), `OnSuccess(ByteArray)` (bytes ready as `incomingData`), `OnFailure` (cancelled or exception).
+
+---
+
 ## Overlays
 
 ### DisplayDialogEventSchema

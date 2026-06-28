@@ -1671,3 +1671,45 @@ DropdownList(
     }
 )
 ```
+
+
+---
+
+## System
+
+### SystemBroadcastListener
+**Purpose:** Transparent container tile that renders its children directly and automatically listens for system broadcasts, firing `onSystemBroadcast` triggers when they arrive.
+**When to use:** When you need to react to system-level broadcasts (`BroadcastToSystem`) sent from any screen or event in the app, without introducing any visual wrapper around an existing subtree.
+**Import:** `import dev.catbit.mosaic.server.builder.tile.builders.system.SystemBroadcastListener`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `tiles` | `TileSchemaBuilderScope.() -> Unit` | required (trailing lambda) | Child tiles rendered directly with no wrapping layout |
+
+**Updatable via UpdateTiles:** `tiles`, `visibility`, `style`
+
+**Triggers dispatched:** `OnSystemBroadcast(broadcastId)` — fired automatically by the renderer via `observeSystemBroadcastChannel` whenever a `BroadcastToSystem` event with a matching `broadcastId` is emitted anywhere in the app. The broadcast payload is forwarded as `incomingData` to child events.
+
+**How it works:** The renderer subscribes to the app-wide broadcast channel on composition and calls `triggerEvent(onSystemBroadcastEventTrigger(data.broadcastId), data = data.data)` for each received broadcast. Events attached to this tile with `onSystemBroadcast("id")` as trigger will fire when the matching broadcast arrives.
+
+**Example:**
+```kotlin
+SystemBroadcastListener(id = "session_listener") {
+    events = {
+        Navigate(
+            trigger = EventTriggers.onSystemBroadcast("session_expired"),
+            destination = "login",
+            navigatorId = "main"
+        )
+        UpdateTiles(
+            trigger = EventTriggers.onSystemBroadcast("refresh_list"),
+            updates = {
+                update(tileId = "lazy_col", updateData = inlineTileUpdateData("tiles" to emptyList<Any>()))
+            }
+        )
+    }
+    tiles {
+        SimpleText(id = "label", text = "Content")
+    }
+}

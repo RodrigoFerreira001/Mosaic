@@ -20,7 +20,7 @@ class UploadFileUseCase(
         )
     }
 
-    data class Params(
+    class Params(
         val url: String?,
         val headers: Map<String, String>?,
         val httpMethod: HttpMethod,

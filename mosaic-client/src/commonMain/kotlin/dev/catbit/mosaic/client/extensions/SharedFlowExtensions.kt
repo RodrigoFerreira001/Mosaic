@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.extensions
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import dev.catbit.mosaic.client.ui.effects.SingleEffect
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen_tiles_broadcast.ScreenTilesBroadcastData
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalScreenTilesBroadcastChannel
@@ -13,9 +14,10 @@ import org.koin.compose.koinInject
 
 @Composable
 fun <T> SharedFlow<T>.consume(
+    key: Any?,
     action: suspend (value: T) -> Unit
 ) {
-    SingleEffect {
+    LaunchedEffect(key) {
         collectLatest {
             action(it)
         }
@@ -27,7 +29,7 @@ inline fun <reified T : ScreenTilesBroadcastData> TileSchema.observeScreenTileBr
     filterByTileId: Boolean = true,
     crossinline action: suspend (value: T) -> Unit
 ) {
-    LocalScreenTilesBroadcastChannel.current.channel.consume { data ->
+    LocalScreenTilesBroadcastChannel.current.channel.consume(this) { data ->
         if (data is T) {
             if (filterByTileId) {
                 if (data.tileId == id) {
@@ -42,9 +44,10 @@ inline fun <reified T : ScreenTilesBroadcastData> TileSchema.observeScreenTileBr
 
 @Composable
 fun observeSystemBroadcastChannel(
+    key: Any?,
     action: suspend (value: SystemBroadcastData) -> Unit
 ) {
-    koinInject<SystemBroadcastChannel>().channel.consume { data ->
+    koinInject<SystemBroadcastChannel>().channel.consume(key) { data ->
         action(data)
     }
 }
