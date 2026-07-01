@@ -14,7 +14,7 @@ class EventRunnerManager(
                     level = Level.DEBUG,
                     msg = """
                         #===============>
-                        Running event ${event::class.simpleName}
+                        Running event ${event::class.simpleName}#${event.id}
                         Payload: $event
                         <===============#
                     """.trimIndent()

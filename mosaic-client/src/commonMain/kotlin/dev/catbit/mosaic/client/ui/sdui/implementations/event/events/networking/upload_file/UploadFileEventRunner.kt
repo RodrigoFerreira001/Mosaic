@@ -1,29 +1,27 @@
-package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_file
+package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.upload_file
 
+import dev.catbit.mosaic.client.data.data_sources.network.UploadResult
 import dev.catbit.mosaic.client.domain.upload.UploadFileUseCase
 import dev.catbit.mosaic.client.extensions.toKtorHttpMethod
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
-import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.UploadFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.extensions.toAny
-import io.ktor.client.call.body
-import io.ktor.client.statement.bodyAsBytes
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.http.isSuccess
+import io.github.vinceglb.filekit.PlatformFile
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 
-object SendFileEventRunner : EventRunner<SendFileEventSchema> {
+object UploadFileEventRunner : EventRunner<UploadFileEventSchema> {
 
-    override suspend fun EventRunningScope.runEvent(event: SendFileEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: UploadFileEventSchema) {
         with(event) {
 
-            val bytes = incomingData as? ByteArray ?: run {
+            val platformFile = incomingData as? PlatformFile ?: run {
                 onTrigger(EventTriggers.onFailure())
                 logError(
-                    tag = "SendFileEventRunner",
-                    throwable = Throwable("Incoming data is not a ByteArray, nothing to upload")
+                    tag = "UploadFileEventRunner",
+                    throwable = Throwable("Incoming data is not a PlatformFile, nothing to upload")
                 )
                 return
             }
@@ -36,7 +34,7 @@ object SendFileEventRunner : EventRunner<SendFileEventSchema> {
                     headers = headers,
                     httpMethod = method.toKtorHttpMethod(),
                     contentType = contentType,
-                    bytes = bytes,
+                    platformFile = platformFile,
                     onProgress = { progress ->
                         onTrigger(
                             eventTrigger = EventTriggers.onUploadProgress(),
@@ -45,34 +43,36 @@ object SendFileEventRunner : EventRunner<SendFileEventSchema> {
                     }
                 )
             )
-                .onSuccess { response ->
+                .onSuccess { result ->
 
                     val data = when {
-                        response.contentType()?.match(ContentType.Application.Json) == true -> {
-                            runCatching { response.body<JsonElement>() }.getOrNull()?.toAny()
+                        result.contentType?.contains("application/json") == true -> {
+                            runCatching {
+                                Json.parseToJsonElement(result.body.decodeToString())
+                            }.getOrNull()?.toAny()
                         }
 
-                        else -> response.bodyAsBytes()
+                        else -> result.body
                     }
 
                     val hasCustomResponseListener = triggerOwner.events?.any {
-                        it.trigger == EventTriggers.onNetworkResponse(response.status.value)
-                                || it.trigger == EventTriggers.onNetworkFailure(response.status.value)
+                        it.trigger == EventTriggers.onNetworkResponse(result.statusCode)
+                                || it.trigger == EventTriggers.onNetworkFailure(result.statusCode)
                     } == true
 
-                    if (hasCustomResponseListener && !response.status.isSuccess()) {
+                    if (hasCustomResponseListener && !result.isSuccess) {
                         onTrigger(
-                            eventTrigger = EventTriggers.onNetworkFailure(response.status.value),
+                            eventTrigger = EventTriggers.onNetworkFailure(result.statusCode),
                             data = data
                         )
-                    } else if (hasCustomResponseListener && response.status.isSuccess()) {
+                    } else if (hasCustomResponseListener && result.isSuccess) {
                         onTrigger(
-                            eventTrigger = EventTriggers.onNetworkResponse(response.status.value),
+                            eventTrigger = EventTriggers.onNetworkResponse(result.statusCode),
                             data = data
                         )
                     } else {
                         onTrigger(
-                            eventTrigger = if (response.status.isSuccess()) EventTriggers.onSuccess() else EventTriggers.onFailure(),
+                            eventTrigger = if (result.isSuccess) EventTriggers.onSuccess() else EventTriggers.onFailure(),
                             data = data
                         )
                     }
@@ -83,7 +83,7 @@ object SendFileEventRunner : EventRunner<SendFileEventSchema> {
                         data = failure
                     )
                     logError(
-                        tag = "SendFileEventRunner",
+                        tag = "UploadFileEventRunner",
                         throwable = failure
                     )
                 }

@@ -9,7 +9,9 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.buildClassSerialDescriptor
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
@@ -22,17 +24,26 @@ object AnySerializer : KSerializer<Any> {
     override val descriptor = buildClassSerialDescriptor("Any")
 
     override fun serialize(encoder: Encoder, value: Any) {
-        val json = (encoder as? JsonEncoder)?.json ?: Json
-
-        encoder.encodeSerializableValue(
-            serializer = JsonElement.serializer(),
-            value = value.toJsonElement(json)
-        )
+        if (encoder is JsonEncoder) {
+            encoder.encodeSerializableValue(
+                serializer = JsonElement.serializer(),
+                value = value.toJsonElement(encoder.json)
+            )
+        } else {
+            // Non-JSON encoders (e.g. androidx SavedStateEncoder) can't accept a
+            // JsonElement directly, so fall back to a JSON string representation.
+            encoder.encodeString(Json.encodeToString(JsonElement.serializer(), value.toJsonElement(Json)))
+        }
     }
 
     override fun deserialize(decoder: Decoder): Any =
-        (decoder as JsonDecoder).decodeJsonElement().toAny()
-            ?: throw SerializationException("Unexpected null value for non-nullable Any type")
+        (
+            if (decoder is JsonDecoder) {
+                decoder.decodeJsonElement()
+            } else {
+                Json.decodeFromString(JsonElement.serializer(), decoder.decodeString())
+            }
+        ).toAny() ?: throw SerializationException("Unexpected null value for non-nullable Any type")
 }
 
 typealias AnySerializable = @Serializable(with = AnySerializer::class) Any

@@ -68,8 +68,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
     ]
 )
 @Serializable
-@SerialName("SendFile")
-data class SendFileEventSchema(
+@SerialName("UploadFile")
+data class UploadFileEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,

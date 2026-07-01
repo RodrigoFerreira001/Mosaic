@@ -40,8 +40,9 @@ data class EventRunningScope(
             level = Level.DEBUG,
             msg = """
                 @===============>
-                Event ${triggerOwner.id} says:
-                trigger: $eventTrigger
+                Event ${triggerOwner::class.simpleName}#${triggerOwner.id} says:
+                trigger: ${eventTrigger::class.simpleName}
+                triggerStr: $eventTrigger
                 incomingData: $incomingData
                 <===============@
             """.trimIndent()

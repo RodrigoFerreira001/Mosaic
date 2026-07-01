@@ -72,7 +72,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu.T
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_up.NavigateUpEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file.DownloadFileEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_file.SendFileEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.upload_file.UploadFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_body.SetIncomingDataToNetworkParamsHolderBodyEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_headers.SetIncomingDataToNetworkParamsHolderHeadersEventDefinition
@@ -430,7 +430,7 @@ internal class MosaicModules(
 
     private val baseEventsDefinitions = listOf(
         DownloadFileEventDefinition,
-        SendFileEventDefinition,
+        UploadFileEventDefinition,
         SendNetworkRequestEventDefinition,
         SetIncomingDataToNetworkParamsHolderBodyEventDefinition,
         SetIncomingDataToNetworkParamsHolderHeadersEventDefinition,

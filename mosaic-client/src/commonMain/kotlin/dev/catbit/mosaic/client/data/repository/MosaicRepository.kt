@@ -2,6 +2,8 @@ package dev.catbit.mosaic.client.data.repository
 
 import dev.catbit.mosaic.core.data.models.graph.GraphModel
 import dev.catbit.mosaic.core.data.models.screen.ScreenModel
+import io.github.vinceglb.filekit.PlatformFile
+import dev.catbit.mosaic.client.data.data_sources.network.UploadResult
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 
@@ -39,9 +41,9 @@ interface MosaicRepository {
         headers: Map<String, String>?,
         httpMethod: HttpMethod,
         contentType: String?,
-        bytes: ByteArray,
+        platformFile: PlatformFile,
         onProgress: suspend (Int) -> Unit = {}
-    ): Result<HttpResponse>
+    ): Result<UploadResult>
 
     suspend fun getPlainData(
         dataKey: String

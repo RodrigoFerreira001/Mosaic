@@ -11,6 +11,7 @@ import dev.catbit.mosaic.core.data.models.graph.GraphModel
 import dev.catbit.mosaic.core.data.models.screen.ScreenModel
 import dev.catbit.mosaic.core.extensions.currentDateTime
 import dev.catbit.mosaic.core.extensions.toSafeLocalDateTime
+import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.http.HttpMethod
 import kotlinx.io.files.FileNotFoundException
 
@@ -125,14 +126,14 @@ class MosaicRepositoryImpl(
         headers: Map<String, String>?,
         httpMethod: HttpMethod,
         contentType: String?,
-        bytes: ByteArray,
+        platformFile: PlatformFile,
         onProgress: suspend (Int) -> Unit
     ) = network.uploadFile(
         url = url,
         headers = headers,
         httpMethod = httpMethod,
         contentType = contentType,
-        bytes = bytes,
+        platformFile = platformFile,
         onProgress = onProgress,
     )
 

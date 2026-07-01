@@ -2,7 +2,6 @@
 
 package dev.catbit.mosaic.client.data.data_sources.file_system
 
-import kotlin.js.JsAny
 import kotlin.js.Promise
 import kotlinx.coroutines.await
 import org.khronos.webgl.Uint8Array

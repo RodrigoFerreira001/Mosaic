@@ -1,15 +1,15 @@
-package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_file
+package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.upload_file
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.UploadFileEventSchema
 
-object SendFileEventHolderBuilder : EventHolderBuilder<SendFileEventSchema, SendFileEventHolder> {
+object UploadFileEventHolderBuilder : EventHolderBuilder<UploadFileEventSchema, UploadFileEventHolder> {
 
     override fun BuilderScope.build(
-        eventSchema: SendFileEventSchema
+        eventSchema: UploadFileEventSchema
     ) = with(eventSchema) {
-        SendFileEventHolder(
+        UploadFileEventHolder(
             id = id,
             event = eventSchema,
             trigger = trigger,

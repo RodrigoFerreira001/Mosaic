@@ -22,7 +22,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.menu.ToggleMenuEventSche
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateUpEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileEventSchema
-import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.UploadFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendNetworkRequestEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderBodyEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderHeadersEventSchema
@@ -1091,7 +1091,7 @@ class MosaicSerializer(
             NavigateEventSchema::class to NavigateEventSchema.serializer(),
             NavigateUpEventSchema::class to NavigateUpEventSchema.serializer(),
             DownloadFileEventSchema::class to DownloadFileEventSchema.serializer(),
-            SendFileEventSchema::class to SendFileEventSchema.serializer(),
+            UploadFileEventSchema::class to UploadFileEventSchema.serializer(),
             SendNetworkRequestEventSchema::class to SendNetworkRequestEventSchema.serializer(),
             SetIncomingDataToNetworkParamsHolderBodyEventSchema::class to SetIncomingDataToNetworkParamsHolderBodyEventSchema.serializer(),
             SetIncomingDataToNetworkParamsHolderUrlEventSchema::class to SetIncomingDataToNetworkParamsHolderUrlEventSchema.serializer(),

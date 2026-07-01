@@ -9,10 +9,10 @@ import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
 import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializer
+import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.onDownload
-import io.ktor.client.plugins.onUpload
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -23,10 +23,11 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
-import io.ktor.http.content.ByteArrayContent
 import io.ktor.http.content.TextContent
+import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
 import io.ktor.http.parameters
+import io.ktor.utils.io.ByteChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
 import kotlinx.io.Buffer
@@ -161,21 +162,45 @@ class MosaicNetworkImpl(
                 }
 
                 val channel: ByteReadChannel = response.bodyAsChannel()
-                val builder = Buffer()
+                val contentLength = response.contentLength()
                 val buffer = ByteArray(8192)
 
-                while (!channel.isClosedForRead) {
-                    val read = channel.readAvailable(buffer)
-                    if (read <= 0) break
+                val completeArray = if (contentLength != null && contentLength > 0) {
+                    // Known size: write straight into a single pre-allocated array,
+                    // avoiding the extra full-file copy required by Buffer.readByteArray().
+                    val result = ByteArray(contentLength.toInt())
+                    var offset = 0
 
-                    val chunk = buffer.copyOfRange(0, read)
+                    while (!channel.isClosedForRead) {
+                        val read = channel.readAvailable(buffer)
+                        if (read <= 0) break
 
-                    onBytesReceived(chunk)
+                        onBytesReceived(buffer.copyOfRange(0, read))
 
-                    builder.write(chunk)
+                        buffer.copyInto(result, offset, 0, read)
+                        offset += read
+                    }
+
+                    result
+                } else {
+                    // Unknown size (e.g. chunked encoding without length): fall back
+                    // to accumulating into a growable Buffer.
+                    val builder = Buffer()
+
+                    while (!channel.isClosedForRead) {
+                        val read = channel.readAvailable(buffer)
+                        if (read <= 0) break
+
+                        val chunk = buffer.copyOfRange(0, read)
+
+                        onBytesReceived(chunk)
+
+                        builder.write(chunk)
+                    }
+
+                    builder.readByteArray()
                 }
 
-                val completeArray = builder.readByteArray()
                 onDownloadFinished(completeArray)
             }
         } catch (e: Throwable) {
@@ -188,45 +213,24 @@ class MosaicNetworkImpl(
         headers: Map<String, String>?,
         httpMethod: HttpMethod,
         contentType: String?,
-        bytes: ByteArray,
+        platformFile: PlatformFile,
         onProgress: suspend (Int) -> Unit
-    ) = runCatching {
+    ): Result<UploadResult> = runCatching {
 
-        val (_, headersParams, urlParam) = networkParametersHolder.consume()
+        val networkParams = networkParametersHolder.consume()
+        val targetUrl = url ?: networkParams.url ?: throw MissingUploadUrlException()
 
-        val targetUrl = url ?: urlParam ?: throw MissingUploadUrlException()
+        if (httpMethod == HttpMethod.Get) throw GetRequestWithBodyException(targetUrl)
 
-        var lastPercent = -1
-
-        if (httpMethod == HttpMethod.Get) {
-            throw GetRequestWithBodyException(targetUrl)
-        }
-
-        httpClient.request(urlString = targetUrl) {
-            method = httpMethod
-
-            (headersParams.orEmpty() + headers.orEmpty()).forEach { (key, value) ->
-                header(key, value)
-            }
-
-            setBody(
-                ByteArrayContent(
-                    bytes = bytes,
-                    contentType = contentType
-                        ?.let(ContentType::parse)
-                        ?: ContentType.Application.OctetStream
-                )
-            )
-
-            onUpload { bytesSentTotal, contentLength ->
-                if (contentLength != null && contentLength > 0) {
-                    val percent = (bytesSentTotal.toDouble() / contentLength * 100).toInt()
-                    if (percent != lastPercent) {
-                        lastPercent = percent
-                        onProgress(percent)
-                    }
-                }
-            }
-        }
+        uploadPlatformFile(
+            httpClient = httpClient,
+            url = targetUrl,
+            headers = networkParams.headers.orEmpty() + headers.orEmpty(),
+            httpMethod = httpMethod,
+            platformFile = platformFile,
+            contentType = contentType,
+            queryParameters = networkParams.queryParameters,
+            onProgress = onProgress
+        )
     }
 }

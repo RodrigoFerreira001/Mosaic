@@ -96,41 +96,43 @@ fun MosaicApplication(
     dependencyInjectionConfig: MosaicDependencyInjectionConfig = mosaicDependencyInjectionConfig(),
     appSplash: @Composable BoxScope.() -> Unit
 ) {
-    KoinApplication(
-        configuration = koinConfiguration {
-            modules(
-                MosaicModules(
-                    applicationId = applicationId,
-                    baseUrl = baseUrl,
-                    additionalModule = dependencyInjectionConfig.additionalKoinModule,
-                    logger = dependencyInjectionConfig.logger,
-                    tileDefinitions = dependencyInjectionConfig.tileDefinitions,
-                    eventDefinitions = dependencyInjectionConfig.eventDefinitions,
-                    eventTriggerDefinitions = dependencyInjectionConfig.eventTriggerDefinition,
-                    additionalSerializersModule = dependencyInjectionConfig.additionalSerializersModule,
-                    drawableResources = dependencyInjectionConfig.drawableResources,
-                ).modules
-            )
-        },
-        logLevel = Level.INFO
-    ) {
-        val stateHolder = koinViewModel<MosaicApplicationStateHolder>()
-
-        stateHolder.bindScreenLifecycle()
-
-        MosaicTheme(
-            colorScheme = themeConfig.colorScheme,
-            shapes = themeConfig.shapes,
-            typography = themeConfig.typography,
-            materialSymbolFontsConfig = themeConfig.materialSymbolFontsConfig
+    PlatformWrapper {
+        KoinApplication(
+            configuration = koinConfiguration {
+                modules(
+                    MosaicModules(
+                        applicationId = applicationId,
+                        baseUrl = baseUrl,
+                        additionalModule = dependencyInjectionConfig.additionalKoinModule,
+                        logger = dependencyInjectionConfig.logger,
+                        tileDefinitions = dependencyInjectionConfig.tileDefinitions,
+                        eventDefinitions = dependencyInjectionConfig.eventDefinitions,
+                        eventTriggerDefinitions = dependencyInjectionConfig.eventTriggerDefinition,
+                        additionalSerializersModule = dependencyInjectionConfig.additionalSerializersModule,
+                        drawableResources = dependencyInjectionConfig.drawableResources,
+                    ).modules
+                )
+            },
+            logLevel = Level.INFO
         ) {
-            val uiState by stateHolder.uiState.collectAsState()
+            val stateHolder = koinViewModel<MosaicApplicationStateHolder>()
 
-            MosaicApplicationContent(
-                uiState = uiState,
-                onEvent = { stateHolder.onEvent(it) },
-                appSplash = appSplash
-            )
+            stateHolder.bindScreenLifecycle()
+
+            MosaicTheme(
+                colorScheme = themeConfig.colorScheme,
+                shapes = themeConfig.shapes,
+                typography = themeConfig.typography,
+                materialSymbolFontsConfig = themeConfig.materialSymbolFontsConfig
+            ) {
+                val uiState by stateHolder.uiState.collectAsState()
+
+                MosaicApplicationContent(
+                    uiState = uiState,
+                    onEvent = { stateHolder.onEvent(it) },
+                    appSplash = appSplash
+                )
+            }
         }
     }
 }
@@ -434,3 +436,8 @@ private fun MosaicApplicationFailureContentPreview() {
         )
     }
 }
+
+@Composable
+internal expect fun PlatformWrapper(
+    content: @Composable () -> Unit
+)

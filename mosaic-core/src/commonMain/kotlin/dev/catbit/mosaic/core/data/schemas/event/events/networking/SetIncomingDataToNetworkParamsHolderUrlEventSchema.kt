@@ -13,7 +13,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 /**
  * Stores `incomingData` as the request URL in the [NetworkParametersHolder], making it available
  * to the next network event in the same chain. Today it is consumed by
- * [SendFileEventSchema] (when its `url` is `null`) — the typical use is feeding a **signed URL**
+ * [UploadFileEventSchema] (when its `url` is `null`) — the typical use is feeding a **signed URL**
  * obtained at runtime from the backend into the upload request.
  *
  * The holder is consumed (and reset to `null`) on the next network call, regardless of whether
@@ -33,7 +33,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  *     TransformData(trigger = EventTriggers.onSuccess(), /* extrai "uploadUrl" */ events = {
  *         SetIncomingDataToNetworkParamsHolderUrl(trigger = EventTriggers.onSuccess(), events = {
  *             // ... evento que produz os bytes, e então:
- *             SendFile(trigger = EventTriggers.onSuccess(), contentType = "video/mp4")
+ *             UploadFile(trigger = EventTriggers.onSuccess(), contentType = "video/mp4")
  *         })
  *     })
  * })

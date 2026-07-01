@@ -1,18 +1,18 @@
-package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_file
+package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.upload_file
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
-import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.UploadFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.immutableMapTo
 
-class SendFileEventHolder(
+class UploadFileEventHolder(
     override val id: String,
-    override var event: SendFileEventSchema,
+    override var event: UploadFileEventSchema,
     override val trigger: EventTrigger,
     override val events: List<EventHolder<*>>?,
     override val tiles: List<TileHolder<*>>? = null
-) : EventHolder<SendFileEventSchema>() {
+) : EventHolder<UploadFileEventSchema>() {
 
     override fun get() = event.copy(
         events = events?.immutableMapTo { it.get() }
