@@ -26,36 +26,6 @@ Server-Driven UI moves that contract from build time to request time. The client
 
 Mosaic is a full implementation of that idea: a shared type-safe contract (`mosaic-core`), a backend DSL to build that contract (`mosaic-server`), and a rendering/execution engine that consumes it (`mosaic-client`).
 
-## How a screen actually gets from server to pixels
-
-```mermaid
-flowchart TD
-    subgraph SERVER["mosaic-server"]
-        A["Screen { ... } DSL"]
-        B["Typed Schema tree<br/>(TileSchema / EventSchema)"]
-    end
-
-    subgraph WIRE["wire"]
-        C["MosaicSerializer.encode<br/>(polymorphic, @SerialName-discriminated)"]
-        D["JSON over HTTP"]
-        E["MosaicSerializer.decode"]
-    end
-
-    subgraph CLIENT["mosaic-client"]
-        F["TileSchema / EventSchema tree"]
-        G["TileHolderBuilder / EventHolderBuilder"]
-        H["TileHolder / EventHolder tree<br/>(mutable, stateful, hierarchical)"]
-        I["MosaicScreenStateHolder.uiState<br/>(StateFlow&lt;State&gt;)"]
-        J["Compose collectAsState()"]
-        K["TileRendererManager.Render()<br/>→ TileRenderer&lt;T&gt; lookup by class"]
-        L["Material 3 Composable output"]
-    end
-
-    A --> B --> C --> D --> E --> F --> G --> H --> I --> J --> K --> L
-```
-
-User interaction runs the same pipeline in reverse: a Compose click calls `triggerEvent(EventTriggers.onClick())`, which resolves the matching `EventSchema` children, looks up an `EventRunner<T>` by class through a Koin-backed registry, and executes it inside an `EventRunningScope` — a scope that carries access to the current screen's data holder, the tile tree editor, navigation, and every registered use case. Runners mutate state through that scope; Compose recomposes off the resulting `StateFlow`. Every step in both directions is driven by the class of the schema, so adding a new Tile or Event is additive: register a schema, a builder, and a renderer/runner, and it's live in the vocabulary for every screen the backend authors afterward.
-
 ## A screen, in the DSL
 
 ```kotlin
