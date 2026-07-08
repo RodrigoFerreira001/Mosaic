@@ -6,7 +6,7 @@ on:
     types: [ published ]
 
 jobs:
-  publish:
+  publish-maven-central:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

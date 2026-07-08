@@ -1,5 +1,14 @@
 {
-  "name": "opfs-wasm-worker",
-  "version": "0.0.0",
-  "license": "APACHE-2.0"
+  "name": "@catbit.dev/opfs-wasm-worker",
+  "version": "1.0.0",
+  "description": "OPFS-backed dedicated Web Worker used by Mosaic's wasmJs file system implementation.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RodrigoFerreira001/Mosaic.git",
+    "directory": "mosaic-client/opfsWorker"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

@@ -1,7 +1,16 @@
 {
-  "name": "sqlite-wasm-worker",
-  "version": "0.0.0",
-  "license": "APACHE-2.0",
+  "name": "@catbit.dev/sqlite-wasm-worker",
+  "version": "1.0.0",
+  "description": "SQLite WASM dedicated Web Worker used by Mosaic's wasmJs Room/SQLite driver.",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RodrigoFerreira001/Mosaic.git",
+    "directory": "mosaic-client/sqliteWasmWorker"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "@sqlite.org/sqlite-wasm": "^3.50.1-build1"
   }

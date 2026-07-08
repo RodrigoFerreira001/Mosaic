@@ -177,11 +177,12 @@ kotlin {
         wasmJsMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.js)
-            // SQLite driver (OPFS-based Web Worker)
+            // SQLite driver (OPFS-based Web Worker) — published on npm so this dependency
+            // propagates to any project consuming mosaic-client, not just this monorepo.
             implementation(libs.androidx.sqlite.web)
-            implementation(npm("sqlite-wasm-worker", layout.projectDirectory.dir("sqliteWasmWorker").asFile))
-            // OPFS file handler (dedicated Web Worker)
-            implementation(npm("opfs-wasm-worker", layout.projectDirectory.dir("opfsWorker").asFile))
+            implementation(npm("@catbit.dev/sqlite-wasm-worker", "1.0.0"))
+            // OPFS file handler (dedicated Web Worker) — same as above, published on npm.
+            implementation(npm("@catbit.dev/opfs-wasm-worker", "1.0.0"))
         }
     }
 

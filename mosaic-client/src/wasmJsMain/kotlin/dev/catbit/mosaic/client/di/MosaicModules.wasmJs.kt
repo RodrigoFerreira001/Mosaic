@@ -43,4 +43,4 @@ internal actual val platformModule = module {
 
 @OptIn(ExperimentalWasmJsInterop::class)
 private fun jsWorker(): Worker =
-    js("""new Worker(new URL("sqlite-wasm-worker/worker.js", import.meta.url))""")
+    js("""new Worker(new URL("@catbit.dev/sqlite-wasm-worker/worker.js", import.meta.url))""")

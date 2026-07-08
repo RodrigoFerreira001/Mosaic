@@ -108,7 +108,7 @@ actual object PlatformFileHandler {
 @JsFun("""() => {
     const pending = new Map();
     let nextId = 0;
-    const worker = new Worker(new URL("opfs-wasm-worker/worker.js", import.meta.url));
+    const worker = new Worker(new URL("@catbit.dev/opfs-wasm-worker/worker.js", import.meta.url));
 
     worker.onmessage = (e) => {
         const { id, data, error } = e.data;
