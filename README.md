@@ -2,14 +2,12 @@
   <img src="docs/assets/mosaic_logo.svg" alt="Mosaic" width="140" />
 </p>
 
-<h1 align="center">Mosaic</h1>
 <p align="center">Server-Driven UI framework for Kotlin Multiplatform</p>
 
 <p align="center">
   <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-2.x-7F52FF?logo=kotlin&logoColor=white">
   <img alt="Kotlin Multiplatform" src="https://img.shields.io/badge/Kotlin%20Multiplatform-Android%20|%20iOS%20|%20Desktop%20|%20Web-7F52FF?logo=kotlin&logoColor=white">
   <img alt="Compose Multiplatform" src="https://img.shields.io/badge/Compose%20Multiplatform-UI%20layer-4285F4?logo=jetpackcompose&logoColor=white">
-  <img alt="Ktor" src="https://img.shields.io/badge/Ktor-client%20%2F%20server-087CFA?logo=ktor&logoColor=white">
   <img alt="License" src="https://img.shields.io/badge/license-Apache%202.0-informational">
   <img alt="Status" src="https://img.shields.io/badge/status-in%20development-yellow">
 </p>
