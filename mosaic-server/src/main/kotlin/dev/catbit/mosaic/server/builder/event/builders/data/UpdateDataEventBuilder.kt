@@ -69,5 +69,13 @@ class UpdateDataUpdateBuilderScope : GenericBuilderScope<Update, UpdateDataUpdat
 }
 
 fun incomingUpdateData() = Update.UpdateDate.Incoming
-fun inlineUpdateData(data: Map<String, AnySerializable>) = Update.UpdateDate.Inline(data)
-fun inlineUpdateData(vararg data: Pair<String, AnySerializable>) = Update.UpdateDate.Inline(data.toMap())
+fun inlineUpdateData(data: Map<String, AnySerializable?>) = Update.UpdateDate.Inline(data)
+fun inlineUpdateData(vararg data: Pair<String, AnySerializable?>) = Update.UpdateDate.Inline(data.toMap())
+
+fun explicitUpdateData(dataId: String, value: AnySerializable?) =
+    Update.UpdateDate.Explicit(dataId = dataId, value = Update.UpdateDate.Explicit.ExplicitValue.Inline(value))
+
+fun explicitIncomingUpdateData(dataId: String) =
+    Update.UpdateDate.Explicit(dataId = dataId, value = Update.UpdateDate.Explicit.ExplicitValue.Incoming)
+
+fun explicitNullUpdateData(dataId: String) = explicitUpdateData(dataId, null)

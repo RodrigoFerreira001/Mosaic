@@ -26,6 +26,7 @@ class WasmJsPermissionManager : PermissionManager {
         Permissions.CONTACTS -> PermissionResult.Granted
     }
 
+    @OptIn(ExperimentalWasmJsInterop::class)
     private suspend fun requestMedia(video: Boolean, audio: Boolean): PermissionResult =
         try {
             @Suppress("UNCHECKED_CAST")
@@ -35,12 +36,14 @@ class WasmJsPermissionManager : PermissionManager {
             PermissionResult.Denied
         }
 
+    @OptIn(ExperimentalWasmJsInterop::class)
     private suspend fun requestNotification(): PermissionResult {
         @Suppress("UNCHECKED_CAST")
         val permission = (jsRequestNotificationPermission() as Promise<JsString>).await()
         return if (permission.toString() == "granted") PermissionResult.Granted else PermissionResult.Denied
     }
 
+    @OptIn(ExperimentalWasmJsInterop::class)
     private suspend fun requestGeolocation(): PermissionResult =
         try {
             @Suppress("UNCHECKED_CAST")

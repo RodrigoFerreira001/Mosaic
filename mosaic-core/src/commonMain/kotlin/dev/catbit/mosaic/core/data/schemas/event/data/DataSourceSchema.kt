@@ -1,12 +1,20 @@
 package dev.catbit.mosaic.core.data.schemas.event.data
 
 import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Immutable
 @Serializable
 sealed interface DataSourceSchema {
+
+    /** A fixed, screen-defined value — not backed by any repository/storage. */
+    @Serializable
+    @SerialName("Inline")
+    data class Inline(
+        @SerialName("data") val data: Map<String, AnySerializable?>
+    ) : DataSourceSchema
 
     @Serializable
     @SerialName("ApplicationPlainData")

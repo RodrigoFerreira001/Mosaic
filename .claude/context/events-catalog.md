@@ -300,9 +300,9 @@ Reads data from a `DataSourceSchema` using an `AccessModeSchema`.
 - `Tile(tileId: String, dataKey: String)` — reads a specific key from a tile's exposed value map via `TilesValueProducer.getValueWithKey`; returns `Map<String, Any>?`
 
 `AccessModeSchema` (sealed interface):
-- `Full` — returns all data as a map (for `Tile`: spreads the returned map into the accumulator)
-- `Single(dataId: String)` — returns one value (for `Tile`: stores the returned map under `dataId`)
-- `Batch(dataIds: List<String>, allowMissingData: Boolean, unwrapValuesToList: Boolean)` — returns multiple values (for `Tile`: returns the map from `getValueWithKey`; `dataIds` are applied as keys to filter the result)
+- `Full` — returns all data as a map (for `Tile`: spreads the returned map into the accumulator). Preserves `null` values (`Map<String, Any?>`) — a key written with an explicit `null` (see `UpdateDataEventSchema` below) comes back intact.
+- `Single(dataId: String)` — returns one value (for `Tile`: stores the returned map under `dataId`). Does **not** distinguish "missing key" from "key present with `null` value" — both fail with `DataNotFoundException`.
+- `Batch(dataIds: List<String>, allowMissingData: Boolean, unwrapValuesToList: Boolean)` — returns multiple values (for `Tile`: returns the map from `getValueWithKey`; `dataIds` are applied as keys to filter the result). Same `null`-vs-missing limitation as `Single` per key.
 
 **Note:** This is a complex builder scenario. Always study `GetDataEventBuilder` before modifying.
 
@@ -319,9 +319,24 @@ Writes or updates data in a `DataSourceSchema`.
 |---|---|
 | `updates` | `List<Update>` |
 
-`Update`: `{ dataSource: DataSourceSchema, accessMode: AccessModeSchema }`
+`Update`: `{ dataSource: DataSourceSchema, updateData: UpdateDate }`
 
-**Child trigger used:** `OnDataUpdated`
+`UpdateDate` (sealed, nested in `Update`):
+- `Incoming` — **legacy.** Coerces `incomingData` to `Map<String, AnySerializable?>` (`asMapAny()`) and explodes it: every top-level key becomes its own dataId written under `dataSource`. Silently skipped if the cast fails.
+- `Inline(data: Map<String, AnySerializable?>)` — **legacy.** Same explode-by-key behavior as `Incoming`, but with a static map.
+- `Explicit(dataId: String, value: ExplicitValue)` — declares the target `dataId` and value with **no inference**: the value is written as-is under that single `dataId`, even if the value is itself a map (e.g. a segmented-data row) or `null`. This is the correct mode whenever the write must store a whole record intact under one key — and the only reliable way to write a literal `null` under a `dataId`, since the runner always writes the entry when `dataId` is already known (unlike the legacy modes, which silently drop entries they can't resolve into a map).
+  - `ExplicitValue.Incoming` — writes `incomingData` verbatim (not coerced/exploded) under `dataId`.
+  - `ExplicitValue.Inline(value: AnySerializable?)` — writes a static value (including `null`) under `dataId`.
+
+DSL helpers: `incomingUpdateData()`, `inlineUpdateData(data)` / `inlineUpdateData(vararg pairs)` (legacy, explode-by-key), `explicitUpdateData(dataId, value)`, `explicitIncomingUpdateData(dataId)` (explicit, no inference), `explicitNullUpdateData(dataId)` (shorthand for `explicitUpdateData(dataId, null)`).
+
+**Legacy vs. Explicit — when to use which:** `Incoming`/`Inline` only make sense when the map genuinely represents multiple independent dataId → value pairs (e.g. `{"email": ..., "name": ...}`). If the value to write is itself a map representing a *single* record (e.g. `{"action":"NONE","comment":null,"imageBlob":null,"asBuilt":true}` for one segmented-data dataKey), use `Explicit`/`explicitIncomingUpdateData` instead — otherwise the legacy modes will wrongly explode that record into one write per top-level key.
+
+**Writing `null`:** Only in-memory `dataSource`s (`ApplicationPlainData`, `ApplicationSegmentedData`, `ScreenPlainData`, `ScreenSegmentedData`) support `null` values. `PlainDataBase`/`SegmentedDataBase` (persistent DB) silently skip any entry whose resolved value is `null` — no error, no-op. There is no `ExplicitNull`/sentinel type anymore; a plain Kotlin `null` is used end-to-end (it was removed — do not reintroduce it).
+
+**Note:** Unlike `GetData`/`RemoveData`, `Update` has no `accessMode: AccessModeSchema` field — write targeting is controlled entirely via `dataSource` (which carries `segmentId` for segmented sources) plus `updateData`.
+
+**Child trigger used:** `OnDataUpdated` (declared but **not fired** by the client runner — the runner performs writes and returns without calling any trigger)
 
 ---
 
@@ -527,22 +542,27 @@ Saves the `incomingData` (as `ByteArray`) to the file system.
 ### GetFileEventSchema
 **JSON type:** `"GetFile"`
 
-Reads a file from the file system. Passes `ByteArray` as data to child events on success.
+Reads a file from the file system. Data passed to child events on success is shaped by `outputType`.
 
-| Field | Type |
-|---|---|
-| `fileName` | `String` |
+| Field | Type | Default |
+|---|---|---|
+| `fileName` | `String` | required |
+| `outputType` | `FileOutputType` | `ArrayOfBytes` |
 
-**Child triggers used:** `OnSuccess` (with `ByteArray`), `OnFailure`
+`FileOutputType` (enum): `ArrayOfBytes` (whole file as `ByteArray`), `FlowOfBytes` (chunked `Flow<ByteArray>`, no full read into memory), `PlatformFile` (file reference only, no read), `MapObject` (file decoded as JSON into `Map<String, AnySerializable?>`), `Base64` (whole file as a base64-encoded `String`).
+
+**Child triggers used:** `OnSuccess` (with data per `outputType`), `OnFailure` (file not found, I/O error, or invalid JSON when `outputType` is `MapObject`)
 
 ---
 
 ### DeleteFileEventSchema
 **JSON type:** `"DeleteFile"`
 
-Deletes a file from the file system.
+Deletes a file from the file system, identified by `fileName`.
 
-No additional fields.
+| Field | Type | Default |
+|---|---|---|
+| `fileName` | `String` | required |
 
 **Child triggers used:** `OnSuccess`, `OnFailure`
 
@@ -551,17 +571,61 @@ No additional fields.
 ### OpenFilePickerEventSchema
 **JSON type:** `"OpenFilePicker"`
 
-Opens the system file picker, allowing the user to select a file. On selection, reads the file bytes and fires `onSuccess(ByteArray)`. Cancellation fires `onFailure()`.
+Opens the system file picker, allowing the user to select a file. On selection, delivers the file to child events shaped by `outputType`. Cancellation fires `onFailure()`.
 
 | Field | Type | Default |
 |---|---|---|
 | `fileType` | `FileType` | required |
 | `pickMode` | `PickMode` | `Single` |
+| `outputType` | `FileOutputType` | `PlatformFile` |
 
 `FileType` (sealed): `Image`, `Video`, `ImageAndVideo`, `File(types: List<String>)` — file extensions (e.g. `"pdf"`, `"png"`).
 `PickMode` (sealed): `Single`.
+`FileOutputType` (enum): `PlatformFile` (picked file reference, no read; chain with `UploadFile`/`SaveFile`), `ArrayOfBytes` (whole file as `ByteArray`), `FlowOfBytes` (chunked `Flow<ByteArray>`, no full read into memory), `MapObject` (file decoded as JSON into `Map<String, AnySerializable?>`), `Base64` (whole file as a base64-encoded `String`).
 
-**Child triggers fired:** `OnStart` (file selected, reading bytes), `OnSuccess(ByteArray)` (bytes ready as `incomingData`), `OnFailure` (cancelled or exception).
+**Child triggers fired:** `OnStart` (file selected, reading contents when `outputType` requires it), `OnSuccess` (data shaped per `outputType`), `OnFailure` (cancelled, exception, or invalid JSON when `outputType` is `MapObject`).
+
+---
+
+### TakePictureEventSchema
+**JSON type:** `"TakePicture"`
+
+Opens the device camera, allowing the user to take a picture. Backed by Mosaic's own `CameraManager` (`ui/sdui/foundation/camera/CameraManager.kt`), implemented natively per platform — no third-party picker library:
+- **Android:** `ActivityResultContracts.TakePicturePreview()` via `activityResultRegistry` (`AndroidCameraManager`)
+- **iOS:** `UIImagePickerController` (camera source) presented on the top-most view controller (`IOSCameraManager`)
+- **JVM:** live-preview `JDialog` backed by `com.github.sarxos:webcam-capture` (`JvmCameraManager`)
+- **Wasm/JS:** `getUserMedia` + `<video>`/`<canvas>` capture overlay (`WasmJsCameraManager`)
+
+The captured photo is raw PNG bytes from `CameraManager` (lossless, no baked-in quality/format decision per platform). Compression is applied directly by the runner via `io.github.aryapreetam:cmp-imgcompress:0.0.3` (single `commonMain` artifact covering Android/iOS/JVM/Wasm) — no wrapper class:
+- `compression == null` → the raw PNG bytes are returned as-is (`incomingData`), untouched.
+- `compression != null` → re-encoded as **WebP** (the library's only output format) using `compression` (+ optional `resize`).
+
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `compression` | `CompressionScheme?` | `null` | `CompressionScheme.ByQuality(qualityPercent: Float)` or `CompressionScheme.ByTargetSize(targetSizeKb: Int)` |
+| `resize` | `ImageResizeOptions?` | `null` | Only applies when `compression != null`; null uses the library's own default (`maxLongEdgePx = 2560`) |
+| `outputType` | `TakePictureEventSchema.OutputType` | `ArrayOfBytes` | `ArrayOfBytes` or `Base64` — shape of the captured image in `incomingData`. Enum is **nested in and private to this schema** (not shared with `GetImageFromGalleryEventSchema`, which has its own identical-shaped `OutputType`) |
+
+`ImageResizeOptions`: `maxLongEdgePx: Int? = 2560`, `downscaleOnly: Boolean = true`, `maintainAspectRatio: Boolean = true` — mirrors the library's `ResizeOptions` 1:1.
+
+**Child triggers used:** `OnSuccess` (`ByteArray` or base64 `String` in `incomingData` per `outputType` — original format if `compression` is null, WebP otherwise; chain with `SaveFile`), `OnFailure` (cancelled, exception, or no camera available).
+
+---
+
+### GetImageFromGalleryEventSchema
+**JSON type:** `"GetImageFromGallery"`
+
+Opens the device gallery, allowing the user to pick an image. Uses `FileKit.openFilePicker(type = FileKitType.Image)` — equivalent to `OpenFilePicker` pre-filtered to images, exposed as its own event for convenience. Works on all platforms. Same `compression`/`resize` contract as `TakePicture`, sharing `CompressionScheme`/`ImageResizeOptions`.
+
+**No permission or manifest entry required:** on Android, `FileKit.openFilePicker(type = Image)` goes through the system Photo Picker (`PickVisualMedia`); on iOS, `PHPickerViewController`. Both grant access only to the picked item, without any storage/media permission. Don't request `RequestPermission(GALLERY)` just to use this event — that's only for broad, persistent gallery access elsewhere in the app.
+
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `compression` | `CompressionScheme?` | `null` | Same as `TakePicture` |
+| `resize` | `ImageResizeOptions?` | `null` | Same as `TakePicture` |
+| `outputType` | `GetImageFromGalleryEventSchema.OutputType` | `ArrayOfBytes` | `ArrayOfBytes` or `Base64` — shape of the picked image in `incomingData`. Own nested enum, duplicated from (not shared with) `TakePictureEventSchema.OutputType` |
+
+**Child triggers used:** `OnSuccess` (`ByteArray` or base64 `String` in `incomingData` per `outputType` — original format if `compression` is null, WebP otherwise; chain with `SaveFile`), `OnFailure` (cancelled or exception).
 
 ---
 
@@ -689,6 +753,21 @@ Toggles the expanded state of a `MenuTileSchema`.
 
 ---
 
+## Popup
+
+### TogglePopupEventSchema
+**JSON type:** `"TogglePopup"`
+
+Toggles the expanded state of a `PopupTileSchema`.
+
+| Field | Type |
+|---|---|
+| `popupId` | `String` |
+
+**Child triggers used:** `OnSuccess`, `OnFailure`
+
+---
+
 ## Time
 
 ### StartCountdownTimerEventSchema
@@ -806,3 +885,31 @@ Checks whether the device has an active internet connection.
 No additional fields.
 
 **Child triggers used:** `OnSuccess`, `OnFailure`
+
+---
+
+## Theme
+
+### SetThemeEventSchema
+**JSON type:** `"SetTheme"`
+
+Overrides the app's Material3 color scheme (light + dark) globally at runtime, regardless of the current screen. Persists until `ResetTheme` is dispatched or the app restarts.
+
+| Field | Type | Description |
+|---|---|---|
+| `colorsScheme` | `ColorsScheme` | `{ lightColorScheme: ColorScheme, darkColorScheme: ColorScheme }` |
+
+`ColorScheme` mirrors every Compose Material3 `ColorScheme` role (`primary`, `onPrimary`, `surfaceContainerHighest`, etc.) as a hex color **String** (not `ColorSchema`/`color(...)`), parsed via `String.toColor()` on the client. Use the `colorsScheme(...)`/`colorScheme(...)` DSL helper functions (`mosaic-server`) to build these instead of constructing them directly — the full field list is long, see the schema source.
+
+**Child triggers used:** `OnSuccess`
+
+---
+
+### ResetThemeEventSchema
+**JSON type:** `"ResetTheme"`
+
+Reverts a previous `SetTheme` override, restoring the app's default color scheme (light + dark).
+
+No additional fields.
+
+**Child triggers used:** `OnSuccess`

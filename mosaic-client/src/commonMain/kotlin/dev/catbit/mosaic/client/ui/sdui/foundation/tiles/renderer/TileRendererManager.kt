@@ -3,9 +3,11 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
+import dev.catbit.mosaic.client.logger.MosaicLogger
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import kotlin.reflect.KClass
+import org.koin.compose.koinInject
 
 @Stable
 class TileRendererManager(
@@ -30,7 +32,7 @@ class TileRendererManager(
                 }
             }
         } ?: run {
-            println("Couldn't find a renderer for $tileSchema") // TODO Usar logger
+            koinInject<MosaicLogger>().error("TileRendererManager: Couldn't find a renderer for $tileSchema")
         }
     }
 }

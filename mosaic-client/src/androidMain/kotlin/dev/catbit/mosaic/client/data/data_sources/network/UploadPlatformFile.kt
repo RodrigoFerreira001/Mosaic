@@ -25,7 +25,7 @@ internal actual suspend fun uploadPlatformFile(
     platformFile: PlatformFile,
     contentType: String?,
     queryParameters: Map<String, Any?>?,
-    onProgress: suspend (Int) -> Unit
+    onProgress: suspend (Float) -> Unit
 ): UploadResult {
 
     var lastPercent = -1
@@ -52,7 +52,7 @@ internal actual suspend fun uploadPlatformFile(
                 val percent = (bytesSentTotal.toDouble() / contentLength * 100).toInt()
                 if (percent != lastPercent) {
                     lastPercent = percent
-                    onProgress(percent)
+                    onProgress(percent / 100f)
                 }
             }
         }

@@ -25,12 +25,6 @@ object DownloadFileEventRunner : EventRunner<DownloadFileEventSchema> {
                             data = progress
                         )
                     },
-                    onBytesReceived = { bytes ->
-                        onTrigger(
-                            eventTrigger = EventTriggers.onDownloadPartial(),
-                            data = bytes
-                        )
-                    },
                     onDownloadFinished = { totalBytes ->
                         onTrigger(
                             eventTrigger = EventTriggers.onDownloadFinish(),

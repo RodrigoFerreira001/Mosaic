@@ -5,7 +5,9 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import dev.catbit.mosaic.client.data.data_chest.DataChest
 import dev.catbit.mosaic.client.data.data_chest.IOSDataChest
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
+import dev.catbit.mosaic.client.camera.IOSCameraManager
 import dev.catbit.mosaic.client.permission.IOSPermissionManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.camera.CameraManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.permission.PermissionManager
 import dev.catbit.mosaic.core.domain.base.IO
 import io.ktor.client.HttpClient
@@ -26,6 +28,8 @@ internal actual val platformModule = module {
     single<HttpClient> { HttpClient(Darwin) }
 
     single<PermissionManager> { IOSPermissionManager() }
+
+    single<CameraManager> { IOSCameraManager() }
 
     single<DataChest> {
         IOSDataChest(NSUserDefaults.standardUserDefaults())

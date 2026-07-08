@@ -7,5 +7,5 @@ import kotlinx.serialization.Serializable
 
 @Immutable
 @Serializable
-@SerialName("OnDownloadPartial")
-object OnDownloadPartialEventTrigger : EventTrigger
+@SerialName("OnDateSelected")
+data object OnDateSelectedEventTrigger : EventTrigger

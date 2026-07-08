@@ -41,10 +41,6 @@ object EvaluateDataEventRunner : EventRunner<EvaluateDataEventSchema> {
                 onTrigger(EventTriggers.onSuccess(), data = incomingData)
             } else {
                 onTrigger(EventTriggers.onFailure(), data = incomingData)
-                logError(
-                    tag = "EvaluateDataEventRunner",
-                    throwable = Throwable("Expression evaluated to false")
-                )
             }
         }
     }
@@ -79,6 +75,9 @@ object EvaluateDataEventRunner : EventRunner<EvaluateDataEventSchema> {
 
         return when (val accessMode = reading.accessMode) {
             is AccessModeSchema.Full -> when (val source = reading.dataSource) {
+                is DataSourceSchema.Inline ->
+                    source.data.filterValues { it != null }.mapValues { it.value!! }
+
                 DataSourceSchema.PlainDataBase ->
                     getAllPlainDataUseCase().getOrNull()
 
@@ -109,6 +108,9 @@ object EvaluateDataEventRunner : EventRunner<EvaluateDataEventSchema> {
 
             is AccessModeSchema.Batch -> {
                 val results: Map<String, Any?> = when (val source = reading.dataSource) {
+                    is DataSourceSchema.Inline ->
+                        accessMode.dataIds.associateWith { source.data[it] }
+
                     DataSourceSchema.PlainDataBase ->
                         getPlainDataByIdsUseCase(GetPlainDataByIdsUseCase.Params(accessMode.dataIds)).getOrElse { emptyMap() }
 
@@ -142,6 +144,9 @@ object EvaluateDataEventRunner : EventRunner<EvaluateDataEventSchema> {
             }
 
             is AccessModeSchema.Single -> when (val source = reading.dataSource) {
+                is DataSourceSchema.Inline ->
+                    source.data[accessMode.dataId]
+
                 DataSourceSchema.PlainDataBase ->
                     getPlainDataUseCase(GetPlainDataUseCase.Params(accessMode.dataId)).getOrNull()
 
@@ -167,7 +172,7 @@ object EvaluateDataEventRunner : EventRunner<EvaluateDataEventSchema> {
                     tilesValueProducer.getValueWithKey(
                         tileId = source.tileId,
                         key = source.dataKey
-                    )
+                    )?.get(source.dataKey)
             }
         }
     }

@@ -30,8 +30,6 @@ object AnySerializer : KSerializer<Any> {
                 value = value.toJsonElement(encoder.json)
             )
         } else {
-            // Non-JSON encoders (e.g. androidx SavedStateEncoder) can't accept a
-            // JsonElement directly, so fall back to a JSON string representation.
             encoder.encodeString(Json.encodeToString(JsonElement.serializer(), value.toJsonElement(Json)))
         }
     }

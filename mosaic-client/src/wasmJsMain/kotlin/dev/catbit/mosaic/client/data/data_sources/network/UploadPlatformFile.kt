@@ -59,7 +59,7 @@ internal actual suspend fun uploadPlatformFile(
     platformFile: PlatformFile,
     contentType: String?,
     queryParameters: Map<String, Any?>?,
-    onProgress: suspend (Int) -> Unit
+    onProgress: suspend (Float) -> Unit
 ): UploadResult = coroutineScope {
     val jsFile: JsAny = (platformFile.webFile as WebFile.FileWrapper).file.unsafeCast()
 
@@ -82,7 +82,7 @@ internal actual suspend fun uploadPlatformFile(
 
     val progressChannel = Channel<Int>(Channel.CONFLATED)
     val progressJob = launch {
-        for (percent in progressChannel) onProgress(percent)
+        for (percent in progressChannel) onProgress(percent / 100f)
     }
 
     val xhr = try {

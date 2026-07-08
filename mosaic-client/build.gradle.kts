@@ -110,11 +110,18 @@ kotlin {
             implementation(libs.filekit.core)
             implementation(libs.filekit.dialogs)
             implementation(libs.filekit.dialogs.compose)
+
+            // CMP Image Compressor
+            implementation(libs.cmp.imgcompress)
         }
 
         androidMain.dependencies {
             // Ktor
             implementation(libs.ktor.client.okhttp)
+            // Exif orientation handling for camera captures
+            implementation(libs.androidx.exifinterface)
+            // SQLite driver
+            implementation(libs.androidx.sqlite.bundled)
         }
 
         iosMain.dependencies {
@@ -129,6 +136,8 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             // SQLite driver
             implementation(libs.androidx.sqlite.bundled)
+            // Webcam Capture
+            implementation(libs.webcam.capture)
         }
 
         commonTest.dependencies {

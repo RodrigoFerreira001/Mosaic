@@ -11,25 +11,26 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Reads the contents of a locally stored file identified by [fileName]. The runner is currently
- * a placeholder (`println`) — the actual file read and trigger-firing logic has not yet been
- * implemented.
+ * Reads the contents of a locally stored file identified by [fileName].
  *
- * **incomingData consumed:** Not used by the current placeholder runner. Once implemented,
- * [fileName] is the sole input; no incomingData is required.
+ * **incomingData consumed:** Not used; [fileName] is the sole input.
  *
- * **Triggers fired (intended, not yet implemented):**
- * - [OnSuccessEventTrigger] — intended to fire after the file is read successfully, with the
- *   file contents (binary or text) available as incomingData for downstream events.
- * - [OnFailureEventTrigger] — intended to fire when the file cannot be read (e.g., file not
- *   found, permission denied, or I/O error).
- *
- * **Failure scenarios:** Not applicable — the runner is a no-op placeholder. When implemented,
- * the primary failure condition is [fileName] not existing in the app's private storage.
+ * **Triggers fired:**
+ * - [OnSuccessEventTrigger] — fires after the file is read successfully, with incomingData
+ *   shaped according to [outputType]:
+ *   - [FileOutputType.ArrayOfBytes] — raw file contents as a [ByteArray] (default).
+ *   - [FileOutputType.FlowOfBytes] — a chunked `Flow<ByteArray>`, without loading the whole
+ *     file into memory.
+ *   - [FileOutputType.PlatformFile] — a reference to the file (`PlatformFile`), without
+ *     reading its contents.
+ *   - [FileOutputType.MapObject] — the file decoded as JSON into `Map<String, AnySerializable?>`.
+ *   - [FileOutputType.Base64] — the file contents as a base64-encoded [String].
+ * - [OnFailureEventTrigger] — fires when the file cannot be read (file not found, I/O error,
+ *   or invalid JSON when [outputType] is [FileOutputType.MapObject]). The [Throwable] is
+ *   passed as incomingData.
  *
  * **Notes:** [fileName] identifies the target file by name within the app's private storage
- * scope. The intended incomingData format for the success payload (raw bytes, Base64 string,
- * etc.) is not yet defined by the implementation.
+ * scope.
  */
 @Immutable
 @Triggers(
@@ -44,5 +45,6 @@ data class GetFileEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
-    @SerialName("fileName") val fileName: String
+    @SerialName("fileName") val fileName: String,
+    @SerialName("outputType") val outputType: FileOutputType = FileOutputType.ArrayOfBytes
 ) : EventSchema

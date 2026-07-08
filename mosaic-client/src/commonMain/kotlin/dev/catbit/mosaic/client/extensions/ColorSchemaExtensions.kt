@@ -7,16 +7,7 @@ import dev.catbit.mosaic.core.data.schemas.color.ColorSchema
 
 @Composable
 fun ColorSchema.toComposeColor(): Color = when (this) {
-    is ColorSchema.Hex -> {
-        val hex = value.removePrefix("#")
-        val color = if (hex.length == 6) "FF$hex" else hex
-        try {
-            Color(color.toLong(16))
-        } catch (_: Exception) {
-            Color.Unspecified
-        }
-    }
-
+    is ColorSchema.Hex -> value.toColor()
     is ColorSchema.Rgba -> Color(r, g, b, alpha)
     is ColorSchema.Theme -> when (value) {
         ColorSchema.Theme.Color.PRIMARY -> MaterialTheme.colorScheme.primary

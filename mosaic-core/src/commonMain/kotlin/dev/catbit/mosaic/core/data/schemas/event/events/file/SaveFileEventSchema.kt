@@ -11,21 +11,17 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Saves data to a local file on the device. The runner is currently a placeholder (`println`)
- * — the actual file write and trigger-firing logic has not yet been implemented.
+ * Saves data to a local file on the device.
  *
- * **incomingData consumed:** Not used by the current placeholder runner. Once implemented,
- * incomingData is expected to carry the binary or text content to be written to [fileName].
+ * **incomingData consumed:** Expected to be a [ByteArray] with the content to be written to
+ * [fileName].
  *
- * **Triggers fired (intended, not yet implemented):**
- * - [OnSuccessEventTrigger] — intended to fire after the file is written successfully, with
- *   no incomingData payload.
- * - [OnFailureEventTrigger] — intended to fire when the write fails (e.g., permission denied,
- *   disk full, or the file already exists and [overrideIfExists] is false).
- *
- * **Failure scenarios:** Not applicable — the runner is a no-op placeholder. When implemented,
- * the primary failure condition is an existing file at [fileName] when [overrideIfExists] is
- * false, or any I/O exception during the write.
+ * **Triggers fired:**
+ * - [OnSuccessEventTrigger] — fires after the file is written successfully, with no
+ *   incomingData payload.
+ * - [OnFailureEventTrigger] — fires when the write fails: incomingData isn't a [ByteArray],
+ *   the file already exists and [overrideIfExists] is false, or any I/O exception during the
+ *   write. The [Throwable] is passed as incomingData.
  *
  * **Notes:** [fileName] identifies the target file by name within the app's private storage
  * scope. [overrideIfExists] controls whether a pre-existing file with the same name should be

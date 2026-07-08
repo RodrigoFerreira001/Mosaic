@@ -53,6 +53,11 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * NSContactsUsageDescription        → CONTACTS
  * ```
  * `NOTIFICATION` on iOS does not require an `Info.plist` key.
+ *
+ * **Note on `GALLERY`:** only request this if you need broad, persistent gallery access (e.g.
+ * reading `MediaStore` directly). Mosaic's `GetImageFromGallery` event picks images through the
+ * Android Photo Picker / iOS `PHPickerViewController`, which need **no** storage or media
+ * permission at all — don't request `GALLERY` just to use it.
  */
 @Immutable
 @Triggers(

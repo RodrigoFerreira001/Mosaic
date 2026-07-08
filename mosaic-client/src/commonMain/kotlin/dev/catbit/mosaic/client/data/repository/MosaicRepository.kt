@@ -6,6 +6,7 @@ import io.github.vinceglb.filekit.PlatformFile
 import dev.catbit.mosaic.client.data.data_sources.network.UploadResult
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
+import kotlinx.coroutines.flow.Flow
 
 interface MosaicRepository {
 
@@ -30,9 +31,19 @@ interface MosaicRepository {
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        onProgress: suspend (Int) -> Unit = {},
-        onBytesReceived: suspend (ByteArray) -> Unit = {},
+        onProgress: suspend (Float) -> Unit = {},
         onDownloadFinished: suspend (ByteArray) -> Unit = {},
+        onDownloadFailure: suspend (Throwable) -> Unit = {}
+    ): Result<Unit>
+
+    suspend fun downloadFileToDisk(
+        url: String,
+        headers: Map<String, String>?,
+        body: Any?,
+        httpMethod: HttpMethod,
+        targetFileName: String,
+        onProgress: suspend (Float) -> Unit = {},
+        onDownloadFinished: suspend () -> Unit = {},
         onDownloadFailure: suspend (Throwable) -> Unit = {}
     ): Result<Unit>
 
@@ -42,7 +53,7 @@ interface MosaicRepository {
         httpMethod: HttpMethod,
         contentType: String?,
         platformFile: PlatformFile,
-        onProgress: suspend (Int) -> Unit = {}
+        onProgress: suspend (Float) -> Unit = {}
     ): Result<UploadResult>
 
     suspend fun getPlainData(
@@ -111,9 +122,21 @@ interface MosaicRepository {
 
     suspend fun getFile(
         fileName: String
-    ): Result<ByteArray>
+    ): Result<ByteArray?>
+
+    suspend fun getFileStreaming(
+        fileName: String
+    ): Result<Flow<ByteArray>?>
+
+    suspend fun getFilePlatformFile(
+        fileName: String
+    ): Result<PlatformFile?>
 
     suspend fun deleteFile(
         fileName: String
     ): Result<Unit>
+
+    suspend fun fileExists(
+        fileName: String
+    ): Result<Boolean>
 }

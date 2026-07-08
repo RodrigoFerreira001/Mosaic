@@ -296,12 +296,14 @@ Individual text properties (`fontSize`, `fontWeight`, etc.) override the corresp
 
 | Field | Type | Default |
 |---|---|---|
-| `url` | `String` | required |
+| `model` | `Model` | required |
 | `contentDescription` | `String?` | — |
 | `contentScale` | `ContentScale` | — |
 | `alpha` | `Float` | — |
 | `clipToBounds` | `Boolean` | — |
 | `alignment` | `AlignmentSchema.TwoDimensional` | — |
+
+`Model` (sealed interface): `Url(url: String)`, `ArrayOfBytes(byteArray: ByteArray)`, `Base64(base64: String)`
 
 `ContentScale`: `CROP`, `FIT`, `FILL_HEIGHT`, `FILL_WIDTH`, `INSIDE`, `FILL_BOUNDS`
 
@@ -785,6 +787,29 @@ Self-loading tile container that fetches child tiles from a remote endpoint on f
 
 ---
 
+## Popup
+
+### PopupTileSchema
+**JSON type:** `"Popup"`
+
+| Field | Type |
+|---|---|
+| `tiles` | `List<TileSchema>` |
+| `popupTiles` | `List<TileSchema>` |
+| `expanded` | `Boolean` |
+| `alignment` | `AlignmentSchema.TwoDimensional` |
+| `offsetX` | `Int` |
+| `offsetY` | `Int` |
+| `focusable` | `Boolean` |
+| `dismissOnBackPress` | `Boolean` |
+| `dismissOnClickOutside` | `Boolean` |
+
+**Note:** `Box` wrapping anchor content (`tiles`) plus a Compose `Popup` composed only while `expanded` is `true` (unlike `DropdownMenu`, `Popup` has no `expanded` param). `popupTiles` is free-form content (not a fixed item list like Menu). `alignment`/`offsetX`/`offsetY` position the popup relative to the anchor; `focusable`/`dismissOnBackPress`/`dismissOnClickOutside` map to Compose's `PopupProperties`. Dismiss dispatches `PopupTileEvents.OnTogglePopup` locally → `PopupTileHolder` toggles `tile.expanded`, same pattern as Menu. Two separate walkable child groups (`tiles` + `popupTiles`), following the `ScreenTileHolder` precedent rather than merging into one list.
+
+**Supported triggers:** none specific — standard tile triggers (`OnDisplay`, `OnClick`, etc.) apply.
+
+---
+
 ## Inputs
 
 ### DropdownListTileSchema
@@ -807,6 +832,50 @@ Self-loading tile container that fetches child tiles from a remote endpoint on f
 **Note:** `ExposedDropdownMenuBox` Material 3. O toggle e dismiss são gerenciados pelo cliente via `DropdownListTileEvents` (`OnDropdownListToggle`, `OnDropdownListDismissRequest`, `OnItemSelected`). O servidor nunca envia `expanded = true`.
 
 **Supported triggers:** `OnDropdownListItemSelected(id)`, `OnDropdownListOpen`, `OnDropdownListClose`
+
+---
+
+### DatePickerTileSchema
+**JSON type:** `"DatePicker"`
+
+| Field | Type | Default |
+|---|---|---|
+| `expanded` | `Boolean` | `false` (server sempre envia `false`; cliente gerencia estado) |
+| `selectedDate` | `String?` | `null` — ISO-8601 (`"2026-07-07"`) |
+| `enabled` | `Boolean` | `true` |
+| `kind` | `Kind` (`FILLED`, `OUTLINED`) | `OUTLINED` |
+| `dialogOptions` | `DialogOptions` | required |
+
+`DialogOptions`: `{ confirmLabel: String, dismissLabel: String, isCancellable: Boolean = true, usePlatformDefaultWidth: Boolean = true }` — compartilhada com `TimePickerTileSchema`. `confirmLabel`/`dismissLabel` obrigatórios (nunca hardcoded no client).
+
+**Form tile:** `produceValueWithKey` retorna `null` quando `selectedDate` é `null`; caso contrário, `mapOf(key to selectedDate)`. Datas não selecionadas ficam de fora dos dados de formulário coletados.
+
+**Updatable fields (via UpdateTiles):** `selectedDate`, `enabled`, `kind`, `dialogOptions`, `visibility`, `style`.
+
+**Note:** `DatePickerDialog` Material 3, aberto ao tocar num `TextField`/`OutlinedTextField` somente-leitura (detecção de toque via `MutableInteractionSource` + `PressInteraction.Release`, já que não há um `ExposedDropdownMenuBox` pronto para um TextField comum). Toggle/dismiss/confirm gerenciados pelo cliente via `DatePickerTileEvents` (`OnDatePickerToggle`, `OnDatePickerDismissRequest`, `OnDateConfirmed`). O servidor nunca envia `expanded = true`.
+
+**Supported triggers:** `OnDateSelected` (data selecionada via incomingData), `OnDatePickerOpen`, `OnDatePickerClose`
+
+---
+
+### TimePickerTileSchema
+**JSON type:** `"TimePicker"`
+
+| Field | Type | Default |
+|---|---|---|
+| `expanded` | `Boolean` | `false` (server sempre envia `false`; cliente gerencia estado) |
+| `selectedTime` | `String?` | `null` — `"HH:mm"` (24h) |
+| `enabled` | `Boolean` | `true` |
+| `kind` | `Kind` (`FILLED`, `OUTLINED`) | `OUTLINED` |
+| `dialogOptions` | `DialogOptions` | required |
+
+**Form tile:** `produceValueWithKey` retorna `null` quando `selectedTime` é `null`; caso contrário, `mapOf(key to selectedTime)`. Horas não selecionadas ficam de fora dos dados de formulário coletados.
+
+**Updatable fields (via UpdateTiles):** `selectedTime`, `enabled`, `kind`, `dialogOptions`, `visibility`, `style`.
+
+**Note:** `TimePickerDialog` Material 3, mesmo padrão de abertura/fechamento do `DatePickerTileSchema`. Toggle/dismiss/confirm gerenciados pelo cliente via `TimePickerTileEvents` (`OnTimePickerToggle`, `OnTimePickerDismissRequest`, `OnTimeConfirmed`). O servidor nunca envia `expanded = true`.
+
+**Supported triggers:** `OnTimeSelected` (hora selecionada via incomingData), `OnTimePickerOpen`, `OnTimePickerClose`
 
 ---
 

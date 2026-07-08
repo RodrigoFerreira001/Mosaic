@@ -11,9 +11,12 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.AsyncImageTileSchema
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 object AsyncImageTileRenderer : TileRenderer<AsyncImageTileSchema> {
 
+    @OptIn(ExperimentalEncodingApi::class)
     @Composable
     override fun TileRenderingScope.Render(
         tileSchema: AsyncImageTileSchema,
@@ -26,7 +29,11 @@ object AsyncImageTileRenderer : TileRenderer<AsyncImageTileSchema> {
                 onLoading = { triggerEvent(EventTriggers.onAsyncImageLoadStart()) },
                 onError = { triggerEvent(EventTriggers.onAsyncImageLoadFailure()) },
                 onSuccess = { triggerEvent(EventTriggers.onAsyncImageLoadSuccess()) },
-                model = url,
+                model = when (val m = model) {
+                    is AsyncImageTileSchema.Model.Url -> m.url
+                    is AsyncImageTileSchema.Model.ArrayOfBytes -> m.byteArray
+                    is AsyncImageTileSchema.Model.Base64 -> Base64.decode(m.base64)
+                },
                 contentDescription = contentDescription,
                 contentScale = contentScale.toContentScale(),
                 alpha = alpha,

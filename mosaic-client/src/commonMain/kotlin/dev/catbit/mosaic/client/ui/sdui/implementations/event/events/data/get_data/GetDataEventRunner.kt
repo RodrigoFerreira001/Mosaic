@@ -37,7 +37,7 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
 
             // Accumulates all key-value results across readings.
             // Later readings overwrite earlier ones on key collision.
-            val accumulator = mutableMapOf<String, Any>()
+            val accumulator = mutableMapOf<String, Any?>()
 
             // Tracks the final output type by precedence: MAP > LIST > ANY
             var resultLevel = ResultLevel.ANY
@@ -46,7 +46,10 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
                 when (val accessMode = reading.accessMode) {
 
                     is AccessModeSchema.Full -> {
-                        val data = when (val source = reading.dataSource) {
+                        val data: Map<String, Any?> = when (val source = reading.dataSource) {
+                            is DataSourceSchema.Inline ->
+                                source.data
+
                             DataSourceSchema.PlainDataBase ->
                                 getAllPlainDataUseCase()
                                     .getOrElse {
@@ -65,13 +68,13 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
                                 applicationDataHolder.getAllPlainData()
 
                             is DataSourceSchema.ApplicationSegmentedData ->
-                                applicationDataHolder.getAllSegmentedData(source.segmentId)
+                                applicationDataHolder.getAllSegmentedData(source.segmentId) ?: emptyMap()
 
                             DataSourceSchema.ScreenPlainData ->
                                 screenDataHolder.getAllPlainData()
 
                             is DataSourceSchema.ScreenSegmentedData ->
-                                screenDataHolder.getAllSegmentedData(source.segmentId)
+                                screenDataHolder.getAllSegmentedData(source.segmentId) ?: emptyMap()
 
                             DataSourceSchema.ScreenNavigationData ->
                                 screenDataHolder.getAllNavigationData()
@@ -89,6 +92,9 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
 
                     is AccessModeSchema.Batch -> {
                         val batchResults: Map<String, Any?> = when (val source = reading.dataSource) {
+                            is DataSourceSchema.Inline ->
+                                accessMode.dataIds.associateWith { source.data[it] }
+
                             DataSourceSchema.PlainDataBase ->
                                 getPlainDataByIdsUseCase(GetPlainDataByIdsUseCase.Params(accessMode.dataIds)).getOrElse { emptyMap() }
 
@@ -141,6 +147,9 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
 
                     is AccessModeSchema.Single -> {
                         val value = when (val source = reading.dataSource) {
+                            is DataSourceSchema.Inline ->
+                                source.data[accessMode.dataId]
+
                             DataSourceSchema.PlainDataBase ->
                                 getPlainDataUseCase(GetPlainDataUseCase.Params(accessMode.dataId)).getOrNull()
 
@@ -166,7 +175,7 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
                                 tilesValueProducer.getValueWithKey(
                                     tileId = source.tileId,
                                     key = source.dataKey
-                                )
+                                )?.get(source.dataKey)
                         }
 
                         if (value == null) {
@@ -182,7 +191,7 @@ object GetDataEventRunner : EventRunner<GetDataEventSchema> {
                 }
             }
 
-            val finalData: Any = when (resultLevel) {
+            val finalData: Any? = when (resultLevel) {
                 ResultLevel.MAP -> accumulator
                 ResultLevel.LIST -> accumulator.values.toList()
                 ResultLevel.ANY -> if (event.readings.size == 1) accumulator.values.first() else accumulator.values.toList()

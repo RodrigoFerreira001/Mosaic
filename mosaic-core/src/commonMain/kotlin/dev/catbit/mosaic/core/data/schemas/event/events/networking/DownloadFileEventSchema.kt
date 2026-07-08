@@ -6,7 +6,6 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadPartialEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
@@ -34,8 +33,6 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * - [OnStartEventTrigger] — immediately before the download request is dispatched.
  * - [OnDownloadProgressEventTrigger] — fired per chunk; incomingData becomes an `Int` 0–100
  *   representing completion percentage (only when `Content-Length` is available and > 0).
- * - [OnDownloadPartialEventTrigger] — fired per chunk; incomingData becomes the `ByteArray`
- *   of that chunk.
  * - [OnDownloadFinishEventTrigger] — fired once transfer completes; incomingData becomes the
  *   full `ByteArray` of the downloaded file.
  * - [OnSuccessEventTrigger] — fired after a successful download completes.
@@ -49,15 +46,13 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * - Any network/IO error during streaming: fires [OnDownloadFailureEventTrigger].
  *
  * **Notes:**
- * - [OnDownloadProgressEventTrigger] and [OnDownloadPartialEventTrigger] interleave freely;
- *   both fire per received chunk.
+ * - [OnDownloadProgressEventTrigger] fires per received chunk.
  */
 @Immutable
 @Triggers(
     [
         OnStartEventTrigger::class,
         OnDownloadProgressEventTrigger::class,
-        OnDownloadPartialEventTrigger::class,
         OnDownloadFinishEventTrigger::class,
         OnSuccessEventTrigger::class,
         OnDownloadFailureEventTrigger::class,

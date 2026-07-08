@@ -12,6 +12,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import dev.catbit.mosaic.client.extensions.hasErrorState
+import dev.catbit.mosaic.client.extensions.textOrNull
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
@@ -51,6 +53,8 @@ object DropdownListTileRenderer : TileRenderer<DropdownListTileSchema> {
                             colors = ExposedDropdownMenuDefaults.textFieldColors(),
                             onValueChange = {},
                             readOnly = true,
+                            isError = hasErrorState(),
+                            supportingText = supportingText.textOrNull(),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
                         )
                     }
@@ -65,6 +69,8 @@ object DropdownListTileRenderer : TileRenderer<DropdownListTileSchema> {
                             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                             onValueChange = {},
                             readOnly = true,
+                            isError = hasErrorState(),
+                            supportingText = supportingText.textOrNull(),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
                         )
                     }

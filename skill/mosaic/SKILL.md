@@ -337,7 +337,7 @@ heightVisibleFromCompact()  heightVisibleFromMedium()  heightVisibleFromExpanded
 heightVisibleUntilCompact() heightVisibleUntilMedium() heightVisibleUntilExpanded()
 ```
 
-### AsyncImage helpers (`dev.catbit.mosaic.server.builder.tile.builders.media`)
+### AsyncImage helpers (`dev.catbit.mosaic.server.builder.tile.builders.image`)
 
 ```kotlin
 cropContentScale()        fitContentScale()         fillWidthContentScale()
@@ -362,8 +362,10 @@ incomingData()                              // use incomingData as the update/br
 inlineTileUpdateData("field" to value)      // Map<String, Any?> for UpdateTiles
 inlineTileUpdateData(mapOf("k" to v))
 incomingTileUpdateData()                    // pass incomingData directly to UpdateTiles
-inlineUpdateData("key" to value)            // for UpdateData
-incomingUpdateData()
+inlineUpdateData("key" to value)            // for UpdateData (legacy: explodes map keys into dataIds)
+incomingUpdateData()                        // legacy: explodes incomingData's map keys into dataIds
+explicitUpdateData(dataId, value)           // for UpdateData: writes value as-is under one dataId, no inference
+explicitIncomingUpdateData(dataId)          // writes incomingData as-is under one dataId, no inference
 
 // Broadcast data
 inlineBroadcastData(data)                  // send a value as broadcast payload
@@ -608,13 +610,16 @@ GetData(
 
 ### Writing data
 
+`update(dataSource, updateData)` — `updateData` is `incomingUpdateData()`/`inlineUpdateData(...)` (legacy: explodes a map's keys into separate dataIds) or `explicitIncomingUpdateData(dataId)`/`explicitUpdateData(dataId, value)` (writes the value as-is under one exact dataId — required whenever the value is itself a record/map, e.g. a segmented-data row).
+
 ```kotlin
 UpdateData(
     trigger = EventTriggers.onSuccess(),
     updates = {
+        // Explicit: writes the whole incomingData map intact under one dataId
         update(
-            dataSource = screenSegmentedData("form"),
-            incomingData = true   // write incomingData under this source
+            dataSource = segmentedDataBase("currentActionPlanning_$planId"),
+            updateData = explicitIncomingUpdateData(dataId = "TALA-T_01-8")
         )
     }
 )

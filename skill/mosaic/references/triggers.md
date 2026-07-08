@@ -109,7 +109,6 @@ JSON serialization uses `@SerialName` as the `type` discriminator on the `trigge
 | `EventTriggers.onDownloadProgress()` | `"OnDownloadProgress"` | — | DownloadFile |
 | `EventTriggers.onDownloadFinish()` | `"OnDownloadFinish"` | — | DownloadFile |
 | `EventTriggers.onDownloadFailure()` | `"OnDownloadFailure"` | — | DownloadFile |
-| `EventTriggers.onDownloadPartial()` | `"OnDownloadPartial"` | — | DownloadFile |
 | `EventTriggers.onUploadProgress()` | `"OnUploadProgress"` | — | SendFile; incomingData = Int 0–100, fires only when % changes |
 
 ---

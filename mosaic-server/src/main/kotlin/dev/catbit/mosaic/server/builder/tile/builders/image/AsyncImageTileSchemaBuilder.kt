@@ -16,7 +16,7 @@ internal class AsyncImageTileSchemaBuilder(
     private val style: StyleSchemaBuilderScope.() -> Unit,
     private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
-    private val url: String,
+    private val model: AsyncImageTileSchema.Model,
     private val contentDescription: String?,
     private val contentScale: AsyncImageTileSchema.ContentScale,
     private val alpha: Float,
@@ -30,7 +30,7 @@ internal class AsyncImageTileSchemaBuilder(
         style = StyleSchemaBuilderScope().apply(style).buildStyle(),
         searchableTerms = searchableTerms?.toImmutableList(),
         visibility = visibility,
-        url = url,
+        model = model,
         contentDescription = contentDescription,
         contentScale = contentScale,
         alpha = alpha,
@@ -45,7 +45,7 @@ fun TileSchemaBuilderScope.AsyncImage(
     style: StyleSchemaBuilderScope.() -> Unit = {},
     visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
     searchableTerms: List<String>? = null,
-    url: String,
+    model: AsyncImageTileSchema.Model,
     contentDescription: String? = null,
     contentScale: AsyncImageTileSchema.ContentScale = AsyncImageTileSchema.ContentScale.FIT,
     alpha: Float = 1.0f,
@@ -59,7 +59,7 @@ fun TileSchemaBuilderScope.AsyncImage(
             style = style,
             searchableTerms = searchableTerms,
             visibility = visibility,
-            url = url,
+            model = model,
             contentDescription = contentDescription,
             contentScale = contentScale,
             alpha = alpha,
@@ -75,3 +75,7 @@ fun fillHeightContentScale() = AsyncImageTileSchema.ContentScale.FILL_HEIGHT
 fun fillWidthContentScale() = AsyncImageTileSchema.ContentScale.FILL_WIDTH
 fun insideContentScale() = AsyncImageTileSchema.ContentScale.INSIDE
 fun fillBoundsContentScale() = AsyncImageTileSchema.ContentScale.FILL_BOUNDS
+
+fun urlImageModel(url: String) = AsyncImageTileSchema.Model.Url(url)
+fun arrayOfBytesImageModel(byteArray: ByteArray) = AsyncImageTileSchema.Model.ArrayOfBytes(byteArray)
+fun base64ImageModel(base64: String) = AsyncImageTileSchema.Model.Base64(base64)

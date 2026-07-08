@@ -26,7 +26,7 @@ import kotlinx.serialization.Serializable
  * [options] at build time.
  *
  * **Updatable fields (via UpdateTiles):** `selectedOptionId`, `enabled`, `options`, `kind`,
- * `visibility`, `style`.
+ * `supportingText`, `state`, `visibility`, `style`.
  *
  * **Triggers dispatched:**
  * - [OnDropdownListItemSelectedEventTrigger] — fired when the user taps an option in the menu;
@@ -62,6 +62,8 @@ data class DropdownListTileSchema(
     @SerialName("selectedOptionId") val selectedOptionId: String,
     @SerialName("enabled") val enabled: Boolean,
     @SerialName("kind") val kind: Kind,
+    @SerialName("supportingText") val supportingText: String?,
+    @SerialName("state") val state: State,
 ) : TileSchema {
 
     @Serializable
@@ -72,5 +74,9 @@ data class DropdownListTileSchema(
 
     enum class Kind {
         FILLED, OUTLINED
+    }
+
+    enum class State {
+        NORMAL, ERROR
     }
 }

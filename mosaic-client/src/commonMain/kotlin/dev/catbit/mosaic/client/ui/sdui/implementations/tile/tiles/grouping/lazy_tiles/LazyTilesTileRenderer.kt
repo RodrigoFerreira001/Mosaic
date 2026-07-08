@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.domain.send_request.SendNetworkRequestUseCase
 import dev.catbit.mosaic.client.extensions.toKtorHttpMethod
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
+import dev.catbit.mosaic.client.logger.MosaicLogger
 import dev.catbit.mosaic.client.ui.effects.SingleEffect
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
@@ -34,6 +35,7 @@ object LazyTilesTileRenderer : TileRenderer<LazyTilesTileSchema> {
 
         val sendNetworkRequestUseCase = koinInject<SendNetworkRequestUseCase>()
         val mosaicSerializer = koinInject<MosaicSerializer>()
+        val mosaicLogger = koinInject<MosaicLogger>()
 
         with(tileSchema) {
             Column(
@@ -70,7 +72,7 @@ object LazyTilesTileRenderer : TileRenderer<LazyTilesTileSchema> {
                                                 )
                                             )
                                         } catch (e: Throwable) {
-                                            println(e.printStackTrace())
+                                            mosaicLogger.error("LazyTilesTileRenderer: ${e.stackTraceToString()}")
                                             triggerEvent(
                                                 trigger = EventTriggers.onLoadTilesFailure(),
                                                 data = e
@@ -79,7 +81,7 @@ object LazyTilesTileRenderer : TileRenderer<LazyTilesTileSchema> {
                                         }
                                     }
                                     .onFailure {
-                                        println(it.printStackTrace())
+                                        mosaicLogger.error("LazyTilesTileRenderer: ${it.stackTraceToString()}")
                                         triggerEvent(
                                             trigger = EventTriggers.onLoadTilesFailure(),
                                             data = it

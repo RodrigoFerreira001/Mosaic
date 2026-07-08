@@ -12,7 +12,9 @@ object NavigateEventRunner : EventRunner<NavigateEventSchema> {
     override suspend fun EventRunningScope.runEvent(event: NavigateEventSchema) {
         get<NavigatorsHolder>()[event.navigatorId]?.navigate(
             destination = event.destination,
-            navigationData = incomingData.asMapAny().orEmpty() + event.data.orEmpty(),
+            // Navigation args are never null by design, so nulls from incomingData are dropped here.
+            navigationData = incomingData.asMapAny().orEmpty().filterValues { it != null }
+                .mapValues { it.value as Any } + event.data.orEmpty(),
             poppingUpTo = event.popUpTo?.let { popUpTo ->
                 poppingUpTo(
                     target = popUpTo.destination,

@@ -1,6 +1,5 @@
 package dev.catbit.mosaic.client.permission
 
-import android.content.Context
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
@@ -10,12 +9,12 @@ import dev.catbit.mosaic.core.data.schemas.event.events.security.RequestPermissi
 import kotlinx.coroutines.CompletableDeferred
 import java.util.UUID
 
-class AndroidPermissionManager(private val context: Context) : PermissionManager {
+class AndroidPermissionManager(private val activityProvider: () -> ComponentActivity) : PermissionManager {
 
     override suspend fun requestPermissions(
         permissions: List<Permissions>
     ): PermissionResult {
-        val activity = context as ComponentActivity
+        val activity = activityProvider()
         val androidPermissions = permissions.flatMap { it.toAndroidPermissions() }
 
         if (androidPermissions.isEmpty()) return PermissionResult.Granted
@@ -25,7 +24,6 @@ class AndroidPermissionManager(private val context: Context) : PermissionManager
 
         val launcher = activity.activityResultRegistry.register(
             key,
-            activity,
             ActivityResultContracts.RequestMultiplePermissions()
         ) { result ->
             deferred.complete(result)

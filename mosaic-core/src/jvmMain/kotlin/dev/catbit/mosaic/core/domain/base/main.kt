@@ -15,7 +15,6 @@ fun main() {
         for (i in 0..100) {
             launch {
                 delay(Random.nextInt(1, 3).seconds)
-                println(i)
             }
         }
     }

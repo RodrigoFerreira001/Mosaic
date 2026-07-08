@@ -8,7 +8,9 @@ import dev.catbit.mosaic.core.extensions.runSafely
 object RunEventsEventRunner : EventRunner<RunEventsEventSchema> {
     override suspend fun EventRunningScope.runEvent(event: RunEventsEventSchema) {
         event.events?.forEach { event ->
-            runSafely {
+            runSafely(
+                onError = { logError(throwable = it, tag = "RunEventsEventRunner") }
+            ) {
                 runEventInline(
                     eventSchema = event,
                     data = incomingData

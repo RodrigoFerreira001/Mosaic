@@ -142,7 +142,6 @@ Usados como child event triggers após operações assíncronas (network, data, 
 | `OnDownloadProgressEventTrigger` | `"OnDownloadProgress"` | — | DownloadFileEventSchema (cada update de progresso) |
 | `OnDownloadFinishEventTrigger` | `"OnDownloadFinish"` | — | DownloadFileEventSchema |
 | `OnDownloadFailureEventTrigger` | `"OnDownloadFailure"` | — | DownloadFileEventSchema |
-| `OnDownloadPartialEventTrigger` | `"OnDownloadPartial"` | — | DownloadFileEventSchema (progresso parcial) |
 | `OnUploadProgressEventTrigger` | `"OnUploadProgress"` | — | SendFileEventSchema (incomingData = Int 0–100, fired apenas quando o % muda) |
 
 ---

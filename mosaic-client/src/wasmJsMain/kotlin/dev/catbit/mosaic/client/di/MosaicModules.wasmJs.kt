@@ -5,7 +5,9 @@ import androidx.sqlite.driver.web.WebWorkerSQLiteDriver
 import dev.catbit.mosaic.client.data.data_chest.DataChest
 import dev.catbit.mosaic.client.data.data_chest.WasmJsDataChest
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
+import dev.catbit.mosaic.client.camera.WasmJsCameraManager
 import dev.catbit.mosaic.client.permission.WasmJsPermissionManager
+import dev.catbit.mosaic.client.ui.sdui.foundation.camera.CameraManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.permission.PermissionManager
 import dev.catbit.mosaic.core.domain.base.IO
 import io.ktor.client.HttpClient
@@ -21,6 +23,8 @@ internal actual val platformModule = module {
     single<HttpClient> { HttpClient(Js) }
 
     single<PermissionManager> { WasmJsPermissionManager() }
+
+    single<CameraManager> { WasmJsCameraManager() }
 
     single<DataChest> {
         WasmJsDataChest(localStorage)

@@ -3,12 +3,12 @@ package dev.catbit.mosaic.client.ui.sdui.foundation.data_holder
 interface ScreenDataHolder {
 
     fun addPlainData(
-        data: Any,
+        data: Any?,
         dataId: String
     )
 
     fun addSegmentedData(
-        data: Any,
+        data: Any?,
         segmentId: String,
         dataId: String
     )
@@ -26,7 +26,7 @@ interface ScreenDataHolder {
         dataId: String
     ): Any?
 
-    fun getAllPlainData(): Map<String, Any>
+    fun getAllPlainData(): Map<String, Any?>
 
     fun getSegmentedData(
         dataId: String,
@@ -35,7 +35,7 @@ interface ScreenDataHolder {
 
     fun getAllSegmentedData(
         segmentId: String
-    ): Map<String, Any>
+    ): Map<String, Any?>?
 
     fun getNavigationData(
         dataId: String
@@ -56,18 +56,18 @@ class DefaultScreenDataHolder(
     private val navigationData: Map<String, Any>
 ) : ScreenDataHolder {
 
-    private val plainData: MutableMap<String, Any> = mutableMapOf()
-    private val segmentedData: MutableMap<String, MutableMap<String, Any>> = mutableMapOf()
+    private val plainData: MutableMap<String, Any?> = mutableMapOf()
+    private val segmentedData: MutableMap<String, MutableMap<String, Any?>> = mutableMapOf()
 
     override fun addPlainData(
-        data: Any,
+        data: Any?,
         dataId: String
     ) {
         plainData[dataId] = data
     }
 
     override fun addSegmentedData(
-        data: Any,
+        data: Any?,
         segmentId: String,
         dataId: String
     ) {
@@ -88,14 +88,14 @@ class DefaultScreenDataHolder(
     override fun getPlainData(dataId: String): Any? =
         plainData[dataId]
 
-    override fun getAllPlainData(): Map<String, Any> =
+    override fun getAllPlainData(): Map<String, Any?> =
         plainData.toMap()
 
     override fun getSegmentedData(dataId: String, segmentId: String): Any? =
         segmentedData[segmentId]?.get(dataId)
 
-    override fun getAllSegmentedData(segmentId: String): Map<String, Any> =
-        segmentedData[segmentId]?.toMap() ?: emptyMap()
+    override fun getAllSegmentedData(segmentId: String): Map<String, Any?>? =
+        segmentedData[segmentId]?.toMap()
 
     override fun getNavigationData(dataId: String): Any? =
         navigationData[dataId]

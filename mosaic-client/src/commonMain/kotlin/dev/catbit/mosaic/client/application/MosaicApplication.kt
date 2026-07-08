@@ -26,8 +26,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -68,6 +71,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.OverlayContainer
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreen
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenExtrasHolder
+import dev.catbit.mosaic.client.ui.theme.MosaicColors
 import dev.catbit.mosaic.client.ui.theme.MosaicTheme
 import dev.catbit.mosaic.client.ui.theme.MosaicTypography
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
@@ -105,6 +109,7 @@ fun MosaicApplication(
                         baseUrl = baseUrl,
                         additionalModule = dependencyInjectionConfig.additionalKoinModule,
                         logger = dependencyInjectionConfig.logger,
+                        colorScheme = themeConfig.colorScheme,
                         tileDefinitions = dependencyInjectionConfig.tileDefinitions,
                         eventDefinitions = dependencyInjectionConfig.eventDefinitions,
                         eventTriggerDefinitions = dependencyInjectionConfig.eventTriggerDefinition,
@@ -116,11 +121,12 @@ fun MosaicApplication(
             logLevel = Level.INFO
         ) {
             val stateHolder = koinViewModel<MosaicApplicationStateHolder>()
+            val colors = koinInject<MosaicColors>()
 
             stateHolder.bindScreenLifecycle()
 
             MosaicTheme(
-                colorScheme = themeConfig.colorScheme,
+                colors = colors,
                 shapes = themeConfig.shapes,
                 typography = themeConfig.typography,
                 materialSymbolFontsConfig = themeConfig.materialSymbolFontsConfig
@@ -166,21 +172,31 @@ fun mosaicDependencyInjectionConfig(
     drawableResources = drawableResources
 )
 
+@Stable
 data class MosaicThemeConfig(
-    val colorScheme: ColorScheme,
+    val colorScheme: MosaicColorScheme,
     val shapes: Shapes,
     val typography: Typography,
     val materialSymbolFontsConfig: MaterialSymbolFontsConfig,
 )
 
+@Stable
+data class MosaicColorScheme(
+    val lightColorScheme: ColorScheme,
+    val darkColorScheme: ColorScheme,
+)
+
 @Composable
 fun mosaicThemeConfig(
-    colorScheme: ColorScheme? = null,
+    colorScheme: MosaicColorScheme? = null,
     shapes: Shapes? = null,
     typography: Typography? = null,
     materialSymbolFontsConfig: MaterialSymbolFontsConfig? = null,
 ) = MosaicThemeConfig(
-    colorScheme = colorScheme ?: MaterialTheme.colorScheme,
+    colorScheme = colorScheme ?: MosaicColorScheme(
+        lightColorScheme = lightColorScheme(),
+        darkColorScheme = darkColorScheme()
+    ),
     shapes = shapes ?: MaterialTheme.shapes,
     typography = typography ?: MosaicTypography(),
     materialSymbolFontsConfig = materialSymbolFontsConfig ?: MaterialSymbolFontsConfig(),

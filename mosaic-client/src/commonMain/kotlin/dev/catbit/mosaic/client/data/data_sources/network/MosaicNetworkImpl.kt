@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.data.data_sources.network
 
+import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.exceptions.GetRequestWithBodyException
 import dev.catbit.mosaic.client.exceptions.MissingUploadUrlException
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
@@ -19,6 +20,7 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.prepareRequest
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpStatement
 import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -27,9 +29,9 @@ import io.ktor.http.content.TextContent
 import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
 import io.ktor.http.parameters
-import io.ktor.utils.io.ByteChannel
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
+import kotlinx.coroutines.flow.flow
 import kotlinx.io.Buffer
 import kotlinx.io.readByteArray
 
@@ -37,7 +39,8 @@ class MosaicNetworkImpl(
     private val baseUrl: String,
     private val httpClient: HttpClient,
     private val networkParametersHolder: NetworkParametersHolder,
-    private val mosaicSerializer: MosaicSerializer
+    private val mosaicSerializer: MosaicSerializer,
+    private val fileSystem: MosaicFileSystem
 ) : MosaicNetwork {
 
     override suspend fun getInitialGraph(): Result<GraphResponse> = safeNetworkCall {
@@ -111,48 +114,54 @@ class MosaicNetworkImpl(
         }
     }
 
+    private suspend fun buildDownloadRequest(
+        url: String,
+        headers: Map<String, String>?,
+        body: Any?,
+        httpMethod: HttpMethod,
+        onProgress: suspend (Float) -> Unit
+    ): HttpStatement = httpClient.prepareRequest(urlString = url) {
+        method = httpMethod
+
+        val networkParams = networkParametersHolder.consume()
+
+        (networkParams.headers.orEmpty() + headers.orEmpty()).forEach { (key, value) ->
+            header(key, value)
+        }
+
+        val strBody = (body ?: networkParams.body)?.let { anyBody ->
+            mosaicSerializer.encodeToString(AnySerializer, anyBody)
+        }
+
+        if (httpMethod == HttpMethod.Get && strBody != null) {
+            throw GetRequestWithBodyException(url)
+        }
+
+        strBody?.let { setBody(TextContent(it, ContentType.Application.Json)) }
+
+        networkParams.queryParameters?.forEach { (key, value) ->
+            value?.let { parameter(key, it.toString()) }
+        }
+
+        onDownload { bytesSentTotal, contentLength ->
+            if (contentLength != null && contentLength > 0) {
+                val percent = (bytesSentTotal.toDouble() / contentLength * 100).toInt()
+                onProgress(percent / 100f)
+            }
+        }
+    }
+
     override suspend fun downloadFile(
         url: String,
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        onProgress: suspend (Int) -> Unit,
-        onBytesReceived: suspend (ByteArray) -> Unit,
+        onProgress: suspend (Float) -> Unit,
         onDownloadFinished: suspend (ByteArray) -> Unit,
         onDownloadFailure: suspend (Throwable) -> Unit
     ) = safeResult {
         try {
-            httpClient.prepareRequest(urlString = url) {
-                method = httpMethod
-
-                val networkParams = networkParametersHolder.consume()
-
-                (networkParams.headers.orEmpty() + headers.orEmpty()).forEach { (key, value) ->
-                    header(key, value)
-                }
-
-                val strBody = (body ?: networkParams.body)?.let { anyBody ->
-                    mosaicSerializer.encodeToString(AnySerializer, anyBody)
-                }
-
-                if (httpMethod == HttpMethod.Get && strBody != null) {
-                    throw GetRequestWithBodyException(url)
-                }
-
-                strBody?.let { setBody(TextContent(it, ContentType.Application.Json)) }
-
-                networkParams.queryParameters?.forEach { (key, value) ->
-                    value?.let { parameter(key, it.toString()) }
-                }
-
-                onDownload { bytesSentTotal, contentLength ->
-                    if (contentLength != null && contentLength > 0) {
-                        val percent = (bytesSentTotal.toDouble() / contentLength * 100).toInt()
-                        onProgress(percent)
-                    }
-                }
-
-            }.execute { response ->
+            buildDownloadRequest(url, headers, body, httpMethod, onProgress).execute { response ->
 
                 if (!response.status.isSuccess()) {
                     throw NetworkResponseException(
@@ -175,8 +184,6 @@ class MosaicNetworkImpl(
                         val read = channel.readAvailable(buffer)
                         if (read <= 0) break
 
-                        onBytesReceived(buffer.copyOfRange(0, read))
-
                         buffer.copyInto(result, offset, 0, read)
                         offset += read
                     }
@@ -191,11 +198,7 @@ class MosaicNetworkImpl(
                         val read = channel.readAvailable(buffer)
                         if (read <= 0) break
 
-                        val chunk = buffer.copyOfRange(0, read)
-
-                        onBytesReceived(chunk)
-
-                        builder.write(chunk)
+                        builder.write(buffer.copyOfRange(0, read))
                     }
 
                     builder.readByteArray()
@@ -208,13 +211,51 @@ class MosaicNetworkImpl(
         }
     }
 
+    override suspend fun downloadFileToDisk(
+        url: String,
+        headers: Map<String, String>?,
+        body: Any?,
+        httpMethod: HttpMethod,
+        targetFileName: String,
+        onProgress: suspend (Float) -> Unit,
+        onDownloadFinished: suspend () -> Unit,
+        onDownloadFailure: suspend (Throwable) -> Unit
+    ) = safeResult {
+        try {
+            buildDownloadRequest(url, headers, body, httpMethod, onProgress).execute { response ->
+
+                if (!response.status.isSuccess()) {
+                    throw NetworkResponseException(
+                        status = response.status,
+                        error = response.bodyAsText()
+                    )
+                }
+
+                val channel: ByteReadChannel = response.bodyAsChannel()
+                val chunks = flow {
+                    val buffer = ByteArray(8192)
+                    while (!channel.isClosedForRead) {
+                        val read = channel.readAvailable(buffer)
+                        if (read <= 0) break
+                        emit(buffer.copyOfRange(0, read))
+                    }
+                }
+
+                fileSystem.saveFileStreaming(targetFileName, chunks)
+                onDownloadFinished()
+            }
+        } catch (e: Throwable) {
+            onDownloadFailure(e)
+        }
+    }
+
     override suspend fun uploadFile(
         url: String?,
         headers: Map<String, String>?,
         httpMethod: HttpMethod,
         contentType: String?,
         platformFile: PlatformFile,
-        onProgress: suspend (Int) -> Unit
+        onProgress: suspend (Float) -> Unit
     ): Result<UploadResult> = runCatching {
 
         val networkParams = networkParametersHolder.consume()

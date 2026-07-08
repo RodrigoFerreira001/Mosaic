@@ -28,13 +28,13 @@ class ScreenTileHolder(
             ?: currentDialogSheetTiles?.firstNotNullOfOrNull { it.getTileHolder(tileId, includeEventsOnSearch) }
             ?: navigationDrawerTiles?.firstNotNullOfOrNull { it.getTileHolder(tileId, includeEventsOnSearch) }
             ?: tiles.firstNotNullOfOrNull { it.getTileHolder(tileId, includeEventsOnSearch) }
-            ?: if (includeEventsOnSearch) events?.firstNotNullOfOrNull { it.getTileHolder(tileId) } else null
+            ?: if (includeEventsOnSearch) events.firstNotNullOfOrNull { it.getTileHolder(tileId) } else null
 
     override fun getEventHolder(eventId: String): EventHolder<*>? =
         currentBottomSheetTiles?.firstNotNullOfOrNull { it.getEventHolder(eventId) }
             ?: currentDialogSheetTiles?.firstNotNullOfOrNull { it.getEventHolder(eventId) }
             ?: navigationDrawerTiles?.firstNotNullOfOrNull { it.getEventHolder(eventId) }
-            ?: events?.firstNotNullOfOrNull { it.getEventHolder(eventId) }
+            ?: events.firstNotNullOfOrNull { it.getEventHolder(eventId) }
             ?: tiles.firstNotNullOfOrNull { it.getEventHolder(eventId) }
 
     override fun getTileHoldersByGroupEvent(
@@ -48,15 +48,15 @@ class ScreenTileHolder(
 
     override fun getEventsByTrigger(
         eventTrigger: EventTrigger
-    ): List<EventSchema>? = events
-        ?.asSequence()
-        ?.filter { it.trigger == eventTrigger }
-        ?.map { it.get() }
-        ?.plus(tiles.mapNotNull { it.getEventsByTrigger(eventTrigger) }.flatten())
-        ?.plus(currentBottomSheetTiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
-        ?.plus(currentDialogSheetTiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
-        ?.plus(navigationDrawerTiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
-        ?.toList()
+    ): List<EventSchema> = events
+        .asSequence()
+        .filter { it.trigger == eventTrigger }
+        .map { it.get() }
+        .plus(tiles.mapNotNull { it.getEventsByTrigger(eventTrigger) }.flatten())
+        .plus(currentBottomSheetTiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
+        .plus(currentDialogSheetTiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
+        .plus(navigationDrawerTiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
+        .toList()
 
     override fun get() = tile.copy(
         tiles = tiles.immutableMapTo { it.get() },

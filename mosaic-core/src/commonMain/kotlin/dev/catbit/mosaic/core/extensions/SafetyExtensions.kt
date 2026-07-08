@@ -6,7 +6,7 @@ import kotlin.contracts.contract
 
 @OptIn(ExperimentalContracts::class)
 inline fun runSafely(
-    onError: (Throwable) -> Unit = { println(it.printStackTrace()) },
+    onError: (Throwable) -> Unit = {},
     block: () -> Unit,
 ) {
     contract {

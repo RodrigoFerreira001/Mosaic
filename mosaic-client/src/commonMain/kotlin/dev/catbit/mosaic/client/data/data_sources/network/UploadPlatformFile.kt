@@ -20,5 +20,5 @@ internal expect suspend fun uploadPlatformFile(
     platformFile: PlatformFile,
     contentType: String?,
     queryParameters: Map<String, Any?>?,
-    onProgress: suspend (Int) -> Unit
+    onProgress: suspend (Float) -> Unit
 ): UploadResult

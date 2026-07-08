@@ -22,7 +22,7 @@ class EventRunnerManager(
                 runEvent(event)
             }
         } ?: run {
-            println("Couldn't find a runner for $event") // TODO Usar https://github.com/touchlab/Kermit
+            log(Level.ERROR, "EventRunnerManager: Couldn't find a runner for $event")
         }
     }
 }

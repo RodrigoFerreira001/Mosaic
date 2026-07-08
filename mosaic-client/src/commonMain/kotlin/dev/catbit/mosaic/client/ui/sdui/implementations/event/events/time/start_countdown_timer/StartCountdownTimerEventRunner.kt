@@ -7,7 +7,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object StartCountdownTimerEventRunner : EventRunner<StartCountdownTimerEventSchema> {
     override suspend fun EventRunningScope.runEvent(event: StartCountdownTimerEventSchema) {
-        println("executed StartCountdownTimerEvent")
         onTrigger(EventTriggers.onSuccess())
     }
 }

@@ -27,6 +27,6 @@ class UploadFileUseCase(
         val httpMethod: HttpMethod,
         val contentType: String?,
         val platformFile: PlatformFile,
-        val onProgress: suspend (Int) -> Unit = {}
+        val onProgress: suspend (Float) -> Unit = {}
     )
 }

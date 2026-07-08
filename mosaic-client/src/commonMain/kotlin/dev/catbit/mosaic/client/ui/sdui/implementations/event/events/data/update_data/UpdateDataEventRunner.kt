@@ -30,7 +30,7 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
                     )
                     .forEach { (dataSource, updates) ->
                         val entries = updates.flatMap { update ->
-                            resolveUpdateData(update, incomingData)?.entries.orEmpty()
+                            resolveUpdateEntries(update, incomingData)
                         }
 
                         when (dataSource) {
@@ -67,7 +67,10 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
                             }
 
                             DataSourceSchema.PlainDataBase -> {
+                                // Persisted data sources don't support null values yet — explicit
+                                // null writes targeting them are silently skipped.
                                 entries.forEach { (dataKey, data) ->
+                                    if (data == null) return@forEach
                                     updatePlainDataUseCase(
                                         UpdatePlainDataUseCase.Params(dataKey = dataKey, data = data)
                                     ).onFailure {
@@ -81,7 +84,10 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
                             }
 
                             is DataSourceSchema.SegmentedDataBase -> {
+                                // Persisted data sources don't support null values yet — explicit
+                                // null writes targeting them are silently skipped.
                                 entries.forEach { (dataKey, data) ->
+                                    if (data == null) return@forEach
                                     updateSegmentedDataUseCase(
                                         UpdateSegmentedDataUseCase.Params(
                                             segmentKey = dataSource.segmentId,
@@ -100,6 +106,7 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
 
                             DataSourceSchema.ScreenNavigationData -> Unit
                             is DataSourceSchema.Tile -> Unit
+                            is DataSourceSchema.Inline -> Unit
                         }
                     }
             }
@@ -112,11 +119,24 @@ object UpdateDataEventRunner : EventRunner<UpdateDataEventSchema> {
         }
     }
 
-    private fun EventRunningScope.resolveUpdateData(
+    private fun EventRunningScope.resolveUpdateEntries(
         update: UpdateDataEventSchema.Update.UpdateDate,
         incomingData: Any?
-    ) = when (update) {
-        UpdateDataEventSchema.Update.UpdateDate.Incoming -> incomingData.asMapAny()
-        is UpdateDataEventSchema.Update.UpdateDate.Inline -> update.data
+    ): List<Pair<String, Any?>> = when (update) {
+        UpdateDataEventSchema.Update.UpdateDate.Incoming ->
+            incomingData.asMapAny()?.entries?.map { it.key to it.value }.orEmpty()
+
+        is UpdateDataEventSchema.Update.UpdateDate.Inline ->
+            update.data.entries.map { it.key to it.value }
+
+        is UpdateDataEventSchema.Update.UpdateDate.Explicit -> {
+            // dataId is known ahead of time, so the resolved value (including null) is always
+            // written — unlike Incoming/Inline, there's no map to "fail to coerce".
+            val value = when (val explicitValue = update.value) {
+                UpdateDataEventSchema.Update.UpdateDate.Explicit.ExplicitValue.Incoming -> incomingData
+                is UpdateDataEventSchema.Update.UpdateDate.Explicit.ExplicitValue.Inline -> explicitValue.value
+            }
+            listOf(update.dataId to value)
+        }
     }
 }

@@ -55,7 +55,9 @@ abstract class TileHolder<T : TileSchema> {
 
     @OptIn(InternalSerializationApi::class)
     fun UpdateScope.update(updateData: Map<String, Any?>) {
-        runSafely {
+        runSafely(
+            onError = { builderScope.logError(tag = "TileHolder.update", throwable = it) }
+        ) {
 
             val tileUpdateObject = updateData
                 .filterKeys { it != "style" }

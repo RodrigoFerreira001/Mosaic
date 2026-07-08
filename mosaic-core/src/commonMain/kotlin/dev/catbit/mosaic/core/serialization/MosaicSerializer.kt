@@ -18,16 +18,21 @@ import dev.catbit.mosaic.core.data.schemas.event.events.file.DeleteFileEventSche
 import dev.catbit.mosaic.core.data.schemas.event.events.file.GetFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.file.OpenFilePickerEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.file.SaveFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.image.CompressionScheme
+import dev.catbit.mosaic.core.data.schemas.event.events.image.GetImageFromGalleryEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.image.TakePictureEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.menu.ToggleMenuEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateUpEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileToDiskEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.UploadFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendNetworkRequestEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderBodyEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderHeadersEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderUrlEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.popup.TogglePopupEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DismissBottomSheetEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DisplayBottomSheetEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DismissDialogEventSchema
@@ -46,6 +51,8 @@ import dev.catbit.mosaic.core.data.schemas.event.events.scroll.row.ScrollRowTile
 import dev.catbit.mosaic.core.data.schemas.event.events.security.RequestPermissionEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.system.BroadcastToSystemEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.system.CheckIfHasInternetConnectionEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.theme.ResetThemeEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.theme.SetThemeEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.CheckIfTileContainsChildrenEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.GetTileChildrenCountEventSchema
@@ -71,6 +78,9 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataSentEven
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataUpdatedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDialogDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDatePickerCloseEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDatePickerOpenEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDateSelectedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
@@ -123,6 +133,9 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesRemoved
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesReplacedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesUpdatedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesWipedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimePickerCloseEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimePickerOpenEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimeSelectedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTrailingIconClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUncheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUnselectEventTrigger
@@ -159,17 +172,20 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.AsyncImageTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.IconTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.ImageTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.CheckboxTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.DatePickerTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.DropdownListTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.RadioButtonTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.SwitchTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema.KeyboardOptions
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TextFieldTileSchema.VisualTransformation
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TimePickerTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.menu.MenuTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NavigationBarTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NavigationRailTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.NestedNavigationGraphTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation.TabsTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.popup.PopupTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.progress.CircularProgressIndicatorTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.progress.LinearProgressIndicatorTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.search.SearchBarTileSchema
@@ -397,8 +413,24 @@ class MosaicSerializer(
                 )
             }
 
+            polymorphic(AsyncImageTileSchema.Model::class) {
+                subclass(
+                    AsyncImageTileSchema.Model.Url::class,
+                    AsyncImageTileSchema.Model.Url.serializer()
+                )
+                subclass(
+                    AsyncImageTileSchema.Model.ArrayOfBytes::class,
+                    AsyncImageTileSchema.Model.ArrayOfBytes.serializer()
+                )
+                subclass(
+                    AsyncImageTileSchema.Model.Base64::class,
+                    AsyncImageTileSchema.Model.Base64.serializer()
+                )
+            }
+
             // Event nested types
             polymorphic(DataSourceSchema::class) {
+                subclass(DataSourceSchema.Inline::class, DataSourceSchema.Inline.serializer())
                 subclass(
                     DataSourceSchema.SegmentedDataBase::class,
                     DataSourceSchema.SegmentedDataBase.serializer()
@@ -436,6 +468,21 @@ class MosaicSerializer(
                 subclass(
                     UpdateDataEventSchema.Update.UpdateDate.Inline::class,
                     UpdateDataEventSchema.Update.UpdateDate.Inline.serializer()
+                )
+                subclass(
+                    UpdateDataEventSchema.Update.UpdateDate.Explicit::class,
+                    UpdateDataEventSchema.Update.UpdateDate.Explicit.serializer()
+                )
+            }
+
+            polymorphic(UpdateDataEventSchema.Update.UpdateDate.Explicit.ExplicitValue::class) {
+                subclass(
+                    UpdateDataEventSchema.Update.UpdateDate.Explicit.ExplicitValue.Incoming::class,
+                    UpdateDataEventSchema.Update.UpdateDate.Explicit.ExplicitValue.Incoming.serializer()
+                )
+                subclass(
+                    UpdateDataEventSchema.Update.UpdateDate.Explicit.ExplicitValue.Inline::class,
+                    UpdateDataEventSchema.Update.UpdateDate.Explicit.ExplicitValue.Inline.serializer()
                 )
             }
 
@@ -875,6 +922,17 @@ class MosaicSerializer(
                 )
             }
 
+            polymorphic(CompressionScheme::class) {
+                subclass(
+                    CompressionScheme.ByQuality::class,
+                    CompressionScheme.ByQuality.serializer()
+                )
+                subclass(
+                    CompressionScheme.ByTargetSize::class,
+                    CompressionScheme.ByTargetSize.serializer()
+                )
+            }
+
         }.plus(additionalSerializersModule)
         explicitNulls = false
         encodeDefaults = true
@@ -965,6 +1023,9 @@ class MosaicSerializer(
             OnDataRemovedEventTrigger::class to OnDataRemovedEventTrigger.serializer(),
             OnDataSentEventTrigger::class to OnDataSentEventTrigger.serializer(),
             OnDataUpdatedEventTrigger::class to OnDataUpdatedEventTrigger.serializer(),
+            OnDatePickerOpenEventTrigger::class to OnDatePickerOpenEventTrigger.serializer(),
+            OnDatePickerCloseEventTrigger::class to OnDatePickerCloseEventTrigger.serializer(),
+            OnDateSelectedEventTrigger::class to OnDateSelectedEventTrigger.serializer(),
             OnDialogDismissedEventTrigger::class to OnDialogDismissedEventTrigger.serializer(),
             OnDownloadFailureEventTrigger::class to OnDownloadFailureEventTrigger.serializer(),
             OnDownloadFinishEventTrigger::class to OnDownloadFinishEventTrigger.serializer(),
@@ -1015,6 +1076,9 @@ class MosaicSerializer(
             OnTilesReplacedEventTrigger::class to OnTilesReplacedEventTrigger.serializer(),
             OnTilesUpdatedEventTrigger::class to OnTilesUpdatedEventTrigger.serializer(),
             OnTilesWipedEventTrigger::class to OnTilesWipedEventTrigger.serializer(),
+            OnTimePickerOpenEventTrigger::class to OnTimePickerOpenEventTrigger.serializer(),
+            OnTimePickerCloseEventTrigger::class to OnTimePickerCloseEventTrigger.serializer(),
+            OnTimeSelectedEventTrigger::class to OnTimeSelectedEventTrigger.serializer(),
             OnTrailingIconClickEventTrigger::class to OnTrailingIconClickEventTrigger.serializer(),
             OnUncheckEventTrigger::class to OnUncheckEventTrigger.serializer(),
             OnUnselectEventTrigger::class to OnUnselectEventTrigger.serializer(),
@@ -1040,6 +1104,7 @@ class MosaicSerializer(
             ShimmerTileSchema::class to ShimmerTileSchema.serializer(),
             TextFieldTileSchema::class to TextFieldTileSchema.serializer(),
             MenuTileSchema::class to MenuTileSchema.serializer(),
+            PopupTileSchema::class to PopupTileSchema.serializer(),
             SimpleTextTileSchema::class to SimpleTextTileSchema.serializer(),
             SystemBroadcastListenerTileSchema::class to SystemBroadcastListenerTileSchema.serializer(),
             TopAppBarTileSchema::class to TopAppBarTileSchema.serializer(),
@@ -1049,6 +1114,8 @@ class MosaicSerializer(
             IconButtonTileSchema::class to IconButtonTileSchema.serializer(),
             CheckboxTileSchema::class to CheckboxTileSchema.serializer(),
             DropdownListTileSchema::class to DropdownListTileSchema.serializer(),
+            DatePickerTileSchema::class to DatePickerTileSchema.serializer(),
+            TimePickerTileSchema::class to TimePickerTileSchema.serializer(),
             AssistChipTileSchema::class to AssistChipTileSchema.serializer(),
             FilterChipTileSchema::class to FilterChipTileSchema.serializer(),
             InputChipTileSchema::class to InputChipTileSchema.serializer(),
@@ -1087,10 +1154,14 @@ class MosaicSerializer(
             GetFileEventSchema::class to GetFileEventSchema.serializer(),
             OpenFilePickerEventSchema::class to OpenFilePickerEventSchema.serializer(),
             SaveFileEventSchema::class to SaveFileEventSchema.serializer(),
+            TakePictureEventSchema::class to TakePictureEventSchema.serializer(),
+            GetImageFromGalleryEventSchema::class to GetImageFromGalleryEventSchema.serializer(),
             ToggleMenuEventSchema::class to ToggleMenuEventSchema.serializer(),
+            TogglePopupEventSchema::class to TogglePopupEventSchema.serializer(),
             NavigateEventSchema::class to NavigateEventSchema.serializer(),
             NavigateUpEventSchema::class to NavigateUpEventSchema.serializer(),
             DownloadFileEventSchema::class to DownloadFileEventSchema.serializer(),
+            DownloadFileToDiskEventSchema::class to DownloadFileToDiskEventSchema.serializer(),
             UploadFileEventSchema::class to UploadFileEventSchema.serializer(),
             SendNetworkRequestEventSchema::class to SendNetworkRequestEventSchema.serializer(),
             SetIncomingDataToNetworkParamsHolderBodyEventSchema::class to SetIncomingDataToNetworkParamsHolderBodyEventSchema.serializer(),
@@ -1122,6 +1193,8 @@ class MosaicSerializer(
             ReplaceTilesEventSchema::class to ReplaceTilesEventSchema.serializer(),
             UpdateTilesEventSchema::class to UpdateTilesEventSchema.serializer(),
             WipeTilesEventSchema::class to WipeTilesEventSchema.serializer(),
-            ReloadLazyTilesEventSchema::class to ReloadLazyTilesEventSchema.serializer()
+            ReloadLazyTilesEventSchema::class to ReloadLazyTilesEventSchema.serializer(),
+            ResetThemeEventSchema::class to ResetThemeEventSchema.serializer(),
+            SetThemeEventSchema::class to SetThemeEventSchema.serializer()
         )
 }

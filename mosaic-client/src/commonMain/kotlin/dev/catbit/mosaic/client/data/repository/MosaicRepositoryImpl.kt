@@ -13,7 +13,7 @@ import dev.catbit.mosaic.core.extensions.currentDateTime
 import dev.catbit.mosaic.core.extensions.toSafeLocalDateTime
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.http.HttpMethod
-import kotlinx.io.files.FileNotFoundException
+import kotlinx.coroutines.flow.Flow
 
 class MosaicRepositoryImpl(
     private val network: MosaicNetwork,
@@ -106,8 +106,7 @@ class MosaicRepositoryImpl(
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        onProgress: suspend (Int) -> Unit,
-        onBytesReceived: suspend (ByteArray) -> Unit,
+        onProgress: suspend (Float) -> Unit,
         onDownloadFinished: suspend (ByteArray) -> Unit,
         onDownloadFailure: suspend (Throwable) -> Unit
     ) = network.downloadFile(
@@ -116,7 +115,26 @@ class MosaicRepositoryImpl(
         body = body,
         httpMethod = httpMethod,
         onProgress = onProgress,
-        onBytesReceived = onBytesReceived,
+        onDownloadFinished = onDownloadFinished,
+        onDownloadFailure = onDownloadFailure,
+    )
+
+    override suspend fun downloadFileToDisk(
+        url: String,
+        headers: Map<String, String>?,
+        body: Any?,
+        httpMethod: HttpMethod,
+        targetFileName: String,
+        onProgress: suspend (Float) -> Unit,
+        onDownloadFinished: suspend () -> Unit,
+        onDownloadFailure: suspend (Throwable) -> Unit
+    ) = network.downloadFileToDisk(
+        url = url,
+        headers = headers,
+        body = body,
+        httpMethod = httpMethod,
+        targetFileName = targetFileName,
+        onProgress = onProgress,
         onDownloadFinished = onDownloadFinished,
         onDownloadFailure = onDownloadFailure,
     )
@@ -127,7 +145,7 @@ class MosaicRepositoryImpl(
         httpMethod: HttpMethod,
         contentType: String?,
         platformFile: PlatformFile,
-        onProgress: suspend (Int) -> Unit
+        onProgress: suspend (Float) -> Unit
     ) = network.uploadFile(
         url = url,
         headers = headers,
@@ -252,13 +270,31 @@ class MosaicRepositoryImpl(
 
     override suspend fun getFile(
         fileName: String
-    ): Result<ByteArray> = safeResult {
-        fileSystem.getFile(fileName) ?: throw FileNotFoundException(fileName)
+    ): Result<ByteArray?> = safeResult {
+        fileSystem.getFile(fileName)
+    }
+
+    override suspend fun getFileStreaming(
+        fileName: String
+    ): Result<Flow<ByteArray>?> = safeResult {
+        fileSystem.getFileStreaming(fileName)
+    }
+
+    override suspend fun getFilePlatformFile(
+        fileName: String
+    ): Result<PlatformFile?> = safeResult {
+        fileSystem.getFilePlatformFile(fileName)
     }
 
     override suspend fun deleteFile(
         fileName: String
     ): Result<Unit> = safeResult {
         fileSystem.deleteFile(fileName)
+    }
+
+    override suspend fun fileExists(
+        fileName: String
+    ): Result<Boolean> = safeResult {
+        fileSystem.fileExists(fileName)
     }
 }

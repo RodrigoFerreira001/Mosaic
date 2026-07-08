@@ -78,7 +78,9 @@ class TilesManager(
         onUpdateStateRequest: (TileSchema) -> Unit,
         state: ScreenTileSchema.State
     ) {
-        runSafely {
+        runSafely(
+            onError = { builderScope.logError(tag = "TilesManager.setup", throwable = it) }
+        ) {
             onUpdateRequest = onUpdateStateRequest
             screenTileHolder = with(tileHolderBuilderManager) {
                 builderScope.build(
@@ -327,7 +329,9 @@ class TilesManager(
     override fun setBottomSheetTiles(
         tileSchemas: List<TileSchema>
     ) {
-        runSafely {
+        runSafely(
+            onError = { builderScope.logError(tag = "TilesManager.setBottomSheetTiles", throwable = it) }
+        ) {
             screenTileHolder.setBottomSheetTiles(
                 with(tileHolderBuilderManager) {
                     tileSchemas.map { tileSchema ->
@@ -342,7 +346,9 @@ class TilesManager(
     override fun setDialogTiles(
         tileSchemas: List<TileSchema>
     ) {
-        runSafely {
+        runSafely(
+            onError = { builderScope.logError(tag = "TilesManager.setDialogTiles", throwable = it) }
+        ) {
             screenTileHolder.setDialogTiles(
                 with(tileHolderBuilderManager) {
                     tileSchemas.map { tileSchema ->

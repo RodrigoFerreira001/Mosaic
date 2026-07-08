@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.events
 
+import dev.catbit.mosaic.client.logger.MosaicLogger
 import dev.catbit.mosaic.client.ui.sdui.foundation.data_holder.ScreenDataHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenBehaviorsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager.behaviors.TilesEditor
@@ -83,7 +84,11 @@ class EventManager(
         eventSchema: EventSchema,
         data: Any? = null
     ) {
-        runSafely {
+        runSafely(
+            onError = {
+                koinScope.get<MosaicLogger>().error("EventManager.runEvent: ${it.stackTraceToString()}")
+            }
+        ) {
             with(eventRunnerManager) {
                 EventRunningScope(
                     screenId = screenId,

@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.server.builder.event.builders.file
 
+import dev.catbit.mosaic.core.data.schemas.event.events.file.FileOutputType
 import dev.catbit.mosaic.core.data.schemas.event.events.file.OpenFilePickerEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.file.OpenFilePickerEventSchema.FileType
 import dev.catbit.mosaic.core.data.schemas.event.events.file.OpenFilePickerEventSchema.PickMode
@@ -42,6 +43,7 @@ internal class OpenFilePickerEventBuilder(
     private val fileType: FileType,
     private val pickMode: PickMode,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
+    private val outputType: FileOutputType,
 ) : EventSchemaBuilder<OpenFilePickerEventSchema>() {
 
     override fun build() = OpenFilePickerEventSchema(
@@ -50,6 +52,7 @@ internal class OpenFilePickerEventBuilder(
         events = EventSchemaBuilderScope().apply(events).build(),
         fileType = fileType,
         pickMode = pickMode,
+        outputType = outputType,
     )
 }
 
@@ -57,13 +60,15 @@ internal class OpenFilePickerEventBuilder(
  * Opens the system file picker, allowing the user to select a file.
  *
  * **Triggers fired:**
- * - `onStart()` — file selected, bytes are being read
- * - `onSuccess(ByteArray)` — file bytes available as `incomingData`
+ * - `onStart()` — file selected, contents are being read (when [outputType] requires reading)
+ * - `onSuccess(...)` — incomingData shaped according to [outputType]
  * - `onFailure()` — user cancelled the picker or an exception occurred
  *
  * @param fileType The type of files to show in the picker. Use [imageFileType], [videoFileType],
  *   [imageAndVideoFileType], or [fileFileType].
  * @param pickMode Selection mode. Defaults to [singlePickMode].
+ * @param outputType Shape of the data delivered as incomingData. Use [platformFile] (default),
+ *   [arrayOfBytes], [flowOfBytes], or [mapObject].
  */
 fun EventSchemaBuilderScope.OpenFilePicker(
     id: String = randomId(),
@@ -71,6 +76,7 @@ fun EventSchemaBuilderScope.OpenFilePicker(
     fileType: FileType,
     pickMode: PickMode = singlePickMode(),
     events: EventSchemaBuilderScope.() -> Unit = {},
+    outputType: FileOutputType = platformFile(),
 ) {
     addBuilder(
         OpenFilePickerEventBuilder(
@@ -79,6 +85,7 @@ fun EventSchemaBuilderScope.OpenFilePicker(
             fileType = fileType,
             pickMode = pickMode,
             events = events,
+            outputType = outputType,
         )
     )
 }

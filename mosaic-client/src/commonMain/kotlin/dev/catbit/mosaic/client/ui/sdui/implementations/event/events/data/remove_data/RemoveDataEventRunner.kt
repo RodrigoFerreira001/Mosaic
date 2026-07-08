@@ -98,6 +98,7 @@ object RemoveDataEventRunner : EventRunner<RemoveDataEventSchema> {
 
                     DataSourceSchema.ScreenNavigationData -> Unit
                     is DataSourceSchema.Tile -> Unit
+                    is DataSourceSchema.Inline -> Unit
                 }
             }
         }

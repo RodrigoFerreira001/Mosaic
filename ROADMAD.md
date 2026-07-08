@@ -32,6 +32,7 @@
 - [x] Triggers de Scroll (OnScroll[Up, Down, Left, Right])
 - [ ] Usar ids para BS e outros overlays
 - [ ] Color com gradiente
+- [ ] Um evento que executa outro evento envolopado em um Job. Tal job é registrado e pode ser cancelado externamente através de outro evento. E o evento deve se autoremover ao finalizar
 
 # Prioridades
 - [x] Fazer teste inicial do server + cliente (com actions de GetScreen)

@@ -14,6 +14,9 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataReceived
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataSentEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataUpdatedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDatePickerCloseEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDatePickerOpenEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDateSelectedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDialogDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListCloseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListItemSelectedEventTrigger
@@ -21,7 +24,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownList
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadPartialEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnHeightBreakpointNotSatisfiedEventTrigger
@@ -69,6 +71,9 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesRemoved
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesReplacedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesUpdatedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesWipedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimePickerCloseEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimePickerOpenEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimeSelectedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTrailingIconClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUncheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUnselectEventTrigger
@@ -91,11 +96,13 @@ object EventTriggers {
     fun onDownloadFailure() = OnDownloadFailureEventTrigger
     fun onDownloadFinish() = OnDownloadFinishEventTrigger
     fun onDownloadProgress() = OnDownloadProgressEventTrigger
-    fun onDownloadPartial() = OnDownloadPartialEventTrigger
     fun onDataReceived() = OnDataReceivedEventTrigger
     fun onDataRemoved() = OnDataRemovedEventTrigger
     fun onDataSent() = OnDataSentEventTrigger
     fun onDataUpdated() = OnDataUpdatedEventTrigger
+    fun onDatePickerOpen() = OnDatePickerOpenEventTrigger
+    fun onDatePickerClose() = OnDatePickerCloseEventTrigger
+    fun onDateSelected() = OnDateSelectedEventTrigger
     fun onDialogDismissed() = OnDialogDismissedEventTrigger
     fun onDropdownListClose() = OnDropdownListCloseEventTrigger
     fun onDropdownListItemSelected(id: String) = OnDropdownListItemSelectedEventTrigger(id)
@@ -147,6 +154,9 @@ object EventTriggers {
     fun onTilesReplaced() = OnTilesReplacedEventTrigger
     fun onTilesUpdated() = OnTilesUpdatedEventTrigger
     fun onTilesWiped() = OnTilesWipedEventTrigger
+    fun onTimePickerOpen() = OnTimePickerOpenEventTrigger
+    fun onTimePickerClose() = OnTimePickerCloseEventTrigger
+    fun onTimeSelected() = OnTimeSelectedEventTrigger
     fun onUncheck() = OnUncheckEventTrigger
     fun onUnselect() = OnUnselectEventTrigger
     fun onUploadProgress() = OnUploadProgressEventTrigger

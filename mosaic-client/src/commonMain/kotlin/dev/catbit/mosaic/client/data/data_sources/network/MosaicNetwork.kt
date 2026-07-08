@@ -29,9 +29,20 @@ interface MosaicNetwork {
         headers: Map<String, String>? = null,
         body: Any?,
         httpMethod: HttpMethod,
-        onProgress: suspend (Int) -> Unit = {},
-        onBytesReceived: suspend (ByteArray) -> Unit = {},
+        onProgress: suspend (Float) -> Unit = {},
         onDownloadFinished: suspend (ByteArray) -> Unit = {},
+        onDownloadFailure: suspend (Throwable) -> Unit = {}
+    ): Result<Unit>
+
+    /** Streams the response body straight to [targetFileName], without ever holding the full file in memory. */
+    suspend fun downloadFileToDisk(
+        url: String,
+        headers: Map<String, String>? = null,
+        body: Any?,
+        httpMethod: HttpMethod,
+        targetFileName: String,
+        onProgress: suspend (Float) -> Unit = {},
+        onDownloadFinished: suspend () -> Unit = {},
         onDownloadFailure: suspend (Throwable) -> Unit = {}
     ): Result<Unit>
 
@@ -41,6 +52,6 @@ interface MosaicNetwork {
         httpMethod: HttpMethod,
         contentType: String?,
         platformFile: PlatformFile,
-        onProgress: suspend (Int) -> Unit = {}
+        onProgress: suspend (Float) -> Unit = {}
     ): Result<UploadResult>
 }

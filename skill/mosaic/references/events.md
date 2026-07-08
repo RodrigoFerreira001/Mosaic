@@ -512,6 +512,8 @@ ChangeScreenState(trigger = EventTriggers.onClick(), state = initialState(), eve
 **Failure scenarios:** `singleAccessMode` on missing key → `DataNotFoundException`. `batchAccessMode` with `allowMissingData = false` and missing key → `DataNotFoundException`.
 **Notes:** Multiple readings: later overwrites earlier on key collision. All I/O on `Dispatchers.IO`.
 
+**`null` values:** `fullAccessMode()` returns the whole map as-is, including keys whose value is explicitly `null` (e.g. `Map<String, Any?>` with a `null` entry from a prior `explicitNullUpdateData` write). `singleAccessMode`/`batchAccessMode` do **not** distinguish "key missing" from "key present but `null`" — either case is treated as not found (`DataNotFoundException`, or silently skipped if `allowMissingData = true`). If you need to read back a `null` value reliably, use `fullAccessMode()`.
+
 **Example:**
 ```kotlin
 GetData(
@@ -541,7 +543,7 @@ GetData(
 **Purpose:** Writes key-value data into one or more data stores (screen memory or persistent DB).
 **When to use:** After receiving data you want to persist (session tokens, user preferences, form state) so it can be retrieved later with `GetData`.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.data.UpdateData`
-**Helper imports:** `import dev.catbit.mosaic.server.builder.event.builders.data.inlineUpdateData`, `incomingUpdateData`
+**Helper imports:** `import dev.catbit.mosaic.server.builder.event.builders.data.inlineUpdateData`, `incomingUpdateData`, `explicitUpdateData`, `explicitIncomingUpdateData`, `explicitNullUpdateData`
 
 **Fields:**
 | Field | Type | Default | Notes |
@@ -549,15 +551,22 @@ GetData(
 | `updates` | `UpdateDataUpdateBuilderScope.() -> Unit` | required | One `update(dataSource, updateData)` per write |
 
 `updateData` variants:
-- `incomingUpdateData()` — coerces current `incomingData` to `Map<String, Any>` and writes it
-- `inlineUpdateData("key" to value, ...)` — static key-value map
+- `incomingUpdateData()` — **legacy.** Coerces current `incomingData` to `Map<String, Any>` and writes it, **exploding every top-level key into its own dataId**. Only correct when the map genuinely represents multiple independent dataId → value pairs.
+- `inlineUpdateData("key" to value, ...)` — **legacy.** Same explode-by-key behavior, with a static map.
+- `explicitUpdateData(dataId, value)` — writes `value` as-is under the exact `dataId` given, with **no inference** on the value's shape. Use this whenever `value` is itself a map that must be stored as one intact record (e.g. a segmented-data row). `value` accepts `null`.
+- `explicitIncomingUpdateData(dataId)` — same as `explicitUpdateData`, but writes the current `incomingData` verbatim (not coerced or exploded) under `dataId`.
+- `explicitNullUpdateData(dataId)` — shorthand for `explicitUpdateData(dataId, null)`. Writes an explicit `null` under `dataId`.
 
-**incomingData consumed:** When `incomingUpdateData()` — coerced to `Map<String, Any>`. If cast fails, that entry is silently skipped.
+**⚠️ Legacy pitfall:** `incomingUpdateData()`/`inlineUpdateData(...)` treat every key of the resolved map as a separate dataId. If `incomingData` is a single record like `{"action":"NONE","comment":null,"imageBlob":null,"asBuilt":true}` that should be stored as ONE value under one dataId (typical for segmented data), these legacy variants will incorrectly split it into 4 separate writes. Use `explicitIncomingUpdateData(dataId)` instead in that case.
+
+**incomingData consumed:** When `incomingUpdateData()` — coerced to `Map<String, Any>`, silently skipped if cast fails. When `explicitIncomingUpdateData(dataId)` — used verbatim (any shape), silently skipped only if `incomingData` is null.
+
+**Writing `null`:** Use `explicitUpdateData(dataId, null)` / `explicitNullUpdateData(dataId)` to write a literal `null` under a `dataId` — since the `dataId` is already known, the runner always writes the entry, even when the value is `null` (unlike `incomingUpdateData()`/`inlineUpdateData(...)`, whose map-value entries can legitimately be `null` too, but only for keys already present in the map). **This only works for in-memory data sources** (`screenPlainData()`, `screenSegmentedData(segment)`, `applicationPlainData()`, `applicationSegmentedData(segment)`). Persistent DB sources (`plainDataBase()`, `segmentedDataBase(segment)`) do **not** support `null` values yet — a `null`-valued write targeting one of those is silently skipped (no error, no-op).
 **Triggers fired:** `onDataUpdated()` declared but **not fired** by runner. Runner completes without calling triggers.
 **Failure scenarios:** None explicit; DB exceptions propagate unchecked.
-**Notes:** `ScreenNavigationData` and `Tile` sources are ignored (no-op). Updates grouped by source, applied in iteration order.
+**Notes:** `ScreenNavigationData`, `Tile`, and `Inline` (constant) data sources are ignored (no-op) as write targets. Updates grouped by source, applied in iteration order. Unlike `GetData`/`RemoveData`, `Update` has no `accessMode: AccessModeSchema` field — targeting is via `dataSource` (which carries `segmentId` for segmented sources) plus `updateData`.
 
-**Example:**
+**Example (legacy, safe here because the map keys genuinely are independent dataIds):**
 ```kotlin
 UpdateData(
     trigger = EventTriggers.onSuccess(),
@@ -565,6 +574,19 @@ UpdateData(
         update(
             dataSource = screenSegmentedData("auth"),
             updateData = inlineUpdateData("sessionCookie" to cookie)
+        )
+    }
+)
+```
+
+**Example (explicit — writing one whole record under one dataId, e.g. a segmented-data row):**
+```kotlin
+UpdateData(
+    trigger = EventTriggers.onSuccess(),
+    updates = {
+        update(
+            dataSource = segmentedDataBase("currentActionPlanning_$planId"),
+            updateData = explicitIncomingUpdateData(dataId = "TALA-T_01-8")
         )
     }
 )
@@ -818,7 +840,7 @@ SendNetworkRequest(
 
 **Fields:** `url`, `method`, `body?`, `headers?` — same resolution as `SendNetworkRequest`.
 
-**Triggers fired:** `onStart()`. `onDownloadProgress(Int 0-100)` — per chunk (when Content-Length known). `onDownloadPartial(ByteArray)` — per chunk. `onDownloadFinish(ByteArray)` — full file. `onSuccess()`. `onDownloadFailure(Throwable)` — download error. `onFailure(Throwable)` — pre-request error.
+**Triggers fired:** `onStart()`. `onDownloadProgress(Int 0-100)` — per chunk (when Content-Length known). `onDownloadFinish(ByteArray)` — full file. `onSuccess()`. `onDownloadFailure(Throwable)` — download error. `onFailure(Throwable)` — pre-request error.
 
 **Example:**
 ```kotlin
@@ -1119,38 +1141,59 @@ SaveFile(trigger = EventTriggers.onDownloadFinish(), fileName = "report.pdf", ov
 ---
 
 ### GetFile
-**Purpose:** Reads the contents of a locally stored file. ⚠️ **Runner is currently a placeholder** — actual read not yet implemented.
+**Purpose:** Reads a locally stored file. Data delivered to `onSuccess` is shaped by `outputType`.
 **When to use:** Loading previously saved local file contents.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.file.GetFile`
+**Helper imports:** `import dev.catbit.mosaic.server.builder.event.builders.file.*`
 
 **Fields:**
 | Field | Type | Default | Notes |
 |---|---|---|---|
 | `fileName` | `String` | required | Filename in app's private storage |
+| `outputType` | `FileOutputType` | `arrayOfBytes()` | Use helpers: `arrayOfBytes()`, `flowOfBytes()`, `platformFile()`, `mapObject()`, `base64()` |
+
+**FileOutputType helpers:**
+- `arrayOfBytes()` → whole file read into memory as `ByteArray` (default)
+- `flowOfBytes()` → chunked `Flow<ByteArray>`, without loading the whole file into memory
+- `platformFile()` → `PlatformFile` reference to the file, without reading its contents
+- `mapObject()` → file decoded as JSON into `Map<String, AnySerializable?>`
+- `base64()` → whole file read into memory and delivered as a base64-encoded `String`
+
+**Triggers fired:**
+- `onSuccess(...)` — data shaped per `outputType`
+- `onFailure(Throwable)` — file not found, I/O error, or invalid JSON when `outputType` is `mapObject()`
 
 **Example:**
 ```kotlin
-GetFile(trigger = EventTriggers.onClick(), fileName = "config.json")
+GetFile(trigger = EventTriggers.onClick(), fileName = "config.json", outputType = mapObject())
 ```
 
 ---
 
 ### DeleteFile
-**Purpose:** Deletes a locally stored file. ⚠️ **Runner is currently a placeholder** — actual delete not yet implemented. Target file must be supplied via `incomingData` (no `fileName` field on schema).
+**Purpose:** Deletes a locally stored file identified by `fileName`.
 **When to use:** Cleaning up local files after upload or when cache is cleared.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.file.DeleteFile`
 
-**incomingData consumed:** Expected to carry the filename/path (injected via `UpdateEvents` before this event fires).
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `fileName` | `String` | required | Identifies the target file within the app's private storage scope |
+
+**incomingData consumed:** Not used.
 
 **Example:**
 ```kotlin
-DeleteFile(trigger = EventTriggers.onSuccess())
+DeleteFile(
+    trigger = EventTriggers.onSuccess(),
+    fileName = "avatar.jpg",
+)
 ```
 
 ---
 
 ### OpenFilePicker
-**Purpose:** Opens the system file picker, allowing the user to select a file. Reads the file bytes on selection and forwards them as `incomingData` to child events.
+**Purpose:** Opens the system file picker, allowing the user to select a file. Delivers the file to `onSuccess` shaped by `outputType`.
 **When to use:** Any flow requiring the user to select a file from their device — upload, attach, import.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.file.OpenFilePicker`
 **Helper imports:** `import dev.catbit.mosaic.server.builder.event.builders.file.*`
@@ -1160,6 +1203,7 @@ DeleteFile(trigger = EventTriggers.onSuccess())
 |---|---|---|---|
 | `fileType` | `FileType` | required | Use helpers: `imageFileType()`, `videoFileType()`, `imageAndVideoFileType()`, `fileFileType(vararg types)` |
 | `pickMode` | `PickMode` | `singlePickMode()` | Currently only single selection supported |
+| `outputType` | `FileOutputType` | `platformFile()` | Use helpers: `platformFile()`, `arrayOfBytes()`, `flowOfBytes()`, `mapObject()`, `base64()` |
 
 **FileType helpers:**
 - `imageFileType()` → `FileType.Image`
@@ -1170,10 +1214,17 @@ DeleteFile(trigger = EventTriggers.onSuccess())
 **PickMode helpers:**
 - `singlePickMode()` → `PickMode.Single`
 
+**FileOutputType helpers:**
+- `platformFile()` → picked `PlatformFile` reference, no read (default); chain with `UploadFile` or `SaveFile`
+- `arrayOfBytes()` → whole file read into memory as `ByteArray`
+- `flowOfBytes()` → chunked `Flow<ByteArray>`, without loading the whole file into memory
+- `mapObject()` → file decoded as JSON into `Map<String, AnySerializable?>`
+- `base64()` → whole file read into memory and delivered as a base64-encoded `String`
+
 **Triggers fired:**
-- `onStart()` — file selected, bytes are being read
-- `onSuccess(ByteArray)` — file bytes available as `incomingData`; chain with `SendFile` or `SaveFile`
-- `onFailure()` — user cancelled the picker or an exception occurred
+- `onStart()` — file selected, contents being read (when `outputType` requires it)
+- `onSuccess(...)` — data shaped per `outputType`
+- `onFailure()` — user cancelled the picker, an exception occurred, or (when `outputType` is `mapObject()`) the file was not valid JSON
 
 **Example:**
 ```kotlin
@@ -1191,6 +1242,86 @@ OpenFilePicker(
             updates = {
                 update(tileId = "error_text", updateData = inlineTileUpdateData("visibility" to "VISIBLE"))
             }
+        )
+    }
+)
+```
+
+---
+
+### TakePicture
+**Purpose:** Opens the device camera, allowing the user to take a picture. Backed by Mosaic's own `CameraManager` — native per-platform implementation (Android: `ActivityResultContracts.TakePicturePreview()`; iOS: `UIImagePickerController`; JVM: `webcam-capture` live-preview dialog; Wasm: `getUserMedia`/canvas overlay). No third-party picker library.
+**When to use:** Any flow requiring the user to capture a photo with the camera — avatar capture, document scan, attachment.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.image.TakePicture`
+
+`CameraManager` always returns raw PNG bytes (lossless, no quality/format baked in per platform). Compression is applied directly by the client runner via `io.github.aryapreetam:cmp-imgcompress` — single `commonMain` lib, no wrapper class. `compression == null` → raw PNG bytes returned as-is. `compression != null` → re-encoded as **WebP** (the library's only output format).
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `compression` | `CompressionScheme?` | `null` | `byQuality(qualityPercent: Float)` or `byTargetSize(targetSizeKb: Int)` helpers |
+| `resize` | `ImageResizeOptions?` | `null` | Only applies when `compression` is set; null uses the library default (`maxLongEdgePx = 2560`) |
+| `outputType` | `TakePictureEventSchema.OutputType` | `pictureArrayOfBytes()` | `pictureArrayOfBytes()` or `pictureBase64()` — shape of the captured image in `incomingData`. Nested enum, **owned by this schema** (not shared with `GetImageFromGallery` — see its own `outputType`) |
+
+`ImageResizeOptions(maxLongEdgePx: Int? = 2560, downscaleOnly: Boolean = true, maintainAspectRatio: Boolean = true)` — mirrors the library's `ResizeOptions` 1:1.
+
+**Triggers fired:**
+- `onSuccess()` — picture captured; `incomingData` is a `ByteArray` (`pictureArrayOfBytes()`, default) or a base64 `String` (`pictureBase64()`) — original PNG if no `compression`, WebP otherwise; chain with `SaveFile`
+- `onFailure()` — user cancelled the capture, an exception occurred, or no camera is available
+
+**Example:**
+```kotlin
+TakePicture(
+    trigger = EventTriggers.onClick(),
+    compression = byQuality(70f),
+    resize = ImageResizeOptions(maxLongEdgePx = 1280),
+    outputType = pictureBase64(),
+    events = {
+        // incomingData is now a base64 String — inject it as the request body instead of SaveFile
+        SendNetworkRequest(
+            trigger = EventTriggers.onSuccess(),
+            url = "/api/avatar",
+            method = HttpMethod.POST,
+            events = {
+                SetIncomingDataToNetworkParamsHolderBody(trigger = EventTriggers.onStart())
+            }
+        )
+    }
+)
+```
+
+---
+
+### GetImageFromGallery
+**Purpose:** Opens the device gallery, allowing the user to pick an image. Uses `FileKit.openFilePicker(type = FileKitType.Image)`, read into bytes — equivalent to `OpenFilePicker` pre-filtered to images, exposed as its own event for convenience. Works on all platforms.
+**When to use:** Any flow requiring the user to select an image from their photo library — avatar, upload, import.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.image.GetImageFromGallery`
+
+**No permission needed:** uses the system Photo Picker (Android `PickVisualMedia` / iOS `PHPickerViewController`), which grants access only to the picked item — no `RequestPermission(GALLERY)` or manifest entry required.
+
+Same `compression`/`resize` contract as `TakePicture` (shared `CompressionScheme`/`ImageResizeOptions`). `compression == null` → the picked image's original bytes/format are returned as-is. `compression != null` → re-encoded as **WebP**.
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `compression` | `CompressionScheme?` | `null` | Same as `TakePicture` |
+| `resize` | `ImageResizeOptions?` | `null` | Same as `TakePicture` |
+| `outputType` | `GetImageFromGalleryEventSchema.OutputType` | `galleryArrayOfBytes()` | `galleryArrayOfBytes()` or `galleryBase64()` — shape of the picked image in `incomingData`. Own nested enum, duplicated from (not shared with) `TakePicture`'s `outputType` |
+
+**Triggers fired:**
+- `onSuccess()` — image selected; `incomingData` is a `ByteArray` (`galleryArrayOfBytes()`, default) or a base64 `String` (`galleryBase64()`) — original format if no `compression`, WebP otherwise; chain with `SaveFile`
+- `onFailure()` — user cancelled the selection or an exception occurred
+
+**Example:**
+```kotlin
+GetImageFromGallery(
+    trigger = EventTriggers.onClick(),
+    compression = byQuality(70f),
+    resize = ImageResizeOptions(maxLongEdgePx = 1280),
+    events = {
+        SaveFile(
+            trigger = EventTriggers.onSuccess(),
+            fileName = "avatar.webp",
         )
     }
 )
@@ -1217,6 +1348,30 @@ OpenFilePicker(
 ToggleMenu(
     trigger = EventTriggers.onClick(),
     menuId = "actions_menu"
+)
+```
+
+---
+
+## Popup
+
+### TogglePopup
+**Purpose:** Toggles the open/closed state of a `PopupTile`. If open → closes; if closed → opens.
+**When to use:** Wiring a button or icon to open/close a `Popup` tile.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.popup.TogglePopup`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `popupId` | `String` | required | ID of the PopupTile to toggle |
+
+**Triggers fired:** `onSuccess()`. `onFailure(exception)` — PopupTile not found.
+
+**Example:**
+```kotlin
+TogglePopup(
+    trigger = EventTriggers.onClick(),
+    popupId = "info_popup"
 )
 ```
 
@@ -1435,6 +1590,61 @@ CheckIfHasInternetConnection(
         SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/data", method = HttpMethod.GET)
         DisplaySnackbar(trigger = EventTriggers.onFailure(), message = "No internet connection")
     }
+)
+```
+
+---
+
+## Theme
+
+### SetTheme
+**Purpose:** Overrides the app's Material3 color scheme (light + dark) globally at runtime, regardless of the current screen. Persists until `ResetTheme` is dispatched or the app restarts.
+**When to use:** Server-driven theming/branding, white-labeling, user-selected accent themes.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.theme.SetTheme`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `colorsScheme` | `ColorsScheme` | required | Build with `colorsScheme(lightColorScheme, darkColorScheme)` |
+
+`ColorsScheme` = `{ lightColorScheme: ColorScheme, darkColorScheme: ColorScheme }`. `ColorScheme` mirrors every Compose Material3 `ColorScheme` role (`primary`, `onPrimary`, `surfaceContainerHighest`, etc.) as a **hex color String** (e.g. `"#FF5722"`), not `color(...)`/`ColorSchema` — build one with the `colorScheme(...)` DSL helper, which takes every role as a named `String` parameter (see `mosaic-server/.../builder/event/builders/theme/SetThemeEventBuilder.kt` for the full parameter list).
+
+**Triggers fired:** `onSuccess()` — always, once applied.
+
+**Example:**
+```kotlin
+SetTheme(
+    trigger = EventTriggers.onClick(),
+    colorsScheme = colorsScheme(
+        lightColorScheme = colorScheme(
+            primary = "#6750A4", onPrimary = "#FFFFFF",
+            primaryContainer = "#EADDFF", onPrimaryContainer = "#21005D",
+            // ...remaining Material3 roles
+        ),
+        darkColorScheme = colorScheme(
+            primary = "#D0BCFF", onPrimary = "#381E72",
+            primaryContainer = "#4F378B", onPrimaryContainer = "#EADDFF",
+            // ...remaining Material3 roles
+        )
+    )
+)
+```
+
+---
+
+### ResetTheme
+**Purpose:** Reverts a previous `SetTheme` override, restoring the app's default color scheme (light + dark).
+**When to use:** "Reset to default theme" actions, logging out of a white-labeled session.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.theme.ResetTheme`
+
+**Fields:** none.
+
+**Triggers fired:** `onSuccess()` — always, once restored.
+
+**Example:**
+```kotlin
+ResetTheme(
+    trigger = EventTriggers.onClick()
 )
 ```
 

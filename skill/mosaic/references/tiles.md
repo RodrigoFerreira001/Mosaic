@@ -528,8 +528,8 @@ Icon(
 ```
 
 ### AsyncImage
-**Purpose:** Renders a remotely loaded image using Coil 3's `AsyncImage` composable.
-**When to use:** Any image loaded from a URL (avatars, product photos, banners).
+**Purpose:** Renders an image using Coil 3's `AsyncImage` composable, loaded from a URL, raw bytes, or a base64 string.
+**When to use:** Any image loaded from a URL (avatars, product photos, banners), or from bytes/base64 already available on the server.
 **Import:** `import dev.catbit.mosaic.server.builder.tile.builders.image.AsyncImage`
 
 **Helper functions** (import same path as above):
@@ -540,24 +540,29 @@ Icon(
 - `insideContentScale()` → `AsyncImageTileSchema.ContentScale.INSIDE`
 - `fillBoundsContentScale()` → `AsyncImageTileSchema.ContentScale.FILL_BOUNDS`
 
+**`Model` variants** (`AsyncImageTileSchema.Model`):
+- `Model.Url(url: String)` — remote image URL
+- `Model.ArrayOfBytes(byteArray: ByteArray)` — raw image bytes
+- `Model.Base64(base64: String)` — base64-encoded image bytes
+
 **Fields:**
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| `url` | `String` | required | Remote image URL |
+| `model` | `AsyncImageTileSchema.Model` | required | `Model.Url`, `Model.ArrayOfBytes`, or `Model.Base64` |
 | `contentDescription` | `String?` | `null` | Accessibility |
 | `contentScale` | `AsyncImageTileSchema.ContentScale` | `FIT` | use `cropContentScale()`, `fitContentScale()`, etc. |
 | `alpha` | `Float` | `1.0f` | |
 | `clipToBounds` | `Boolean` | `true` | |
 | `alignment` | `AlignmentSchema.TwoDimensional` | `Center` | |
 
-**Updatable via UpdateTiles:** `style`, `visibility`, `url`, `contentDescription`, `contentScale`, `alpha`, `clipToBounds`, `alignment`
+**Updatable via UpdateTiles:** `style`, `visibility`, `model`, `contentDescription`, `contentScale`, `alpha`, `clipToBounds`, `alignment`
 **Triggers dispatched:** `OnAsyncImageLoadStart`, `OnAsyncImageLoadSuccess`, `OnAsyncImageLoadFailure`
 
 **Example:**
 ```kotlin
 AsyncImage(
     id = "avatar",
-    url = user.avatarUrl,
+    model = AsyncImageTileSchema.Model.Url(user.avatarUrl),
     contentScale = cropContentScale(),
     contentDescription = "${user.name} avatar",
     style = {
@@ -770,7 +775,7 @@ Box(
     id = "avatarBox",
     alignment = alignToCenter()
 ) {
-    AsyncImage(id = "avatar", url = user.avatarUrl, style = { size(fixedHorizontally(48), fixedVertically(48)) })
+    AsyncImage(id = "avatar", model = AsyncImageTileSchema.Model.Url(user.avatarUrl), style = { size(fixedHorizontally(48), fixedVertically(48)) })
     Badge(id = "onlineBadge", content = null)
 }
 ```
@@ -836,7 +841,7 @@ Carousel(
 ) {
     featured.forEach { item ->
         Card(id = "featured_${item.id}", kind = CardTileSchema.Kind.ELEVATED) {
-            AsyncImage(id = "img_${item.id}", url = item.imageUrl, style = { size(fillHorizontally(), fixedVertically(140)) })
+            AsyncImage(id = "img_${item.id}", model = AsyncImageTileSchema.Model.Url(item.imageUrl), style = { size(fillHorizontally(), fixedVertically(140)) })
             SimpleText(text = item.title, typography = titleSmall())
         }
     }
@@ -1222,6 +1227,61 @@ Menu(
             trigger = EventTriggers.onMenuItemClick(itemId = "delete"),
             networkRequestData = deleteNetworkRequestData
         )
+    }
+)
+```
+
+---
+
+## Popup
+
+### Popup
+**Purpose:** Renders a `Box` wrapping its `tiles` (anchor content) plus a Compose `Popup` composed only while `expanded` is `true` (unlike `DropdownMenu`, Compose's `Popup` has no `expanded` param). `popupTiles` is free-form content — not a fixed item list like `Menu`.
+**When to use:** Tooltips, custom dropdowns/pickers, or any anchored overlay whose content isn't a simple list of items (use `Menu` for that case instead).
+**Import:** `import dev.catbit.mosaic.server.builder.tile.builders.popup.Popup`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `expanded` | `Boolean` | `false` | Server-controlled open/close state |
+| `alignment` | `AlignmentSchema.TwoDimensional` | `alignToTopStart()` | Popup position relative to the anchor |
+| `offsetX` | `Int` | `0` | Horizontal offset in dp |
+| `offsetY` | `Int` | `0` | Vertical offset in dp |
+| `focusable` | `Boolean` | `false` | Whether the popup can receive keyboard/IME focus |
+| `dismissOnBackPress` | `Boolean` | `true` | Closes on back press (Android) |
+| `dismissOnClickOutside` | `Boolean` | `true` | Closes on tap outside |
+| `tiles` | `TileSchemaBuilderScope.() -> Unit` | required | Anchor content (e.g. a button) |
+| `popupTiles` | `TileSchemaBuilderScope.() -> Unit` | required | Content rendered inside the popup |
+
+**Updatable via UpdateTiles:** `style`, `visibility`, `tiles`, `popupTiles`, `expanded`, `alignment`, `offsetX`, `offsetY`, `focusable`, `dismissOnBackPress`, `dismissOnClickOutside`
+**Triggers dispatched:** none specific — standard tile triggers (`OnDisplay`, `OnClick`, etc.) still apply.
+**Notes:** The open/closed state is server-driven via `expanded`. When the user dismisses the popup (back press or tap outside), the renderer dispatches an internal toggle event requesting a server update — the server should respond with `UpdateTiles` setting `expanded = false`, mirroring the `Menu` pattern. See `ToggleMenu`'s sibling `ToggleMenu` event — the equivalent for Popup is `TogglePopup(popupId)`.
+
+**Example:**
+```kotlin
+Popup(
+    id = "infoPopup",
+    expanded = false,
+    alignment = alignToBottomCenter(),
+    offsetY = 8,
+    tiles = {
+        IconButton(
+            id = "infoTrigger",
+            icon = icon("info"),
+            events = {
+                UpdateTiles(
+                    trigger = EventTriggers.onClick(),
+                    updates = {
+                        update(tileId = "infoPopup", updateData = inlineTileUpdateData(mapOf("expanded" to true)))
+                    }
+                )
+            }
+        )
+    },
+    popupTiles = {
+        Card(id = "infoCard") {
+            SimpleText(id = "infoText", text = "Informação adicional")
+        }
     }
 )
 ```
@@ -1672,6 +1732,75 @@ DropdownList(
 )
 ```
 
+### DatePicker
+**Purpose:** Renders a Material 3 `TextField`-like input that opens a `DatePickerDialog` when tapped, in filled or outlined style.
+**When to use:** Form fields requiring the user to pick a date.
+**Import:** `import dev.catbit.mosaic.server.builder.tile.builders.inputs.DatePicker`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `selectedDate` | `String?` | `null` | ISO-8601 date (`"2026-07-07"`); `null` means no date selected |
+| `enabled` | `Boolean` | `true` | |
+| `kind` | `DatePickerTileSchema.Kind` | `OUTLINED` | `filledDatePicker()` / `outlinedDatePicker()` |
+| `dialogOptions` | `DialogOptions` | required | Build with `dialogOptions(confirmLabel, dismissLabel, isCancellable, usePlatformDefaultWidth)` |
+
+`DialogOptions`: `{ confirmLabel: String, dismissLabel: String, isCancellable: Boolean = true, usePlatformDefaultWidth: Boolean = true }` — `confirmLabel`/`dismissLabel` are required, shared with `TimePicker`.
+
+**Updatable via UpdateTiles:** `selectedDate`, `enabled`, `kind`, `dialogOptions`, `visibility`, `style`
+
+**Form tile:** `produceValueWithKey` returns `null` when `selectedDate` is `null`; otherwise `mapOf(key to selectedDate)`. Unselected dates are excluded from the collected form data.
+
+**Server contract:** Server always sends `expanded = false`; the client owns the open/closed dialog state.
+
+**Triggers dispatched:** `OnDateSelected` (selected date as incomingData), `OnDatePickerOpen`, `OnDatePickerClose`
+
+**Example:**
+```kotlin
+DatePicker(
+    id = "dp_birthdate",
+    selectedDate = "1990-01-01",
+    kind = outlinedDatePicker(),
+    dialogOptions = dialogOptions(confirmLabel = "OK", dismissLabel = "Cancelar"),
+    events = {
+        SendData(
+            trigger = EventTriggers.onDateSelected(),
+            dataKey = "birthdate",
+        )
+    }
+)
+```
+
+### TimePicker
+**Purpose:** Renders a Material 3 `TextField`-like input that opens a `TimePickerDialog` when tapped, in filled or outlined style.
+**When to use:** Form fields requiring the user to pick a time of day.
+**Import:** `import dev.catbit.mosaic.server.builder.tile.builders.inputs.TimePicker`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `selectedTime` | `String?` | `null` | `"HH:mm"` 24h time; `null` means no time selected |
+| `enabled` | `Boolean` | `true` | |
+| `kind` | `TimePickerTileSchema.Kind` | `OUTLINED` | `filledTimePicker()` / `outlinedTimePicker()` |
+| `dialogOptions` | `DialogOptions` | required | Build with `dialogOptions(confirmLabel, dismissLabel, isCancellable, usePlatformDefaultWidth)` |
+
+**Updatable via UpdateTiles:** `selectedTime`, `enabled`, `kind`, `dialogOptions`, `visibility`, `style`
+
+**Form tile:** `produceValueWithKey` returns `null` when `selectedTime` is `null`; otherwise `mapOf(key to selectedTime)`. Unselected times are excluded from the collected form data.
+
+**Server contract:** Server always sends `expanded = false`; the client owns the open/closed dialog state.
+
+**Triggers dispatched:** `OnTimeSelected` (selected time as incomingData), `OnTimePickerOpen`, `OnTimePickerClose`
+
+**Example:**
+```kotlin
+TimePicker(
+    id = "tp_reminder",
+    selectedTime = "09:00",
+    kind = outlinedTimePicker(),
+    dialogOptions = dialogOptions(confirmLabel = "OK", dismissLabel = "Cancelar"),
+)
+```
 
 ---
 

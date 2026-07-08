@@ -19,6 +19,8 @@ internal class DropdownListTileSchemaBuilder(
     private val selectedOptionId: String,
     private val enabled: Boolean,
     private val kind: DropdownListTileSchema.Kind,
+    private val supportingText: String?,
+    private val state: DropdownListTileSchema.State,
 ) : TileSchemaBuilder<DropdownListTileSchema>() {
 
     override fun build(): DropdownListTileSchema {
@@ -38,6 +40,8 @@ internal class DropdownListTileSchemaBuilder(
             selectedOptionId = selectedOptionId,
             enabled = enabled,
             kind = kind,
+            supportingText = supportingText,
+            state = state,
         )
     }
 }
@@ -52,6 +56,8 @@ fun TileSchemaBuilderScope.DropdownList(
     selectedOptionId: String,
     enabled: Boolean = true,
     kind: DropdownListTileSchema.Kind = DropdownListTileSchema.Kind.OUTLINED,
+    supportingText: String? = null,
+    state: DropdownListTileSchema.State = normalDropdownList(),
 ) {
     addBuilder(
         DropdownListTileSchemaBuilder(
@@ -64,6 +70,8 @@ fun TileSchemaBuilderScope.DropdownList(
             selectedOptionId = selectedOptionId,
             enabled = enabled,
             kind = kind,
+            supportingText = supportingText,
+            state = state,
         )
     )
 }
@@ -72,3 +80,5 @@ fun selectOption(id: String, label: String) = DropdownListTileSchema.SelectOptio
 
 fun filledDropdownList() = DropdownListTileSchema.Kind.FILLED
 fun outlinedDropdownList() = DropdownListTileSchema.Kind.OUTLINED
+fun normalDropdownList() = DropdownListTileSchema.State.NORMAL
+fun errorDropdownList() = DropdownListTileSchema.State.ERROR

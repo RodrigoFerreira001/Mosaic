@@ -105,7 +105,7 @@ data class EventRunningScope(
     ): T? = koinScope.getOrNull(clazz, qualifier, parameters)
 
     @Suppress("UNCHECKED_CAST")
-    fun Any?.asMapAny() = this as? Map<String, AnySerializable>
+    fun Any?.asMapAny() = this as? Map<String, AnySerializable?>
 
     @Suppress("UNCHECKED_CAST")
     fun Any?.asMapString(): Map<String, String>? =

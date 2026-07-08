@@ -14,12 +14,13 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a remotely loaded image using Coil 3's [AsyncImage] composable. The image is
- * fetched from [url] and displayed with the given [contentScale], [alignment], and [alpha].
- * Optionally clips the image to its layout bounds when [clipToBounds] is `true`.
+ * Renders an image using Coil 3's [AsyncImage] composable. The image is loaded from [model]
+ * (a remote URL, raw bytes, or a base64-encoded string) and displayed with the given
+ * [contentScale], [alignment], and [alpha]. Optionally clips the image to its layout bounds
+ * when [clipToBounds] is `true`.
  *
  * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `url: String`, `contentDescription: String?`,
+ * `visibility: TileSchema.Visibility`, `model: Model`, `contentDescription: String?`,
  * `contentScale: ContentScale`, `alpha: Float`, `clipToBounds: Boolean`,
  * `alignment: AlignmentSchema.TwoDimensional`
  *
@@ -52,7 +53,7 @@ data class AsyncImageTileSchema(
     @SerialName("style") override val style: StyleSchema,
     @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
-    @SerialName("url") val url: String,
+    @SerialName("model") val model: Model,
     @SerialName("contentDescription") val contentDescription: String?,
     @SerialName("contentScale") val contentScale: ContentScale,
     @SerialName("alpha") val alpha: Float,
@@ -67,6 +68,26 @@ data class AsyncImageTileSchema(
         FILL_WIDTH,
         INSIDE,
         FILL_BOUNDS,
+    }
+
+    @Serializable
+    sealed interface Model {
+        @Serializable
+        @SerialName("Url")
+        data class Url(@SerialName("url") val url: String) : Model
+
+        @Serializable
+        @SerialName("ArrayOfBytes")
+        data class ArrayOfBytes(@SerialName("byteArray") val byteArray: ByteArray) : Model {
+            override fun equals(other: Any?): Boolean =
+                this === other || (other is ArrayOfBytes && byteArray.contentEquals(other.byteArray))
+
+            override fun hashCode(): Int = byteArray.contentHashCode()
+        }
+
+        @Serializable
+        @SerialName("Base64")
+        data class Base64(@SerialName("base64") val base64: String) : Model
     }
 }
 

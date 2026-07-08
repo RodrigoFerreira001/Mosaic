@@ -34,6 +34,6 @@ abstract class MosaicLogger(
 }
 
 enum class Level {
-    DEBUG, INFO, WARNING, ERROR
+    DEBUG, INFO, WARNING, ERROR, NONE
 }
 

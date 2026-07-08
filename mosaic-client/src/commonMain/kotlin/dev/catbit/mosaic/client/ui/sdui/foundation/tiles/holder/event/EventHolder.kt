@@ -37,7 +37,9 @@ abstract class EventHolder<T : EventSchema> {
 
         // TODO Maybe, just maybe, change this part to an event update with new events or tiles, can update the current tile and event holders
 
-        runSafely {
+        runSafely(
+            onError = { builderScope.logError(tag = "EventHolder.update", throwable = it) }
+        ) {
             val updateObject = updateData.toJsonElement().jsonObject
             val eventObject = serializer.encodeEventToJsonElement(event).jsonObject
 

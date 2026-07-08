@@ -16,10 +16,6 @@ object CheckForReceivedDataEventRunner : EventRunner<CheckForReceivedDataEventSc
             onTrigger(EventTriggers.onSuccess(), data = validData)
         } ?: run {
             onTrigger(EventTriggers.onFailure())
-            logError(
-                tag = "CheckForReceivedDataEventRunner",
-                throwable = Throwable("No data found for key: ${event.dataKey}")
-            )
         }
     }
 }
