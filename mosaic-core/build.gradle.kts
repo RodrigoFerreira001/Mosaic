@@ -11,11 +11,41 @@ plugins {
 }
 
 mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+
     coordinates(
         groupId = "dev.catbit",
         artifactId = "mosaic-core",
-        version = "1.0.0"
+        version = libs.versions.mosaic.get()
     )
+
+    pom {
+        name = "Mosaic Core"
+        description = "Shared Schemas, polymorphic serialization and base contracts for the Mosaic Server-Driven UI framework."
+        url = "https://github.com/RodrigoFerreira001/Mosaic"
+
+        licenses {
+            license {
+                name = "Apache License 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0"
+            }
+        }
+
+        developers {
+            developer {
+                id = "RodrigoFerreira001"
+                name = "Rodrigo Ferreira"
+                url = "https://github.com/RodrigoFerreira001"
+            }
+        }
+
+        scm {
+            url = "https://github.com/RodrigoFerreira001/Mosaic"
+            connection = "scm:git:git://github.com/RodrigoFerreira001/Mosaic.git"
+            developerConnection = "scm:git:ssh://git@github.com/RodrigoFerreira001/Mosaic.git"
+        }
+    }
 }
 
 kotlin {
