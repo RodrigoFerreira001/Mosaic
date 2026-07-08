@@ -5,6 +5,7 @@
 <p align="center">Server-Driven UI framework for Kotlin Multiplatform</p>
 
 <p align="center">
+  <a href="https://search.maven.org/search?q=g:dev.catbit+a:mosaic-core"><img src="https://img.shields.io/maven-central/v/dev.catbit/mosaic-core?label=Maven%20Central&color=2A6DB2" alt="Maven Central"></a>
   <img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-2.x-7F52FF?logo=kotlin&logoColor=white">
   <img alt="Kotlin Multiplatform" src="https://img.shields.io/badge/Kotlin%20Multiplatform-Android%20|%20iOS%20|%20Desktop%20|%20Web-7F52FF?logo=kotlin&logoColor=white">
   <img alt="Compose Multiplatform" src="https://img.shields.io/badge/Compose%20Multiplatform-UI%20layer-4285F4?logo=jetpackcompose&logoColor=white">
@@ -25,6 +26,76 @@ A native client and a JSON-over-HTTP backend agree on a fixed UI contract at bui
 Server-Driven UI moves that contract from build time to request time. The client stops hardcoding screens and becomes a generic interpreter for a fixed vocabulary of components (Tiles) and behaviors (Events). The backend team owns screen composition, conditional logic, network orchestration and navigation, in Kotlin, and ships changes without touching the client binary.
 
 Mosaic is a full implementation of that idea: a shared type-safe contract (`mosaic-core`), a backend DSL to build that contract (`mosaic-server`), and a rendering/execution engine that consumes it (`mosaic-client`).
+
+## Setup
+
+All three modules are published to Maven Central under `dev.catbit`. `mosaic-core` holds the shared Schemas that both the server DSL and the client renderer are built on, and it's declared as an `implementation` (not `api`) dependency on both sides — add it explicitly alongside whichever module you're pulling in.
+
+### Server setup
+
+**`gradle/libs.versions.toml`**
+```toml
+[versions]
+mosaic = "1.0.0"
+
+[libraries]
+mosaic-core = { module = "dev.catbit:mosaic-core", version.ref = "mosaic" }
+mosaic-server = { module = "dev.catbit:mosaic-server", version.ref = "mosaic" }
+```
+
+**`build.gradle.kts`**
+```kotlin
+dependencies {
+    implementation(libs.mosaic.core)
+    implementation(libs.mosaic.server)
+}
+```
+
+Or with direct coordinates:
+
+```kotlin
+dependencies {
+    implementation("dev.catbit:mosaic-core:1.0.0")
+    implementation("dev.catbit:mosaic-server:1.0.0")
+}
+```
+
+That's the whole backend footprint — `mosaic-server` is a plain JVM library, no Ktor server required by the DSL itself (`sample-server` just happens to use Ktor to expose it over HTTP).
+
+### Client setup
+
+**`gradle/libs.versions.toml`**
+```toml
+[versions]
+mosaic = "1.0.0"
+
+[libraries]
+mosaic-core = { module = "dev.catbit:mosaic-core", version.ref = "mosaic" }
+mosaic-client = { module = "dev.catbit:mosaic-client", version.ref = "mosaic" }
+```
+
+**`build.gradle.kts`** (inside a Compose Multiplatform module's `commonMain` source set)
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.mosaic.core)
+            implementation(libs.mosaic.client)
+        }
+    }
+}
+```
+
+Or with direct coordinates:
+
+```kotlin
+commonMain.dependencies {
+    implementation("dev.catbit:mosaic-core:1.0.0")
+    implementation("dev.catbit:mosaic-client:1.0.0")
+}
+```
+
+`mosaic-client` targets Android, iOS (`iosArm64`/`iosSimulatorArm64`), Desktop (`jvm`) and Web (`wasmJs`) — pick whichever of those your Compose Multiplatform module already targets, nothing extra to configure per-platform. `mavenCentral()` needs to be in your `dependencyResolutionManagement`/`repositories` block, same as any other Central-hosted dependency.
 
 ## A screen, in the DSL
 
