@@ -6,6 +6,8 @@ on:
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,14 +18,15 @@ jobs:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
 
+      # Trusted Publishing (OIDC) needs a recent npm CLI — the one bundled with
+      # Node 20 predates OIDC support, so it's upgraded explicitly here.
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Publish @catbit.dev/opfs-wasm-worker
         run: npm publish --access public
         working-directory: mosaic-client/opfsWorker
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @catbit.dev/sqlite-wasm-worker
         run: npm publish --access public
         working-directory: mosaic-client/sqliteWasmWorker
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
