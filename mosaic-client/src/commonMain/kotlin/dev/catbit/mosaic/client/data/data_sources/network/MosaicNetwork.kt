@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.data.data_sources.network
 
 import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
 import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
+import dev.catbit.mosaic.core.data.responses.version.VersionResponse
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
@@ -9,6 +10,9 @@ import io.ktor.http.HttpMethod
 interface MosaicNetwork {
 
     suspend fun getInitialGraph(): Result<GraphResponse>
+
+    /** Short-timeout version check meant to run before [getInitialGraph] at startup without blocking it. */
+    suspend fun getVersion(): Result<VersionResponse>
 
     suspend fun getScreen(
         screenId: String,
@@ -54,4 +58,11 @@ interface MosaicNetwork {
         platformFile: PlatformFile,
         onProgress: suspend (Float) -> Unit = {}
     ): Result<UploadResult>
+
+    /**
+     * Probes whether the device currently has an active internet connection by issuing a
+     * lightweight GET to a captive-portal-style endpoint. Any exception (no connection, DNS
+     * failure, timeout) is treated as "no connection" rather than propagated.
+     */
+    suspend fun hasInternetConnection(): Boolean
 }

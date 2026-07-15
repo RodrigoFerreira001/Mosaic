@@ -18,6 +18,7 @@ internal class IconButtonTileSchemaBuilder(
     private val visibility: TileSchema.Visibility,
     private val icon: IconSchema,
     private val buttonType: IconButtonTileSchema.Type,
+    private val loading: Boolean,
     private val enabled: Boolean
 ) : TileSchemaBuilder<IconButtonTileSchema>() {
 
@@ -29,6 +30,7 @@ internal class IconButtonTileSchemaBuilder(
         visibility = visibility,
         icon = icon,
         buttonType = buttonType,
+        loading = loading,
         enabled = enabled
     )
 }
@@ -46,6 +48,7 @@ fun TileSchemaBuilderScope.IconButton(
     searchableTerms: List<String>? = null,
     icon: IconSchema,
     buttonType: IconButtonTileSchema.Type = IconButtonTileSchema.Type.DEFAULT,
+    loading: Boolean = false,
     enabled: Boolean = true
 ) {
     addBuilder(
@@ -57,6 +60,7 @@ fun TileSchemaBuilderScope.IconButton(
             visibility = visibility,
             icon = icon,
             buttonType = buttonType,
+            loading = loading,
             enabled = enabled
         )
     )

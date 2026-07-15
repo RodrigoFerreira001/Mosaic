@@ -5,6 +5,7 @@ import dev.catbit.mosaic.endpoints.initial_graph.initialGraph
 import dev.catbit.mosaic.endpoints.screen.screen
 import dev.catbit.mosaic.endpoints.tiles.pagination
 import dev.catbit.mosaic.endpoints.tiles.tiles
+import dev.catbit.mosaic.endpoints.version.version
 import io.ktor.server.application.Application
 import io.ktor.server.routing.routing
 
@@ -15,5 +16,6 @@ fun Application.configureRouting() {
         tiles()
         events()
         pagination()
+        version()
     }
 }

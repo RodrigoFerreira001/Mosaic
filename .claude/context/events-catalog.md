@@ -186,6 +186,24 @@ Navigates to a new screen within a named navigator.
 
 ---
 
+### NavigateClearingStackEventSchema
+**JSON type:** `"NavigateClearingStack"`
+
+Clears the entire back stack and navigates to a new screen within a named navigator, as its sole entry.
+
+| Field | Type | Default |
+|---|---|---|
+| `destination` | `String` | required — target screen ID |
+| `navigatorId` | `String` | required — must match a registered NavigationController |
+| `launchSingleTop` | `Boolean` | `true` — no-op if `destination` is already the top of the stack |
+| `data` | `Map<String, AnySerializable>?` | `null` — passed as navigation data |
+
+No `popUpTo`: the back stack is always cleared entirely.
+
+**Triggers fired:** `onSuccess()`. `onFailure()` — no navigator registered under `navigatorId`.
+
+---
+
 ### NavigateUpEventSchema
 **JSON type:** `"NavigateUp"`
 
@@ -883,6 +901,21 @@ DSL helpers: `incomingBroadcastData()` / `inlineBroadcastData(data)`
 Checks whether the device has an active internet connection.
 
 No additional fields.
+
+**Child triggers used:** `OnSuccess`, `OnFailure`
+
+---
+
+### DropCachesEventSchema
+**JSON type:** `"DropCaches"`
+
+Drops locally persisted Mosaic caches (screens, initial graph, cache version), selectively controlled by each boolean flag.
+
+| Field | Type | Description |
+|---|---|---|
+| `dropScreensCache` | `Boolean` | Drops every cached `ScreenResponse` |
+| `dropInitialGraphCache` | `Boolean` | Drops the cached initial navigation graph |
+| `dropVersionCache` | `Boolean` | Drops the locally stored cache-busting version |
 
 **Child triggers used:** `OnSuccess`, `OnFailure`
 

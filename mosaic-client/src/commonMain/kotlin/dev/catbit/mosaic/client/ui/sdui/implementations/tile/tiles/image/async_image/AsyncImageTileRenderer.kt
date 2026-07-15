@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.image.async_
 
 import androidx.compose.foundation.layout.visible
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import coil3.compose.AsyncImage
 import dev.catbit.mosaic.client.extensions.toAlignment
@@ -22,6 +23,15 @@ object AsyncImageTileRenderer : TileRenderer<AsyncImageTileSchema> {
         tileSchema: AsyncImageTileSchema,
     ) {
         with(tileSchema) {
+
+            val model = remember(model) {
+                when (val m = model) {
+                    is AsyncImageTileSchema.Model.Url -> m.url
+                    is AsyncImageTileSchema.Model.ArrayOfBytes -> m.byteArray
+                    is AsyncImageTileSchema.Model.Base64 -> Base64.decode(m.base64)
+                }
+            }
+
             AsyncImage(
                 modifier = Modifier
                     .visible(isVisible())
@@ -29,11 +39,7 @@ object AsyncImageTileRenderer : TileRenderer<AsyncImageTileSchema> {
                 onLoading = { triggerEvent(EventTriggers.onAsyncImageLoadStart()) },
                 onError = { triggerEvent(EventTriggers.onAsyncImageLoadFailure()) },
                 onSuccess = { triggerEvent(EventTriggers.onAsyncImageLoadSuccess()) },
-                model = when (val m = model) {
-                    is AsyncImageTileSchema.Model.Url -> m.url
-                    is AsyncImageTileSchema.Model.ArrayOfBytes -> m.byteArray
-                    is AsyncImageTileSchema.Model.Base64 -> Base64.decode(m.base64)
-                },
+                model = model,
                 contentDescription = contentDescription,
                 contentScale = contentScale.toContentScale(),
                 alpha = alpha,

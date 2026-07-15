@@ -321,7 +321,6 @@ private fun MosaicApplicationLoadingContent(
             verticalArrangement = Arrangement.Bottom
         ) {
             Box(
-                modifier = Modifier.size(128.dp),
                 contentAlignment = Alignment.Center
             ) {
                 appSplash()

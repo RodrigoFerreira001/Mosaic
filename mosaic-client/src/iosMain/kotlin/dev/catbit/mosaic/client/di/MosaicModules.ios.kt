@@ -2,10 +2,8 @@ package dev.catbit.mosaic.client.di
 
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
-import dev.catbit.mosaic.client.data.data_chest.DataChest
-import dev.catbit.mosaic.client.data.data_chest.IOSDataChest
-import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
 import dev.catbit.mosaic.client.camera.IOSCameraManager
+import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
 import dev.catbit.mosaic.client.permission.IOSPermissionManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.camera.CameraManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.permission.PermissionManager
@@ -20,7 +18,6 @@ import org.koin.dsl.module
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
-import platform.Foundation.NSUserDefaults
 import platform.Foundation.NSUserDomainMask
 
 @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
@@ -30,10 +27,6 @@ internal actual val platformModule = module {
     single<PermissionManager> { IOSPermissionManager() }
 
     single<CameraManager> { IOSCameraManager() }
-
-    single<DataChest> {
-        IOSDataChest(NSUserDefaults.standardUserDefaults())
-    }
 
     single<MosaicRoomDatabase> {
         val applicationId: String = get(named("APPLICATION_ID"))

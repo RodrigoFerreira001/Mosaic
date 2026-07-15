@@ -29,9 +29,15 @@ import kotlinx.serialization.Serializable
  * [expanded] is `true`. When the user dismisses the popup (back press or tap outside, depending
  * on [dismissOnBackPress]/[dismissOnClickOutside]), the renderer dispatches the internal
  * `PopupTileEvents.OnTogglePopup` event, which the client-side tile holder uses to flip
- * [expanded] locally while a server update is requested. [alignment] and
- * [offsetX]/[offsetY] (in dp) control the popup's position relative to the anchor, mirroring
- * Compose's `Popup(alignment, offset, ...)` parameters. [focusable], [dismissOnBackPress] and
+ * [expanded] locally while a server update is requested. [alignment] picks which side(s) of the
+ * anchor the popup renders relative to, and is never overlapped vertically — e.g. `BottomEnd`
+ * hangs below the anchor with its right edge flush against the anchor's right edge, like a
+ * typical dropdown menu, while `CenterEnd` renders fully to the right of the anchor as a side
+ * flyout. For corner alignments (`TopStart`/`TopEnd`/`BottomStart`/`BottomEnd`), [offsetX] is a
+ * plain translation (in dp) from that flush position — positive shifts right, negative shifts
+ * left, e.g. to nudge a popup anchored near a screen edge back on-screen. For `CenterStart`/
+ * `CenterEnd`, [offsetX] is a positive gap from the anchor instead. [offsetY] is always a
+ * positive gap for `Top`/`Bottom` alignments. [focusable], [dismissOnBackPress] and
  * [dismissOnClickOutside] map directly to Compose's `PopupProperties`.
  */
 @Immutable

@@ -12,6 +12,19 @@ interface MosaicRepository {
 
     suspend fun getInitialGraph(): Result<GraphModel>
 
+    /**
+     * Checks the backend's cache-busting version against the locally stored one, wiping the
+     * graph/screens cache when the remote version is newer. Never blocks the caller for long
+     * (offline or any failure is captured in the returned [Result] rather than thrown).
+     */
+    suspend fun getVersion(): Result<Unit>
+
+    suspend fun dropCaches(
+        dropScreensCache: Boolean,
+        dropInitialGraphCache: Boolean,
+        dropVersionCache: Boolean
+    ): Result<Unit>
+
     suspend fun getScreen(
         screenId: String,
         headers: Map<String, String>?,

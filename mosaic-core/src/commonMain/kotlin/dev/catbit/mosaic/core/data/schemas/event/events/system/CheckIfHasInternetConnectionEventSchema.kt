@@ -11,23 +11,21 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Checks whether the device currently has an active internet connection. The runner is currently
- * a placeholder (`println`) — the actual connectivity check and trigger-firing logic has not yet
- * been implemented.
+ * Checks whether the device currently has an active internet connection by issuing a lightweight
+ * HTTP GET request to a captive-portal-style probe endpoint.
  *
  * **incomingData consumed:** Not used.
  *
- * **Triggers fired (intended, not yet implemented):**
- * - [OnSuccessEventTrigger] — intended to fire when an active internet connection is detected,
- *   with no incomingData payload.
- * - [OnFailureEventTrigger] — intended to fire when no internet connection is available, with
- *   no incomingData payload.
+ * **Triggers fired:**
+ * - [OnSuccessEventTrigger] — fires when the probe request succeeds, with no incomingData payload.
+ * - [OnFailureEventTrigger] — fires when the probe request fails (no connection, timeout, or
+ *   non-success response), with no incomingData payload.
  *
- * **Failure scenarios:** Not applicable — the runner is a no-op placeholder.
+ * **Failure scenarios:** Any exception raised by the underlying HTTP client (no connection, DNS
+ * failure, timeout) is caught and treated as "no internet connection" rather than propagated.
  *
  * **Notes:** This event carries no extra fields beyond the base [EventSchema] contract. The
- * connectivity check strategy (e.g., DNS lookup, network callback) is platform-specific and
- * has not yet been decided or implemented.
+ * check is a reachability probe, not a guarantee that any particular host is reachable.
  */
 @Immutable
 @Triggers(

@@ -3,7 +3,6 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.menu
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.layout.visible
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
@@ -12,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.catbit.mosaic.client.ui.composables.icon.Icon
-import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
@@ -23,11 +21,7 @@ object MenuTileRenderer : TileRenderer<MenuTileSchema> {
     @Composable
     override fun TileRenderingScope.Render(tileSchema: MenuTileSchema) {
         with(tileSchema) {
-            Box(
-                modifier = Modifier
-                    .visible(isVisible())
-                    .styledWith(style)
-            ) {
+            Box {
                 RenderChildren(tiles)
 
                 DropdownMenu(

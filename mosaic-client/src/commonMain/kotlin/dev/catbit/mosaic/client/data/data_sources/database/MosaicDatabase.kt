@@ -1,6 +1,22 @@
 package dev.catbit.mosaic.client.data.data_sources.database
 
+import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
+import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
+
 interface MosaicDatabase {
+
+    suspend fun setInitialGraph(initialGraph: GraphResponse)
+    suspend fun getInitialGraph(): GraphResponse?
+
+    suspend fun setScreen(cacheKey: String, screenResponse: ScreenResponse)
+    suspend fun getScreen(cacheKey: String): ScreenResponse?
+
+    suspend fun getCacheVersion(): Long?
+    suspend fun setCacheVersion(version: Long)
+
+    suspend fun dropScreensCache()
+    suspend fun dropInitialGraphCache()
+    suspend fun dropVersionCache()
 
     suspend fun setPlainData(
         dataKey: String,

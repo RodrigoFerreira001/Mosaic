@@ -54,6 +54,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsD
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryClearedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPullEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrollThresholdReachedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarActionEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarDismissedEventTrigger
@@ -134,6 +135,7 @@ object EventTriggers {
     fun onPermissionsAcquired() = OnPermissionsAcquiredEventTrigger
     fun onPermissionsDenied() = OnPermissionsDeniedEventTrigger
     fun onPermissionRationale() = OnPermissionRationaleEventTrigger
+    fun onPull() = OnPullEventTrigger
     fun onQueryChanged() = OnQueryChangedEventTrigger
     fun onQueryCleared() = OnQueryClearedEventTrigger
     fun onSearch() = OnSearchEventTrigger

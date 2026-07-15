@@ -3,7 +3,7 @@ package dev.catbit.mosaic.client.data.repository
 import dev.catbit.mosaic.client.data.data_sources.database.MosaicDatabase
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetwork
-import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorage
+import dev.catbit.mosaic.client.data.data_sources.network.NetworkParametersHolder
 import dev.catbit.mosaic.client.exceptions.DataNotFoundException
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
 import dev.catbit.mosaic.client.extensions.safeResult
@@ -18,13 +18,13 @@ import kotlinx.coroutines.flow.Flow
 class MosaicRepositoryImpl(
     private val network: MosaicNetwork,
     private val database: MosaicDatabase,
-    private val objectStorage: MosaicObjectStorage,
-    private val fileSystem: MosaicFileSystem
+    private val fileSystem: MosaicFileSystem,
+    private val networkParametersHolder: NetworkParametersHolder
 ) : MosaicRepository {
 
     override suspend fun getInitialGraph(): Result<GraphModel> = safeResult {
 
-        val cachedInitialGraph = objectStorage.getInitialGraph()
+        val cachedInitialGraph = database.getInitialGraph()
         val currentTime = currentDateTime()
 
         if (cachedInitialGraph != null) {
@@ -32,17 +32,38 @@ class MosaicRepositoryImpl(
 
             if (cachedInitialGraphTtl == null || cachedInitialGraphTtl > currentTime) {
                 network.getInitialGraph().getOrNull()?.apply {
-                    objectStorage.setInitialGraph(this)
+                    database.setInitialGraph(this)
                 } ?: cachedInitialGraph
             } else cachedInitialGraph
 
         } else {
             network.getInitialGraph().getOrThrow().apply {
-                objectStorage.setInitialGraph(this)
+                database.setInitialGraph(this)
             }
         }
     }.map { initialGraphResponse ->
         GraphModel.fromGraphResponse(initialGraphResponse)
+    }
+
+    override suspend fun getVersion(): Result<Unit> = safeResult {
+        val remoteVersion = network.getVersion().getOrThrow().version
+        val localVersion = database.getCacheVersion()
+
+        if (localVersion == null || remoteVersion > localVersion) {
+            database.dropScreensCache()
+            database.dropInitialGraphCache()
+            database.setCacheVersion(remoteVersion)
+        }
+    }
+
+    override suspend fun dropCaches(
+        dropScreensCache: Boolean,
+        dropInitialGraphCache: Boolean,
+        dropVersionCache: Boolean
+    ): Result<Unit> = safeResult {
+        if (dropScreensCache) database.dropScreensCache()
+        if (dropInitialGraphCache) database.dropInitialGraphCache()
+        if (dropVersionCache) database.dropVersionCache()
     }
 
     override suspend fun getScreen(
@@ -52,7 +73,15 @@ class MosaicRepositoryImpl(
         httpMethod: HttpMethod
     ): Result<ScreenModel> = safeResult {
 
-        val cachedScreen = objectStorage.getScreen(screenId)
+        val stagedNetworkParams = networkParametersHolder.peek()
+
+        val cacheKey = buildScreenCacheKey(
+            screenId = screenId,
+            effectiveBody = body ?: stagedNetworkParams.body,
+            queryParameters = stagedNetworkParams.queryParameters
+        )
+
+        val cachedScreen = database.getScreen(cacheKey)
         val currentTime = currentDateTime()
 
         if (cachedScreen != null) {
@@ -68,7 +97,7 @@ class MosaicRepositoryImpl(
                 when {
                     networkResult.isSuccess -> {
                         networkResult.getOrThrow().apply {
-                            objectStorage.setScreen(this)
+                            database.setScreen(cacheKey, this)
                         }
                     }
                     networkResult.exceptionOrNull() is NetworkResponseException -> throw networkResult.exceptionOrNull()!!
@@ -82,11 +111,24 @@ class MosaicRepositoryImpl(
                 body = body,
                 httpMethod = httpMethod
             ).getOrThrow().apply {
-                objectStorage.setScreen(this)
+                database.setScreen(cacheKey, this)
             }
         }
     }.map { screenResponse ->
         ScreenModel.fromScreenResponse(screenResponse)
+    }
+
+    private fun buildScreenCacheKey(
+        screenId: String,
+        effectiveBody: Any?,
+        queryParameters: Map<String, Any?>?
+    ): String {
+        val differentiators = buildList {
+            queryParameters?.entries?.sortedBy { it.key }?.forEach { (key, value) -> add("$key=$value") }
+            effectiveBody?.let { add("body=$it") }
+        }
+
+        return if (differentiators.isEmpty()) screenId else "$screenId?${differentiators.joinToString("&")}"
     }
 
     override suspend fun sendHttpRequest(

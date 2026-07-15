@@ -2,6 +2,8 @@ package dev.catbit.mosaic.client.data.data_sources.database
 
 import dev.catbit.mosaic.client.data.data_sources.database.entities.PlainDataEntity
 import dev.catbit.mosaic.client.data.data_sources.database.entities.SegmentedDataEntity
+import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
+import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
 import dev.catbit.mosaic.core.extensions.toAny
 import dev.catbit.mosaic.core.extensions.toJsonElement
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
@@ -14,6 +16,61 @@ class MosaicDatabaseImpl(
 
     private val plainDataDao get() = db.plainDataDao()
     private val segmentedDataDao get() = db.segmentedDataDao()
+    private val mosaicCacheDao get() = db.mosaicCacheDao()
+
+    override suspend fun setInitialGraph(initialGraph: GraphResponse) {
+        mosaicCacheDao.upsert(
+            cacheKey = INITIAL_GRAPH_CACHE_KEY,
+            data = serializer.encodeToString(initialGraph)
+        )
+    }
+
+    override suspend fun getInitialGraph(): GraphResponse? = runCatching {
+        mosaicCacheDao.get(INITIAL_GRAPH_CACHE_KEY)?.let {
+            serializer.decodeFromString<GraphResponse>(it.data)
+        }
+    }.getOrElse {
+        mosaicCacheDao.delete(INITIAL_GRAPH_CACHE_KEY)
+        null
+    }
+
+    override suspend fun setScreen(cacheKey: String, screenResponse: ScreenResponse) {
+        mosaicCacheDao.upsert(
+            cacheKey = SCREEN_CACHE_PREFIX + cacheKey,
+            data = serializer.encodeToString(screenResponse)
+        )
+    }
+
+    override suspend fun getScreen(cacheKey: String): ScreenResponse? = runCatching {
+        mosaicCacheDao.get(SCREEN_CACHE_PREFIX + cacheKey)?.let {
+            serializer.decodeFromString<ScreenResponse>(it.data)
+        }
+    }.getOrElse {
+        mosaicCacheDao.delete(SCREEN_CACHE_PREFIX + cacheKey)
+        null
+    }
+
+    override suspend fun getCacheVersion(): Long? =
+        mosaicCacheDao.get(CACHE_VERSION_CACHE_KEY)?.data?.toLongOrNull()
+
+    override suspend fun setCacheVersion(version: Long) {
+        mosaicCacheDao.upsert(
+            cacheKey = CACHE_VERSION_CACHE_KEY,
+            data = version.toString()
+        )
+    }
+
+    override suspend fun dropScreensCache() {
+        mosaicCacheDao.deleteByPrefix(SCREEN_CACHE_PREFIX)
+    }
+
+    override suspend fun dropInitialGraphCache() {
+        mosaicCacheDao.delete(INITIAL_GRAPH_CACHE_KEY)
+    }
+
+    override suspend fun dropVersionCache() {
+        mosaicCacheDao.delete(CACHE_VERSION_CACHE_KEY)
+    }
 
     override suspend fun setPlainData(dataKey: String, data: Any) {
         plainDataDao.upsert(
@@ -96,5 +153,11 @@ class MosaicDatabaseImpl(
 
     override suspend fun wipeSegmentedData(segmentKey: String) {
         segmentedDataDao.wipe(segmentKey)
+    }
+
+    private companion object {
+        const val SCREEN_CACHE_PREFIX = "MOSAIC_SCREEN_"
+        const val INITIAL_GRAPH_CACHE_KEY = "MOSAIC_INITIAL_GRAPH"
+        const val CACHE_VERSION_CACHE_KEY = "MOSAIC_CACHE_VERSION"
     }
 }

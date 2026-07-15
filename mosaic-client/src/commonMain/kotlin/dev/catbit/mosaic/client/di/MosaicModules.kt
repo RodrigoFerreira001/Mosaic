@@ -10,10 +10,9 @@ import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetwork
 import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetworkImpl
 import dev.catbit.mosaic.client.data.data_sources.network.NetworkParametersHolder
 import dev.catbit.mosaic.client.data.data_sources.network.plugins.MosaicHeadersPlugin
-import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorage
-import dev.catbit.mosaic.client.data.data_sources.object_storage.MosaicObjectStorageImpl
 import dev.catbit.mosaic.client.data.repository.MosaicRepository
 import dev.catbit.mosaic.client.data.repository.MosaicRepositoryImpl
+import dev.catbit.mosaic.client.domain.cache.DropCachesUseCase
 import dev.catbit.mosaic.client.domain.data.plain.GetAllPlainDataUseCase
 import dev.catbit.mosaic.client.domain.data.plain.GetPlainDataByIdsUseCase
 import dev.catbit.mosaic.client.domain.data.plain.GetPlainDataUseCase
@@ -36,6 +35,7 @@ import dev.catbit.mosaic.client.domain.file.GetFileStreamingUseCase
 import dev.catbit.mosaic.client.domain.file.GetFileUseCase
 import dev.catbit.mosaic.client.domain.file.SaveFileUseCase
 import dev.catbit.mosaic.client.domain.graph.GetInitialGraphUseCase
+import dev.catbit.mosaic.client.domain.version.CheckCacheVersionUseCase
 import dev.catbit.mosaic.client.domain.screen.GetScreenUseCase
 import dev.catbit.mosaic.client.domain.send_request.SendNetworkRequestUseCase
 import dev.catbit.mosaic.client.domain.upload.UploadFileUseCase
@@ -79,6 +79,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.image.get_i
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.image.take_picture.TakePictureEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu.ToggleMenuEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_clearing_stack.NavigateClearingStackEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_up.NavigateUpEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file.DownloadFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file_to_disk.DownloadFileToDiskEventDefinition
@@ -107,6 +108,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.row.
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.security.request_permission.RequestPermissionEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.broadcast_to_system.BroadcastToSystemEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.check_if_has_internet_connection.CheckIfHasInternetConnectionEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.drop_caches.DropCachesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.theme.reset_theme.ResetThemeEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.theme.set_theme.SetThemeEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_tiles.AddTilesEventDefinition
@@ -133,6 +135,8 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.box.
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.card.CardTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.carousel.CarouselTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.flex_box.FlexBoxTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.flow_row.FlowRowTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.grid.GridTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.lazy_column.LazyColumnTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.lazy_row.LazyRowTileDefinition
@@ -230,13 +234,6 @@ internal class MosaicModules(
 
     private val dataModule = module {
 
-        single<MosaicObjectStorage> {
-            MosaicObjectStorageImpl(
-                dataChest = get(),
-                serializer = get()
-            )
-        }
-
         single { NetworkParametersHolder() }
 
         single<MosaicFileSystem> {
@@ -272,8 +269,8 @@ internal class MosaicModules(
             MosaicRepositoryImpl(
                 network = get(),
                 database = get(),
-                objectStorage = get(),
-                fileSystem = get()
+                fileSystem = get(),
+                networkParametersHolder = get()
             )
         }
     }
@@ -338,6 +335,7 @@ internal class MosaicModules(
         viewModel {
             MosaicApplicationStateHolder(
                 getInitialGraphUseCase = get(),
+                checkCacheVersionUseCase = get(),
                 screenExtrasHolder = get()
             )
         }
@@ -388,6 +386,8 @@ internal class MosaicModules(
 
     private val useCaseModule = module {
         single { GetInitialGraphUseCase(get()) }
+        single { CheckCacheVersionUseCase(get()) }
+        factory { DropCachesUseCase(get()) }
         factory { GetScreenUseCase(get()) }
         factory { DownloadFileUseCase(get()) }
         factory { DownloadFileToDiskUseCase(get()) }
@@ -426,6 +426,8 @@ internal class MosaicModules(
         BoxTileDefinition,
         CardTileDefinition,
         CarouselTileDefinition,
+        FlexBoxTileDefinition,
+        FlowRowTileDefinition,
         GridTileDefinition,
         PagerTileDefinition,
         PullToRefreshTileDefinition,
@@ -473,6 +475,7 @@ internal class MosaicModules(
         SetIncomingDataToNetworkParamsHolderUrlEventDefinition,
         NavigateEventDefinition,
         NavigateUpEventDefinition,
+        NavigateClearingStackEventDefinition,
         ToggleMenuEventDefinition,
         TogglePopupEventDefinition,
         ScrollTileColumnEventDefinition,
@@ -510,6 +513,7 @@ internal class MosaicModules(
         RefreshScreenEventDefinition,
         BroadcastToSystemEventDefinition,
         CheckIfHasInternetConnectionEventDefinition,
+        DropCachesEventDefinition,
         DeleteFileEventDefinition,
         GetFileEventDefinition,
         OpenFilePickerEventDefinition,

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "db1cc64164ecd83428f6f891274b1f76",
+    "identityHash": "f57953d5ea0c8b49427db57e8a42b2bc",
     "entities": [
       {
         "tableName": "plain_data",
@@ -58,11 +58,35 @@
             "dataKey"
           ]
         }
+      },
+      {
+        "tableName": "mosaic_cache",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`cacheKey` TEXT NOT NULL, `data` TEXT NOT NULL, PRIMARY KEY(`cacheKey`))",
+        "fields": [
+          {
+            "fieldPath": "cacheKey",
+            "columnName": "cacheKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "data",
+            "columnName": "data",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "cacheKey"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'db1cc64164ecd83428f6f891274b1f76')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f57953d5ea0c8b49427db57e8a42b2bc')"
     ]
   }
 }

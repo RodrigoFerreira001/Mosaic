@@ -15,7 +15,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * Renders a Material 3 Floating Action Button (FAB) that displays a single [icon]. The visual
  * footprint is controlled by [size].
  *
- * **Updatable fields (via UpdateTiles):** `icon`, `size`, `enabled`, `visibility`, `style`.
+ * **Updatable fields (via UpdateTiles):** `icon`, `size`, `loading`, `enabled`, `visibility`, `style`.
  *
  * **Triggers dispatched:**
  * - [OnClickEventTrigger] — fired when the user taps the FAB.
@@ -24,8 +24,9 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * `MEDIUM` renders a standard [FloatingActionButton], and `LARGE` renders a
  * [LargeFloatingActionButton]. Despite the schema carrying an [enabled] field, the current
  * renderer does not pass `enabled` to the underlying composable — the FAB is always interactive
- * at the Compose level regardless of the schema value. [icon] is required and rendered via the
- * shared [Icon] composable using [icon.name].
+ * at the Compose level regardless of the schema value. When [loading] is `true` the icon is
+ * replaced by a [CircularProgressIndicator], same behavior as [ButtonTileSchema.loading]. [icon]
+ * is required and rendered via the shared [Icon] composable using [icon.name].
  */
 @Immutable
 @Triggers(
@@ -43,6 +44,7 @@ data class FloatingActionButtonTileSchema(
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("icon") val icon: IconSchema,
     @SerialName("size") val size: Size,
+    @SerialName("loading") val loading: Boolean = false,
     @SerialName("enabled") val enabled: Boolean,
 ) : TileSchema {
 

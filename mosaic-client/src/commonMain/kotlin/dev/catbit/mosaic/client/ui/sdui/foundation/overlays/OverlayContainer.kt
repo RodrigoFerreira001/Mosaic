@@ -116,9 +116,7 @@ fun OverlayContainer(
             if (dialogState.isVisible) {
                 BasicAlertDialog(
                     modifier = Modifier.widthIn(400.dp),
-                    onDismissRequest = {
-                        dialogState.onDismissCallback?.invoke()
-                    },
+                    onDismissRequest = dialogState::dismiss,
                     properties = DialogProperties(
                         dismissOnBackPress = dialogState.isCancellable,
                         dismissOnClickOutside = dialogState.isCancellable,

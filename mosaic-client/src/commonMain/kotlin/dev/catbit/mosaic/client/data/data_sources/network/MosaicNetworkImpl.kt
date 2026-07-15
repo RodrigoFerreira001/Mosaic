@@ -8,32 +8,23 @@ import dev.catbit.mosaic.client.extensions.safeNetworkCall
 import dev.catbit.mosaic.client.extensions.safeResult
 import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
 import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
+import dev.catbit.mosaic.core.data.responses.version.VersionResponse
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializer
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.onDownload
+import io.ktor.client.plugins.timeout
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
-import io.ktor.client.request.prepareRequest
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpStatement
-import io.ktor.client.statement.bodyAsChannel
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.content.TextContent
-import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
-import io.ktor.http.parameters
-import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.readAvailable
-import kotlinx.coroutines.flow.flow
-import kotlinx.io.Buffer
-import kotlinx.io.readByteArray
+import kotlin.time.Duration.Companion.seconds
 
 class MosaicNetworkImpl(
     private val baseUrl: String,
@@ -43,8 +34,16 @@ class MosaicNetworkImpl(
     private val fileSystem: MosaicFileSystem
 ) : MosaicNetwork {
 
+    private val connectivityCheckTimeout = 5.seconds
+
     override suspend fun getInitialGraph(): Result<GraphResponse> = safeNetworkCall {
         httpClient.get(urlString = "$baseUrl/initialGraph")
+    }.map { httpResponse ->
+        httpResponse.body()
+    }
+
+    override suspend fun getVersion(): Result<VersionResponse> = safeNetworkCall {
+        httpClient.get(urlString = "$baseUrl/version")
     }.map { httpResponse ->
         httpResponse.body()
     }
@@ -114,43 +113,6 @@ class MosaicNetworkImpl(
         }
     }
 
-    private suspend fun buildDownloadRequest(
-        url: String,
-        headers: Map<String, String>?,
-        body: Any?,
-        httpMethod: HttpMethod,
-        onProgress: suspend (Float) -> Unit
-    ): HttpStatement = httpClient.prepareRequest(urlString = url) {
-        method = httpMethod
-
-        val networkParams = networkParametersHolder.consume()
-
-        (networkParams.headers.orEmpty() + headers.orEmpty()).forEach { (key, value) ->
-            header(key, value)
-        }
-
-        val strBody = (body ?: networkParams.body)?.let { anyBody ->
-            mosaicSerializer.encodeToString(AnySerializer, anyBody)
-        }
-
-        if (httpMethod == HttpMethod.Get && strBody != null) {
-            throw GetRequestWithBodyException(url)
-        }
-
-        strBody?.let { setBody(TextContent(it, ContentType.Application.Json)) }
-
-        networkParams.queryParameters?.forEach { (key, value) ->
-            value?.let { parameter(key, it.toString()) }
-        }
-
-        onDownload { bytesSentTotal, contentLength ->
-            if (contentLength != null && contentLength > 0) {
-                val percent = (bytesSentTotal.toDouble() / contentLength * 100).toInt()
-                onProgress(percent / 100f)
-            }
-        }
-    }
-
     override suspend fun downloadFile(
         url: String,
         headers: Map<String, String>?,
@@ -161,51 +123,26 @@ class MosaicNetworkImpl(
         onDownloadFailure: suspend (Throwable) -> Unit
     ) = safeResult {
         try {
-            buildDownloadRequest(url, headers, body, httpMethod, onProgress).execute { response ->
+            val networkParams = networkParametersHolder.consume()
 
-                if (!response.status.isSuccess()) {
-                    throw NetworkResponseException(
-                        status = response.status,
-                        error = response.bodyAsText()
-                    )
-                }
-
-                val channel: ByteReadChannel = response.bodyAsChannel()
-                val contentLength = response.contentLength()
-                val buffer = ByteArray(8192)
-
-                val completeArray = if (contentLength != null && contentLength > 0) {
-                    // Known size: write straight into a single pre-allocated array,
-                    // avoiding the extra full-file copy required by Buffer.readByteArray().
-                    val result = ByteArray(contentLength.toInt())
-                    var offset = 0
-
-                    while (!channel.isClosedForRead) {
-                        val read = channel.readAvailable(buffer)
-                        if (read <= 0) break
-
-                        buffer.copyInto(result, offset, 0, read)
-                        offset += read
-                    }
-
-                    result
-                } else {
-                    // Unknown size (e.g. chunked encoding without length): fall back
-                    // to accumulating into a growable Buffer.
-                    val builder = Buffer()
-
-                    while (!channel.isClosedForRead) {
-                        val read = channel.readAvailable(buffer)
-                        if (read <= 0) break
-
-                        builder.write(buffer.copyOfRange(0, read))
-                    }
-
-                    builder.readByteArray()
-                }
-
-                onDownloadFinished(completeArray)
+            val strBody = (body ?: networkParams.body)?.let { anyBody ->
+                mosaicSerializer.encodeToString(AnySerializer, anyBody)
             }
+
+            if (httpMethod == HttpMethod.Get && strBody != null) {
+                throw GetRequestWithBodyException(url)
+            }
+
+            downloadPlatformFile(
+                httpClient = httpClient,
+                url = url,
+                headers = networkParams.headers.orEmpty() + headers.orEmpty(),
+                body = strBody,
+                httpMethod = httpMethod,
+                queryParameters = networkParams.queryParameters,
+                onProgress = onProgress,
+                onDownloadFinished = onDownloadFinished
+            )
         } catch (e: Throwable) {
             onDownloadFailure(e)
         }
@@ -222,28 +159,28 @@ class MosaicNetworkImpl(
         onDownloadFailure: suspend (Throwable) -> Unit
     ) = safeResult {
         try {
-            buildDownloadRequest(url, headers, body, httpMethod, onProgress).execute { response ->
+            val networkParams = networkParametersHolder.consume()
 
-                if (!response.status.isSuccess()) {
-                    throw NetworkResponseException(
-                        status = response.status,
-                        error = response.bodyAsText()
-                    )
-                }
-
-                val channel: ByteReadChannel = response.bodyAsChannel()
-                val chunks = flow {
-                    val buffer = ByteArray(8192)
-                    while (!channel.isClosedForRead) {
-                        val read = channel.readAvailable(buffer)
-                        if (read <= 0) break
-                        emit(buffer.copyOfRange(0, read))
-                    }
-                }
-
-                fileSystem.saveFileStreaming(targetFileName, chunks)
-                onDownloadFinished()
+            val strBody = (body ?: networkParams.body)?.let { anyBody ->
+                mosaicSerializer.encodeToString(AnySerializer, anyBody)
             }
+
+            if (httpMethod == HttpMethod.Get && strBody != null) {
+                throw GetRequestWithBodyException(url)
+            }
+
+            downloadPlatformFileToDisk(
+                httpClient = httpClient,
+                fileSystem = fileSystem,
+                url = url,
+                headers = networkParams.headers.orEmpty() + headers.orEmpty(),
+                body = strBody,
+                httpMethod = httpMethod,
+                queryParameters = networkParams.queryParameters,
+                targetFileName = targetFileName,
+                onProgress = onProgress,
+                onDownloadFinished = onDownloadFinished
+            )
         } catch (e: Throwable) {
             onDownloadFailure(e)
         }
@@ -274,4 +211,10 @@ class MosaicNetworkImpl(
             onProgress = onProgress
         )
     }
+
+    override suspend fun hasInternetConnection(): Boolean = runCatching {
+        httpClient.get(urlString = "$baseUrl/version") {
+            timeout { requestTimeoutMillis = connectivityCheckTimeout.inWholeMilliseconds }
+        }.status.isSuccess()
+    }.getOrDefault(false)
 }

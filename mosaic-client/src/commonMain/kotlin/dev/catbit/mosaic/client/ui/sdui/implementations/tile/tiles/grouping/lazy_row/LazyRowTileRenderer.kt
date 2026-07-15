@@ -1,10 +1,7 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.lazy_row
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.visible
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -14,8 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.extensions.ThresholdReachedEffect

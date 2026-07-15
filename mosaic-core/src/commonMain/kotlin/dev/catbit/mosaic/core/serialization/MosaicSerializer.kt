@@ -22,6 +22,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.image.CompressionScheme
 import dev.catbit.mosaic.core.data.schemas.event.events.image.GetImageFromGalleryEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.image.TakePictureEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.menu.ToggleMenuEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateClearingStackEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateUpEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileEventSchema
@@ -1160,6 +1161,7 @@ class MosaicSerializer(
             TogglePopupEventSchema::class to TogglePopupEventSchema.serializer(),
             NavigateEventSchema::class to NavigateEventSchema.serializer(),
             NavigateUpEventSchema::class to NavigateUpEventSchema.serializer(),
+            NavigateClearingStackEventSchema::class to NavigateClearingStackEventSchema.serializer(),
             DownloadFileEventSchema::class to DownloadFileEventSchema.serializer(),
             DownloadFileToDiskEventSchema::class to DownloadFileToDiskEventSchema.serializer(),
             UploadFileEventSchema::class to UploadFileEventSchema.serializer(),

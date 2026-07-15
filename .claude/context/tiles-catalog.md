@@ -79,9 +79,12 @@ Individual text properties (`fontSize`, `fontWeight`, etc.) override the corresp
 |---|---|---|
 | `icon` | `IconSchema` | required |
 | `buttonType` | `Type` | `DEFAULT` |
+| `loading` | `Boolean` | `false` |
 | `enabled` | `Boolean` | required |
 
 `Type`: `DEFAULT`, `FILLED`, `FILLED_TONAL`, `OUTLINED`
+
+**Note:** When `loading = true`, shows `CircularProgressIndicator` instead of the icon.
 
 **Supported triggers:** `OnClick`
 
@@ -94,9 +97,12 @@ Individual text properties (`fontSize`, `fontWeight`, etc.) override the corresp
 |---|---|---|
 | `icon` | `IconSchema` | required |
 | `size` | `Size` | required |
+| `loading` | `Boolean` | `false` |
 | `enabled` | `Boolean` | required |
 
 `Size`: `DEFAULT` → `SmallFloatingActionButton`, `MEDIUM` → `FloatingActionButton`, `LARGE` → `LargeFloatingActionButton`
+
+**Note:** When `loading = true`, shows `CircularProgressIndicator` instead of the icon.
 
 **Supported triggers:** `OnClick`
 
@@ -805,6 +811,8 @@ Self-loading tile container that fetches child tiles from a remote endpoint on f
 | `dismissOnClickOutside` | `Boolean` |
 
 **Note:** `Box` wrapping anchor content (`tiles`) plus a Compose `Popup` composed only while `expanded` is `true` (unlike `DropdownMenu`, `Popup` has no `expanded` param). `popupTiles` is free-form content (not a fixed item list like Menu). `alignment`/`offsetX`/`offsetY` position the popup relative to the anchor; `focusable`/`dismissOnBackPress`/`dismissOnClickOutside` map to Compose's `PopupProperties`. Dismiss dispatches `PopupTileEvents.OnTogglePopup` locally → `PopupTileHolder` toggles `tile.expanded`, same pattern as Menu. Two separate walkable child groups (`tiles` + `popupTiles`), following the `ScreenTileHolder` precedent rather than merging into one list.
+
+Corner alignments (`TopStart`/`TopEnd`/`BottomStart`/`BottomEnd`) flush-align the popup's matching horizontal edge with the anchor's edge (dropdown-menu style, e.g. `BottomEnd` hangs below with right edges lined up); `offsetX` there is a plain left/right translation from that flush position (negative allowed — useful to nudge a corner popup anchored near a screen edge back on-screen). `CenterStart`/`CenterEnd` instead render as a pure side flyout fully outside the anchor, with `offsetX` as a positive gap. `offsetY` is always a positive gap for `Top`/`Bottom` alignments.
 
 **Supported triggers:** none specific — standard tile triggers (`OnDisplay`, `OnClick`, etc.) apply.
 

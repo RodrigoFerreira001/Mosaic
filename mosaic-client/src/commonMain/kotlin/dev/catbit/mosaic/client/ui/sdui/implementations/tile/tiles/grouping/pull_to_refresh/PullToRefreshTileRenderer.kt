@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPullEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.PullToRefreshTileSchema
 
 object PullToRefreshTileRenderer : TileRenderer<PullToRefreshTileSchema> {
@@ -21,6 +23,7 @@ object PullToRefreshTileRenderer : TileRenderer<PullToRefreshTileSchema> {
                 isRefreshing = isRefreshing,
                 onRefresh = {
                     dispatchEvent(PullToRefreshTileEvents.OnRefreshStart)
+                    triggerEvent(EventTriggers.onPull())
                 }
             ) {
                 RenderChildren(tiles)

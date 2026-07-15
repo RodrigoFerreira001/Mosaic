@@ -32,17 +32,20 @@ class NetworkParametersHolder {
         this.queryParameters = parameters
     }
 
-    fun consume() = NetworkParameters(
-        body = body,
-        headers = headers,
-        url = url,
-        queryParameters = queryParameters
-    ).also {
+    fun consume() = peek().also {
         body = null
         headers = null
         url = null
         queryParameters = null
     }
+
+    /** Reads the currently staged parameters without clearing them, unlike [consume]. */
+    fun peek() = NetworkParameters(
+        body = body,
+        headers = headers,
+        url = url,
+        queryParameters = queryParameters
+    )
 
     data class NetworkParameters(
         val body: AnySerializable?,

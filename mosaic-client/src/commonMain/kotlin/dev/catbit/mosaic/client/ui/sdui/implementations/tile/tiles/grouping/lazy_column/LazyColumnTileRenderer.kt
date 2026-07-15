@@ -9,13 +9,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.extensions.ThresholdReachedEffect
@@ -46,6 +50,12 @@ object LazyColumnTileRenderer : TileRenderer<LazyColumnTileSchema> {
     ) {
 
         OnDisplayEffect()
+
+        val isCompact by rememberUpdatedState(
+            !currentWindowAdaptiveInfoV2()
+                .windowSizeClass
+                .isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
+        )
 
         with(tileSchema) {
             val lazyListState = rememberLazyListState()
@@ -113,7 +123,7 @@ object LazyColumnTileRenderer : TileRenderer<LazyColumnTileSchema> {
                         }
                     }
                 }
-                if (Platform.name == "WasmJs" || Platform.name == "Jvm") {
+                if ((Platform.name == "WasmJs" || Platform.name == "Jvm") && !isCompact) {
                     VerticalScrollbar(
                         modifier = Modifier.fillMaxHeight(),
                         style = defaultScrollbarStyle().copy(

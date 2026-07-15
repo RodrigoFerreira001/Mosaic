@@ -18,6 +18,7 @@ internal class FloatingActionButtonTileSchemaBuilder(
     private val visibility: TileSchema.Visibility,
     private val icon: IconSchema,
     private val size: FloatingActionButtonTileSchema.Size,
+    private val loading: Boolean,
     private val enabled: Boolean
 ) : TileSchemaBuilder<FloatingActionButtonTileSchema>() {
 
@@ -33,6 +34,7 @@ internal class FloatingActionButtonTileSchemaBuilder(
             FloatingActionButtonTileSchema.Size.LARGE -> icon.copy(size = 36)
         },
         size = size,
+        loading = loading,
         enabled = enabled
     )
 }
@@ -50,6 +52,7 @@ fun TileSchemaBuilderScope.FloatingActionButton(
     searchableTerms: List<String>? = null,
     icon: IconSchema,
     size: FloatingActionButtonTileSchema.Size = FloatingActionButtonTileSchema.Size.DEFAULT,
+    loading: Boolean = false,
     enabled: Boolean = true
 ) {
     addBuilder(
@@ -61,6 +64,7 @@ fun TileSchemaBuilderScope.FloatingActionButton(
             visibility = visibility,
             icon = icon,
             size = size,
+            loading = loading,
             enabled = enabled
         )
     )

@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.application
 
 import dev.catbit.mosaic.client.domain.graph.GetInitialGraphUseCase
+import dev.catbit.mosaic.client.domain.version.CheckCacheVersionUseCase
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.GraphUIState
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenExtrasHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
@@ -14,6 +15,7 @@ import kotlinx.coroutines.launch
 
 internal class MosaicApplicationStateHolder(
     private val getInitialGraphUseCase: GetInitialGraphUseCase,
+    private val checkCacheVersionUseCase: CheckCacheVersionUseCase,
     private val screenExtrasHolder: ScreenExtrasHolder
 ) : ScreenStateHolder<State, Event, Effect>() {
 
@@ -32,6 +34,7 @@ internal class MosaicApplicationStateHolder(
     private fun getInitialGraph() {
         stateHolderScope.launch {
             delay(1.seconds)
+            checkCacheVersionUseCase()
             getGraph()
         }
     }

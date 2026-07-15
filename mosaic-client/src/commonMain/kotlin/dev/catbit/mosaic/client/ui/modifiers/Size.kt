@@ -81,14 +81,16 @@ fun Modifier.size(size: SizeSchema): Modifier {
                                         }
                                     }
                                     alignSelf?.let {
-                                        when (it) {
-                                            SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.Auto -> FlexAlignSelf.Auto
-                                            SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.Start -> FlexAlignSelf.Start
-                                            SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.Center -> FlexAlignSelf.Center
-                                            SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.End -> FlexAlignSelf.End
-                                            SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.Stretch -> FlexAlignSelf.Stretch
-                                            SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.Baseline -> FlexAlignSelf.Baseline
-                                        }
+                                        alignSelf(
+                                            when (it) {
+                                                SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.Auto -> FlexAlignSelf.Auto
+                                                SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.Start -> FlexAlignSelf.Start
+                                                SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.Center -> FlexAlignSelf.Center
+                                                SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.End -> FlexAlignSelf.End
+                                                SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.Stretch -> FlexAlignSelf.Stretch
+                                                SizeSchema.Behavior.Horizontal.Flex.FlexAlignSelf.Baseline -> FlexAlignSelf.Baseline
+                                            }
+                                        )
                                     }
                                     order?.let { order(it) }
 

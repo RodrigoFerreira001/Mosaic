@@ -46,15 +46,15 @@ data class NavigateEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
-    val destination: String,
-    val navigatorId: String,
-    val popUpTo: PopUpTo?,
-    val data: Map<String, AnySerializable>?
+    @SerialName("destination") val destination: String,
+    @SerialName("navigatorId") val navigatorId: String,
+    @SerialName("popUpTo") val popUpTo: PopUpTo?,
+    @SerialName("data") val data: Map<String, AnySerializable>?
 ) : EventSchema {
 
     @Serializable
     data class PopUpTo(
-        val destination: String,
-        val inclusive: Boolean
+        @SerialName("destination") val destination: String,
+        @SerialName("inclusive") val inclusive: Boolean
     )
 }

@@ -9,13 +9,32 @@ import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 class NavigationController(
     val backStack: NavBackStack<ScreenNavKey>
 ) {
+    fun navigateClearingStack(
+        destination: String,
+        navigationData: Map<String, AnySerializable>? = null,
+        launchSingleTop: Boolean = true
+    ) {
+
+        if (launchSingleTop && backStack.lastOrNull()?.id == destination) return
+
+        backStack.clear()
+
+        backStack.add(
+            ScreenNavKey(
+                id = destination,
+                navigationData = ScreenNavKey.NavigationData(navigationData)
+            )
+        )
+    }
+
     fun navigate(
         destination: String,
         navigationData: Map<String, AnySerializable>? = null,
-        poppingUpTo: PopUpTo? = null
+        poppingUpTo: PopUpTo? = null,
+        launchSingleTop: Boolean = true
     ) {
 
-        if (backStack.lastOrNull()?.id == destination) return
+        if (launchSingleTop && backStack.lastOrNull()?.id == destination) return
 
         poppingUpTo?.let {
             val index = backStack

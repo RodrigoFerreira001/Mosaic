@@ -5,10 +5,8 @@ import androidx.activity.ComponentActivity
 import androidx.room3.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import dev.catbit.mosaic.client.application.ActivityHolder
-import dev.catbit.mosaic.client.data.data_chest.AndroidDataChest
-import dev.catbit.mosaic.client.data.data_chest.DataChest
-import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
 import dev.catbit.mosaic.client.camera.AndroidCameraManager
+import dev.catbit.mosaic.client.data.data_sources.database.MosaicRoomDatabase
 import dev.catbit.mosaic.client.permission.AndroidPermissionManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.camera.CameraManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.permission.PermissionManager
@@ -29,16 +27,6 @@ internal actual val platformModule: Module = module {
 
     single<CameraManager> {
         AndroidCameraManager { ActivityHolder.getActivity() as ComponentActivity }
-    }
-
-    single<DataChest> {
-        with(get<Context>()) {
-            AndroidDataChest(
-                getSharedPreferences(
-                    packageManager.getApplicationLabel(applicationInfo).toString(), Context.MODE_PRIVATE
-                )
-            )
-        }
     }
 
     single<MosaicRoomDatabase> {
