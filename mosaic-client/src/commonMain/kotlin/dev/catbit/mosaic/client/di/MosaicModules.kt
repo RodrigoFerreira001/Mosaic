@@ -334,6 +334,7 @@ internal class MosaicModules(
 
         viewModel {
             MosaicApplicationStateHolder(
+                logger = get(),
                 getInitialGraphUseCase = get(),
                 checkCacheVersionUseCase = get(),
                 screenExtrasHolder = get()

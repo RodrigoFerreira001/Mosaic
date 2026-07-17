@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.application
 
 import dev.catbit.mosaic.client.domain.graph.GetInitialGraphUseCase
 import dev.catbit.mosaic.client.domain.version.CheckCacheVersionUseCase
+import dev.catbit.mosaic.client.logger.MosaicLogger
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.GraphUIState
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenExtrasHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.base.ScreenStateHolder
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 internal class MosaicApplicationStateHolder(
+    private val logger: MosaicLogger,
     private val getInitialGraphUseCase: GetInitialGraphUseCase,
     private val checkCacheVersionUseCase: CheckCacheVersionUseCase,
     private val screenExtrasHolder: ScreenExtrasHolder
@@ -65,6 +67,7 @@ internal class MosaicApplicationStateHolder(
                 }
             }
             .onFailure { failure ->
+                logger.error(failure.stackTraceToString())
                 internalUIState.update {
                     State.Failure(loading = false)
                 }

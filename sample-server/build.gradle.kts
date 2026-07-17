@@ -5,10 +5,11 @@ plugins {
 }
 
 application {
-    mainClass = "dev.catbit.mosaic.ApplicationKt"
+    mainClass = "dev.catbit.mosaic.sample.server.ApplicationKt"
 }
 
 dependencies {
+    implementation(projects.sampleCore)
     implementation(projects.mosaicCore)
     implementation(projects.mosaicServer)
     implementation(libs.ktor.server.core)

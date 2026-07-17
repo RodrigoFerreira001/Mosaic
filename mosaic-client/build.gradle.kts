@@ -81,7 +81,6 @@ kotlin {
 
     wasmJs {
         browser()
-        nodejs()
     }
 
     sourceSets {
