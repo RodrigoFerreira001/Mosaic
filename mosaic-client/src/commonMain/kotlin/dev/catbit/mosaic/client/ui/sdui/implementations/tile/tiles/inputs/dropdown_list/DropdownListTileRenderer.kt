@@ -53,6 +53,7 @@ object DropdownListTileRenderer : TileRenderer<DropdownListTileSchema> {
                             colors = ExposedDropdownMenuDefaults.textFieldColors(),
                             onValueChange = {},
                             readOnly = true,
+                            enabled = enabled,
                             isError = hasErrorState(),
                             supportingText = supportingText.textOrNull(),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }
@@ -69,6 +70,7 @@ object DropdownListTileRenderer : TileRenderer<DropdownListTileSchema> {
                             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                             onValueChange = {},
                             readOnly = true,
+                            enabled = enabled,
                             isError = hasErrorState(),
                             supportingText = supportingText.textOrNull(),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) }

@@ -29,7 +29,7 @@ inline fun <reified T : ScreenTilesBroadcastData> TileSchema.observeScreenTileBr
     filterByTileId: Boolean = true,
     crossinline action: suspend (value: T) -> Unit
 ) {
-    LocalScreenTilesBroadcastChannel.current.channel.consume(this) { data ->
+    LocalScreenTilesBroadcastChannel.current.channel.consume(id) { data ->
         if (data is T) {
             if (filterByTileId) {
                 if (data.tileId == id) {

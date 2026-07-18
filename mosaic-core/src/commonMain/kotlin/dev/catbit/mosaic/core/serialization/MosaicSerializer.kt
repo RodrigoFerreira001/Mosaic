@@ -192,6 +192,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.progress.LinearProgressInd
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.search.SearchBarTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.system.SystemBroadcastListenerTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.text.SimpleTextTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.tooltip.TooltipTileSchema
 import dev.catbit.mosaic.core.serialization.serializers.ImmutableListSerializer
 import kotlin.reflect.KClass
 import kotlinx.collections.immutable.ImmutableList
@@ -1106,6 +1107,7 @@ class MosaicSerializer(
             TextFieldTileSchema::class to TextFieldTileSchema.serializer(),
             MenuTileSchema::class to MenuTileSchema.serializer(),
             PopupTileSchema::class to PopupTileSchema.serializer(),
+            TooltipTileSchema::class to TooltipTileSchema.serializer(),
             SimpleTextTileSchema::class to SimpleTextTileSchema.serializer(),
             SystemBroadcastListenerTileSchema::class to SystemBroadcastListenerTileSchema.serializer(),
             TopAppBarTileSchema::class to TopAppBarTileSchema.serializer(),

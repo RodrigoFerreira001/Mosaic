@@ -818,6 +818,29 @@ Corner alignments (`TopStart`/`TopEnd`/`BottomStart`/`BottomEnd`) flush-align th
 
 ---
 
+## Tooltip
+
+### TooltipTileSchema
+**JSON type:** `"Tooltip"`
+
+| Field | Type |
+|---|---|
+| `tiles` | `List<TileSchema>` |
+| `text` | `String` |
+| `position` | `Position` (`ABOVE`, `BELOW`, `LEFT`, `RIGHT`, `START`, `END`) |
+| `spacing` | `Int?` |
+| `showCaret` | `Boolean` |
+| `maxWidth` | `Int?` |
+| `shape` | `ShapeSchema?` |
+| `contentColor` | `ColorSchema?` |
+| `containerColor` | `ColorSchema?` |
+
+**Note:** Renders Material3's `TooltipBox` wrapping the anchor content (`tiles`) with a `PlainTooltip` showing `text`. Unlike `Menu`/`Popup`, `TooltipBox` handles gesture detection (hover on desktop/web, long-press on touch) and dismissal entirely on the client — there is no server-driven `expanded` state and no toggle `TileEvent`. `position` controls placement via `TooltipDefaults.rememberTooltipPositionProvider`; `spacing` is the gap in dp between tooltip and anchor — `null` falls back to Compose's own default spacing. `showCaret` toggles `TooltipDefaults.caretShape()` (the caret is a dedicated triangular shape combined with `shape` by `PlainTooltip` internally — it isn't a `ShapeSchema`, which only models plain container shapes). `maxWidth`, `shape`, `contentColor`, `containerColor` mirror `PlainTooltip`'s remaining appearance parameters; `null` falls back to the Material3 default. Deliberately simple — no rich tooltip variant, no free-form tooltip content (text only).
+
+**Supported triggers:** none specific — standard tile triggers (`OnDisplay`, `OnClick`, etc.) apply.
+
+---
+
 ## Inputs
 
 ### DropdownListTileSchema

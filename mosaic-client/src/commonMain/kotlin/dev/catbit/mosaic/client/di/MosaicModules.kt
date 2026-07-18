@@ -167,6 +167,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.progress.line
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.search.search_bar.SearchBarTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.system.system_broadcast_listener.SystemBroadcastListenerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.simple_text.SimpleTextTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.tooltip.TooltipTileDefinition
 import dev.catbit.mosaic.client.ui.theme.MosaicColors
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -438,6 +439,7 @@ internal class MosaicModules(
         SystemBroadcastListenerTileDefinition,
         MenuTileDefinition,
         PopupTileDefinition,
+        TooltipTileDefinition,
         TopAppBarTileDefinition,
         BottomAppBarTileDefinition,
         BadgeTileDefinition,
