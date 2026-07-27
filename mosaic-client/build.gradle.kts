@@ -105,6 +105,7 @@ kotlin {
             implementation(libs.compose.navigation3.viewmodelNavigation3)
             implementation(libs.compose.viewmodel)
             implementation(libs.compose.material3.adaptative)
+            implementation(libs.compose.lifecycle.runtime.compose)
 
             // Koin
             implementation(libs.koin.core)

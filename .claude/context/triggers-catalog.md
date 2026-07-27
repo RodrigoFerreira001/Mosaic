@@ -77,6 +77,10 @@ JSON serialization usa `@SerialName` como discriminador de tipo (`"type"` field)
 | Trigger | @SerialName | Fired When |
 |---|---|---|
 | `OnDisplayEventTrigger` | `"OnDisplay"` | Tile entra na composição (DisposableEffect enter) |
+| `OnResumeEventTrigger` | `"OnResume"` | ScreenTile: `LifecycleResumeEffect` — Lifecycle da entry (Nav3 back stack) entra em RESUMED, inclusive ao voltar de outra tela |
+| `OnPauseEventTrigger` | `"OnPause"` | ScreenTile: `LifecycleResumeEffect.onPauseOrDispose` — Lifecycle sai de RESUMED (navegou para outra tela) ou a composição é descartada |
+| `OnScreenStartEventTrigger` | `"OnScreenStart"` | ScreenTile: `LifecycleStartEffect` — Lifecycle da entry entra em STARTED (visível, mesmo que não em foco, ex. atrás de um diálogo). Renomeado de "OnStart" para não colidir com `OnStartEventTrigger` (operações assíncronas) |
+| `OnScreenStopEventTrigger` | `"OnScreenStop"` | ScreenTile: `LifecycleStartEffect.onStopOrDispose` — Lifecycle sai de STARTED ou a composição é descartada |
 | `InlineEventTrigger` | `"Inline"` | Executado imediatamente quando o evento é processado, independente de contexto |
 | `OnWidthBreakpointSatisfiedEventTrigger` | `"OnWidthBreakpointSatisfied"` | AdaptiveVisibility — restrição de largura satisfeita (primeira avaliação e em mudanças) |
 | `OnWidthBreakpointNotSatisfiedEventTrigger` | `"OnWidthBreakpointNotSatisfied"` | AdaptiveVisibility — restrição de largura não satisfeita |

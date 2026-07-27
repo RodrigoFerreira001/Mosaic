@@ -46,6 +46,10 @@ JSON serialization uses `@SerialName` as the `type` discriminator on the `trigge
 | DSL | @SerialName | Fired When |
 |---|---|---|
 | `EventTriggers.onDisplay()` | `"OnDisplay"` | Tile enters composition — fired by all grouping tiles (Column, LazyColumn, Row, LazyRow, Box, Card, Grid, FlexBox, FlowRow, Pager, Carousel, Shimmer, PullToRefresh, AdaptiveVisibility, LazyTiles) |
+| `EventTriggers.onResume()` | `"OnResume"` | Screen tile only — fired via `LifecycleResumeEffect` when the screen's Nav3 back stack entry becomes RESUMED (including returning from another screen) |
+| `EventTriggers.onPause()` | `"OnPause"` | Screen tile only — fired via `LifecycleResumeEffect.onPauseOrDispose` when the entry leaves RESUMED (navigated away) or the composition is disposed |
+| `EventTriggers.onScreenStart()` | `"OnScreenStart"` | Screen tile only — fired via `LifecycleStartEffect` when the entry becomes STARTED (visible, even if not focused — e.g. behind a dialog). Named `OnScreenStart` (not `OnStart`) to avoid colliding with the operation-lifecycle `OnStartEventTrigger` below |
+| `EventTriggers.onScreenStop()` | `"OnScreenStop"` | Screen tile only — fired via `LifecycleStartEffect.onStopOrDispose` when the entry leaves STARTED or the composition is disposed |
 | `EventTriggers.inline()` | `"Inline"` | Executed immediately when event is processed |
 | `EventTriggers.onWidthBreakpointSatisfied()` | `"OnWidthBreakpointSatisfied"` | AdaptiveVisibility — width constraint satisfied |
 | `EventTriggers.onWidthBreakpointNotSatisfied()` | `"OnWidthBreakpointNotSatisfied"` | AdaptiveVisibility — width constraint not satisfied |

@@ -48,13 +48,17 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEv
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationRailItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPauseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionRationaleEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsAcquiredEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnResumeEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryClearedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPullEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScreenStartEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScreenStopEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrollThresholdReachedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarActionEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarDismissedEventTrigger
@@ -135,9 +139,13 @@ object EventTriggers {
     fun onPermissionsAcquired() = OnPermissionsAcquiredEventTrigger
     fun onPermissionsDenied() = OnPermissionsDeniedEventTrigger
     fun onPermissionRationale() = OnPermissionRationaleEventTrigger
+    fun onPause() = OnPauseEventTrigger
     fun onPull() = OnPullEventTrigger
     fun onQueryChanged() = OnQueryChangedEventTrigger
     fun onQueryCleared() = OnQueryClearedEventTrigger
+    fun onResume() = OnResumeEventTrigger
+    fun onScreenStart() = OnScreenStartEventTrigger
+    fun onScreenStop() = OnScreenStopEventTrigger
     fun onSearch() = OnSearchEventTrigger
     fun onSnackbarAction() = OnSnackbarActionEventTrigger
     fun onSnackbarDismissed() = OnSnackbarDismissedEventTrigger

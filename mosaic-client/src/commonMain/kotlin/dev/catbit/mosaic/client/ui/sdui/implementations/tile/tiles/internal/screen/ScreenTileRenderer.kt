@@ -3,6 +3,8 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scr
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LifecycleStartEffect
 import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.extensions.observeSystemBroadcastChannel
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.UIEvent
@@ -29,6 +31,30 @@ object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
             triggerEvent(
                 trigger = EventTriggers.onDisplay()
             )
+        }
+
+        LifecycleStartEffect(tileSchema.state) {
+            triggerEvent(
+                trigger = EventTriggers.onScreenStart()
+            )
+
+            onStopOrDispose {
+                triggerEvent(
+                    trigger = EventTriggers.onScreenStop()
+                )
+            }
+        }
+
+        LifecycleResumeEffect(tileSchema.state) {
+            triggerEvent(
+                trigger = EventTriggers.onResume()
+            )
+
+            onPauseOrDispose {
+                triggerEvent(
+                    trigger = EventTriggers.onPause()
+                )
+            }
         }
 
         with(tileSchema) {

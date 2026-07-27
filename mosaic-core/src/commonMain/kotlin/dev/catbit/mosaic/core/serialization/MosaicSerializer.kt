@@ -116,8 +116,12 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedE
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsAcquiredEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPullEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPauseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnResumeEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryClearedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScreenStartEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScreenStopEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrollThresholdReachedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSearchEventTrigger
@@ -1059,9 +1063,13 @@ class MosaicSerializer(
             OnNetworkResponseTrigger::class to OnNetworkResponseTrigger.serializer(),
             OnPermissionsAcquiredEventTrigger::class to OnPermissionsAcquiredEventTrigger.serializer(),
             OnPermissionsDeniedEventTrigger::class to OnPermissionsDeniedEventTrigger.serializer(),
+            OnPauseEventTrigger::class to OnPauseEventTrigger.serializer(),
             OnPullEventTrigger::class to OnPullEventTrigger.serializer(),
             OnQueryChangedEventTrigger::class to OnQueryChangedEventTrigger.serializer(),
             OnQueryClearedEventTrigger::class to OnQueryClearedEventTrigger.serializer(),
+            OnResumeEventTrigger::class to OnResumeEventTrigger.serializer(),
+            OnScreenStartEventTrigger::class to OnScreenStartEventTrigger.serializer(),
+            OnScreenStopEventTrigger::class to OnScreenStopEventTrigger.serializer(),
             OnScrolledEventTrigger::class to OnScrolledEventTrigger.serializer(),
             OnScrollThresholdReachedEventTrigger::class to OnScrollThresholdReachedEventTrigger.serializer(),
             OnSearchEventTrigger::class to OnSearchEventTrigger.serializer(),
