@@ -27,6 +27,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateEvent
 import dev.catbit.mosaic.core.data.schemas.event.events.navigation.NavigateUpEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileToDiskEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileToMemoryEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.UploadFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendNetworkRequestEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDataToNetworkParamsHolderBodyEventSchema
@@ -1165,6 +1166,7 @@ class MosaicSerializer(
             NavigateUpEventSchema::class to NavigateUpEventSchema.serializer(),
             NavigateClearingStackEventSchema::class to NavigateClearingStackEventSchema.serializer(),
             DownloadFileEventSchema::class to DownloadFileEventSchema.serializer(),
+            DownloadFileToMemoryEventSchema::class to DownloadFileToMemoryEventSchema.serializer(),
             DownloadFileToDiskEventSchema::class to DownloadFileToDiskEventSchema.serializer(),
             UploadFileEventSchema::class to UploadFileEventSchema.serializer(),
             SendNetworkRequestEventSchema::class to SendNetworkRequestEventSchema.serializer(),

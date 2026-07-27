@@ -14,7 +14,8 @@ class GetScreenUseCase(
             screenId = screenId,
             headers = headers,
             body = body,
-            httpMethod = httpMethod
+            httpMethod = httpMethod,
+            timeoutMillis = timeoutMillis
         )
     }
 
@@ -23,5 +24,6 @@ class GetScreenUseCase(
         val headers: Map<String, String>?,
         val body: Any?,
         val httpMethod: HttpMethod,
+        val timeoutMillis: Long? = null,
     )
 }

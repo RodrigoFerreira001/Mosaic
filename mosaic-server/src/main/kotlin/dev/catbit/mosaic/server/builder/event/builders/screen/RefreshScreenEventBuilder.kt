@@ -15,6 +15,7 @@ internal class RefreshScreenEventBuilder(
     private val method: HttpMethod,
     private val body: AnySerializable?,
     private val headers: Map<String, String>?,
+    private val timeoutMillis: Long?,
 ) : EventSchemaBuilder<RefreshScreenEventSchema>() {
 
     override fun build() = RefreshScreenEventSchema(
@@ -24,6 +25,7 @@ internal class RefreshScreenEventBuilder(
         method = method,
         body = body,
         headers = headers,
+        timeoutMillis = timeoutMillis,
     )
 }
 
@@ -34,6 +36,7 @@ fun EventSchemaBuilderScope.RefreshScreen(
     method: HttpMethod = HttpMethod.GET,
     body: AnySerializable? = null,
     headers: Map<String, String>? = null,
+    timeoutMillis: Long? = null,
 ) {
     addBuilder(
         RefreshScreenEventBuilder(
@@ -43,6 +46,7 @@ fun EventSchemaBuilderScope.RefreshScreen(
             method = method,
             body = body,
             headers = headers,
+            timeoutMillis = timeoutMillis,
         )
     )
 }

@@ -423,6 +423,7 @@ NavigateUp(
 | `method` | `HttpMethod` | `HttpMethod.GET` | HTTP method |
 | `body` | `AnySerializable?` | `null` | Request body (schema wins over holder) |
 | `headers` | `Map<String, String>?` | `null` | Merged with holder headers |
+| `timeoutMillis` | `Long?` | `null` | Per-request timeout override in ms; `null` = client's global `HttpTimeout` default (20s) |
 
 **incomingData consumed:** Not consumed directly; use `SetIncomingDataToNetworkParamsHolderBody/Headers` before this event to pass incomingData as body/headers.
 **Triggers fired:** `onSuccess(ScreenModel)` — valid screen fetched. `onNetworkFailure(statusCode)` — non-2xx with matching child trigger. `onFailure(Throwable)` — all other failures.
@@ -447,7 +448,7 @@ GetScreen(
 **When to use:** Simple pull-to-refresh or "retry" pattern where you want to re-fetch and re-render the whole screen without manual state transitions.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.screen.RefreshScreen`
 
-**Fields:** Same as `GetScreen` (`method`, `body`, `headers`).
+**Fields:** Same as `GetScreen` (`method`, `body`, `headers`, `timeoutMillis`).
 
 **incomingData consumed:** Not consumed directly.
 **Triggers fired:** `onSuccess(ScreenModel)` — fetched and applied (screen → `Success`). `onNetworkFailure(statusCode)`. `onFailure(Throwable)` — screen → `Failure`.
@@ -807,6 +808,7 @@ GetData(
 | `method` | `HttpMethod` | required | GET, POST, PUT, DELETE, PATCH |
 | `body` | `AnySerializable?` | `null` | Schema body wins over holder |
 | `headers` | `Map<String, String>?` | `null` | Merged with holder headers; schema wins |
+| `timeoutMillis` | `Long?` | `null` | Per-request timeout override in ms; `null` = client's global `HttpTimeout` default (20s) |
 
 **Request body resolution:** `body` (schema) ?? `holder.body` (set by `SetIncomingDataToNetworkParamsHolderBody`). Holder consumed on execution.
 **incomingData consumed:** Not directly — use `SetIncomingDataToNetworkParamsHolderBody` first.
@@ -834,9 +836,44 @@ SendNetworkRequest(
 ---
 
 ### DownloadFile
-**Purpose:** Downloads a file from a URL with streaming progress triggers, producing the full `ByteArray` on completion.
-**When to use:** Downloading files (PDFs, images, documents) when you need progress feedback or need the raw bytes for further processing (e.g., display or upload).
+**Purpose:** Downloads a file from a URL straight into the device's public/general storage — the system Downloads location, visible in the OS file manager (Files app, Finder, Explorer, the device's Downloads app). Use `DownloadFileToMemory` instead if you need the raw bytes in memory, or `DownloadFileToDisk` if the file only needs to live in the app's private sandbox.
+**When to use:** Any "save this download somewhere the user can find it" flow — reports, exports, media the user explicitly wants to keep outside the app.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.networking.DownloadFile`
+
+**Fields:** `url`, `method`, `body?`, `headers?` — same resolution as `SendNetworkRequest`. `targetFileName` — display name (with extension) the file will have in the user's Downloads location. `mimeType?` — optional; falls back to inference from `targetFileName`'s extension.
+
+**This event behaves differently per platform — a real OS constraint, not an implementation gap:**
+- **Android:** delegated to the system `DownloadManager` — silent, no dialog, shows a system download notification, lands in the public Downloads folder. Only plain `GET` requests with no body are supported (`DownloadManager` limitation).
+- **iOS:** there's no app-writable public "Downloads" location — this event presents `FileKit.openFileSaver()` (a `UIDocumentPickerViewController` export dialog), requiring one tap to choose a destination (iCloud Drive, "On My iPhone", etc). Cancelling fires `onFailure()` with no data, same convention as `OpenFilePicker` cancellation.
+- **JVM/Desktop:** written silently, no dialog, directly into `~/Downloads`.
+- **wasmJs/Web:** triggers the browser's native download flow (`FileKit.download(...)`), landing in the browser's configured Downloads location.
+
+**Triggers fired:** `onStart()`. `onDownloadProgress(Int 0-100)` — per chunk on iOS/JVM/wasmJs; polled (coarser-grained) on Android since `DownloadManager` doesn't push progress. `onDownloadFinish(String)`/`onSuccess(String)` — `targetFileName`. `onDownloadFailure(Throwable)` — download/save error. `onFailure(Throwable)` — pre-request error, or no data on iOS user cancellation.
+
+**Example:**
+```kotlin
+DownloadFile(
+    trigger = EventTriggers.onClick(),
+    url = "/files/report.pdf",
+    method = HttpMethod.GET,
+    targetFileName = "report.pdf",
+    mimeType = "application/pdf",
+    events = {
+        UpdateTiles(trigger = EventTriggers.onDownloadProgress(), updates = {
+            update("progress_bar", incomingTileUpdateData())
+        })
+        DisplaySnackbar(trigger = EventTriggers.onSuccess(), message = "Saved to Downloads")
+        DisplaySnackbar(trigger = EventTriggers.onFailure(), message = "Download cancelled or failed")
+    }
+)
+```
+
+---
+
+### DownloadFileToMemory
+**Purpose:** Downloads a file from a URL with streaming progress triggers, producing the full `ByteArray` on completion. Kept only in memory — nothing is written to disk.
+**When to use:** Downloading files (PDFs, images, documents) when you need progress feedback or need the raw bytes for further processing (e.g., display or upload). Use `DownloadFile` instead if the content should land in the device's public Downloads location, or `DownloadFileToDisk` for the app's private storage.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.networking.DownloadFileToMemory`
 
 **Fields:** `url`, `method`, `body?`, `headers?` — same resolution as `SendNetworkRequest`.
 
@@ -844,7 +881,7 @@ SendNetworkRequest(
 
 **Example:**
 ```kotlin
-DownloadFile(
+DownloadFileToMemory(
     trigger = EventTriggers.onClick(),
     url = "/files/report.pdf",
     method = HttpMethod.GET,
@@ -853,6 +890,33 @@ DownloadFile(
             update("progress_bar", incomingTileUpdateData())
         })
         SaveFile(trigger = EventTriggers.onDownloadFinish(), fileName = "report.pdf", overrideIfExists = true)
+    }
+)
+```
+
+---
+
+### DownloadFileToDisk
+**Purpose:** Downloads a file from a URL straight to the app's private storage, streaming the response body to disk chunk by chunk without ever holding the full file in memory.
+**When to use:** Use instead of `DownloadFileToMemory` whenever the downloaded content only needs to be persisted for the app's own use (e.g. caching an asset for offline use), not processed as bytes. Use `DownloadFile` instead if the content should land in the device's public Downloads location.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.networking.DownloadFileToDisk`
+
+**Fields:** `url`, `method`, `body?`, `headers?` — same resolution as `SendNetworkRequest`. `targetFileName` — destination file name within the app's private storage scope (e.g. `"models/abc123.glb"`).
+
+**Triggers fired:** `onStart()`. `onDownloadProgress(Int 0-100)` — per chunk (when Content-Length known). `onDownloadFinish(String)`/`onSuccess(String)` — `targetFileName`, so downstream events can read it back (e.g. via `GetFile`). `onDownloadFailure(Throwable)` — download/write error. `onFailure(Throwable)` — pre-request error.
+
+**Example:**
+```kotlin
+DownloadFileToDisk(
+    trigger = EventTriggers.onClick(),
+    url = "/models/abc123.glb",
+    method = HttpMethod.GET,
+    targetFileName = "models/abc123.glb",
+    events = {
+        UpdateTiles(trigger = EventTriggers.onDownloadProgress(), updates = {
+            update("progress_bar", incomingTileUpdateData())
+        })
+        GetFile(trigger = EventTriggers.onSuccess(), fileName = "models/abc123.glb", outputType = platformFile())
     }
 )
 ```

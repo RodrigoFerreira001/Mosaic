@@ -6,7 +6,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format.DateTimeFormat
 
 @OptIn(ExperimentalUuidApi::class)
-fun randomId() = Uuid.generateV7().toString()
+fun randomId() = Uuid.random().toString()
 
 fun String.toSafeLocalDateTime(
     format: DateTimeFormat<LocalDateTime> = LocalDateTime.Formats.ISO

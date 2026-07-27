@@ -1,7 +1,11 @@
 package dev.catbit.mosaic.client.data.data_sources.network
 
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
+import dev.catbit.mosaic.client.exceptions.DownloadCancelledException
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.openFileSaver
+import io.github.vinceglb.filekit.write
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -20,7 +24,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.io.Buffer
 import kotlinx.io.readByteArray
 
-internal actual suspend fun downloadPlatformFile(
+internal actual suspend fun downloadPlatformFileToMemory(
     httpClient: HttpClient,
     url: String,
     headers: Map<String, String>,
@@ -135,4 +139,69 @@ internal actual suspend fun downloadPlatformFileToDisk(
         fileSystem.saveFileStreaming(targetFileName, chunks)
         onDownloadFinished()
     }
+}
+
+/**
+ * Downloads [url] into memory (same Ktor streaming as [downloadPlatformFileToMemory]), then
+ * presents `FileKit.openFileSaver()` — a `UIDocumentPickerViewController` export dialog — so the
+ * user picks a Files-app destination (iCloud Drive, "On My iPhone", etc). There is no
+ * app-writable public "Downloads" location on iOS; this is the closest sanctioned equivalent and
+ * always requires one tap from the user. Cancelling the dialog throws [DownloadCancelledException]
+ * rather than a generic failure.
+ */
+internal actual suspend fun downloadPlatformFileToPublicStorage(
+    httpClient: HttpClient,
+    url: String,
+    headers: Map<String, String>,
+    body: String?,
+    httpMethod: HttpMethod,
+    queryParameters: Map<String, Any?>?,
+    targetFileName: String,
+    mimeType: String?,
+    onProgress: suspend (Float) -> Unit,
+    onDownloadFinished: suspend () -> Unit
+) {
+    val bytes = downloadToByteArray(
+        httpClient = httpClient,
+        url = url,
+        headers = headers,
+        body = body,
+        httpMethod = httpMethod,
+        queryParameters = queryParameters,
+        onProgress = onProgress
+    )
+
+    val extension = targetFileName.substringAfterLast('.', "")
+    val baseName = if (extension.isNotEmpty()) targetFileName.removeSuffix(".$extension") else targetFileName
+
+    val savedFile = FileKit.openFileSaver(
+        suggestedName = baseName,
+        defaultExtension = extension.ifEmpty { "bin" }
+    ) ?: throw DownloadCancelledException()
+
+    savedFile.write(bytes)
+    onDownloadFinished()
+}
+
+private suspend fun downloadToByteArray(
+    httpClient: HttpClient,
+    url: String,
+    headers: Map<String, String>,
+    body: String?,
+    httpMethod: HttpMethod,
+    queryParameters: Map<String, Any?>?,
+    onProgress: suspend (Float) -> Unit
+): ByteArray {
+    var result: ByteArray = ByteArray(0)
+    downloadPlatformFileToMemory(
+        httpClient = httpClient,
+        url = url,
+        headers = headers,
+        body = body,
+        httpMethod = httpMethod,
+        queryParameters = queryParameters,
+        onProgress = onProgress,
+        onDownloadFinished = { bytes -> result = bytes }
+    )
+    return result
 }

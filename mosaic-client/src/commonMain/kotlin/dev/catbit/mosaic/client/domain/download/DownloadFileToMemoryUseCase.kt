@@ -4,19 +4,16 @@ import dev.catbit.mosaic.client.data.repository.MosaicRepository
 import dev.catbit.mosaic.core.domain.base.UseCase
 import io.ktor.http.HttpMethod
 
-/** Downloads a file into the device's public/general storage (system Downloads location). */
-class DownloadFileUseCase(
+class DownloadFileToMemoryUseCase(
     private val repository: MosaicRepository
-) : UseCase<Unit, DownloadFileUseCase.Params>() {
+) : UseCase<Unit, DownloadFileToMemoryUseCase.Params>() {
 
     override suspend fun execute(params: Params) = with(params) {
-        repository.downloadFile(
+        repository.downloadFileToMemory(
             url = url,
             headers = headers,
             body = body,
             httpMethod = httpMethod,
-            targetFileName = targetFileName,
-            mimeType = mimeType,
             onProgress = onProgress,
             onDownloadFinished = onDownloadFinished,
             onDownloadFailure = onDownloadFailure
@@ -28,10 +25,8 @@ class DownloadFileUseCase(
         val headers: Map<String, String>?,
         val body: Any?,
         val httpMethod: HttpMethod,
-        val targetFileName: String,
-        val mimeType: String? = null,
         val onProgress: suspend (Float) -> Unit = {},
-        val onDownloadFinished: suspend () -> Unit = {},
+        val onDownloadFinished: suspend (ByteArray) -> Unit = {},
         val onDownloadFailure: suspend (Throwable) -> Unit = {}
     )
 }

@@ -28,6 +28,7 @@ import dev.catbit.mosaic.client.domain.data.segmented.RemoveSegmentedDataUseCase
 import dev.catbit.mosaic.client.domain.data.segmented.UpdateSegmentedDataUseCase
 import dev.catbit.mosaic.client.domain.data.segmented.WipeSegmentedDataUseCase
 import dev.catbit.mosaic.client.domain.download.DownloadFileToDiskUseCase
+import dev.catbit.mosaic.client.domain.download.DownloadFileToMemoryUseCase
 import dev.catbit.mosaic.client.domain.download.DownloadFileUseCase
 import dev.catbit.mosaic.client.domain.file.DeleteFileUseCase
 import dev.catbit.mosaic.client.domain.file.GetFilePlatformFileUseCase
@@ -83,6 +84,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate_up.NavigateUpEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file.DownloadFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file_to_disk.DownloadFileToDiskEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file_to_memory.DownloadFileToMemoryEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.upload_file.UploadFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.send_network_request.SendNetworkRequestEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_body.SetIncomingDataToNetworkParamsHolderBodyEventDefinition
@@ -392,6 +394,7 @@ internal class MosaicModules(
         factory { DropCachesUseCase(get()) }
         factory { GetScreenUseCase(get()) }
         factory { DownloadFileUseCase(get()) }
+        factory { DownloadFileToMemoryUseCase(get()) }
         factory { DownloadFileToDiskUseCase(get()) }
         factory { SendNetworkRequestUseCase(get()) }
         factory { UploadFileUseCase(get()) }
@@ -469,6 +472,7 @@ internal class MosaicModules(
 
     private val baseEventsDefinitions = listOf(
         DownloadFileEventDefinition,
+        DownloadFileToMemoryEventDefinition,
         DownloadFileToDiskEventDefinition,
         UploadFileEventDefinition,
         SendNetworkRequestEventDefinition,

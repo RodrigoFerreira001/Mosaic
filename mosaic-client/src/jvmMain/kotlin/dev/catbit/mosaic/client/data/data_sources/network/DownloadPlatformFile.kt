@@ -19,8 +19,9 @@ import io.ktor.utils.io.readAvailable
 import kotlinx.coroutines.flow.flow
 import kotlinx.io.Buffer
 import kotlinx.io.readByteArray
+import java.io.File
 
-internal actual suspend fun downloadPlatformFile(
+internal actual suspend fun downloadPlatformFileToMemory(
     httpClient: HttpClient,
     url: String,
     headers: Map<String, String>,
@@ -133,6 +134,64 @@ internal actual suspend fun downloadPlatformFileToDisk(
         }
 
         fileSystem.saveFileStreaming(targetFileName, chunks)
+        onDownloadFinished()
+    }
+}
+
+/**
+ * Streams straight into the real, user-visible `~/Downloads` folder — no dialog, no
+ * confirmation, matching every mainstream OS's convention (Windows/macOS/Linux desktop
+ * environments all default to `$HOME/Downloads`).
+ */
+internal actual suspend fun downloadPlatformFileToPublicStorage(
+    httpClient: HttpClient,
+    url: String,
+    headers: Map<String, String>,
+    body: String?,
+    httpMethod: HttpMethod,
+    queryParameters: Map<String, Any?>?,
+    targetFileName: String,
+    mimeType: String?,
+    onProgress: suspend (Float) -> Unit,
+    onDownloadFinished: suspend () -> Unit
+) {
+    val downloadsDir = File(System.getProperty("user.home"), "Downloads").apply { mkdirs() }
+    val targetFile = File(downloadsDir, targetFileName)
+
+    httpClient.prepareRequest(urlString = url) {
+        method = httpMethod
+
+        headers.forEach { (k, v) -> header(k, v) }
+        body?.let { setBody(TextContent(it, ContentType.Application.Json)) }
+        queryParameters?.forEach { (key, value) -> value?.let { parameter(key, it.toString()) } }
+    }.execute { response ->
+
+        if (!response.status.isSuccess()) {
+            throw NetworkResponseException(
+                status = response.status,
+                error = response.bodyAsText()
+            )
+        }
+
+        val channel: ByteReadChannel = response.bodyAsChannel()
+        val contentLength = response.contentLength()
+
+        targetFile.outputStream().buffered().use { out ->
+            val buffer = ByteArray(8192)
+            var bytesRead = 0L
+
+            while (!channel.isClosedForRead) {
+                val read = channel.readAvailable(buffer)
+                if (read <= 0) break
+                out.write(buffer, 0, read)
+
+                if (contentLength != null && contentLength > 0) {
+                    bytesRead += read
+                    onProgress((bytesRead.toDouble() / contentLength).toFloat())
+                }
+            }
+        }
+
         onDownloadFinished()
     }
 }

@@ -4,6 +4,8 @@ package dev.catbit.mosaic.client.data.data_sources.network
 
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.download
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -107,7 +109,7 @@ private suspend fun performXhrDownload(
     uint8?.let { u -> ByteArray(u.length) { u[it] } } ?: ByteArray(0)
 }
 
-internal actual suspend fun downloadPlatformFile(
+internal actual suspend fun downloadPlatformFileToMemory(
     httpClient: HttpClient,
     url: String,
     headers: Map<String, String>,
@@ -137,5 +139,28 @@ internal actual suspend fun downloadPlatformFileToDisk(
     // no incremental-write benefit here — it's already fully in memory either way.
     val bytes = performXhrDownload(url, headers, body, httpMethod, queryParameters, onProgress)
     fileSystem.saveFileStreaming(targetFileName, flowOf(bytes))
+    onDownloadFinished()
+}
+
+/**
+ * Fetches [url] fully into memory via XHR (same limitation as [downloadPlatformFileToDisk] on
+ * this target — no true streaming), then hands the bytes to `FileKit.download(...)`, which
+ * triggers the browser's native download flow straight into the user's configured Downloads
+ * location. [mimeType] is unused — browsers infer it from [targetFileName]'s extension.
+ */
+internal actual suspend fun downloadPlatformFileToPublicStorage(
+    httpClient: HttpClient,
+    url: String,
+    headers: Map<String, String>,
+    body: String?,
+    httpMethod: HttpMethod,
+    queryParameters: Map<String, Any?>?,
+    targetFileName: String,
+    mimeType: String?,
+    onProgress: suspend (Float) -> Unit,
+    onDownloadFinished: suspend () -> Unit
+) {
+    val bytes = performXhrDownload(url, headers, body, httpMethod, queryParameters, onProgress)
+    FileKit.download(bytes = bytes, fileName = targetFileName)
     onDownloadFinished()
 }

@@ -43,6 +43,9 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * - Non-2xx HTTP response without matching child trigger: fires ONLY [onFailure()]; screen state → `Failure`.
  * - Network/IO exception or deserialization error: fires ONLY [onFailure()]; screen state → `Failure`.
  *
+ * **Timeout:** [timeoutMillis], when non-null, overrides the client's default request timeout
+ * for this request only. When `null`, the client's globally configured `HttpTimeout` applies.
+ *
  * **Notes:**
  * - The screen is unconditionally reset to `Initial` state before the request begins — implicit
  *   loading signal without an explicit [onStart()].
@@ -66,4 +69,5 @@ data class RefreshScreenEventSchema(
     @SerialName("method") val method: HttpMethod = HttpMethod.GET,
     @SerialName("body") val body: AnySerializable?,
     @SerialName("headers") val headers: Map<String, String>?,
+    @SerialName("timeoutMillis") val timeoutMillis: Long? = null
 ) : EventSchema

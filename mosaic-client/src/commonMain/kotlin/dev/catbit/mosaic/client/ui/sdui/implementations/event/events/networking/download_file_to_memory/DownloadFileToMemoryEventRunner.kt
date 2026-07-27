@@ -1,51 +1,41 @@
-package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file
+package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file_to_memory
 
-import dev.catbit.mosaic.client.domain.download.DownloadFileUseCase
-import dev.catbit.mosaic.client.exceptions.DownloadCancelledException
+import dev.catbit.mosaic.client.domain.download.DownloadFileToMemoryUseCase
 import dev.catbit.mosaic.client.extensions.toKtorHttpMethod
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
-import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileToMemoryEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
-object DownloadFileEventRunner : EventRunner<DownloadFileEventSchema> {
+object DownloadFileToMemoryEventRunner : EventRunner<DownloadFileToMemoryEventSchema> {
 
-    override suspend fun EventRunningScope.runEvent(event: DownloadFileEventSchema) {
+    override suspend fun EventRunningScope.runEvent(event: DownloadFileToMemoryEventSchema) {
         with(event) {
             onTrigger(EventTriggers.onStart())
 
-            get<DownloadFileUseCase>()(
-                DownloadFileUseCase.Params(
+            get<DownloadFileToMemoryUseCase>()(
+                DownloadFileToMemoryUseCase.Params(
                     url = url,
                     headers = headers,
                     body = body,
                     httpMethod = method.toKtorHttpMethod(),
-                    targetFileName = targetFileName,
-                    mimeType = mimeType,
                     onProgress = { progress ->
                         onTrigger(
                             eventTrigger = EventTriggers.onDownloadProgress(),
                             data = progress
                         )
                     },
-                    onDownloadFinished = {
+                    onDownloadFinished = { totalBytes ->
                         onTrigger(
                             eventTrigger = EventTriggers.onDownloadFinish(),
-                            data = targetFileName
+                            data = totalBytes
                         )
                         onTrigger(
                             eventTrigger = EventTriggers.onSuccess(),
-                            data = targetFileName
+                            data = totalBytes
                         )
                     },
                     onDownloadFailure = { failure ->
-                        if (failure is DownloadCancelledException) {
-                            // Same convention as OpenFilePickerEventRunner: user cancellation
-                            // fires onFailure() with no data, not a real error.
-                            onTrigger(eventTrigger = EventTriggers.onFailure())
-                            return@Params
-                        }
-
                         onTrigger(
                             eventTrigger = EventTriggers.onDownloadFailure(),
                             data = failure
@@ -55,7 +45,7 @@ object DownloadFileEventRunner : EventRunner<DownloadFileEventSchema> {
                             data = failure
                         )
                         logError(
-                            tag = "DownloadFileEventRunner",
+                            tag = "DownloadFileToMemoryEventRunner",
                             throwable = failure
                         )
                     }

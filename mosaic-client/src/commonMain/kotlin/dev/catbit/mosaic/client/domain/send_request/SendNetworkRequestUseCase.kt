@@ -14,7 +14,8 @@ class SendNetworkRequestUseCase(
             url = url,
             headers = headers,
             body = body,
-            httpMethod = httpMethod
+            httpMethod = httpMethod,
+            timeoutMillis = timeoutMillis
         )
     }
 
@@ -22,6 +23,7 @@ class SendNetworkRequestUseCase(
         val url: String,
         val headers: Map<String, String>? = null,
         val body: Any?,
-        val httpMethod: HttpMethod
+        val httpMethod: HttpMethod,
+        val timeoutMillis: Long? = null
     )
 }

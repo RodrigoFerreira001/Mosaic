@@ -18,17 +18,19 @@ interface MosaicNetwork {
         screenId: String,
         headers: Map<String, String>?,
         body: Any?,
-        httpMethod: HttpMethod
+        httpMethod: HttpMethod,
+        timeoutMillis: Long? = null
     ): Result<ScreenResponse>
 
     suspend fun sendHttpRequest(
         url: String,
         headers: Map<String, String>? = null,
         body: Any?,
-        httpMethod: HttpMethod
+        httpMethod: HttpMethod,
+        timeoutMillis: Long? = null
     ): Result<HttpResponse>
 
-    suspend fun downloadFile(
+    suspend fun downloadFileToMemory(
         url: String,
         headers: Map<String, String>? = null,
         body: Any?,
@@ -45,6 +47,23 @@ interface MosaicNetwork {
         body: Any?,
         httpMethod: HttpMethod,
         targetFileName: String,
+        onProgress: suspend (Float) -> Unit = {},
+        onDownloadFinished: suspend () -> Unit = {},
+        onDownloadFailure: suspend (Throwable) -> Unit = {}
+    ): Result<Unit>
+
+    /**
+     * Downloads a file into the device's public/general storage (system Downloads location).
+     * Behavior is platform-specific — see
+     * [dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileEventSchema].
+     */
+    suspend fun downloadFile(
+        url: String,
+        headers: Map<String, String>? = null,
+        body: Any?,
+        httpMethod: HttpMethod,
+        targetFileName: String,
+        mimeType: String? = null,
         onProgress: suspend (Float) -> Unit = {},
         onDownloadFinished: suspend () -> Unit = {},
         onDownloadFailure: suspend (Throwable) -> Unit = {}

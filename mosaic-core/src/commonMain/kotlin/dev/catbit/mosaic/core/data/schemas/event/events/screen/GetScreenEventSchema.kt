@@ -43,6 +43,9 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * - Non-2xx HTTP response without matching child trigger: fires ONLY [onFailure()].
  * - Network/IO exception or deserialization error: fires ONLY [onFailure()].
  *
+ * **Timeout:** [timeoutMillis], when non-null, overrides the client's default request timeout
+ * for this request only. When `null`, the client's globally configured `HttpTimeout` applies.
+ *
  * **Notes:**
  * - Unlike [RefreshScreenEventSchema], this event does NOT automatically apply the fetched
  *   `ScreenModel` to the screen state. Chain a [ChangeScreenStateEventSchema] on [onSuccess()]
@@ -66,4 +69,5 @@ data class GetScreenEventSchema(
     @SerialName("method") val method: HttpMethod = HttpMethod.GET,
     @SerialName("body") val body: AnySerializable?,
     @SerialName("headers") val headers: Map<String, String>?,
+    @SerialName("timeoutMillis") val timeoutMillis: Long? = null
 ) : EventSchema

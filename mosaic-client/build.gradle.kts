@@ -13,7 +13,6 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.room3)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.compose.stability.analyzer)
 }
 
 mavenPublishing {
@@ -215,13 +214,5 @@ compose {
     resources {
         publicResClass = true
         packageOfResClass = "dev.catbit.mosaic.client.generated.resources"
-    }
-}
-
-composeStabilityAnalyzer {
-    traceAll {
-        enabled.set(true)            // default: false (opt-in)
-        threshold.set(2)             // default: 2 — skips the initial-composition burst
-        variants.set(listOf("debug")) // default: ["debug"] — never applies to release or tests
     }
 }

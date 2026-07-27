@@ -15,7 +15,9 @@ internal class DownloadFileEventBuilder(
     private val url: String,
     private val method: HttpMethod,
     private val body: AnySerializable?,
-    private val headers: Map<String, String>?
+    private val headers: Map<String, String>?,
+    private val targetFileName: String,
+    private val mimeType: String?
 ) : EventSchemaBuilder<DownloadFileEventSchema>() {
 
     override fun build() = DownloadFileEventSchema(
@@ -25,7 +27,9 @@ internal class DownloadFileEventBuilder(
         url = url,
         method = method,
         body = body,
-        headers = headers
+        headers = headers,
+        targetFileName = targetFileName,
+        mimeType = mimeType
     )
 }
 
@@ -36,7 +40,9 @@ fun EventSchemaBuilderScope.DownloadFile(
     url: String,
     method: HttpMethod,
     body: AnySerializable? = null,
-    headers: Map<String, String>? = null
+    headers: Map<String, String>? = null,
+    targetFileName: String,
+    mimeType: String? = null
 ) {
     addBuilder(
         DownloadFileEventBuilder(
@@ -46,7 +52,9 @@ fun EventSchemaBuilderScope.DownloadFile(
             url = url,
             method = method,
             body = body,
-            headers = headers
+            headers = headers,
+            targetFileName = targetFileName,
+            mimeType = mimeType
         )
     )
 }

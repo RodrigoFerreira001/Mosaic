@@ -15,6 +15,7 @@ internal class GetScreenEventBuilder(
     private val method: HttpMethod,
     private val body: AnySerializable?,
     private val headers: Map<String, String>?,
+    private val timeoutMillis: Long?,
 ) : EventSchemaBuilder<GetScreenEventSchema>() {
 
     override fun build() = GetScreenEventSchema(
@@ -24,6 +25,7 @@ internal class GetScreenEventBuilder(
         method = method,
         body = body,
         headers = headers,
+        timeoutMillis = timeoutMillis,
     )
 }
 
@@ -34,6 +36,7 @@ fun EventSchemaBuilderScope.GetScreen(
     method: HttpMethod = HttpMethod.GET,
     body: AnySerializable? = null,
     headers: Map<String, String>? = null,
+    timeoutMillis: Long? = null,
 ) {
     addBuilder(
         GetScreenEventBuilder(
@@ -43,6 +46,7 @@ fun EventSchemaBuilderScope.GetScreen(
             method = method,
             body = body,
             headers = headers,
+            timeoutMillis = timeoutMillis,
         )
     )
 }

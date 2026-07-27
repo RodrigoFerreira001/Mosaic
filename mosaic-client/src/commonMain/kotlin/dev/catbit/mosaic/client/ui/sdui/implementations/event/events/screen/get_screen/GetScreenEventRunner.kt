@@ -21,7 +21,8 @@ object GetScreenEventRunner : EventRunner<GetScreenEventSchema> {
                     screenId = screenId,
                     headers = headers,
                     body = body,
-                    httpMethod = method.toKtorHttpMethod()
+                    httpMethod = method.toKtorHttpMethod(),
+                    timeoutMillis = timeoutMillis
                 )
             }
         )

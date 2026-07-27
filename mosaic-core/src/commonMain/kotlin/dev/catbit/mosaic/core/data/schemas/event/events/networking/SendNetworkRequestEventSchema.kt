@@ -50,6 +50,9 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * A child event activates custom dispatch for a given status code if it declares either
  * [onNetworkResponse(statusCode)] **or** [onNetworkFailure(statusCode)] for that code.
  *
+ * **Timeout:** [timeoutMillis], when non-null, overrides the client's default request timeout
+ * for this request only. When `null`, the client's globally configured `HttpTimeout` applies.
+ *
  * **Failure scenarios:**
  * - Non-2xx with matching listener: fires ONLY [onNetworkFailure(statusCode)].
  * - Non-2xx without matching listener: fires ONLY [onFailure()].
@@ -73,5 +76,6 @@ data class SendNetworkRequestEventSchema(
     @SerialName("url") val url: String,
     @SerialName("method") val method: HttpMethod,
     @SerialName("body") val body: AnySerializable?,
-    @SerialName("headers") val headers: Map<String, String>?
+    @SerialName("headers") val headers: Map<String, String>?,
+    @SerialName("timeoutMillis") val timeoutMillis: Long? = null
 ) : EventSchema

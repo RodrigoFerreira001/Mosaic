@@ -52,11 +52,14 @@ class MosaicNetworkImpl(
         screenId: String,
         headers: Map<String, String>?,
         body: Any?,
-        httpMethod: HttpMethod
+        httpMethod: HttpMethod,
+        timeoutMillis: Long?
     ): Result<ScreenResponse> = safeNetworkCall {
         val screenUrl = "$baseUrl/screens/$screenId"
         httpClient.get(urlString = screenUrl) {
             method = httpMethod
+
+            timeoutMillis?.let { timeout { requestTimeoutMillis = it } }
 
             val networkParams = networkParametersHolder.consume()
 
@@ -86,10 +89,13 @@ class MosaicNetworkImpl(
         url: String,
         headers: Map<String, String>?,
         body: Any?,
-        httpMethod: HttpMethod
+        httpMethod: HttpMethod,
+        timeoutMillis: Long?
     ) = runCatching {
         httpClient.request(urlString = url) {
             method = httpMethod
+
+            timeoutMillis?.let { timeout { requestTimeoutMillis = it } }
 
             val networkParams = networkParametersHolder.consume()
 
@@ -113,7 +119,7 @@ class MosaicNetworkImpl(
         }
     }
 
-    override suspend fun downloadFile(
+    override suspend fun downloadFileToMemory(
         url: String,
         headers: Map<String, String>?,
         body: Any?,
@@ -133,7 +139,7 @@ class MosaicNetworkImpl(
                 throw GetRequestWithBodyException(url)
             }
 
-            downloadPlatformFile(
+            downloadPlatformFileToMemory(
                 httpClient = httpClient,
                 url = url,
                 headers = networkParams.headers.orEmpty() + headers.orEmpty(),
@@ -178,6 +184,45 @@ class MosaicNetworkImpl(
                 httpMethod = httpMethod,
                 queryParameters = networkParams.queryParameters,
                 targetFileName = targetFileName,
+                onProgress = onProgress,
+                onDownloadFinished = onDownloadFinished
+            )
+        } catch (e: Throwable) {
+            onDownloadFailure(e)
+        }
+    }
+
+    override suspend fun downloadFile(
+        url: String,
+        headers: Map<String, String>?,
+        body: Any?,
+        httpMethod: HttpMethod,
+        targetFileName: String,
+        mimeType: String?,
+        onProgress: suspend (Float) -> Unit,
+        onDownloadFinished: suspend () -> Unit,
+        onDownloadFailure: suspend (Throwable) -> Unit
+    ) = safeResult {
+        try {
+            val networkParams = networkParametersHolder.consume()
+
+            val strBody = (body ?: networkParams.body)?.let { anyBody ->
+                mosaicSerializer.encodeToString(AnySerializer, anyBody)
+            }
+
+            if (httpMethod == HttpMethod.Get && strBody != null) {
+                throw GetRequestWithBodyException(url)
+            }
+
+            downloadPlatformFileToPublicStorage(
+                httpClient = httpClient,
+                url = url,
+                headers = networkParams.headers.orEmpty() + headers.orEmpty(),
+                body = strBody,
+                httpMethod = httpMethod,
+                queryParameters = networkParams.queryParameters,
+                targetFileName = targetFileName,
+                mimeType = mimeType,
                 onProgress = onProgress,
                 onDownloadFinished = onDownloadFinished
             )

@@ -70,7 +70,8 @@ class MosaicRepositoryImpl(
         screenId: String,
         headers: Map<String, String>?,
         body: Any?,
-        httpMethod: HttpMethod
+        httpMethod: HttpMethod,
+        timeoutMillis: Long?
     ): Result<ScreenModel> = safeResult {
 
         val stagedNetworkParams = networkParametersHolder.peek()
@@ -92,7 +93,8 @@ class MosaicRepositoryImpl(
                     screenId = screenId,
                     headers = headers,
                     body = body,
-                    httpMethod = httpMethod
+                    httpMethod = httpMethod,
+                    timeoutMillis = timeoutMillis
                 )
                 when {
                     networkResult.isSuccess -> {
@@ -109,7 +111,8 @@ class MosaicRepositoryImpl(
                 screenId = screenId,
                 headers = headers,
                 body = body,
-                httpMethod = httpMethod
+                httpMethod = httpMethod,
+                timeoutMillis = timeoutMillis
             ).getOrThrow().apply {
                 database.setScreen(cacheKey, this)
             }
@@ -135,15 +138,17 @@ class MosaicRepositoryImpl(
         url: String,
         headers: Map<String, String>?,
         body: Any?,
-        httpMethod: HttpMethod
+        httpMethod: HttpMethod,
+        timeoutMillis: Long?
     ) = network.sendHttpRequest(
         url = url,
         headers = headers,
         body = body,
         httpMethod = httpMethod,
+        timeoutMillis = timeoutMillis,
     )
 
-    override suspend fun downloadFile(
+    override suspend fun downloadFileToMemory(
         url: String,
         headers: Map<String, String>?,
         body: Any?,
@@ -151,7 +156,7 @@ class MosaicRepositoryImpl(
         onProgress: suspend (Float) -> Unit,
         onDownloadFinished: suspend (ByteArray) -> Unit,
         onDownloadFailure: suspend (Throwable) -> Unit
-    ) = network.downloadFile(
+    ) = network.downloadFileToMemory(
         url = url,
         headers = headers,
         body = body,
@@ -176,6 +181,28 @@ class MosaicRepositoryImpl(
         body = body,
         httpMethod = httpMethod,
         targetFileName = targetFileName,
+        onProgress = onProgress,
+        onDownloadFinished = onDownloadFinished,
+        onDownloadFailure = onDownloadFailure,
+    )
+
+    override suspend fun downloadFile(
+        url: String,
+        headers: Map<String, String>?,
+        body: Any?,
+        httpMethod: HttpMethod,
+        targetFileName: String,
+        mimeType: String?,
+        onProgress: suspend (Float) -> Unit,
+        onDownloadFinished: suspend () -> Unit,
+        onDownloadFailure: suspend (Throwable) -> Unit
+    ) = network.downloadFile(
+        url = url,
+        headers = headers,
+        body = body,
+        httpMethod = httpMethod,
+        targetFileName = targetFileName,
+        mimeType = mimeType,
         onProgress = onProgress,
         onDownloadFinished = onDownloadFinished,
         onDownloadFailure = onDownloadFailure,

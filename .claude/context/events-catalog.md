@@ -229,6 +229,7 @@ Fetches screen content from the server for the current screen ID. Does NOT autom
 | `method` | `HttpMethod` | `GET` |
 | `body` | `AnySerializable?` | `null` |
 | `headers` | `Map<String, String>?` | `null` |
+| `timeoutMillis` | `Long?` | `null` |
 
 Body/headers resolution: same as `SendNetworkRequest` — schema value takes precedence over `NetworkParametersHolder`; holder is always consumed.
 
@@ -245,7 +246,12 @@ Body/headers resolution: same as `SendNetworkRequest` — schema value takes pre
 
 Re-fetches the current screen from the server.
 
-No additional fields.
+| Field | Type | Default |
+|---|---|---|
+| `method` | `HttpMethod` | `GET` |
+| `body` | `AnySerializable?` | `null` |
+| `headers` | `Map<String, String>?` | `null` |
+| `timeoutMillis` | `Long?` | `null` |
 
 **Child triggers used:** `OnSuccess`, `OnFailure`
 
@@ -449,6 +455,7 @@ Sends an HTTP request.
 | `method` | `HttpMethod` | required |
 | `body` | `AnySerializable?` | `null` |
 | `headers` | `Map<String, String>?` | `null` |
+| `timeoutMillis` | `Long?` | `null` |
 
 **Trigger dispatch logic:**
 - `OnStart` — antes do request.
@@ -464,7 +471,25 @@ Um child event ativa o dispatch customizado se declarar `OnNetworkResponse(statu
 ### DownloadFileEventSchema
 **JSON type:** `"DownloadFile"`
 
-Downloads a file with progress reporting.
+Downloads a file straight into the device's public/general storage (system Downloads location), with progress reporting. Platform-specific: Android uses `android.app.DownloadManager` (silent, GET-only); iOS presents `FileKit.openFileSaver()` (one-tap `UIDocumentPickerViewController` export dialog — no silent public storage exists on iOS); JVM writes silently to `~/Downloads`; wasmJs uses `FileKit.download(...)` to trigger the browser's native download. See `DownloadFileToMemoryEventSchema` (in-memory) and `DownloadFileToDiskEventSchema` (app-private storage) for the other two download variants.
+
+| Field | Type | Default |
+|---|---|---|
+| `url` | `String` | required |
+| `method` | `HttpMethod` | required |
+| `body` | `AnySerializable?` | `null` |
+| `headers` | `Map<String, String>?` | `null` |
+| `targetFileName` | `String` | required |
+| `mimeType` | `String?` | `null` |
+
+**Child triggers used:** `OnStart`, `OnDownloadProgress`, `OnDownloadFinish`, `OnSuccess`, `OnDownloadFailure`, `OnFailure`
+
+---
+
+### DownloadFileToMemoryEventSchema
+**JSON type:** `"DownloadFileToMemory"`
+
+Downloads a file with progress reporting, producing the full `ByteArray` in memory on completion. No disk persistence.
 
 | Field | Type | Default |
 |---|---|---|
@@ -473,7 +498,24 @@ Downloads a file with progress reporting.
 | `body` | `AnySerializable?` | `null` |
 | `headers` | `Map<String, String>?` | `null` |
 
-**Child triggers used:** `OnStart`, `OnDownloadProgress`, `OnDownloadFinish`, `OnDownloadFailure`
+**Child triggers used:** `OnStart`, `OnDownloadProgress`, `OnDownloadFinish`, `OnSuccess`, `OnDownloadFailure`, `OnFailure`
+
+---
+
+### DownloadFileToDiskEventSchema
+**JSON type:** `"DownloadFileToDisk"`
+
+Downloads a file from `url` via `method` straight to the app's private storage at `targetFileName`, streaming the response body to disk chunk by chunk without ever holding the full file in memory.
+
+| Field | Type | Default |
+|---|---|---|
+| `url` | `String` | required |
+| `method` | `HttpMethod` | required |
+| `body` | `AnySerializable?` | `null` |
+| `headers` | `Map<String, String>?` | `null` |
+| `targetFileName` | `String` | required |
+
+**Child triggers used:** `OnStart`, `OnDownloadProgress`, `OnDownloadFinish` (incomingData = `targetFileName`), `OnSuccess`, `OnDownloadFailure`, `OnFailure`
 
 ---
 
