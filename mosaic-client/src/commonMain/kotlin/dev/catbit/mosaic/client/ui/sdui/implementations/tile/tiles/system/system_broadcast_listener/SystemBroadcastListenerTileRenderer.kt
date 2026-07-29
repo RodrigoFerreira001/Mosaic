@@ -17,7 +17,7 @@ object SystemBroadcastListenerTileRenderer : TileRenderer<SystemBroadcastListene
 
             observeSystemBroadcastChannel(tileSchema) { data ->
                 triggerEvent(
-                    trigger = EventTriggers.onSystemBroadcastEventTrigger(data.broadcastId),
+                    trigger = EventTriggers.onSystemBroadcast(data.broadcastId),
                     data = data.data
                 )
             }

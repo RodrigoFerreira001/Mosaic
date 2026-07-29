@@ -156,7 +156,7 @@ object EventTriggers {
     fun onSelect() = OnSelectEventTrigger
     fun onStart() = OnStartEventTrigger
     fun onSuccess() = OnSuccessEventTrigger
-    fun onSystemBroadcastEventTrigger(broadcastId: String) = OnSystemBroadcastEventTrigger(broadcastId)
+    fun onSystemBroadcast(broadcastId: String) = OnSystemBroadcastEventTrigger(broadcastId)
     fun onTabItemClick(itemId: String) = OnTabItemClickEventTrigger(itemId)
     fun onTextChanged() = OnTextChangedEventTrigger
     fun onTilesAdded() = OnTilesAddedEventTrigger
