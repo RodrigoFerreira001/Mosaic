@@ -1,8 +1,24 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.transform_data
 
+/**
+ * Two placeholder delimiters are supported, sharing the same path syntax (dot-notation, array
+ * access via an index in brackets, empty path = the whole `data` value):
+ * - `<|path|>` — "raw" placeholder. When it is the *entire* template string, the resolved value
+ *   keeps its native runtime type (e.g. `Int`, `Boolean`, `Map`) — nothing is stringified.
+ * - `</path/>` — "string" placeholder. Always coerces the resolved value to `String` via
+ *   `.toString()`, even when it is the entire template string. Use this whenever the destination
+ *   expects a `String` (e.g. a tile's `text` field) but the source value isn't naturally one —
+ *   `<//>` (empty path) converts the whole incoming value to its string form.
+ *
+ * Both delimiters behave identically when embedded in surrounding text ("mixed content") —
+ * literal text around a placeholder already forces stringification regardless of which one is
+ * used.
+ */
 internal object TemplateProcessor {
 
-    private val PLACEHOLDER_REGEX = Regex("<\\|([^|>]*)\\|>")
+    // Group 1 is the delimiter char ('|' or '/'), backreferenced so both sides must match; group
+    // 2 is the path. Matches `<|path|>` and `</path/>`, not mixed delimiters like `<|path/>`.
+    private val PLACEHOLDER_REGEX = Regex("<([|/])([^|/>]*)\\1>")
 
     fun applyTemplate(template: Any?, data: Any?): Any? = when (template) {
         is String -> applyToString(template, data)
@@ -15,16 +31,19 @@ internal object TemplateProcessor {
         val matches = PLACEHOLDER_REGEX.findAll(template).toList()
         if (matches.isEmpty()) return template
 
-        // If the entire string is a single placeholder, preserve the native type of the resolved value
+        // If the entire string is a single placeholder: `<|path|>` preserves the resolved
+        // value's native type, `</path/>` always coerces it to String.
         if (matches.size == 1 && matches[0].value == template) {
-            return resolvePath(data, matches[0].groupValues[1])
+            val delimiter = matches[0].groupValues[1]
+            val resolved = resolvePath(data, matches[0].groupValues[2])
+            return if (delimiter == "/") resolved.toString() else resolved
         }
 
         // Mixed content: substitute each placeholder with its string representation
         return PLACEHOLDER_REGEX.replace(template) { matchResult ->
-            resolvePath(data, matchResult.groupValues[1])?.toString()
+            resolvePath(data, matchResult.groupValues[2])?.toString()
                 ?: throw IllegalArgumentException(
-                    "Path '${matchResult.groupValues[1]}' resolved to null in mixed-content string"
+                    "Path '${matchResult.groupValues[2]}' resolved to null in mixed-content string"
                 )
         }
     }

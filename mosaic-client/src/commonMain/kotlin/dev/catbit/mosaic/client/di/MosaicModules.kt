@@ -49,6 +49,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.data_processor.processors.Eve
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventTriggerDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.CancellableEventsHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunnerManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
@@ -69,6 +70,8 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.remove
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.send_data.SendDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.transform_data.TransformDataEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.update_data.UpdateDataEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.cancel_events.CancelEventsEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.run_cancellable_events.RunCancellableEventsEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.run_events.RunEventsEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trigger_event.TriggerEventEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.update_events.UpdateEventsEventDefinition
@@ -110,6 +113,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.row.
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.security.request_permission.RequestPermissionEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.broadcast_to_system.BroadcastToSystemEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.check_if_has_internet_connection.CheckIfHasInternetConnectionEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.open_external_link.OpenExternalLinkEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.drop_caches.DropCachesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.theme.reset_theme.ResetThemeEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.theme.set_theme.SetThemeEventDefinition
@@ -122,6 +126,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.repla
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.update_tiles.UpdateTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.wipe_tiles.WipeTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.time.start_countdown_timer.StartCountdownTimerEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.time.start_time_loop.StartTimeLoopEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.app_bars.bottom_app_bar.BottomAppBarTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.app_bars.top_app_bar.TopAppBarTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.badges.badge.BadgeTileDefinition
@@ -233,6 +238,7 @@ internal class MosaicModules(
                 defaultDarkColorScheme = colorScheme.darkColorScheme
             )
         }
+        single { CancellableEventsHolder() }
     }
 
     private val dataModule = module {
@@ -512,6 +518,8 @@ internal class MosaicModules(
         TransformDataEventDefinition,
         UpdateDataEventDefinition,
         RunEventsEventDefinition,
+        RunCancellableEventsEventDefinition,
+        CancelEventsEventDefinition,
         TriggerEventEventDefinition,
         RequestPermissionEventDefinition,
         StopRefreshingEventDefinition,
@@ -520,6 +528,7 @@ internal class MosaicModules(
         RefreshScreenEventDefinition,
         BroadcastToSystemEventDefinition,
         CheckIfHasInternetConnectionEventDefinition,
+        OpenExternalLinkEventDefinition,
         DropCachesEventDefinition,
         DeleteFileEventDefinition,
         GetFileEventDefinition,
@@ -528,6 +537,7 @@ internal class MosaicModules(
         TakePictureEventDefinition,
         GetImageFromGalleryEventDefinition,
         StartCountdownTimerEventDefinition,
+        StartTimeLoopEventDefinition,
         UpdateEventsEventDefinition,
         ReloadLazyTilesEventDefinition,
         SetThemeEventDefinition,

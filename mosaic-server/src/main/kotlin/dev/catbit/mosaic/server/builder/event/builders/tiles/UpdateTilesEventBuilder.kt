@@ -71,3 +71,5 @@ class UpdateTilesUpdateBuilderScope : GenericBuilderScope<Update, UpdateTilesUpd
 fun incomingTileUpdateData() = UpdateData.Incoming
 fun inlineTileUpdateData(data: Map<String, AnySerializable?>) = UpdateData.Inline(data)
 fun inlineTileUpdateData(vararg data: Pair<String, AnySerializable?>) = UpdateData.Inline(data.toMap())
+fun mappedIncomingTileUpdateData(patterns: Map<String, String>) = UpdateData.Mapped(patterns)
+fun mappedIncomingTileUpdateData(vararg patterns: Pair<String, String>) = UpdateData.Mapped(patterns.toMap())

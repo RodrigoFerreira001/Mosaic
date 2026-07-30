@@ -151,8 +151,9 @@ JSON serialization uses `@SerialName` as the `type` discriminator on the `trigge
 
 | DSL | @SerialName | Fired By |
 |---|---|---|
-| `EventTriggers.onCountdownTimerTick()` | `"OnCountdownTimerTick"` | StartCountdownTimerEventSchema |
-| `EventTriggers.onCountdownTimerFinish()` | `"OnCountdownTimerFinish"` | StartCountdownTimerEventSchema |
+| `EventTriggers.onTimeTick()` | `"OnCountdownTimerTick"` | StartCountdownTimerEventSchema (every `timerData.step`) |
+| `EventTriggers.onTimeFinish()` | `"OnTimeFinish"` | StartCountdownTimerEventSchema (when it reaches zero) |
+| `EventTriggers.onTimeLoop()` | `"OnTimeLoop"` | StartTimeLoopEventSchema (every `timeData.delay`, indefinitely) |
 
 ---
 

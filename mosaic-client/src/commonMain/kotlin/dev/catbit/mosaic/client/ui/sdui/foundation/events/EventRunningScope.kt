@@ -67,6 +67,16 @@ data class EventRunningScope(
         )
     }
 
+    suspend fun runEventsInline(
+        eventsSchema: List<EventSchema>,
+        data: Any? = null
+    ) {
+        eventManager.runEvents(
+            eventSchemas = eventsSchema,
+            data = data
+        )
+    }
+
     fun broadcastData(
         data: ScreenTilesBroadcastData
     ) {

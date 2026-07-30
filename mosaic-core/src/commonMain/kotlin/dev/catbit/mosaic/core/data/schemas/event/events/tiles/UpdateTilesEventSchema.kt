@@ -23,7 +23,9 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  *
  * **incomingData consumed:** Used when [Update.UpdateData] is [Update.UpdateData.Incoming]. The
  * runner coerces `incomingData` into `Map<String, Any>` before applying the update. If
- * `incomingData` cannot be coerced to a map, that entry is silently skipped.
+ * `incomingData` cannot be coerced to a map, that entry is silently skipped. Also used when
+ * [Update.UpdateData] is [Update.UpdateData.Mapped] — each pattern is resolved against
+ * `incomingData` via the same `<|path.to.value|>` extraction mechanism as `TransformData`.
  *
  * **Triggers fired:**
  * - [OnTilesUpdatedEventTrigger] — fired after all updates have been applied; incomingData is
@@ -77,6 +79,17 @@ data class UpdateTilesEventSchema(
             @SerialName("Inline")
             data class Inline(
                 @SerialName("data") val data: Map<String, AnySerializable?>
+            ) : UpdateData
+
+            /**
+             * Each entry maps an update key to a string pattern (e.g. `"<|user.name|>"`),
+             * resolved independently against `incomingData` using the same `<|path|>`
+             * extraction mechanism as `TransformDataEventSchema.template`.
+             */
+            @Serializable
+            @SerialName("Mapped")
+            data class Mapped(
+                @SerialName("patterns") val patterns: Map<String, String>
             ) : UpdateData
         }
     }

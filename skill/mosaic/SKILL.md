@@ -562,7 +562,8 @@ TransformData(
     trigger = EventTriggers.onSuccess(),
     template = mapOf(
         "email" to "<|email|>",       // dot-path into incomingData map
-        "raw" to "<||>"               // <||> = entire incomingData as-is (any type)
+        "raw" to "<||>",              // <||> = entire incomingData as-is (any type)
+        "asText" to "<//>"            // <//> = entire incomingData coerced to String
     ),
     events = {
         // incomingData is now the resolved template
@@ -570,11 +571,13 @@ TransformData(
 )
 ```
 
-Placeholder rules:
-- `<|path.to.key|>` — dot-notation path into incomingData
+Placeholder rules — two delimiters, same path syntax:
+- `<|path.to.key|>` — pipe delimiter, dot-notation path into incomingData
 - `<|items[0].name|>` — array index access
-- `<||>` — entire incomingData (preserves native type: Int, Boolean, List, etc.)
-- Single-placeholder template → native type preserved; placeholder mixed with text → coerced to String
+- `<||>` — entire incomingData, native type preserved (Int, Boolean, List, etc.)
+- `</path.to.key/>` — slash delimiter, same path syntax, but **always** coerces to `String`, even as the whole template string
+- `<//>` — entire incomingData coerced to `String`. Use this instead of `<||>` when the destination expects a `String` (e.g. a tile's `text` field via `UpdateTiles`' `mappedIncomingTileUpdateData`) but the source value isn't naturally one — `<||>` there would throw `JsonDecodingException` when the tile field decodes.
+- Single-placeholder template with `<|...|>` → native type preserved; with `</.../>` → always String; placeholder mixed with text (either delimiter) → coerced to String
 
 ---
 
@@ -918,7 +921,7 @@ windowInsets(windowInsetsNavigationBar())
 
 9. **Event runners are suspend functions** — they run in the ViewModel scope. Use `withContext(Dispatchers.IO)` inside runners for blocking work. Don't manually dispatch to threads in DSL code.
 
-10. **`UpdateTiles` with `incomingTileUpdateData()`**: the `incomingData` must be `Map<String, Any>`. If the value might be a scalar, use `TransformData` first to wrap it: `mapOf("field" to "<||>")`.
+10. **`UpdateTiles` with `incomingTileUpdateData()`**: the `incomingData` must be `Map<String, Any>`. If the value might be a scalar, either use `TransformData` first to wrap it (`mapOf("field" to "<||>")`), or use `mappedIncomingTileUpdateData("field" to "<||>")` directly on the `update(...)` — no separate `TransformData` step needed. Either way, if the target tile field is `String` (e.g. `text`) but the resolved value isn't (e.g. an `Int` tick from `StartCountdownTimer`), use the `</.../>` delimiter instead of `<|...|>` (e.g. `"text" to "<//>"`) — otherwise the tile patch fails to decode with `JsonDecodingException` ("String literal ... should be quoted").
 
 11. **`EvaluateData` is complex** — always study the existing `EvaluateDataEventBuilder` before generating expressions with it. It has a recursive sealed-interface expression tree.
 

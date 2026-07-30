@@ -182,10 +182,11 @@ Usados como child event triggers após operações assíncronas (network, data, 
 
 ## Timer Triggers
 
-| Trigger | @SerialName | Fired By |
-|---|---|---|
-| `OnCountdownTimerTickEventTrigger` | `"OnCountdownTimerTick"` | StartCountdownTimerEventSchema (cada tick) |
-| `OnCountdownTimerFinishEventTrigger` | `"OnCountdownTimerFinish"` | StartCountdownTimerEventSchema (fim) |
+| Trigger | @SerialName | Factory | Fired By |
+|---|---|---|---|
+| `OnCountdownTimerTickEventTrigger` | `"OnCountdownTimerTick"` | `EventTriggers.onTimeTick()` | StartCountdownTimerEventSchema (cada tick) |
+| `OnTimeFinishEventTrigger` | `"OnTimeFinish"` | `EventTriggers.onTimeFinish()` | StartCountdownTimerEventSchema (fim) |
+| `OnTimeLoopEventTrigger` | `"OnTimeLoop"` | `EventTriggers.onTimeLoop()` | StartTimeLoopEventSchema (cada tick, indefinidamente) |
 
 ---
 
@@ -244,12 +245,12 @@ Disparados pelo `LazyTilesTileSchema` durante o ciclo de vida do fetch remoto de
 | Image Loading | 3 |
 | Overlay | 5 |
 | Menu | 1 |
-| Timer | 2 |
+| Timer | 3 |
 | Permission | 3 |
 | Scroll / Page | 3 |
 | LazyTiles Loading | 3 |
 | System | 1 |
-| **Total** | **73** |
+| **Total** | **74** |
 
 ---
 

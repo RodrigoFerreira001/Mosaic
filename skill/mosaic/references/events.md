@@ -93,7 +93,7 @@ RemoveTiles(
 **Purpose:** Applies data-only patches to existing tiles without altering the tile tree structure. Each update targets one tile by ID and supplies either the current `incomingData` or a static inline map of key-value overrides.
 **When to use:** When you need to change a tile's mutable properties (text, color, visibility, `filterChildrenByTerm`, etc.) in response to user action, without replacing the tile.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles`
-**Helper imports:** `import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData`, `incomingTileUpdateData`
+**Helper imports:** `import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData`, `incomingTileUpdateData`, `mappedIncomingTileUpdateData`
 
 **Fields:**
 | Field | Type | Default | Notes |
@@ -103,10 +103,11 @@ RemoveTiles(
 `updateData` variants:
 - `incomingTileUpdateData()` — uses current `incomingData` (coerced to `Map<String, Any>`)
 - `inlineTileUpdateData("key" to value, ...)` — static key-value map
+- `mappedIncomingTileUpdateData("key" to "<|path.to.value|>", ...)` — each value is a pattern resolved independently against the current `incomingData`, using the exact same `<|path|>`/`</path/>` extraction mechanism as `TransformData` (dot-notation, array indices, mixed-content strings). Use `<|...|>` (pipe) to keep the resolved value's native type, or `</.../>` (slash, e.g. `<//>` for the whole `incomingData`) to force `String` — required whenever the target key is a `String` tile field (e.g. `text`) but the source value is a number/boolean, otherwise decoding the tile patch throws `JsonDecodingException`.
 
-**incomingData consumed:** Used when `incomingTileUpdateData()` is specified. Runner coerces to `Map<String, Any>`; silently skipped if cast fails.
-**Triggers fired:** `onTilesUpdated()` then `onSuccess()` — updates applied. `onFailure(exception)` — a tile ID not found.
-**Failure scenarios:** Any `tileId` in `updates` not found → TileNotFoundException.
+**incomingData consumed:** Used when `incomingTileUpdateData()` is specified — coerced to `Map<String, Any>`, silently skipped if cast fails. Also used when `mappedIncomingTileUpdateData(...)` is specified — each pattern is resolved against it; if any pattern fails to resolve (e.g. missing path), that whole `Update` is treated as a failure.
+**Triggers fired:** `onTilesUpdated()` then `onSuccess()` — updates applied. `onFailure(exception)` — a tile ID not found, or a `mappedIncomingTileUpdateData` pattern failed to resolve.
+**Failure scenarios:** Any `tileId` in `updates` not found → TileNotFoundException. A `mappedIncomingTileUpdateData` pattern referencing a missing/invalid path → same exceptions as `TransformData` (`NoSuchElementException`, `IllegalArgumentException`, `IndexOutOfBoundsException`).
 **Notes:** Updates are applied in list order; same tile listed twice: second update wins on key collision.
 
 **Example:**
@@ -121,6 +122,46 @@ UpdateTiles(
         update(
             tileId = "result_count",
             updateData = inlineTileUpdateData("text" to "$count results")
+        )
+    }
+)
+
+// mappedIncomingTileUpdateData — reshape one incomingData (e.g. a network response) into a
+// tile update without a separate TransformData step
+SendNetworkRequest(
+    trigger = EventTriggers.onDisplay(),
+    url = "/api/profile",
+    method = HttpMethod.GET,
+    events = {
+        UpdateTiles(
+            trigger = EventTriggers.onSuccess(),
+            updates = {
+                update(
+                    tileId = "profile_header",
+                    updateData = mappedIncomingTileUpdateData(
+                        "text" to "<|user.name|>",
+                        "subtitle" to "Member since <|user.joinedYear|>"
+                    )
+                )
+            }
+        )
+    }
+)
+
+// `<//>` (slash, empty path) — coerce a non-String incomingData (e.g. a countdown tick: Int) to
+// String before it reaches a String tile field; `<||>` here would throw JsonDecodingException
+StartCountdownTimer(
+    trigger = EventTriggers.onClick(),
+    timerData = seconds(initial = 10, step = 1),
+    events = {
+        UpdateTiles(
+            trigger = EventTriggers.onTimeTick(),
+            updates = {
+                update(
+                    tileId = "countdown_text",
+                    updateData = mappedIncomingTileUpdateData("text" to "<//>")
+                )
+            }
         )
     }
 )
@@ -290,6 +331,55 @@ RunEvents(
         UpdateData(trigger = EventTriggers.inline(), updates = { /* ... */ })
         DisplaySnackbar(trigger = EventTriggers.inline(), message = "Saved")
     }
+)
+```
+
+---
+
+### RunCancellableEvents
+**Purpose:** Executes all child events inside a cancellable context identified by `cancellableEventId`, launched via `CancellableEventsHolder.runEvents(...)` in its own `SupervisorJob` scope. A later `RunCancellableEvents` with the same `cancellableEventId` replaces the in-flight run (the finished job is dropped from the tracking map on completion). Cancel it explicitly with `CancelEvents`.
+**When to use:** When a group of events needs to be cancellable as a unit (e.g., aborting an in-flight chain triggered by a previous, still-running invocation — search-as-you-type debouncing, cancel-on-navigate-away).
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.event.RunCancellableEvents`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `cancellableEventId` | `String` | required | Identifier of the cancellable context |
+
+**incomingData consumed:** Not used. Passed as-is to child events.
+**Triggers fired:** `onSuccess()` — after all child events dispatched.
+
+**Example:**
+```kotlin
+RunCancellableEvents(
+    trigger = EventTriggers.onClick(),
+    cancellableEventId = "search_debounce",
+    events = {
+        SendNetworkRequest(trigger = EventTriggers.inline(), url = "/api/search", method = HttpMethod.GET)
+    }
+)
+```
+
+---
+
+### CancelEvents
+**Purpose:** Cancels the running cancellable context identified by `cancellableEventId`, previously started by `RunCancellableEvents`, via `CancellableEventsHolder.cancelEvents(...)`. No-op if no context with that id is currently running.
+**When to use:** Aborting an in-flight `RunCancellableEvents` chain explicitly — e.g., cancelling a pending debounced search when the user clears the input, or cancelling on navigate-away.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.event.CancelEvents`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `cancellableEventId` | `String` | required | Identifier of the cancellable context to cancel |
+
+**incomingData consumed:** Not used.
+**Triggers fired:** `onSuccess()` — after the cancellation request has been dispatched.
+
+**Example:**
+```kotlin
+CancelEvents(
+    trigger = EventTriggers.onQueryCleared(),
+    cancellableEventId = "search_debounce"
 )
 ```
 
@@ -704,23 +794,25 @@ ProcessData(
 ---
 
 ### TransformData
-**Purpose:** Reshapes `incomingData` by applying a template structure, substituting `<|path.to.value|>` placeholders with values resolved from `incomingData`. Supports map, list, and scalar templates applied recursively.
+**Purpose:** Reshapes `incomingData` by applying a template structure, substituting `<|path.to.value|>`/`</path.to.value/>` placeholders with values resolved from `incomingData`. Supports map, list, and scalar templates applied recursively.
 **When to use:** When you need to extract or restructure part of `incomingData` before passing it to the next event — e.g., extracting a single field from a network response map, or building a new map shape.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.data.TransformData`
 
 **Fields:**
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| `template` | `AnySerializable` | required (overload 1) | String/Map/List with `<\|path\|>` placeholders |
+| `template` | `AnySerializable` | required (overload 1) | String/Map/List with `<\|path\|>`/`</path/>` placeholders |
 | `eventTemplate` | `EventSchemaBuilderScope.() -> Unit` | required (overload 2) | Template is a serialized EventSchema |
 
-**Placeholder syntax:**
-- `<|user.address.city|>` — dot-notation key path
+**Placeholder syntax — two delimiters, same path syntax:**
+- `<|user.address.city|>` — dot-notation key path, pipe delimiter
 - `<|items[0].name|>` — array index access
-- `<||>` — entire `incomingData` as-is (preserves native type)
+- `<||>` — entire `incomingData` as-is, native type preserved (Int, Boolean, Map, ...)
+- `</user.address.city/>` — same path syntax, slash delimiter: **always** coerces to `String` via `.toString()`, even as the whole template string
+- `<//>` — entire `incomingData` coerced to its `String` form. Use this (instead of `<||>`) whenever the destination expects a `String` but the source value isn't one — e.g. `mappedIncomingTileUpdateData("text" to "<//>")` to feed a numeric countdown tick into a tile's `text` field without a `JsonDecodingException`.
 
 **incomingData consumed:** Used as data source for all placeholder lookups. Forwarded unchanged on both success and failure.
-**Triggers fired:** `onSuccess(result)` — template applied; result preserves structure of template with placeholders replaced. Native type preserved when entire template string is a single `<||>` placeholder. `onFailure(Throwable)` — path not found, type mismatch, or null in mixed-content string.
+**Triggers fired:** `onSuccess(result)` — template applied; result preserves structure of template with placeholders replaced. Native type preserved only when the entire template string is a single `<||>` (pipe) placeholder — a `</.../>` (slash) placeholder always stringifies. `onFailure(Throwable)` — path not found, type mismatch, or null in mixed-content string.
 **Failure scenarios:** Missing key → `NoSuchElementException`. Path expects Map/List but got other type → `IllegalArgumentException`. Index out of bounds → `IndexOutOfBoundsException`. Null resolved in mixed-content string → `IllegalArgumentException`.
 **Notes:** Non-string, non-Map, non-List template values are returned as-is. Synchronous — no background dispatcher.
 
@@ -1659,6 +1751,32 @@ CheckIfHasInternetConnection(
 
 ---
 
+### OpenExternalLink
+**Purpose:** Opens `url` using the platform's external link mechanism: the default browser on Android, iOS, and JVM, or a new browser tab on wasmJs.
+**When to use:** Opening web pages, documentation links, or any external URL outside the app's own screens.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.system.OpenExternalLink`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `url` | `String` | required | URL to open |
+
+**incomingData consumed:** Not used.
+**Triggers fired:** `onSuccess()` — link handed off to the platform. `onFailure(Throwable)` — opening the link threw.
+
+**Example:**
+```kotlin
+OpenExternalLink(
+    trigger = EventTriggers.onClick(),
+    url = "https://example.com",
+    events = {
+        DisplaySnackbar(trigger = EventTriggers.onFailure(), message = "Couldn't open link")
+    }
+)
+```
+
+---
+
 ## Theme
 
 ### SetTheme
@@ -1717,27 +1835,54 @@ ResetTheme(
 ## Time
 
 ### StartCountdownTimer
-**Purpose:** Starts a client-side countdown timer. ⚠️ **Runner is currently a placeholder** — timer not yet implemented.
+**Purpose:** Starts a client-side countdown timer that counts down from `timerData.initial` to zero in decrements of `timerData.step`. ⚠️ **Runner is currently a placeholder** — timer not yet implemented.
 **When to use:** OTP expiry countdowns, session timeout warnings, timed actions.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.time.StartCountdownTimer`
+**Helper imports** (same import path): `milliseconds(initial: Long, step: Long)`, `seconds(initial: Int, step: Int)` — both `require()` that `step >= 0` and `step < initial`, throwing `IllegalArgumentException` at DSL build time otherwise.
 
 **Fields:**
 | Field | Type | Default | Notes |
 |---|---|---|---|
-| `setupTimeInSeconds` | `Long` | required | Countdown duration; must be positive |
+| `timerData` | `TimerData` | required | `Milliseconds(initial, step)` or `Seconds(initial, step)` — build with `milliseconds(...)` / `seconds(...)` |
 
-**Triggers fired (intended):** `onCountdownTimerTick(remaining)` — every second. `onCountdownTimerFinish()` — when zero.
+**Triggers fired (intended):** `onTimeTick(remaining)` — every `step`. `onTimeFinish()` — when zero. `onSuccess()` — once, when the timer starts.
 
 **Example:**
 ```kotlin
 StartCountdownTimer(
     trigger = EventTriggers.onDisplay(),
-    setupTimeInSeconds = 120L,
+    timerData = seconds(initial = 120, step = 1),
     events = {
-        UpdateTiles(trigger = EventTriggers.onCountdownTimerTick(), updates = {
+        UpdateTiles(trigger = EventTriggers.onTimeTick(), updates = {
             update("timer_label", incomingTileUpdateData())
         })
-        DisplaySnackbar(trigger = EventTriggers.onCountdownTimerFinish(), message = "Session expired")
+        DisplaySnackbar(trigger = EventTriggers.onTimeFinish(), message = "Session expired")
+    }
+)
+```
+
+---
+
+### StartTimeLoop
+**Purpose:** Starts a client-side, unbounded loop that repeats every `timeData.delay` — unlike `StartCountdownTimer`, there is no end condition. ⚠️ **Runner is currently a placeholder** — loop not yet implemented.
+**When to use:** Polling, periodic UI refresh (e.g. re-evaluating a "time ago" label), any repeating action with no natural stop point. Stop it externally once wired to a cancellable context (see `RunCancellableEvents`/`CancelEvents`).
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.time.StartTimeLoop`
+**Helper imports** (same import path): `milliseconds(delay: Long)`, `seconds(delay: Int)` — both `require()` that `delay > 0`, throwing `IllegalArgumentException` at DSL build time otherwise.
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `timeData` | `TimeData` | required | `Milliseconds(delay)` or `Seconds(delay)` — build with `milliseconds(...)` / `seconds(...)` |
+
+**Triggers fired (intended):** `onTimeLoop()` — every `delay`, indefinitely. `onSuccess()` — once, when the loop starts.
+
+**Example:**
+```kotlin
+StartTimeLoop(
+    trigger = EventTriggers.onDisplay(),
+    timeData = seconds(delay = 30),
+    events = {
+        RefreshScreen(trigger = EventTriggers.onTimeLoop())
     }
 )
 ```

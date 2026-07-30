@@ -8,7 +8,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnBottomSheetD
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTimerFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTimerTickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataReceivedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedEventTrigger
@@ -76,6 +75,8 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesRemoved
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesReplacedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesUpdatedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesWipedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimeFinishEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimeLoopEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimePickerCloseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimePickerOpenEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimeSelectedEventTrigger
@@ -95,8 +96,8 @@ object EventTriggers {
     fun onClick() = OnClickEventTrigger
     fun onCheckChanged() = OnCheckChangedEventTrigger
     fun onCheck() = OnCheckEventTrigger
-    fun onOnCountdownTimerTick() = OnCountdownTimerTickEventTrigger
-    fun onOnCountdownTimerFinish() = OnCountdownTimerFinishEventTrigger
+    fun onTimeTick() = OnCountdownTimerTickEventTrigger
+    fun onTimeFinish() = OnTimeFinishEventTrigger
     fun onDisplay() = OnDisplayEventTrigger
     fun onDownloadFailure() = OnDownloadFailureEventTrigger
     fun onDownloadFinish() = OnDownloadFinishEventTrigger
@@ -164,6 +165,7 @@ object EventTriggers {
     fun onTilesReplaced() = OnTilesReplacedEventTrigger
     fun onTilesUpdated() = OnTilesUpdatedEventTrigger
     fun onTilesWiped() = OnTilesWipedEventTrigger
+    fun onTimeLoop() = OnTimeLoopEventTrigger
     fun onTimePickerOpen() = OnTimePickerOpenEventTrigger
     fun onTimePickerClose() = OnTimePickerCloseEventTrigger
     fun onTimeSelected() = OnTimeSelectedEventTrigger

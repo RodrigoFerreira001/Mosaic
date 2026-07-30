@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.upda
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.data.transform_data.TemplateProcessor
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.UpdateTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.UpdateTilesEventSchema.Update.UpdateData
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
@@ -14,6 +15,15 @@ object UpdateTilesEventRunner : EventRunner<UpdateTilesEventSchema> {
             val data = when (val updateData = update.updateData) {
                 is UpdateData.Incoming -> incomingData.asMapAny() ?: return@forEach
                 is UpdateData.Inline -> updateData.data
+                is UpdateData.Mapped -> runCatching {
+                    updateData.patterns.mapValues { (_, pattern) ->
+                        TemplateProcessor.applyTemplate(pattern, incomingData)
+                    }
+                }.getOrElse { throwable ->
+                    anyErrorOccurred = true
+                    logError(tag = "UpdateTilesEventRunner", throwable = throwable)
+                    return@forEach
+                }
             }
 
             tilesEditor.updateTile(

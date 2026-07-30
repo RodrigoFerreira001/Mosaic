@@ -68,8 +68,9 @@ Partially updates tile fields via JSON merge without altering tile types or tree
 `UpdateData` (sealed):
 - `Incoming` — usa o `incomingData` atual (coerced para `Map<String, Any>`); se não puder ser coercido, a entrada é ignorada silenciosamente.
 - `Inline` — `{ data: Map<String, AnySerializable?> }` com valores estáticos definidos pelo servidor.
+- `Mapped` — `{ patterns: Map<String, String> }`; cada valor é um pattern `<|path.to.value|>` (tipo nativo) ou `</path.to.value/>` (sempre `String`) resolvido contra o `incomingData` atual, usando o mesmo mecanismo de extração do `TransformData` — útil quando o campo de destino é `String` mas o valor de origem não é (ex.: `"text" to "<//>"` para um tick numérico de countdown). Se um pattern falhar (path inexistente, etc.), aquele `Update` inteiro conta como falha (`OnFailure`), sem interromper os demais.
 
-DSL helpers: `incomingTileUpdateData()`, `inlineTileUpdateData(data)`.
+DSL helpers: `incomingTileUpdateData()`, `inlineTileUpdateData(data)`, `mappedIncomingTileUpdateData(patterns)`.
 
 **Triggers:** `OnTilesUpdated` (após todos os updates), `OnSuccess` (incondicional), `OnFailure` (tileId não encontrado; incomingData = exception)
 
@@ -148,6 +149,32 @@ Container transparente que dispara todos os seus eventos filhos incondicionalmen
 Nenhum campo adicional além dos campos base (`id`, `trigger`, `events`).
 
 **Triggers:** `OnSuccess` — após despachar os filhos.
+
+---
+
+### RunCancellableEventsEventSchema
+**JSON type:** `"RunCancellableEvents"`
+
+Executa os eventos filhos em `events` dentro de um contexto cancelável identificado por `cancellableEventId`, via `CancellableEventsHolder.runEvents(...)`. Um `RunCancellableEvents` posterior com o mesmo `cancellableEventId` substitui a execução em andamento (o job anterior é descartado do mapa ao completar). Ver `CancelEventsEventSchema` para cancelar explicitamente.
+
+| Field | Type | Description |
+|---|---|---|
+| `cancellableEventId` | `String` | Identificador do contexto cancelável |
+
+**Triggers:** `OnSuccess` — após despachar os filhos.
+
+---
+
+### CancelEventsEventSchema
+**JSON type:** `"CancelEvents"`
+
+Cancela o contexto cancelável em andamento identificado por `cancellableEventId`, previamente iniciado por `RunCancellableEventsEventSchema`, via `CancellableEventsHolder.cancelEvents(...)`. No-op se nenhum contexto com esse id estiver em execução.
+
+| Field | Type | Description |
+|---|---|---|
+| `cancellableEventId` | `String` | Identificador do contexto cancelável a cancelar |
+
+**Triggers:** `OnSuccess` — após a solicitação de cancelamento ser despachada.
 
 ---
 
@@ -395,17 +422,17 @@ Built-in processor: `"EVENT_RUNNER"` — deserializes incoming data as events an
 ### TransformDataEventSchema
 **JSON type:** `"TransformData"`
 
-Reshapes `incomingData` by applying a template structure, substituting placeholders of the form `<|path.to.value|>` with values resolved from `incomingData`. The output mirrors the structural shape of the template (map, list, or scalar) with all placeholders replaced.
+Reshapes `incomingData` by applying a template structure, substituting placeholders of the form `<|path.to.value|>` (raw) or `</path.to.value/>` (string) with values resolved from `incomingData`. The output mirrors the structural shape of the template (map, list, or scalar) with all placeholders replaced.
 
 | Field | Type | Description |
 |---|---|---|
-| `template` | `AnySerializable` | Template value — may be a String, Map, or List. Placeholders `<|path|>` are resolved against `incomingData`. |
+| `template` | `AnySerializable` | Template value — may be a String, Map, or List. Placeholders `<\|path\|>`/`</path/>` are resolved against `incomingData`. |
 
 **Placeholder resolution:**
 - Dot-notation paths: `<|user.address.city|>`
 - Array index notation: `<|items[0].name|>`
-- A standalone placeholder (`<|path|>`) preserves the resolved value's native type (Int, Boolean, Map, etc.)
-- A placeholder embedded in surrounding text coerces the resolved value to String via `.toString()`
+- Two delimiters, same path syntax: `<|path|>` (pipe) preserves the resolved value's native type (Int, Boolean, Map, etc.) when it's the whole template string; `</path/>` (slash) always coerces to `String` via `.toString()`, even as the whole template string — `<//>` (empty path) stringifies the entire `incomingData`.
+- A placeholder (either delimiter) embedded in surrounding text coerces the resolved value to String via `.toString()`
 - Non-string, non-Map, non-List template values (numbers, booleans) are returned as-is without substitution
 - Transformation is applied recursively to every leaf when template is a Map or List
 
@@ -833,13 +860,26 @@ Toggles the expanded state of a `PopupTileSchema`.
 ### StartCountdownTimerEventSchema
 **JSON type:** `"StartCountdownTimer"`
 
-Starts a countdown timer. Fires tick and finish events.
+Starts a countdown timer that counts down from `timerData.initial` to zero in decrements of `timerData.step`. Runner is a placeholder — countdown/trigger-firing logic not yet implemented.
 
-| Field | Type |
-|---|---|
-| `setupTimeInSeconds` | `Long` |
+| Field | Type | Description |
+|---|---|---|
+| `timerData` | `TimerData` | `Milliseconds(initial: Long, step: Long)` or `Seconds(initial: Int, step: Int)` — build with `milliseconds(initial, step)` / `seconds(initial, step)` DSL helpers, which validate `step >= 0` and `step < initial` |
 
-**Child triggers used:** `OnCountdownTimerTick` (each second), `OnCountdownTimerFinish`
+**Child triggers used:** `OnCountdownTimerTick` (`EventTriggers.onTimeTick()`, each `step`), `OnTimeFinish` (`EventTriggers.onTimeFinish()`), `OnSuccess`
+
+---
+
+### StartTimeLoopEventSchema
+**JSON type:** `"StartTimeLoop"`
+
+Starts an unbounded loop that repeats every `timeData.delay` — unlike `StartCountdownTimerEventSchema`, there is no end condition. Runner is a placeholder — loop/trigger-firing logic not yet implemented.
+
+| Field | Type | Description |
+|---|---|---|
+| `timeData` | `TimeData` | `Milliseconds(delay: Long)` or `Seconds(delay: Int)` — build with `milliseconds(delay)` / `seconds(delay)` DSL helpers, which validate `delay > 0` |
+
+**Child triggers used:** `OnTimeLoop` (`EventTriggers.onTimeLoop()`, each `delay`), `OnSuccess`
 
 ---
 
@@ -943,6 +983,19 @@ DSL helpers: `incomingBroadcastData()` / `inlineBroadcastData(data)`
 Checks whether the device has an active internet connection.
 
 No additional fields.
+
+**Child triggers used:** `OnSuccess`, `OnFailure`
+
+---
+
+### OpenExternalLinkEventSchema
+**JSON type:** `"OpenExternalLink"`
+
+Abre `url` usando o mecanismo de link externo da plataforma: navegador padrão no Android, iOS e JVM, ou uma nova aba no wasmJs.
+
+| Field | Type | Description |
+|---|---|---|
+| `url` | `String` | URL a ser aberta |
 
 **Child triggers used:** `OnSuccess`, `OnFailure`
 

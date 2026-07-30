@@ -212,4 +212,102 @@ class TemplateProcessorTest {
             TemplateProcessor.applyTemplate("prefix-<|value|>", data)
         }
     }
+
+    // ── </...> root passthrough (always coerces to String) ────────────────────
+
+    @Test
+    fun `slash root placeholder with String incomingData returns String`() {
+        assertEquals("hello", TemplateProcessor.applyTemplate("<//>", "hello"))
+    }
+
+    @Test
+    fun `slash root placeholder with Int incomingData coerces to String`() {
+        assertEquals("42", TemplateProcessor.applyTemplate("<//>", 42))
+    }
+
+    @Test
+    fun `slash root placeholder with Boolean incomingData coerces to String`() {
+        assertEquals("true", TemplateProcessor.applyTemplate("<//>", true))
+    }
+
+    @Test
+    fun `slash root placeholder with null incomingData coerces to the literal string null`() {
+        assertEquals("null", TemplateProcessor.applyTemplate("<//>", null))
+    }
+
+    @Test
+    fun `slash root placeholder with List incomingData coerces to its String form`() {
+        assertEquals("[1, 2, 3]", TemplateProcessor.applyTemplate("<//>", listOf(1, 2, 3)))
+    }
+
+    @Test
+    fun `slash root placeholder with Map incomingData coerces to its String form`() {
+        assertEquals("{a=1}", TemplateProcessor.applyTemplate("<//>", mapOf("a" to 1)))
+    }
+
+    // ── </key> path navigation (always coerces to String) ─────────────────────
+
+    @Test
+    fun `slash key resolving to Int coerces to String as sole placeholder`() {
+        val data = mapOf("age" to 30)
+        assertEquals("30", TemplateProcessor.applyTemplate("</age/>", data))
+    }
+
+    @Test
+    fun `slash key resolving to Boolean coerces to String as sole placeholder`() {
+        val data = mapOf("active" to false)
+        assertEquals("false", TemplateProcessor.applyTemplate("</active/>", data))
+    }
+
+    @Test
+    fun `slash nested dot path resolves deeply and stays String`() {
+        val data = mapOf("user" to mapOf("address" to mapOf("city" to "SP")))
+        assertEquals("SP", TemplateProcessor.applyTemplate("</user.address.city/>", data))
+    }
+
+    @Test
+    fun `slash array index accesses correct element`() {
+        val data = mapOf("items" to listOf("a", "b", "c"))
+        assertEquals("b", TemplateProcessor.applyTemplate("</items[1]/>", data))
+    }
+
+    // ── Mixed content and recursive templates behave the same for both delimiters ──
+
+    @Test
+    fun `slash mixed content string coerces Int to String same as pipe`() {
+        val data = mapOf("score" to 99)
+        assertEquals("Score: 99", TemplateProcessor.applyTemplate("Score: </score/>", data))
+    }
+
+    @Test
+    fun `map template with slash placeholders coerces every value to String`() {
+        val data = mapOf("a" to 1, "b" to "two")
+        val template = mapOf("x" to "</a/>", "y" to "</b/>")
+        assertEquals(mapOf("x" to "1", "y" to "two"), TemplateProcessor.applyTemplate(template, data))
+    }
+
+    // ── Mismatched delimiters are not a placeholder ────────────────────────────
+
+    @Test
+    fun `pipe opening with slash closing is left as literal text`() {
+        assertEquals("<|path/>", TemplateProcessor.applyTemplate("<|path/>", mapOf("path" to "x")))
+    }
+
+    // ── Error scenarios (shared path-resolution logic, delimiter-agnostic) ────
+
+    @Test
+    fun `slash missing key throws NoSuchElementException`() {
+        val data = mapOf("a" to 1)
+        assertFailsWith<NoSuchElementException> {
+            TemplateProcessor.applyTemplate("</missing/>", data)
+        }
+    }
+
+    @Test
+    fun `slash index out of bounds throws IndexOutOfBoundsException`() {
+        val data = mapOf("items" to listOf("a"))
+        assertFailsWith<IndexOutOfBoundsException> {
+            TemplateProcessor.applyTemplate("</items[5]/>", data)
+        }
+    }
 }
