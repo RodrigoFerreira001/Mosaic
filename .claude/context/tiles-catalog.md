@@ -403,6 +403,19 @@ Individual text properties (`fontSize`, `fontWeight`, etc.) override the corresp
 
 ---
 
+### SelectionContainerTileSchema
+**JSON type:** `"SelectionContainer"`
+
+| Field | Type |
+|---|---|
+| `tiles` | `List<TileSchema>` |
+
+**Note:** Wraps children in Compose's `SelectionContainer`, enabling text selection spanning multiple descendant tiles. No layout of its own (no arrangement/alignment) — purely a selection boundary.
+
+**Supported triggers:** none.
+
+---
+
 ### CardTileSchema
 **JSON type:** `"Card"`
 

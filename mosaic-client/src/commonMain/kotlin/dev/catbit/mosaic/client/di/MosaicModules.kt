@@ -139,6 +139,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.chips.input_c
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.chips.suggestion_chip.SuggestionChipTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.adaptive_visibility.AdaptiveVisibilityTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.box.BoxTileDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.selection_container.SelectionContainerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.card.CardTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.carousel.CarouselTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.column.ColumnTileDefinition
@@ -435,6 +436,7 @@ internal class MosaicModules(
         ButtonTileDefinition,
         FloatingActionButtonTileDefinition,
         BoxTileDefinition,
+        SelectionContainerTileDefinition,
         CardTileDefinition,
         CarouselTileDefinition,
         FlexBoxTileDefinition,

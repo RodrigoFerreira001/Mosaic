@@ -780,6 +780,28 @@ Box(
 }
 ```
 
+### SelectionContainer
+**Purpose:** Wraps child tiles in Compose's `SelectionContainer`, letting the user select and copy text across multiple descendant tiles (e.g. a `SimpleText` label plus a `SimpleText` value) as one contiguous selection.
+**When to use:** Any block of read-only text (or mixed text tiles) that should be selectable/copyable — details screens, error messages, code/log output.
+**Import:** `import dev.catbit.mosaic.server.builder.tile.builders.grouping.SelectionContainer`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `tiles` | `TileSchemaBuilderScope.() -> Unit` | `{}` | |
+
+**Updatable via UpdateTiles:** `tiles`, `style`, `visibility`
+**Triggers dispatched:** none.
+**Notes:** No layout of its own — no arrangement/alignment, unlike `Column`/`Row`/`Box`. Does not support click/long-press/display events, so the long-press gesture is left free for the selection interaction.
+
+**Example:**
+```kotlin
+SelectionContainer(id = "profile_details") {
+    SimpleText(id = "profile_name", text = user.name)
+    SimpleText(id = "profile_email", text = user.email)
+}
+```
+
 ### Card
 **Purpose:** Renders a Material 3 card container that groups child tiles inside a surface with elevation, shape, and color from the Material theme.
 **When to use:** Grouping related content with visual elevation — list items, product cards, info panels.

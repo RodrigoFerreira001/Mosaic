@@ -167,6 +167,7 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.chips.InputChipTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.chips.SuggestionChipTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.AdaptiveVisibilityTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.BoxTileSchema
+import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.SelectionContainerTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CardTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CarouselTileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ColumnTileSchema
@@ -1110,6 +1111,7 @@ class MosaicSerializer(
             AdaptiveVisibilityTileSchema::class to AdaptiveVisibilityTileSchema.serializer(),
             ButtonTileSchema::class to ButtonTileSchema.serializer(),
             BoxTileSchema::class to BoxTileSchema.serializer(),
+            SelectionContainerTileSchema::class to SelectionContainerTileSchema.serializer(),
             CardTileSchema::class to CardTileSchema.serializer(),
             CarouselTileSchema::class to CarouselTileSchema.serializer(),
             ColumnTileSchema::class to ColumnTileSchema.serializer(),

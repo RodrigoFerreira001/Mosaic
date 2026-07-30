@@ -1,8 +1,8 @@
-- [ ] BottomSheets
-- [ ] Navigation + NavController
-- [ ] Dialogs
-- [ ] Snackbars
-- [ ] Drawer
+- [x] BottomSheets
+- [x] Navigation + NavController
+- [x] Dialogs
+- [x] Snackbars
+- [x] Drawer
 - [ ] Text decoration
 - [x] Local image
 - [x] Images
@@ -14,25 +14,25 @@
 - [x] Navigation3 popUpTo
 - [x] Offline Screens
 - [ ] AnimatedTile
-- [ ] CountDownStepperEvent
-- [ ] Triggers Globais (OnDeviceNetworkChange)
+- [x] CountDownStepperEvent
+- [x] Triggers Globais (OnDeviceNetworkChange)
 - [ ] Criar um Modifier clickable que coloca Pointer.Hand
-- [?] Mecanismo de permissão
-- [ ] Ajustar update/onEvent para evitar falsos positivos
+- [x] Mecanismo de permissão
+- [x] Ajustar update/onEvent para evitar falsos positivos
 - [x] Focar na dsl do backend
 - [x] Implementar mais triggers para os events e tiles
 - [x] LocalStorage (separado por buckets)
 - [x] NextPageEvent (Pager e afins)
 - [x] Send platform info on network calls
 - [x] Events: GetFile, SaveFile, DeleteFile
-- [ ] Events: CountDownTimer, StartInfiniteClock, FinishInfiniteClock
-- [?] Events: Validate (o de operações), Transformation, CheckIfHasInternetConnection
+- [x] Events: CountDownTimer, StartInfiniteClock, FinishInfiniteClock
+- [x] Events: Validate (o de operações), Transformation, CheckIfHasInternetConnection
 - [ ] Compactar dados entre cliente e servidor
 - [x] AsyncTiles (Client + Server, com Builders que retornar lista de tiles)
 - [x] Triggers de Scroll (OnScroll[Up, Down, Left, Right])
 - [ ] Usar ids para BS e outros overlays
 - [ ] Color com gradiente
-- [ ] Um evento que executa outro evento envolopado em um Job. Tal job é registrado e pode ser cancelado externamente através de outro evento. E o evento deve se autoremover ao finalizar
+- [x] Um evento que executa outro evento envolopado em um Job. Tal job é registrado e pode ser cancelado externamente através de outro evento. E o evento deve se autoremover ao finalizar
 
 # Prioridades
 - [x] Fazer teste inicial do server + cliente (com actions de GetScreen)
