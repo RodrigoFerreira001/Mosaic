@@ -26,13 +26,14 @@ import dev.catbit.mosaic.server.builder.typography.typographyTitleSmall
  * so the parent list can be filtered by the screen's [dev.catbit.mosaic.server.builder.tile.builders.search.SearchBar].
  *
  * Tapping the card stages `{"event": name}` as the next request's query parameters (consumed by
- * the "eventsCatalog" screen's [dev.catbit.mosaic.server.builder.event.builders.screen.GetScreen]
- * call) and navigates there — a single generic placeholder screen shared by every catalog entry.
+ * the [destination] screen's own `GetScreen` call) and navigates there — [destination] lets
+ * callers point at either the "tileDetails" or "eventDetails" showroom screen.
  */
 fun TileSchemaBuilderScope.CatalogItem(
     name: String,
     iconName: String,
     category: String? = null,
+    destination: String,
     id: String = randomId(),
 ) {
     Card(
@@ -54,7 +55,7 @@ fun TileSchemaBuilderScope.CatalogItem(
                             Navigate(
                                 trigger = EventTriggers.onSuccess(),
                                 navigatorId = "root",
-                                destination = "eventDetails"
+                                destination = destination
                             )
                         }
                     )

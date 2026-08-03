@@ -35,6 +35,7 @@
 - [x] Um evento que executa outro evento envolopado em um Job. Tal job é registrado e pode ser cancelado externamente através de outro evento. E o evento deve se autoremover ao finalizar
 
 # Prioridades
+- [ ] Refazer parte do TileHolder para ser mais performático
 - [x] Fazer teste inicial do server + cliente (com actions de GetScreen)
 - [x] Adicionar todos os tiles restantes (pelo menos o contrato)
 - [x] Mudar tudo o que EventSchema e TileSchema que use List<> para utilizar ImmutableList<>

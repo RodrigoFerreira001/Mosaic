@@ -4,18 +4,32 @@ import dev.catbit.mosaic.sample.core.schemas.tiles.code.CodeViewerTileSchema
 import dev.catbit.mosaic.sample.server.dsl.tiles.code.CodeViewer
 import dev.catbit.mosaic.sample.server.endpoints.screen.ScreenBuilder
 import dev.catbit.mosaic.server.builder.color.color
+import dev.catbit.mosaic.server.builder.color.themeColorInverseOnSurface
+import dev.catbit.mosaic.server.builder.color.themeColorInverseSurface
 import dev.catbit.mosaic.server.builder.color.themeColorOnSurfaceVariant
+import dev.catbit.mosaic.server.builder.color.themeColorPrimaryContainer
+import dev.catbit.mosaic.server.builder.color.themeColorSecondaryContainer
 import dev.catbit.mosaic.server.builder.color.themeColorSurfaceContainerLowest
+import dev.catbit.mosaic.server.builder.color.themeColorTertiaryContainer
+import dev.catbit.mosaic.server.builder.placement.alignToBottomEnd
+import dev.catbit.mosaic.server.builder.placement.alignToTopStart
 import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
 import dev.catbit.mosaic.server.builder.screen.Screen
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.builders.grouping.Box
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
-import dev.catbit.mosaic.server.builder.typography.typographyBodyMedium
+import dev.catbit.mosaic.server.builder.typography.typographyBodyLarge
+import dev.catbit.mosaic.server.builder.typography.typographyDisplayMedium
 import dev.catbit.mosaic.server.builder.typography.typographyHeadlineSmall
-import dev.catbit.mosaic.server.builder.typography.typographyTitleMedium
 import io.ktor.server.routing.RoutingCall
 
+/**
+ * Visual identity ported from m3.material.io: dark blob hero (mirrors About/Tiles/Events/Get
+ * started), then each mechanism as a big headline + prose paragraph + code sample directly on the
+ * page background — the same "What's a design token?"-style editorial layout the real M3 docs
+ * pages use, not everything crammed into small uniform cards.
+ */
 private data class MechanismTopic(
     val title: String,
     val description: String,
@@ -103,15 +117,15 @@ private fun TileSchemaBuilderScope.MechanismSection(topic: MechanismTopic) {
         style = {
             size(width = fillHorizontally(), height = wrapVertically())
         },
-        arrangement = arrangeVerticallySpacedBy(8)
+        arrangement = arrangeVerticallySpacedBy(12)
     ) {
         SimpleText(
             text = topic.title,
-            typography = typographyTitleMedium()
+            typography = typographyHeadlineSmall()
         )
         SimpleText(
             text = topic.description,
-            typography = typographyBodyMedium(),
+            typography = typographyBodyLarge(),
             color = color(themeColorOnSurfaceVariant())
         )
         if (topic.code != null) {
@@ -138,21 +152,67 @@ object MechanismsScreenBuilder : ScreenBuilder {
                 size(width = fillHorizontally(), height = fillVertically())
                 windowInsets(windowInsetsSystemBars())
                 background(color(themeColorSurfaceContainerLowest()))
-                padding(horizontal = 24, top = 24, bottom = 24)
+                padding(horizontal = 16, top = 16, bottom = 32)
             },
-            arrangement = arrangeVerticallySpacedBy(24),
+            arrangement = arrangeVerticallySpacedBy(36),
             scrollable = true
         ) {
-            SimpleText(
-                text = "Mecanismos do Mosaic",
-                typography = typographyHeadlineSmall()
-            )
-            SimpleText(
-                text = "Por baixo da DSL de tiles e events existem alguns conceitos runtime que " +
-                    "explicam como dados fluem e como a árvore de tiles é manipulada.",
-                typography = typographyBodyMedium(),
-                color = color(themeColorOnSurfaceVariant())
-            )
+            // Hero: dark card topped by a big overlapping-blob illustration, same DNA as
+            // About/Tiles/Events/Get started.
+            Column(
+                id = "mechanisms_hero",
+                style = {
+                    size(width = fillHorizontally(), height = wrapVertically())
+                    clip(roundedCornerShape(all = 28))
+                    background(color(themeColorInverseSurface()))
+                }
+            ) {
+                Box(
+                    style = {
+                        size(width = fillHorizontally(), height = fixedVertically(140))
+                        background(color(themeColorPrimaryContainer()))
+                    }
+                ) {
+                    Box(
+                        alignment = alignToTopStart(),
+                        style = {
+                            size(width = fixedHorizontally(90), height = fixedVertically(90))
+                            clip(circleShape())
+                            background(color(themeColorTertiaryContainer()))
+                            margin(top = 8, start = 8)
+                        }
+                    ) {}
+                    Box(
+                        alignment = alignToBottomEnd(),
+                        style = {
+                            size(width = fixedHorizontally(120), height = fixedVertically(120))
+                            clip(circleShape())
+                            background(color(themeColorSecondaryContainer()))
+                            margin(bottom = 8, end = 8)
+                        }
+                    ) {}
+                }
+                Column(
+                    style = {
+                        size(width = fillHorizontally(), height = wrapVertically())
+                        padding(horizontal = 24, top = 20, bottom = 24)
+                    },
+                    arrangement = arrangeVerticallySpacedBy(8)
+                ) {
+                    SimpleText(
+                        text = "Mechanisms",
+                        typography = typographyDisplayMedium(),
+                        color = color(themeColorInverseOnSurface())
+                    )
+                    SimpleText(
+                        text = "Por baixo da DSL de tiles e events existem alguns conceitos runtime que " +
+                            "explicam como dados fluem e como a árvore de tiles é manipulada.",
+                        typography = typographyBodyLarge(),
+                        color = color(themeColorInverseOnSurface())
+                    )
+                }
+            }
+
             mechanismTopics.forEach { topic ->
                 MechanismSection(topic)
             }

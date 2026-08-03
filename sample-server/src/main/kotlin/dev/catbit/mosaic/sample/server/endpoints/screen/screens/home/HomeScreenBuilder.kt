@@ -187,6 +187,11 @@ private enum class HomeEntries(
         label = "About",
         iconName = "info",
     ),
+    GetStarted(
+        id = "get_started",
+        label = "Get started",
+        iconName = "rocket_launch",
+    ),
     Style(
         id = "style",
         label = "Style",

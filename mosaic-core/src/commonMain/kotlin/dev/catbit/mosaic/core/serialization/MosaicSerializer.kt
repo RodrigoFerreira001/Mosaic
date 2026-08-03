@@ -55,6 +55,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.scroll.row.ScrollRowTile
 import dev.catbit.mosaic.core.data.schemas.event.events.security.RequestPermissionEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.system.BroadcastToSystemEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.system.CheckIfHasInternetConnectionEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.system.DropCachesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.system.OpenExternalLinkEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.theme.ResetThemeEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.theme.SetThemeEventSchema
@@ -1211,6 +1212,7 @@ class MosaicSerializer(
             RequestPermissionEventSchema::class to RequestPermissionEventSchema.serializer(),
             BroadcastToSystemEventSchema::class to BroadcastToSystemEventSchema.serializer(),
             CheckIfHasInternetConnectionEventSchema::class to CheckIfHasInternetConnectionEventSchema.serializer(),
+            DropCachesEventSchema::class to DropCachesEventSchema.serializer(),
             OpenExternalLinkEventSchema::class to OpenExternalLinkEventSchema.serializer(),
             AddTilesEventSchema::class to AddTilesEventSchema.serializer(),
             CheckIfTileContainsChildrenEventSchema::class to CheckIfTileContainsChildrenEventSchema.serializer(),

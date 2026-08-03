@@ -4,9 +4,11 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.about.AboutScree
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailsScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.events.EventsScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.extend.ExtendScreenBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.get_started.GetStartedScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.home.HomeScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.mechanisms.MechanismsScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.style.StyleScreenBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.TileDetailsScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tiles.TilesScreenBuilder
 import dev.catbit.mosaic.sample.server.exceptions.UnknownScreenException
 import io.ktor.http.HttpStatusCode
@@ -22,6 +24,8 @@ private val screenBuilderManager = ScreenBuilderManager(
         TilesScreenBuilder,
         EventsScreenBuilder,
         EventDetailsScreenBuilder,
+        TileDetailsScreenBuilder,
+        GetStartedScreenBuilder,
         ExtendScreenBuilder,
         MechanismsScreenBuilder,
     )

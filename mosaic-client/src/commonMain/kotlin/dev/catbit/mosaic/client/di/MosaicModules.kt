@@ -211,7 +211,6 @@ internal class MosaicModules(
 
     val modules by lazy {
         listOf(
-            additionalModule,
             applicationModule,
             dataModule,
             serializerModule,
@@ -220,7 +219,8 @@ internal class MosaicModules(
             stateHolder,
             useCaseModule,
             dataProcessorsModule,
-            platformModule
+            platformModule,
+            additionalModule
         )
     }
 
