@@ -12,7 +12,7 @@ class SystemBroadcastListenerTileHolder(
     override val tiles: MutableList<TileHolder<*>>
 ) : TileHolder<SystemBroadcastListenerTileSchema>() {
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         tiles = tiles.immutableMapTo { it.get() },
         events = events.immutableMapTo { it.get() }
     )

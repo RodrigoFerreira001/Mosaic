@@ -14,7 +14,7 @@ class RunCancellableEventsEventHolder(
     override val tiles: List<TileHolder<*>>? = null
 ) : EventHolder<RunCancellableEventsEventSchema>() {
 
-    override fun get() = event.copy(
+    override fun getEventSchema() = event.copy(
         events = events?.immutableMapTo { it.get() }
     )
 }

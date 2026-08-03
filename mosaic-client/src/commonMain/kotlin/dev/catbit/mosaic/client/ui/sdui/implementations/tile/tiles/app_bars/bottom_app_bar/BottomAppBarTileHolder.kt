@@ -15,7 +15,7 @@ class BottomAppBarTileHolder(
 
     override val tiles = actions.toMutableList().apply { floatingActionButton?.let(::add) }
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         events = events.immutableMapTo { it.get() },
         actions = actions.immutableMapTo { it.get() },
         floatingActionButton = floatingActionButton?.get()

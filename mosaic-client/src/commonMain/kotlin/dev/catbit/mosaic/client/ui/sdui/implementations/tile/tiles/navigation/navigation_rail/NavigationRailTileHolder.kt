@@ -21,7 +21,7 @@ class NavigationRailTileHolder(
             footer?.let(::add)
         }
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         events = events.immutableMapTo { it.get() },
         header = header?.get(),
         footer = footer?.get()

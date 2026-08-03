@@ -14,7 +14,7 @@ class InputChipTileHolder(
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<InputChipTileSchema>() {
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         events = events.immutableMapTo { it.get() }
     )
 

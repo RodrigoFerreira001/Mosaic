@@ -14,7 +14,7 @@ class SetIncomingDataToNetworkParamsHolderBodyEventHolder(
     override val tiles: List<TileHolder<*>>? = null
 ) : EventHolder<SetIncomingDataToNetworkParamsHolderBodyEventSchema>() {
 
-    override fun get() = event.copy(
+    override fun getEventSchema() = event.copy(
         events = events?.immutableMapTo { it.get() }
     )
 }

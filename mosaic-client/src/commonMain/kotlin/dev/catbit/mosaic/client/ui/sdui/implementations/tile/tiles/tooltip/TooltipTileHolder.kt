@@ -12,7 +12,7 @@ class TooltipTileHolder(
     override val tiles: MutableList<TileHolder<*>>
 ) : TileHolder<TooltipTileSchema>() {
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         tiles = tiles.immutableMapTo { it.get() },
         events = events.immutableMapTo { it.get() }
     )

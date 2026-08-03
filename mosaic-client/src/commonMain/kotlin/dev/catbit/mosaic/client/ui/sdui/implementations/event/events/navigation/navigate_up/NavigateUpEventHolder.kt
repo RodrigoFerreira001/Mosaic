@@ -14,7 +14,7 @@ class NavigateUpEventHolder(
     override val tiles: List<TileHolder<*>>? = null
 ) : EventHolder<NavigateUpEventSchema>() {
 
-    override fun get() = event.copy(
+    override fun getEventSchema() = event.copy(
         events = events?.immutableMapTo { it.get() }
     )
 }

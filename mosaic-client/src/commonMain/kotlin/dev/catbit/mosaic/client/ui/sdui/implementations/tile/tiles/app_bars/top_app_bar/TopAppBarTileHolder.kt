@@ -20,7 +20,7 @@ class TopAppBarTileHolder(
             navigationIcon?.let(::add)
         }
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         events = events.immutableMapTo { it.get() },
         title = title.get(),
         navigationIcon = navigationIcon?.get(),

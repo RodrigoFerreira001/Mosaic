@@ -12,7 +12,7 @@ class IconButtonTileHolder(
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<IconButtonTileSchema>() {
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         events = events.immutableMapTo { it.get() }
     )
 }

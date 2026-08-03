@@ -14,7 +14,7 @@ class ScrollTileColumnEventHolder(
     override val tiles: List<TileHolder<*>>? = null
 ) : EventHolder<ScrollColumnTileEventSchema>() {
 
-    override fun get() = event.copy(
+    override fun getEventSchema() = event.copy(
         events = events?.immutableMapTo { it.get() }
     )
 }

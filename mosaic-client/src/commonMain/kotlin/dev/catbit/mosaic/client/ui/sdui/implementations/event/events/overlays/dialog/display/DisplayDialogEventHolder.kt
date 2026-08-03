@@ -14,7 +14,7 @@ class DisplayDialogEventHolder(
     override val tiles: List<TileHolder<*>>
 ) : EventHolder<DisplayDialogEventSchema>() {
 
-    override fun get() = event.copy(
+    override fun getEventSchema() = event.copy(
         events = events?.immutableMapTo { it.get() },
         tiles = tiles.immutableMapTo { it.get() }
     )

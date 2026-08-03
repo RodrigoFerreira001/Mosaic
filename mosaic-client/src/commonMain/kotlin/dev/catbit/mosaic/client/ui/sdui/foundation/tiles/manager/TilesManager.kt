@@ -1,6 +1,5 @@
 package dev.catbit.mosaic.client.ui.sdui.foundation.tiles.manager
 
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import dev.catbit.mosaic.client.exceptions.EventNotFoundException
 import dev.catbit.mosaic.client.exceptions.TileNotFoundException
@@ -44,8 +43,6 @@ class TilesManager(
     TilesEventHolder,
     TilesValueProducer {
 
-    private val screenTileHolerId = "mosaic::root"
-
     private var onUpdateRequest: (TileSchema) -> Unit = {}
     private lateinit var screenTileHolder: ScreenTileHolder
 
@@ -85,7 +82,7 @@ class TilesManager(
             screenTileHolder = with(tileHolderBuilderManager) {
                 builderScope.build(
                     ScreenTileSchema(
-                        id = screenTileHolerId,
+                        id = "mosaic::root",
                         tiles = tiles,
                         navigationDrawerTiles = navigationDrawerTiles,
                         events = events,
@@ -105,12 +102,15 @@ class TilesManager(
         tileSchema: TileSchema,
         where: InsertionPosition,
     ) = runCatching {
-        screenTileHolder.addChild(
-            child = with(tileHolderBuilderManager) {
-                builderScope.build(tileSchema)
-            },
-            where = where
-        )
+        screenTileHolder.apply {
+            addChild(
+                child = with(tileHolderBuilderManager) {
+                    builderScope.build(tileSchema)
+                },
+                where = where
+            )
+            markAsDirty()
+        }
         updateState()
     }
 
@@ -120,12 +120,15 @@ class TilesManager(
         where: InsertionPosition
     ) = runCatching {
         getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
-            tileHolder.addChild(
-                child = with(tileHolderBuilderManager) {
-                    builderScope.build(tileSchema)
-                },
-                where = where
-            )
+            tileHolder.apply {
+                addChild(
+                    child = with(tileHolderBuilderManager) {
+                        builderScope.build(tileSchema)
+                    },
+                    where = where
+                )
+                markAsDirty()
+            }
             owner.updateState()
         } ?: throw TileNotFoundException("No tile with id '$groupingTileId' found")
     }
@@ -134,14 +137,17 @@ class TilesManager(
         tileSchemas: List<TileSchema>,
         where: InsertionPosition,
     ) = runCatching {
-        screenTileHolder.addChildren(
-            children = with(tileHolderBuilderManager) {
-                tileSchemas.map { tileSchema ->
-                    builderScope.build(tileSchema)
-                }
-            },
-            where = where
-        )
+        screenTileHolder.apply {
+            addChildren(
+                children = with(tileHolderBuilderManager) {
+                    tileSchemas.map { tileSchema ->
+                        builderScope.build(tileSchema)
+                    }
+                },
+                where = where
+            )
+            markAsDirty()
+        }
         updateState()
     }
 
@@ -151,14 +157,17 @@ class TilesManager(
         where: InsertionPosition,
     ) = runCatching {
         getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
-            tileHolder.addChildren(
-                children = with(tileHolderBuilderManager) {
-                    tileSchemas.map { tileSchema ->
-                        builderScope.build(tileSchema)
-                    }
-                },
-                where = where
-            )
+            tileHolder.apply {
+                addChildren(
+                    children = with(tileHolderBuilderManager) {
+                        tileSchemas.map { tileSchema ->
+                            builderScope.build(tileSchema)
+                        }
+                    },
+                    where = where
+                )
+                markAsDirty()
+            }
             owner.updateState()
         } ?: throw TileNotFoundException("No tile with id '$groupingTileId' found")
     }
@@ -166,12 +175,11 @@ class TilesManager(
     override fun removeTile(
         tileId: String,
     ) = runCatching {
-        screenTileHolder
-            .getTileHolder(screenTileHolerId)
-            ?.let {
-                it.removeChild(tileId)
-                updateState()
-            } ?: throw TileNotFoundException("No tile with id '$tileId' found")
+        screenTileHolder.apply {
+            removeChild(tileId)
+            markAsDirty()
+        }
+        updateState()
     }
 
     override fun removeTile(
@@ -179,7 +187,10 @@ class TilesManager(
         groupingTileId: String,
     ) = runCatching {
         getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
-            tileHolder.removeChild(tileId)
+            tileHolder.apply {
+                removeChild(tileId)
+                markAsDirty()
+            }
             owner.updateState()
         } ?: throw TileNotFoundException("No tile with id '$tileId' found")
     }
@@ -187,12 +198,11 @@ class TilesManager(
     override fun removeTiles(
         tileIds: List<String>,
     ) = runCatching {
-        screenTileHolder
-            .getTileHolder(screenTileHolerId)
-            ?.let {
-                it.removeChildren(tileIds)
-                updateState()
-            } ?: throw TileNotFoundException("No tile with id '$screenTileHolerId' found")
+        screenTileHolder.apply {
+            removeChildren(tileIds)
+            markAsDirty()
+        }
+        updateState()
     }
 
 
@@ -201,7 +211,10 @@ class TilesManager(
         groupingTileId: String,
     ) = runCatching {
         getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
-            tileHolder.removeChildren(tileIds)
+            tileHolder.apply {
+                removeChildren(tileIds)
+                markAsDirty()
+            }
             owner.updateState()
         } ?: throw TileNotFoundException("No tile with id '$groupingTileId' found")
     }
@@ -209,17 +222,18 @@ class TilesManager(
     override fun replaceTiles(
         tileSchemas: List<TileSchema>,
     ) = runCatching {
-        screenTileHolder.getTileHolder(screenTileHolerId)?.let { holder ->
-            holder.wipeChildren()
-            holder.addChildren(
+        screenTileHolder.apply {
+            wipeChildren()
+            addChildren(
                 children = with(tileHolderBuilderManager) {
                     tileSchemas.map { tileSchema ->
                         builderScope.build(tileSchema)
                     }
                 }
             )
-            updateState()
-        } ?: throw TileNotFoundException("No tile with id '$screenTileHolerId' found")
+            markAsDirty()
+        }
+        updateState()
     }
 
     override fun replaceTiles(
@@ -236,6 +250,7 @@ class TilesManager(
                         }
                     }
                 )
+                markAsDirty()
             }
             owner.updateState()
         } ?: throw TileNotFoundException("No tile with id '$groupingTileId' found")
@@ -245,7 +260,10 @@ class TilesManager(
         groupingTileId: String,
     ) = runCatching {
         getTileHolderAndOwner(groupingTileId)?.let { (tileHolder, owner) ->
-            tileHolder.wipeChildren()
+            tileHolder.apply {
+                wipeChildren()
+                markAsDirty()
+            }
             owner.updateState()
         } ?: throw TileNotFoundException("No tile with id '$groupingTileId' found")
     }
@@ -260,6 +278,7 @@ class TilesManager(
         )?.let { (tileHolder, owner) ->
             with(tileHolder) {
                 updateScope.update(updateData)
+                markAsDirty()
             }
             owner.updateState()
         } ?: throw TileNotFoundException("No tile with id '$tileId' found")
@@ -291,6 +310,7 @@ class TilesManager(
         getTileHolderAndOwner(tileId)?.let { (tileHolder, owner) ->
             with(tileHolder) {
                 tileEventScope.onTileEvent(event)
+                markAsDirty()
             }
             owner.updateState()
         } ?: throw TileNotFoundException("No tile with id '$tileId' found")
@@ -303,6 +323,7 @@ class TilesManager(
             tileHolders.forEach { tileHolder ->
                 with(tileHolder) {
                     tileEventScope.onTileGroupEvent(event)
+                    markAsDirty()
                 }
             }
             owner.updateState()
@@ -312,7 +333,8 @@ class TilesManager(
     override fun getEventSchema(
         eventId: String
     ): EventSchema? =
-        screenTileHolder.getEventHolder(eventId)?.get() ?: parent?.getEventSchema(eventId)
+        screenTileHolder.getEventHolder(eventId)?.get()
+            ?: parent?.getEventSchema(eventId)
 
     override fun updateEventHolder(
         eventId: String,
@@ -321,6 +343,7 @@ class TilesManager(
         getEventHolderAndOwner(eventId)?.let { (eventHolder, owner) ->
             with(eventHolder) {
                 updateScope.update(data)
+                markAsDirty()
             }
             owner.updateState()
         } ?: throw EventNotFoundException("No event with id '$eventId' found")
@@ -330,15 +353,23 @@ class TilesManager(
         tileSchemas: List<TileSchema>
     ) {
         runSafely(
-            onError = { builderScope.logError(tag = "TilesManager.setBottomSheetTiles", throwable = it) }
+            onError = {
+                builderScope.logError(
+                    tag = "TilesManager.setBottomSheetTiles",
+                    throwable = it
+                )
+            }
         ) {
-            screenTileHolder.setBottomSheetTiles(
-                with(tileHolderBuilderManager) {
-                    tileSchemas.map { tileSchema ->
-                        builderScope.build(tileSchema)
+            screenTileHolder.apply {
+                setBottomSheetTiles(
+                    with(tileHolderBuilderManager) {
+                        tileSchemas.map { tileSchema ->
+                            builderScope.build(tileSchema)
+                        }
                     }
-                }
-            )
+                )
+                markAsDirty()
+            }
             updateState()
         }
     }
@@ -349,20 +380,23 @@ class TilesManager(
         runSafely(
             onError = { builderScope.logError(tag = "TilesManager.setDialogTiles", throwable = it) }
         ) {
-            screenTileHolder.setDialogTiles(
-                with(tileHolderBuilderManager) {
-                    tileSchemas.map { tileSchema ->
-                        builderScope.build(tileSchema)
+            screenTileHolder.apply {
+                setDialogTiles(
+                    with(tileHolderBuilderManager) {
+                        tileSchemas.map { tileSchema ->
+                            builderScope.build(tileSchema)
+                        }
                     }
-                }
-            )
+                )
+                markAsDirty()
+            }
             updateState()
         }
     }
 
     override fun getEventsByTrigger(
         eventTrigger: EventTrigger
-    ): List<EventSchema>? = screenTileHolder.getEventsByTrigger(eventTrigger)
+    ): List<EventSchema> = screenTileHolder.getEventsByTrigger(eventTrigger)
 
     override fun getValueWithKey(
         tileId: String,

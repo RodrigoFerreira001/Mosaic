@@ -11,7 +11,7 @@ class ImageTileHolder(
     override val events: MutableList<EventHolder<*>>,
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<ImageTileSchema>() {
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         events = events.immutableMapTo { it.get() }
     )
 }

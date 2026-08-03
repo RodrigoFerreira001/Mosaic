@@ -4,7 +4,6 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolde
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.text.SimpleTextTileSchema
 import dev.catbit.mosaic.core.extensions.immutableMapTo
-import kotlinx.collections.immutable.toImmutableList
 
 class SimpleTextTileHolder(
     override val id: String,
@@ -13,7 +12,7 @@ class SimpleTextTileHolder(
     override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<SimpleTextTileSchema>() {
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         events = events.immutableMapTo { it.get() }
     )
 }

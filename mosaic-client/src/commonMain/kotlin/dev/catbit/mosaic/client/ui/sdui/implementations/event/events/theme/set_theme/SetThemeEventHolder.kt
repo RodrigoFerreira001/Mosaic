@@ -14,7 +14,7 @@ class SetThemeEventHolder(
     override val tiles: List<TileHolder<*>>? = null
 ) : EventHolder<SetThemeEventSchema>() {
 
-    override fun get() = event.copy(
+    override fun getEventSchema() = event.copy(
         events = events?.immutableMapTo { it.get() }
     )
 }

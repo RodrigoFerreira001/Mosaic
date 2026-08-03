@@ -12,7 +12,7 @@ class PagerTileHolder(
     override val tiles: MutableList<TileHolder<*>>
 ) : TileHolder<PagerTileSchema>() {
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         tiles = tiles.immutableMapTo { it.get() },
         events = events.immutableMapTo { it.get() }
     )

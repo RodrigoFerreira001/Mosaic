@@ -25,7 +25,7 @@ class AdaptiveNavigationTileHolder(
             topBarActions?.let(::addAll)
         }
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         events = events.immutableMapTo { it.get() },
         primaryAction = primaryAction?.get(),
         topBar = tile.topBar.copy(

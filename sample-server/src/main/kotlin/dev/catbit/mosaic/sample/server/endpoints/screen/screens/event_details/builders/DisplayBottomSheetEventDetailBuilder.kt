@@ -27,6 +27,7 @@ import dev.catbit.mosaic.server.builder.tile.builders.buttons.textButton
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Row
 import dev.catbit.mosaic.server.builder.tile.builders.image.Icon
+import dev.catbit.mosaic.server.builder.tile.builders.inputs.TextField
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 import dev.catbit.mosaic.server.builder.typography.typographyBodyMedium
 import dev.catbit.mosaic.server.builder.typography.typographyTitleLarge
@@ -93,6 +94,13 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                                     SimpleText(
                                         text = "Compartilhar via",
                                         typography = typographyTitleLarge()
+                                    )
+                                    TextField(
+                                        style = {
+                                            size(
+                                                width = fillHorizontally()
+                                            )
+                                        }
                                     )
                                     SimpleText(
                                         text = "Conteúdo montado pelo evento DisplayBottomSheet, com o " +

@@ -6,7 +6,6 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolde
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.tile.TileHolder
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.search.SearchBarTileSchema
 import dev.catbit.mosaic.core.extensions.immutableMapTo
-import kotlinx.collections.immutable.toImmutableList
 
 class SearchBarTileHolder(
     override val id: String,
@@ -14,10 +13,15 @@ class SearchBarTileHolder(
     override val events: MutableList<EventHolder<*>>,
     private val leadingIconHolder: TileHolder<*>?,
     private val trailingIconHolder: TileHolder<*>?,
-    override val tiles: MutableList<TileHolder<*>>? = null
 ) : TileHolder<SearchBarTileSchema>() {
 
-    override fun get() = tile.copy(
+    override val tiles: MutableList<TileHolder<*>> =
+        mutableListOf<TileHolder<*>>().apply {
+            leadingIconHolder?.let(::add)
+            trailingIconHolder?.let(::add)
+        }
+
+    override fun getTileSchema() = tile.copy(
         events = events.immutableMapTo { it.get() },
         leadingIcon = leadingIconHolder?.get(),
         trailingIcon = trailingIconHolder?.get()

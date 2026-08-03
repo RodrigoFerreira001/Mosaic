@@ -14,7 +14,7 @@ class ReplaceTilesEventHolder(
     override val tiles: List<TileHolder<*>>
 ) : EventHolder<ReplaceTilesEventSchema>() {
 
-    override fun get() = event.copy(
+    override fun getEventSchema() = event.copy(
         events = events?.immutableMapTo { it.get() },
         tiles = tiles.immutableMapTo { it.get() }
     )

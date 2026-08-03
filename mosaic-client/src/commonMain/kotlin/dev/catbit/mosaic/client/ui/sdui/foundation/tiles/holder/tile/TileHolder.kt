@@ -23,6 +23,16 @@ abstract class TileHolder<T : TileSchema> {
     protected abstract val events: MutableList<EventHolder<*>>
     protected abstract val tiles: MutableList<TileHolder<*>>?
 
+    protected var isDirtyInternal: Boolean = false
+
+    fun markAsDirty() {
+        isDirtyInternal = true
+    }
+
+    open fun isDirty(): Boolean = isDirtyInternal
+            || tiles?.any { it.isDirty() } == true
+            || events.any { it.isDirty() }
+
     open fun getTileHolder(
         tileId: String,
         includeEventsOnSearch: Boolean = false
@@ -51,7 +61,14 @@ abstract class TileHolder<T : TileSchema> {
         .map { it.get() }
         .plus(tiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
 
-    abstract fun get(): T
+    protected abstract fun getTileSchema(): T
+
+    fun get(): T = if (isDirty()) {
+        getTileSchema().apply {
+            tile = this
+            isDirtyInternal = false
+        }
+    } else tile
 
     @OptIn(InternalSerializationApi::class)
     fun UpdateScope.update(updateData: Map<String, Any?>) {

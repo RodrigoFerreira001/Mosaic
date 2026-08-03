@@ -21,6 +21,16 @@ abstract class EventHolder<T : EventSchema> {
     protected abstract val events: List<EventHolder<*>>?
     protected abstract val tiles: List<TileHolder<*>>?
 
+    protected var isDirtyInternal: Boolean = false
+
+    fun markAsDirty() {
+        isDirtyInternal = true
+    }
+
+    open fun isDirty(): Boolean = isDirtyInternal
+            || tiles?.any { it.isDirty() } == true
+            || events?.any { it.isDirty() } == true
+
     fun getEventHolder(eventId: String): EventHolder<*>? =
         if (eventId == id) this
         else events?.firstNotNullOfOrNull { it.getEventHolder(eventId) }
@@ -30,12 +40,17 @@ abstract class EventHolder<T : EventSchema> {
         tiles?.firstNotNullOfOrNull { it.getTileHolder(tileId, true) }
             ?: events?.firstNotNullOfOrNull { it.getTileHolder(tileId) }
 
-    abstract fun get(): T
+    protected abstract fun getEventSchema(): T
+
+    fun get(): T = if (isDirty()) {
+        getEventSchema().apply {
+            event = this
+            isDirtyInternal = false
+        }
+    } else event
 
     @OptIn(InternalSerializationApi::class)
     fun UpdateScope.update(updateData: Map<String, Any?>) {
-
-        // TODO Maybe, just maybe, change this part to an event update with new events or tiles, can update the current tile and event holders
 
         runSafely(
             onError = { builderScope.logError(tag = "EventHolder.update", throwable = it) }

@@ -14,7 +14,7 @@ class StartCountdownTimerEventHolder(
     override val tiles: List<TileHolder<*>>? = null
 ) : EventHolder<StartCountdownTimerEventSchema>() {
 
-    override fun get() = event.copy(
+    override fun getEventSchema() = event.copy(
         events = events?.immutableMapTo { it.get() }
     )
 }

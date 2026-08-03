@@ -67,6 +67,7 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.bu
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.UpdateTilesEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.WipeTilesEventDetailBuilder
 import dev.catbit.mosaic.server.builder.color.color
+import dev.catbit.mosaic.server.builder.color.themeColorBackground
 import dev.catbit.mosaic.server.builder.color.themeColorOnSurfaceVariant
 import dev.catbit.mosaic.server.builder.event.builders.navigation.NavigateUp
 import dev.catbit.mosaic.server.builder.event.builders.overlays.navigation_drawer.DismissNavigationDrawer
@@ -178,6 +179,7 @@ object EventDetailsScreenBuilder : ScreenBuilder {
                         size(width = fillHorizontally(), height = fillVertically())
                         padding(horizontal = 24, vertical = 24)
                         windowInsets(windowInsetsSystemBars())
+                        background(color(themeColorBackground()))
                     },
                     arrangement = arrangeVerticallySpacedBy(16)
                 ) {

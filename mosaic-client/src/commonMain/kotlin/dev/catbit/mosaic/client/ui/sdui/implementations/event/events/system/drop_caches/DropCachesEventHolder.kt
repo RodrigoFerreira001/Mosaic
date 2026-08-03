@@ -14,7 +14,7 @@ class DropCachesEventHolder(
     override val tiles: List<TileHolder<*>>? = null
 ) : EventHolder<DropCachesEventSchema>() {
 
-    override fun get() = event.copy(
+    override fun getEventSchema() = event.copy(
         events = events?.immutableMapTo { it.get() }
     )
 }

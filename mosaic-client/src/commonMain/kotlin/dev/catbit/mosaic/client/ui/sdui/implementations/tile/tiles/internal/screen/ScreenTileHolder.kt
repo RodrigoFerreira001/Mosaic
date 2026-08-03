@@ -58,7 +58,12 @@ class ScreenTileHolder(
         .plus(navigationDrawerTiles?.mapNotNull { it.getEventsByTrigger(eventTrigger) }?.flatten().orEmpty())
         .toList()
 
-    override fun get() = tile.copy(
+    override fun isDirty(): Boolean = super.isDirty()
+            || navigationDrawerTiles?.any { it.isDirty() } == true
+            || currentBottomSheetTiles?.any { it.isDirty() } == true
+            || currentDialogSheetTiles?.any { it.isDirty() } == true
+
+    override fun getTileSchema() = tile.copy(
         tiles = tiles.immutableMapTo { it.get() },
         events = events.immutableMapTo { it.get() },
         navigationDrawerTiles = navigationDrawerTiles?.immutableMapTo { it.get() },

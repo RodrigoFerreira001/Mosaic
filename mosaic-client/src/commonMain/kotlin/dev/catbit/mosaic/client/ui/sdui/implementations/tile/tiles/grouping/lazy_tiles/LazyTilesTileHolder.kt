@@ -23,7 +23,7 @@ class LazyTilesTileHolder(
         internalTiles?.let(::addAll)
     }
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         failureTiles = failureTiles.immutableMapTo { it.get() },
         placeholderTiles = placeholderTiles.immutableMapTo { it.get() },
         events = events.immutableMapTo { it.get() },

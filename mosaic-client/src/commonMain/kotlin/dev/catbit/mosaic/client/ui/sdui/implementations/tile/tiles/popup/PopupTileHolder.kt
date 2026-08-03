@@ -18,7 +18,7 @@ class PopupTileHolder(
     override val tiles: MutableList<TileHolder<*>> =
         (anchorTiles + popupTiles).toMutableList()
 
-    override fun get() = tile.copy(
+    override fun getTileSchema() = tile.copy(
         tiles = anchorTiles.immutableMapTo { it.get() },
         popupTiles = popupTiles.immutableMapTo { it.get() },
         events = events.immutableMapTo { it.get() }
