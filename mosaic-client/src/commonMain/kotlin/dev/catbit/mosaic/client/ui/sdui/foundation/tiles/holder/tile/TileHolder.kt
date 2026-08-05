@@ -23,7 +23,7 @@ abstract class TileHolder<T : TileSchema> {
     protected abstract val events: MutableList<EventHolder<*>>
     protected abstract val tiles: MutableList<TileHolder<*>>?
 
-    protected var isDirtyInternal: Boolean = false
+    private var isDirtyInternal: Boolean = false
 
     fun markAsDirty() {
         isDirtyInternal = true

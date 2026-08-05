@@ -21,7 +21,7 @@ abstract class EventHolder<T : EventSchema> {
     protected abstract val events: List<EventHolder<*>>?
     protected abstract val tiles: List<TileHolder<*>>?
 
-    protected var isDirtyInternal: Boolean = false
+    private var isDirtyInternal: Boolean = false
 
     fun markAsDirty() {
         isDirtyInternal = true
