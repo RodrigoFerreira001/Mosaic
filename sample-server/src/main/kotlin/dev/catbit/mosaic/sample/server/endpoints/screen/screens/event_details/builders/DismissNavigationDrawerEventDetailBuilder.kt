@@ -24,8 +24,8 @@ object DismissNavigationDrawerEventDetailBuilder : EventDetailBuilder {
         ShowroomScaffold {
             ShowroomHero(
                 category = "Overlays",
-                description = "Fecha o menu de navegação lateral da tela — dispara " +
-                    "onNavigationDrawerDismissed() assim que o fechamento termina."
+                description = "Fecha o menu de navegação lateral da tela — dispara onSuccess() " +
+                    "assim que o sinal de fechamento é enviado."
             )
 
             ShowroomSectionTitle("Visão geral")
@@ -49,7 +49,7 @@ object DismissNavigationDrawerEventDetailBuilder : EventDetailBuilder {
                     text = "Configurações",
                     events = {
                         DismissNavigationDrawer(trigger = EventTriggers.onClick(), events = {
-                            Navigate(trigger = EventTriggers.onNavigationDrawerDismissed(), destination = "settings", navigatorId = "root")
+                            Navigate(trigger = EventTriggers.onSuccess(), destination = "settings", navigatorId = "root")
                         })
                     }
                 )

@@ -211,7 +211,7 @@ Implements five behavior interfaces simultaneously:
 | `TilesEditor` | add / remove / replace / update / wipe tiles |
 | `TilesStateUpdater` | `updateState()` → triggers recomposition |
 | `TilesEventDispatcher` | `onEvent(tileId, TileEvent)` / `onGroupEvent(TileGroupEvent)` |
-| `TilesOverlaysEditor` | `setBottomSheetTiles()` / `setDialogTiles()` |
+| `TilesOverlaysEditor` | `addBottomSheet()` / `addModalBottomSheet()` / `addDialog()` / `dismiss*(id)` — pilha de overlays por id |
 | `TilesEventHolder` | `getEventsByTrigger(trigger)` |
 
 All mutations operate on the root `ScreenTileHolder` tree. After every mutation, `updateState()` is called, which invokes `onUpdateRequest(rootTile.get())` — updating the `StateFlow` and triggering Compose recomposition.
@@ -219,11 +219,20 @@ All mutations operate on the root `ScreenTileHolder` tree. After every mutation,
 **Parent reference:** `TilesManager` holds `private val parent: TilesManager?`. All tile lookup operations (`getTileHolderAndOwner`, `getTileHoldersByGroupEventAndOwner`) first search the local `ScreenTileHolder` tree, then delegate to `parent` recursively if the tile is not found locally. This allows tiles rendered inside nested contexts (e.g. `NestedNavigationGraphTile`) to dispatch tile management events (`AddTiles`, `RemoveTiles`, `UpdateTile`, `ReplaceTiles`, etc.) that target tiles in outer/parent screens — transparently, with no special handling required in the event runners.
 
 **ScreenTileHolder** is the root node. It extends `TileHolder` and additionally manages:
-- `currentBottomSheetTiles: List<TileHolder<*>>?`
-- `currentDialogSheetTiles: List<TileHolder<*>>?`
+- `stackableOverlays: LinkedHashMap<String, StackableOverlay>` — the overlay stack, keyed by the
+  server-defined overlay id, in insertion order. `StackableOverlay` is a sealed class with
+  `BottomSheet` (non-modal), `ModalBottomSheet` and `Dialog`.
 - `navigationDrawerTiles: List<TileHolder<*>>?`
 
-Search traversal priority: bottomSheet → dialog → navigationDrawer → main tiles → events.
+Search traversal priority: overlay stack (**top down**, skipping overlays with `isDismissing`) →
+navigationDrawer → main tiles → events.
+
+**Two-phase dismissal:** `dismissOverlay(id)` does not remove the entry — it replaces it with a
+copy carrying `isDismissing = true`. The renderer reacts to that flag, plays the exit animation,
+and dispatches `ScreenTileEvents.OnDismissOverlayFinished(id)`, which is what actually removes it.
+Dismissing overlays stay out of every search path (so an update never lands on a dying holder) but
+stay inside `isDirty()`, since they are still on screen and their schema must keep regenerating
+while the animation runs.
 
 ---
 

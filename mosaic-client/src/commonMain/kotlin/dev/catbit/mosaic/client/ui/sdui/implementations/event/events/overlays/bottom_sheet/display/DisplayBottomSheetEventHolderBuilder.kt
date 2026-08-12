@@ -4,7 +4,8 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DisplayBottomSheetEventSchema
 
-object DisplayBottomSheetEventHolderBuilder : EventHolderBuilder<DisplayBottomSheetEventSchema, DisplayBottomSheetEventHolder> {
+object DisplayBottomSheetEventHolderBuilder :
+    EventHolderBuilder<DisplayBottomSheetEventSchema, DisplayBottomSheetEventHolder> {
 
     override fun BuilderScope.build(
         eventSchema: DisplayBottomSheetEventSchema

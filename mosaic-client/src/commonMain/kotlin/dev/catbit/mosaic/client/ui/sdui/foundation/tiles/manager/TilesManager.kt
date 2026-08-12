@@ -349,51 +349,6 @@ class TilesManager(
         } ?: throw EventNotFoundException("No event with id '$eventId' found")
     }
 
-    override fun setBottomSheetTiles(
-        tileSchemas: List<TileSchema>
-    ) {
-        runSafely(
-            onError = {
-                builderScope.logError(
-                    tag = "TilesManager.setBottomSheetTiles",
-                    throwable = it
-                )
-            }
-        ) {
-            screenTileHolder.apply {
-                setBottomSheetTiles(
-                    with(tileHolderBuilderManager) {
-                        tileSchemas.map { tileSchema ->
-                            builderScope.build(tileSchema)
-                        }
-                    }
-                )
-                markAsDirty()
-            }
-            updateState()
-        }
-    }
-
-    override fun setDialogTiles(
-        tileSchemas: List<TileSchema>
-    ) {
-        runSafely(
-            onError = { builderScope.logError(tag = "TilesManager.setDialogTiles", throwable = it) }
-        ) {
-            screenTileHolder.apply {
-                setDialogTiles(
-                    with(tileHolderBuilderManager) {
-                        tileSchemas.map { tileSchema ->
-                            builderScope.build(tileSchema)
-                        }
-                    }
-                )
-                markAsDirty()
-            }
-            updateState()
-        }
-    }
-
     override fun getEventsByTrigger(
         eventTrigger: EventTrigger
     ): List<EventSchema> = screenTileHolder.getEventsByTrigger(eventTrigger)
@@ -427,5 +382,105 @@ class TilesManager(
         return screenTileHolder.getEventHolder(eventId)?.let { eventHolder ->
             eventHolder to this
         } ?: parent?.getEventHolderAndOwner(eventId)
+    }
+
+    override fun addBottomSheet(
+        id: String,
+        isCancellable: Boolean,
+        fill: Boolean,
+        allowsPartialExpansion: Boolean,
+        tileSchemas: List<TileSchema>
+    ) = runCatching {
+        screenTileHolder.apply {
+            addBottomSheet(
+                id = id,
+                isCancellable = isCancellable,
+                fill = fill,
+                allowsPartialExpansion = allowsPartialExpansion,
+                tiles = with(tileHolderBuilderManager) {
+                    tileSchemas.map { tileSchema ->
+                        builderScope.build(tileSchema)
+                    }
+                }
+            )
+            markAsDirty()
+        }
+        updateState()
+    }
+
+    override fun dismissBottomSheet(
+        id: String
+    ) = runCatching {
+        screenTileHolder.apply {
+            dismissOverlay(id)
+            markAsDirty()
+        }
+        updateState()
+    }
+
+    override fun addModalBottomSheet(
+        id: String,
+        isCancellable: Boolean,
+        fill: Boolean,
+        allowsPartialExpansion: Boolean,
+        tileSchemas: List<TileSchema>
+    ) = runCatching {
+        screenTileHolder.apply {
+            addModalBottomSheet(
+                id = id,
+                isCancellable = isCancellable,
+                fill = fill,
+                allowsPartialExpansion = allowsPartialExpansion,
+                tiles = with(tileHolderBuilderManager) {
+                    tileSchemas.map { tileSchema ->
+                        builderScope.build(tileSchema)
+                    }
+                }
+            )
+            markAsDirty()
+        }
+        updateState()
+    }
+
+    override fun dismissModalBottomSheet(
+        id: String
+    ) = runCatching {
+        screenTileHolder.apply {
+            dismissOverlay(id)
+            markAsDirty()
+        }
+        updateState()
+    }
+
+    override fun addDialog(
+        id: String,
+        isCancellable: Boolean,
+        usePlatformDefaultWidth: Boolean,
+        tileSchemas: List<TileSchema>
+    ) = runCatching {
+        screenTileHolder.apply {
+            addDialog(
+                id = id,
+                isCancellable = isCancellable,
+                usePlatformDefaultWidth = usePlatformDefaultWidth,
+                tiles = with(tileHolderBuilderManager) {
+                    tileSchemas.map { tileSchema ->
+                        builderScope.build(tileSchema)
+                    }
+                }
+            )
+            markAsDirty()
+        }
+        updateState()
+    }
+
+    override fun dismissDialog(
+        id: String
+    ) = runCatching {
+        screenTileHolder.apply {
+            dismissOverlay(id)
+            markAsDirty()
+        }
+        updateState()
     }
 }

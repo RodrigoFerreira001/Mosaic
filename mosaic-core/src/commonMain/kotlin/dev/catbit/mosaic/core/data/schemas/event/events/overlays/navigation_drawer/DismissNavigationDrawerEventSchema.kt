@@ -4,7 +4,6 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationDrawerDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -17,21 +16,18 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * **incomingData consumed:** Not used.
  *
  * **Triggers fired:**
- * - [OnNavigationDrawerDismissedEventTrigger] — fired by the screen's overlay container after
- *   the drawer has been fully closed (the broadcast is handled by
- *   [ScreenTileBroadcastData.DismissNavigationDrawer]).
+ * - [OnSuccessEventTrigger] — fired as soon as the dismiss signal is broadcast, **not** after the
+ *   closing animation ends.
  *
- * **Failure scenarios:** None defined. The runner unconditionally broadcasts the dismiss
- * signal regardless of whether the drawer is currently open.
+ * **Failure scenarios:** None defined. The runner unconditionally broadcasts the dismiss signal
+ * regardless of whether the drawer is currently open.
  *
- * **Notes:** If the drawer is already closed, the broadcast is a no-op on the UI side.
- * The [OnNavigationDrawerDismissedEventTrigger] is typically fired by the overlay container,
- * not directly by this runner.
+ * **Notes:** If the drawer is already closed — or if the screen defines no `navigationDrawerTiles`
+ * at all — the broadcast is a no-op on the UI side and still reports success.
  */
 @Immutable
 @Triggers(
     [
-        OnNavigationDrawerDismissedEventTrigger::class,
         OnSuccessEventTrigger::class
     ]
 )

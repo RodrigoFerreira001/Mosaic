@@ -164,9 +164,6 @@ Usados como child event triggers após operações assíncronas (network, data, 
 
 | Trigger | @SerialName | Fired By |
 |---|---|---|
-| `OnDialogDismissedEventTrigger` | `"OnDialogDismissed"` | DismissDialogEventSchema |
-| `OnBottomSheetDismissedEventTrigger` | `"OnBottomSheetDismissed"` | DismissBottomSheetEventSchema |
-| `OnNavigationDrawerDismissedEventTrigger` | `"OnNavigationDrawerDismissed"` | DismissNavigationDrawerEventSchema |
 | `OnSnackbarActionEventTrigger` | `"OnSnackbarAction"` | DisplaySnackbarEventSchema (ação da snackbar clicada) |
 | `OnSnackbarDismissedEventTrigger` | `"OnSnackbarDismissed"` | DisplaySnackbarEventSchema (snackbar dispensada) |
 

@@ -12,10 +12,12 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.bu
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.CheckIfTileContainsChildrenEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DeleteFileEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DismissBottomSheetEventDetailBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DisplayBottomSheetEventDetailBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DismissModalBottomSheetEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DismissDialogEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DismissNavigationDrawerEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DismissSnackbarEventDetailBuilder
-import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DisplayBottomSheetEventDetailBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DisplayModalBottomSheetEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DisplayDialogEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DisplayNavigationDrawerEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DisplaySnackbarEventDetailBuilder
@@ -66,21 +68,13 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.bu
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.UpdateEventsEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.UpdateTilesEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.WipeTilesEventDetailBuilder
-import dev.catbit.mosaic.server.builder.color.color
-import dev.catbit.mosaic.server.builder.color.themeColorBackground
-import dev.catbit.mosaic.server.builder.color.themeColorOnSurfaceVariant
 import dev.catbit.mosaic.server.builder.event.builders.navigation.NavigateUp
-import dev.catbit.mosaic.server.builder.event.builders.overlays.navigation_drawer.DismissNavigationDrawer
 import dev.catbit.mosaic.server.builder.icon.icon
-import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
 import dev.catbit.mosaic.server.builder.screen.Screen
 import dev.catbit.mosaic.server.builder.tile.builders.app_bars.TopAppBar
-import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.IconButton
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
-import dev.catbit.mosaic.server.builder.typography.typographyBodyMedium
-import dev.catbit.mosaic.server.builder.typography.typographyHeadlineSmall
 import io.ktor.server.routing.RoutingCall
 
 /**
@@ -133,6 +127,8 @@ private val eventDetailBuilderManager = EventDetailBuilderManager(
         GetImageFromGalleryEventDetailBuilder,
         DisplayDialogEventDetailBuilder,
         DismissDialogEventDetailBuilder,
+        DisplayModalBottomSheetEventDetailBuilder,
+        DismissModalBottomSheetEventDetailBuilder,
         DisplayBottomSheetEventDetailBuilder,
         DismissBottomSheetEventDetailBuilder,
         DisplayNavigationDrawerEventDetailBuilder,
@@ -169,38 +165,6 @@ object EventDetailsScreenBuilder : ScreenBuilder {
 
         return Screen(
             id = "eventDetails",
-            // Nenhuma tela deste app configura navigationDrawerTiles ainda — este drawer mínimo existe só
-            // para dar um demo real a DisplayNavigationDrawer/DismissNavigationDrawer (ele nunca abre sozinho;
-            // só quando um desses eventos for disparado explicitamente).
-            navigationDrawerTiles = {
-                Column(
-                    id = "event_details_drawer_content",
-                    style = {
-                        size(width = fillHorizontally(), height = fillVertically())
-                        padding(horizontal = 24, vertical = 24)
-                        windowInsets(windowInsetsSystemBars())
-                        background(color(themeColorBackground()))
-                    },
-                    arrangement = arrangeVerticallySpacedBy(16)
-                ) {
-                    SimpleText(
-                        text = "Navigation drawer",
-                        typography = typographyHeadlineSmall()
-                    )
-                    SimpleText(
-                        text = "Este drawer existe só para demonstrar DisplayNavigationDrawer/" +
-                            "DismissNavigationDrawer — nenhuma outra tela deste app o abre.",
-                        typography = typographyBodyMedium(),
-                        color = color(themeColorOnSurfaceVariant())
-                    )
-                    Button(
-                        text = "Fechar com DismissNavigationDrawer",
-                        events = {
-                            DismissNavigationDrawer(trigger = EventTriggers.onClick())
-                        }
-                    )
-                }
-            }
         ) {
             Column(
                 style = {

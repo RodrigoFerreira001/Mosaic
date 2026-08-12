@@ -3,7 +3,7 @@
 - [x] Dialogs
 - [x] Snackbars
 - [x] Drawer
-- [ ] Text decoration
+- [x] Text decoration
 - [x] Local image
 - [x] Images
 - [x] Improve TilesUIStateFlow
@@ -30,23 +30,23 @@
 - [ ] Compactar dados entre cliente e servidor
 - [x] AsyncTiles (Client + Server, com Builders que retornar lista de tiles)
 - [x] Triggers de Scroll (OnScroll[Up, Down, Left, Right])
-- [ ] Usar ids para BS e outros overlays
+- [x] Usar ids para BS e outros overlays
 - [ ] Color com gradiente
 - [x] Um evento que executa outro evento envolopado em um Job. Tal job é registrado e pode ser cancelado externamente através de outro evento. E o evento deve se autoremover ao finalizar
 
 # Prioridades
-- [ ] Refazer parte do TileHolder para ser mais performático
+- [x] Refazer parte do TileHolder para ser mais performático
 - [x] Fazer teste inicial do server + cliente (com actions de GetScreen)
 - [x] Adicionar todos os tiles restantes (pelo menos o contrato)
 - [x] Mudar tudo o que EventSchema e TileSchema que use List<> para utilizar ImmutableList<>
-- [ ] Revisar mecanismo de cache / offline
+- [x] Revisar mecanismo de cache / offline
 - [x] Animação entre telas
-- [ ] Padronizar logs de erros de eventos
-- [ ] Ajustar triggers de dentro de loops UpdateTilesEventRunner.kt
+- [x] Padronizar logs de erros de eventos
+- [x] Ajustar triggers de dentro de loops UpdateTilesEventRunner.kt
 
 # Bugs
-- [ ] Configuração está sendo perdida com config change
-- [ ] Lazy tile sendo recarregado todas as vezes quando ocorre navegação
+- [x] Configuração está sendo perdida com config change
+- [x] Lazy tile sendo recarregado todas as vezes quando ocorre navegação
 
 # Now
 - [x] Edge to edge

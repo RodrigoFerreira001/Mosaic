@@ -4,40 +4,43 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDialogDismissedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Dismisses the currently displayed dialog overlay by broadcasting a dismiss signal to the
- * active screen. No tile data is altered.
+ * Dismisses a dialog previously opened by a [DisplayDialogEventSchema] — the "reaction" half of
+ * the pair. No tile data is altered.
  *
  * **incomingData consumed:** Not used.
  *
  * **Triggers fired:**
- * - [OnDialogDismissedEventTrigger] — fired by the screen's overlay container after the
- *   dialog has been fully dismissed (the broadcast is handled by [ScreenTileBroadcastData.DismissDialog]).
+ * - [OnSuccessEventTrigger] — fired once the dialog is marked for dismissal and leaves the
+ *   overlay stack.
+ * - [OnFailureEventTrigger] — fired with the offending id when no dialog with [dialogId] is on
+ *   the stack.
  *
- * **Failure scenarios:** None defined. The runner unconditionally broadcasts the dismiss
- * signal regardless of whether a dialog is currently visible.
+ * **Failure scenarios:** Dismissing a [dialogId] that is not currently on the overlay stack
+ * fails, which also covers dismissing the same dialog twice.
  *
- * **Notes:** If no dialog is currently shown, the broadcast is a no-op on the UI side.
- * The [OnDialogDismissedEventTrigger] is typically fired by the overlay container, not
- * directly by this runner.
+ * **Notes:** [dialogId] must match the id given to the [DisplayDialogEventSchema] that opened the
+ * dialog. Because overlays are stackable, this is what allows a dialog buried under other overlays
+ * to be closed without touching the ones above it.
  */
 @Immutable
 @Triggers(
     [
-        OnDialogDismissedEventTrigger::class,
-        OnSuccessEventTrigger::class
+        OnSuccessEventTrigger::class,
+        OnFailureEventTrigger::class
     ]
 )
 @Serializable
-@SerialName("CloseBottomSheet")
+@SerialName("DismissDialog")
 data class DismissDialogEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
+    @SerialName("dialogId") val dialogId: String,
 ) : EventSchema

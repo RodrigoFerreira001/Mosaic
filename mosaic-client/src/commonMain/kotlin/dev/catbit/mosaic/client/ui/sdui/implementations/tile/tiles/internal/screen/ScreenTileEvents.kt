@@ -3,6 +3,5 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.scr
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.TileEvent
 
 sealed interface ScreenTileEvents : TileEvent {
-    data object OnCloseBottomSheetFinished : ScreenTileEvents
-    data object OnCloseDialogFinished : ScreenTileEvents
+    data class OnDismissOverlayFinished(val overlayId: String) : ScreenTileEvents
 }

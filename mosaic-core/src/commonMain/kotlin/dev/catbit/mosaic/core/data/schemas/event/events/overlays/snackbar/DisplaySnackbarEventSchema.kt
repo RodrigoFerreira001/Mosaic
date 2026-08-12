@@ -7,9 +7,9 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarActionEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
  * Displays a Material 3 snackbar with a message, an optional action label, and a configurable
@@ -27,7 +27,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * **Failure scenarios:** None defined. The runner does not perform any fallible operation.
  *
  * **Notes:**
- * - The [SnackbarDurationSchema] enum is mapped 1-to-1 to the Compose Material 3
+ * - The [SnackbarDuration] enum is mapped 1-to-1 to the Compose Material 3
  *   [SnackbarDuration] enum at runtime ([Short], [Long], [Indefinite]).
  * - [actionLabel] is optional; omitting it produces a snackbar with no action button, and
  *   [OnSnackbarActionEventTrigger] will never fire.
@@ -50,6 +50,17 @@ data class DisplaySnackbarEventSchema(
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     val message: String,
-    val duration: SnackbarDurationSchema = SnackbarDurationSchema.Short,
+    val duration: SnackbarDuration = SnackbarDuration.Short,
     val actionLabel: String? = null
-) : EventSchema
+) : EventSchema {
+
+    @Serializable
+    enum class SnackbarDuration {
+        @SerialName("Short")
+        Short,
+        @SerialName("Long")
+        Long,
+        @SerialName("Indefinite")
+        Indefinite
+    }
+}

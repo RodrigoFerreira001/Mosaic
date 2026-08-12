@@ -68,7 +68,6 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigationController
 import dev.catbit.mosaic.client.ui.sdui.foundation.navigation.NavigatorsHolder
-import dev.catbit.mosaic.client.ui.sdui.foundation.overlays.OverlayContainer
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.MosaicScreen
 import dev.catbit.mosaic.client.ui.sdui.foundation.screen.ScreenExtrasHolder
 import dev.catbit.mosaic.client.ui.theme.MosaicColors
@@ -254,52 +253,48 @@ private fun MosaicApplicationSuccessContent(
 
     val screenExtrasHolder = koinInject<ScreenExtrasHolder>()
 
-    OverlayContainer(
+    NavDisplay(
         modifier = Modifier.fillMaxSize(),
-    ) {
-        NavDisplay(
-            modifier = Modifier.fillMaxSize(),
-            backStack = backStack,
-            onBack = { navigationController.goBack() },
-            transitionSpec = {
-                val targetKey = targetState.key as? ScreenNavKey
-                val entryTransition =
-                    targetKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.transition }
-                val resolved = entryTransition ?: uiState.graph.defaultTransition
-                resolved?.toContentTransform()
-                    ?: (EnterTransition.None togetherWith ExitTransition.None)
-            },
-            popTransitionSpec = {
-                val initialKey = initialState.key as? ScreenNavKey
-                val entryTransition =
-                    initialKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.popTransition }
-                val resolved = entryTransition ?: uiState.graph.defaultPopTransition
-                resolved?.toContentTransform()
-                    ?: (EnterTransition.None togetherWith ExitTransition.None)
-            },
-            predictivePopTransitionSpec = {
-                val initialKey = initialState.key as? ScreenNavKey
-                val entryTransition =
-                    initialKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.predictivePopTransition }
-                val resolved = entryTransition ?: uiState.graph.defaultPredictivePopTransition
-                resolved?.toContentTransform()
-                    ?: (EnterTransition.None togetherWith ExitTransition.None)
-            },
-            entryDecorators = listOf(
-                rememberSaveableStateHolderNavEntryDecorator(),
-                rememberViewModelStoreNavEntryDecorator()
-            ),
-            entryProvider = entryProvider {
-                entry<ScreenNavKey> {
-                    MosaicScreen(
-                        screenId = it.id,
-                        navigationData = it.navigationData,
-                        parent = null
-                    )
-                }
+        backStack = backStack,
+        onBack = { navigationController.goBack() },
+        transitionSpec = {
+            val targetKey = targetState.key as? ScreenNavKey
+            val entryTransition =
+                targetKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.transition }
+            val resolved = entryTransition ?: uiState.graph.defaultTransition
+            resolved?.toContentTransform()
+                ?: (EnterTransition.None togetherWith ExitTransition.None)
+        },
+        popTransitionSpec = {
+            val initialKey = initialState.key as? ScreenNavKey
+            val entryTransition =
+                initialKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.popTransition }
+            val resolved = entryTransition ?: uiState.graph.defaultPopTransition
+            resolved?.toContentTransform()
+                ?: (EnterTransition.None togetherWith ExitTransition.None)
+        },
+        predictivePopTransitionSpec = {
+            val initialKey = initialState.key as? ScreenNavKey
+            val entryTransition =
+                initialKey?.let { screenExtrasHolder.getExtraOrNull(it.id)?.predictivePopTransition }
+            val resolved = entryTransition ?: uiState.graph.defaultPredictivePopTransition
+            resolved?.toContentTransform()
+                ?: (EnterTransition.None togetherWith ExitTransition.None)
+        },
+        entryDecorators = listOf(
+            rememberSaveableStateHolderNavEntryDecorator(),
+            rememberViewModelStoreNavEntryDecorator()
+        ),
+        entryProvider = entryProvider {
+            entry<ScreenNavKey> {
+                MosaicScreen(
+                    screenId = it.id,
+                    navigationData = it.navigationData,
+                    parent = null
+                )
             }
-        )
-    }
+        }
+    )
 }
 
 @Composable

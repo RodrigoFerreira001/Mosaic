@@ -721,48 +721,90 @@ Opens the device gallery, allowing the user to pick an image. Uses `FileKit.open
 ### DisplayDialogEventSchema
 **JSON type:** `"DisplayDialog"`
 
-Shows a dialog with the provided tile tree as content.
+Pushes a dialog with the provided tile tree onto the screen's overlay stack.
 
 | Field | Type |
 |---|---|
+| `dialogId` | `String` |
 | `tiles` | `List<TileSchema>` |
 | `isCancellable` | `Boolean` |
 | `usePlatformDefaultWidth` | `Boolean` |
 
+**Child triggers used:** `OnSuccess`, `OnFailure` (id already on the stack)
+
 ---
 
 ### DismissDialogEventSchema
-**JSON type:** `"CloseBottomSheet"` *(note: JSON name is inconsistent, verify in MosaicSerializer)*
+**JSON type:** `"DismissDialog"`
 
-Dismisses the currently displayed dialog.
+Dismisses the dialog with the given id.
 
-No additional fields.
+| Field | Type |
+|---|---|
+| `dialogId` | `String` |
 
-**Child trigger used:** `OnDialogDismissed`
+**Child triggers used:** `OnSuccess`, `OnFailure` (id not on the stack)
 
 ---
 
 ### DisplayBottomSheetEventSchema
 **JSON type:** `"DisplayBottomSheet"`
 
-Shows a modal bottom sheet.
+Pushes a non-modal bottom sheet onto the screen's overlay stack. Renders inline in the screen
+layout: no scrim, content behind stays interactive.
 
 | Field | Type |
 |---|---|
+| `bottomSheetId` | `String` |
 | `tiles` | `List<TileSchema>` |
 | `isCancellable` | `Boolean` |
 | `fill` | `Boolean` |
+| `allowsPartialExpansion` | `Boolean` |
+
+**Child triggers used:** `OnSuccess`, `OnFailure` (id already on the stack)
 
 ---
 
 ### DismissBottomSheetEventSchema
 **JSON type:** `"DismissBottomSheet"`
 
-Dismisses the currently displayed bottom sheet.
+Dismisses the non-modal bottom sheet with the given id.
 
-No additional fields.
+| Field | Type |
+|---|---|
+| `bottomSheetId` | `String` |
 
-**Child trigger used:** `OnBottomSheetDismissed`
+**Child triggers used:** `OnSuccess`, `OnFailure` (id not on the stack)
+
+---
+
+### DisplayModalBottomSheetEventSchema
+**JSON type:** `"DisplayModalBottomSheet"`
+
+Pushes a modal bottom sheet onto the screen's overlay stack. Renders in its own window, with scrim.
+
+| Field | Type |
+|---|---|
+| `modalBottomSheetId` | `String` |
+| `tiles` | `List<TileSchema>` |
+| `isCancellable` | `Boolean` |
+| `fill` | `Boolean` |
+| `allowsPartialExpansion` | `Boolean` |
+
+**Child triggers used:** `OnSuccess`, `OnFailure` (id already on the stack)
+
+---
+
+### DismissModalBottomSheetEventSchema
+**JSON type:** `"DismissModalBottomSheet"`
+
+Dismisses the modal bottom sheet with the given id.
+
+| Field | Type |
+|---|---|
+| `modalBottomSheetId` | `String` |
+
+**Child triggers used:** `OnSuccess`, `OnFailure` (id not on the stack)
 
 ---
 
@@ -782,7 +824,7 @@ Closes the navigation drawer.
 
 No additional fields.
 
-**Child trigger used:** `OnNavigationDrawerDismissed`
+**Child trigger used:** `OnSuccess` (fired when the signal is broadcast, not when the animation ends)
 
 ---
 

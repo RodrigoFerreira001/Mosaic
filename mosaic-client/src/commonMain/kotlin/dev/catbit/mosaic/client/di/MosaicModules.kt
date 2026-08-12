@@ -96,6 +96,8 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.set_incoming_data_to_network_params_holder_url.SetIncomingDataToNetworkParamsHolderUrlEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.dismiss.DismissBottomSheetEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.bottom_sheet.display.DisplayBottomSheetEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.modal_bottom_sheet.dismiss.DismissModalBottomSheetEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.modal_bottom_sheet.display.DisplayModalBottomSheetEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.dismiss.DismissDialogEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.dialog.display.DisplayDialogEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.navigation_drawer.dismiss.DismissNavigationDrawerEventDefinition
@@ -505,6 +507,8 @@ internal class MosaicModules(
         WipeTilesEventDefinition,
         DisplayBottomSheetEventDefinition,
         DismissBottomSheetEventDefinition,
+        DisplayModalBottomSheetEventDefinition,
+        DismissModalBottomSheetEventDefinition,
         DismissDialogEventDefinition,
         DisplayDialogEventDefinition,
         DismissNavigationDrawerEventDefinition,

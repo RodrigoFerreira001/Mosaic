@@ -4,34 +4,36 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnBottomSheetDismissedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Dismisses the currently displayed modal bottom sheet by broadcasting a dismiss signal to
- * the active screen. No tile data is altered.
+ * Dismisses a non-modal bottom sheet previously opened by a [DisplayBottomSheetEventSchema] — the
+ * "reaction" half of the pair. No tile data is altered.
  *
  * **incomingData consumed:** Not used.
  *
  * **Triggers fired:**
- * - [OnBottomSheetDismissedEventTrigger] — fired by the screen's overlay container after the
- *   sheet has been fully dismissed (the broadcast is handled by [ScreenTileBroadcastData.DismissBottomSheet]).
+ * - [OnSuccessEventTrigger] — fired once the sheet is marked for dismissal. The sheet then plays
+ *   its exit animation and leaves the overlay stack.
+ * - [OnFailureEventTrigger] — fired with the offending id when no sheet with [bottomSheetId] is
+ *   on the stack.
  *
- * **Failure scenarios:** None defined. The runner unconditionally broadcasts the dismiss
- * signal regardless of whether a bottom sheet is currently visible.
+ * **Failure scenarios:** Dismissing a [bottomSheetId] that is not currently on the overlay stack
+ * fails, which also covers dismissing the same sheet twice.
  *
- * **Notes:** If no bottom sheet is currently shown, the broadcast is a no-op on the UI side.
- * The [OnBottomSheetDismissedEventTrigger] is typically fired by the overlay container, not
- * directly by this runner.
+ * **Notes:** [bottomSheetId] must match the id given to the [DisplayBottomSheetEventSchema] that
+ * opened the sheet. Because overlays are stackable, this is what allows a sheet buried under other
+ * overlays to be closed without touching the ones above it.
  */
 @Immutable
 @Triggers(
     [
-        OnBottomSheetDismissedEventTrigger::class,
-        OnSuccessEventTrigger::class
+        OnSuccessEventTrigger::class,
+        OnFailureEventTrigger::class
     ]
 )
 @Serializable
@@ -39,5 +41,6 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 data class DismissBottomSheetEventSchema(
     @SerialName("id") override val id: String,
     @SerialName("trigger") override val trigger: EventTrigger,
-    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?
+    @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
+    @SerialName("bottomSheetId") val bottomSheetId: String,
 ) : EventSchema

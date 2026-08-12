@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
-import dev.catbit.mosaic.core.data.schemas.event.events.overlays.snackbar.SnackbarDurationSchema
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
@@ -15,7 +14,7 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder
 import dev.catbit.mosaic.server.builder.event.builders.overlays.snackbar.DismissSnackbar
 import dev.catbit.mosaic.server.builder.event.builders.overlays.snackbar.DisplaySnackbar
-import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallySpacedBy
+import dev.catbit.mosaic.server.builder.event.builders.overlays.snackbar.snackbarIndefiniteDuration
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.outlinedButton
@@ -56,7 +55,7 @@ object DismissSnackbarEventDetailBuilder : EventDetailBuilder {
                     url = "/api/upload",
                     method = HttpMethod.POST,
                     events = {
-                        DisplaySnackbar(trigger = EventTriggers.onStart(), message = "Enviando...", duration = SnackbarDurationSchema.Indefinite)
+                        DisplaySnackbar(trigger = EventTriggers.onStart(), message = "Enviando...", duration = snackbarIndefiniteDuration())
                         DismissSnackbar(trigger = EventTriggers.onSuccess())
                         DismissSnackbar(trigger = EventTriggers.onFailure())
                     }
@@ -72,7 +71,7 @@ object DismissSnackbarEventDetailBuilder : EventDetailBuilder {
                         DisplaySnackbar(
                             trigger = EventTriggers.onClick(),
                             message = "Este snackbar não some sozinho — feche-o abaixo",
-                            duration = SnackbarDurationSchema.Indefinite
+                            duration = snackbarIndefiniteDuration()
                         )
                     }
                 )
@@ -91,7 +90,7 @@ object DismissSnackbarEventDetailBuilder : EventDetailBuilder {
             }
 
             ShowroomRelated(
-                names = listOf("DisplaySnackbar", "DismissDialog", "DismissBottomSheet"),
+                names = listOf("DisplaySnackbar", "DismissDialog", "DismissModalBottomSheet"),
                 destination = "eventDetails"
             )
         }

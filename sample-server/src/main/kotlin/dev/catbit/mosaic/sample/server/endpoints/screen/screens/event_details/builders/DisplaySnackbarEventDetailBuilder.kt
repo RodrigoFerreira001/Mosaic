@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
-import dev.catbit.mosaic.core.data.schemas.event.events.overlays.snackbar.SnackbarDurationSchema
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
@@ -14,6 +13,8 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder
 import dev.catbit.mosaic.server.builder.event.builders.overlays.snackbar.DisplaySnackbar
+import dev.catbit.mosaic.server.builder.event.builders.overlays.snackbar.snackbarLongDuration
+import dev.catbit.mosaic.server.builder.event.builders.overlays.snackbar.snackbarShortDuration
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
 import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallySpacedBy
@@ -47,7 +48,7 @@ object DisplaySnackbarEventDetailBuilder : EventDetailBuilder {
             ShowroomParamsTable(
                 listOf(
                     ShowroomParam("message", "String", "Obrigatório. Texto do snackbar."),
-                    ShowroomParam("duration", "SnackbarDurationSchema", "Short (padrão). Short, Long ou Indefinite."),
+                    ShowroomParam("duration", "SnackbarDuration", "snackbarShortDuration() (padrão). Também snackbarLongDuration() e snackbarIndefiniteDuration()."),
                     ShowroomParam("actionLabel", "String?", "null (padrão). Se definido, mostra um botão de ação."),
                 )
             )
@@ -58,7 +59,7 @@ object DisplaySnackbarEventDetailBuilder : EventDetailBuilder {
                 DisplaySnackbar(
                     trigger = EventTriggers.onFailure(),
                     message = "Something went wrong",
-                    duration = SnackbarDurationSchema.Long,
+                    duration = snackbarLongDuration(),
                     actionLabel = "Retry",
                     events = {
                         SendNetworkRequest(trigger = EventTriggers.onSnackbarAction(), url = "/api/retry", method = HttpMethod.POST)
@@ -84,7 +85,7 @@ object DisplaySnackbarEventDetailBuilder : EventDetailBuilder {
                             DisplaySnackbar(
                                 trigger = EventTriggers.onClick(),
                                 message = "Ação concluída com sucesso",
-                                duration = SnackbarDurationSchema.Short
+                                duration = snackbarShortDuration()
                             )
                         }
                     )
@@ -95,7 +96,7 @@ object DisplaySnackbarEventDetailBuilder : EventDetailBuilder {
                             DisplaySnackbar(
                                 trigger = EventTriggers.onClick(),
                                 message = "Item removido",
-                                duration = SnackbarDurationSchema.Long,
+                                duration = snackbarLongDuration(),
                                 actionLabel = "Desfazer",
                                 events = {
                                     UpdateTiles(
@@ -120,7 +121,7 @@ object DisplaySnackbarEventDetailBuilder : EventDetailBuilder {
             }
 
             ShowroomRelated(
-                names = listOf("DismissSnackbar", "DisplayDialog", "DisplayBottomSheet"),
+                names = listOf("DismissSnackbar", "DisplayDialog", "DisplayModalBottomSheet"),
                 destination = "eventDetails"
             )
         }

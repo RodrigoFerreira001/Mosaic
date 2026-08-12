@@ -328,8 +328,9 @@ MosaicApplication(
 
 | Event | What it does |
 |---|---|
-| `DisplayDialog` / `DismissDialog` | Shows/dismisses a dialog with a given tile tree as content. |
-| `DisplayBottomSheet` / `DismissBottomSheet` | Shows/dismisses a modal bottom sheet. |
+| `DisplayDialog` / `DismissDialog` | Shows/dismisses a dialog with a given tile tree as content, identified by `dialogId`. |
+| `DisplayModalBottomSheet` / `DismissModalBottomSheet` | Shows/dismisses a modal bottom sheet (own window, with scrim), identified by `modalBottomSheetId`. |
+| `DisplayBottomSheet` / `DismissBottomSheet` | Shows/dismisses a non-modal bottom sheet, rendered inline with no scrim, so the screen behind stays interactive. |
 | `DisplayNavigationDrawer` / `DismissNavigationDrawer` | Opens/closes the navigation drawer. |
 | `DisplaySnackbar` / `DismissSnackbar` | Shows a snackbar (message, duration, optional action) / dismisses it programmatically. |
 

@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.server.builder.event.builders.overlays.snackbar
 
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.snackbar.DisplaySnackbarEventSchema
-import dev.catbit.mosaic.core.data.schemas.event.events.overlays.snackbar.SnackbarDurationSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
@@ -12,7 +11,7 @@ internal class DisplaySnackbarEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val message: String,
-    private val duration: SnackbarDurationSchema,
+    private val duration: DisplaySnackbarEventSchema.SnackbarDuration,
     private val actionLabel: String?
 ) : EventSchemaBuilder<DisplaySnackbarEventSchema>() {
 
@@ -30,7 +29,7 @@ fun EventSchemaBuilderScope.DisplaySnackbar(
     id: String = randomId(),
     trigger: EventTrigger,
     message: String,
-    duration: SnackbarDurationSchema = SnackbarDurationSchema.Short,
+    duration: DisplaySnackbarEventSchema.SnackbarDuration = DisplaySnackbarEventSchema.SnackbarDuration.Short,
     actionLabel: String? = null,
     events: EventSchemaBuilderScope.() -> Unit = {}
 ) {
@@ -45,3 +44,7 @@ fun EventSchemaBuilderScope.DisplaySnackbar(
         )
     )
 }
+
+fun snackbarShortDuration() = DisplaySnackbarEventSchema.SnackbarDuration.Short
+fun snackbarLongDuration() = DisplaySnackbarEventSchema.SnackbarDuration.Long
+fun snackbarIndefiniteDuration() = DisplaySnackbarEventSchema.SnackbarDuration.Indefinite

@@ -524,18 +524,26 @@ Every call triggers `updateState()` → Compose recomposition.
 
 ## 13. TilesOverlaysEditor
 
-**What it is:** API for managing overlays (bottom sheets, dialogs). Exposed via `EventRunningScope.tilesOverlaysEditor`. Implemented by `TilesManager`.
+**What it is:** API for managing the screen's **overlay stack** (bottom sheets, modal bottom sheets, dialogs). Exposed via `EventRunningScope.tilesOverlaysEditor`. Implemented by `TilesManager`, which delegates to `ScreenTileHolder`.
 
 **API:**
 
 ```kotlin
-fun setBottomSheetTiles(tileSchemas: List<TileSchema>)
-fun setDialogTiles(tileSchemas: List<TileSchema>)
+fun addBottomSheet(id, isCancellable, fill, allowsPartialExpansion, tileSchemas): Result<Unit>
+fun dismissBottomSheet(id): Result<Unit>
+
+fun addModalBottomSheet(id, isCancellable, fill, allowsPartialExpansion, tileSchemas): Result<Unit>
+fun dismissModalBottomSheet(id): Result<Unit>
+
+fun addDialog(id, isCancellable, usePlatformDefaultWidth, tileSchemas): Result<Unit>
+fun dismissDialog(id): Result<Unit>
 ```
 
-Clearing overlays is done by passing an empty list, or by `ScreenTileHolder` automatically handling `TileEvent.Close`.
+Every overlay lives in an insertion-ordered map keyed by its `id`, so several can be stacked at once and any one of them can be closed without touching the others. `add*` fails with `OverlayAlreadyAddedException` when the id is already on the stack; `dismiss*` fails with `OverlayNotExistsException` when it isn't.
 
-**Used by:** `DisplayBottomSheetEventRunner`, `DismissBottomSheetEventRunner`, `DisplayDialogEventRunner`, `DismissDialogEventRunner`.
+**Two-phase dismissal:** `dismiss*` does not remove the overlay — it flips `isDismissing` on it. The renderer sees that flag, plays the exit animation, and then dispatches `ScreenTileEvents.OnDismissOverlayFinished(overlayId)`, which is what actually removes the entry. This is what lets a server-driven dismiss animate instead of blinking out.
+
+**Used by:** `DisplayBottomSheetEventRunner`, `DismissBottomSheetEventRunner`, `DisplayModalBottomSheetEventRunner`, `DismissModalBottomSheetEventRunner`, `DisplayDialogEventRunner`, `DismissDialogEventRunner`.
 
 ---
 

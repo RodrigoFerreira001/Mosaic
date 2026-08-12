@@ -12,6 +12,7 @@ internal class DisplayDialogEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val tiles: TileSchemaBuilderScope.() -> Unit,
+    private val dialogId: String,
     private val isCancellable: Boolean,
     private val usePlatformDefaultWidth: Boolean
 ) : EventSchemaBuilder<DisplayDialogEventSchema>() {
@@ -21,6 +22,7 @@ internal class DisplayDialogEventBuilder(
         trigger = trigger,
         events = EventSchemaBuilderScope().apply(events).build(),
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
+        dialogId = dialogId,
         isCancellable = isCancellable,
         usePlatformDefaultWidth = usePlatformDefaultWidth
     )
@@ -30,6 +32,7 @@ fun EventSchemaBuilderScope.DisplayDialog(
     id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
+    dialogId: String = randomId(),
     isCancellable: Boolean = true,
     usePlatformDefaultWidth: Boolean = false,
     tiles: TileSchemaBuilderScope.() -> Unit
@@ -40,6 +43,7 @@ fun EventSchemaBuilderScope.DisplayDialog(
             trigger = trigger,
             events = events,
             tiles = tiles,
+            dialogId = dialogId,
             isCancellable = isCancellable,
             usePlatformDefaultWidth = usePlatformDefaultWidth
         )

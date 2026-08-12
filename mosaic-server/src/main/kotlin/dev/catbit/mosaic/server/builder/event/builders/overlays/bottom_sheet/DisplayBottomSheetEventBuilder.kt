@@ -12,8 +12,10 @@ internal class DisplayBottomSheetEventBuilder(
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
     private val tiles: TileSchemaBuilderScope.() -> Unit,
+    private val bottomSheetId: String,
     private val isCancellable: Boolean,
-    private val fill: Boolean
+    private val fill: Boolean,
+    private val allowsPartialExpansion: Boolean
 ) : EventSchemaBuilder<DisplayBottomSheetEventSchema>() {
 
     override fun build() = DisplayBottomSheetEventSchema(
@@ -21,8 +23,10 @@ internal class DisplayBottomSheetEventBuilder(
         trigger = trigger,
         events = EventSchemaBuilderScope().apply(events).build(),
         tiles = TileSchemaBuilderScope().apply(tiles).build(),
+        bottomSheetId = bottomSheetId,
         isCancellable = isCancellable,
-        fill = fill
+        fill = fill,
+        allowsPartialExpansion = allowsPartialExpansion
     )
 }
 
@@ -30,8 +34,10 @@ fun EventSchemaBuilderScope.DisplayBottomSheet(
     id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
+    bottomSheetId: String = randomId(),
     isCancellable: Boolean = true,
     fill: Boolean = false,
+    allowsPartialExpansion: Boolean = false,
     tiles: TileSchemaBuilderScope.() -> Unit
 ) {
     addBuilder(
@@ -40,8 +46,10 @@ fun EventSchemaBuilderScope.DisplayBottomSheet(
             trigger = trigger,
             events = events,
             tiles = tiles,
+            bottomSheetId = bottomSheetId,
             isCancellable = isCancellable,
-            fill = fill
+            fill = fill,
+            allowsPartialExpansion = allowsPartialExpansion
         )
     )
 }

@@ -124,7 +124,7 @@ object TogglePopupEventDetailBuilder : EventDetailBuilder {
             )
 
             ShowroomRelated(
-                names = listOf("ToggleMenu", "DisplayDialog", "DisplayBottomSheet"),
+                names = listOf("ToggleMenu", "DisplayDialog", "DisplayModalBottomSheet"),
                 destination = "eventDetails"
             )
         }

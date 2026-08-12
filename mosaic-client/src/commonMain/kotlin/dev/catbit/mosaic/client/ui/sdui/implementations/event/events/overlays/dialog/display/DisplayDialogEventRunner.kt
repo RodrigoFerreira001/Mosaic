@@ -2,21 +2,27 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.d
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileScreenTilesBroadcastData
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DisplayDialogEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object DisplayDialogEventRunner : EventRunner<DisplayDialogEventSchema> {
     override suspend fun EventRunningScope.runEvent(event: DisplayDialogEventSchema) {
-
-        tilesOverlaysEditor.setDialogTiles(event.tiles)
-
-        broadcastData(
-            ScreenTileScreenTilesBroadcastData.OnDisplayDialogRequested(
-                isCancellable = event.isCancellable,
-                usePlatformDefaultWidth = event.usePlatformDefaultWidth,
+        with(event) {
+            tilesOverlaysEditor.addDialog(
+                id = dialogId,
+                isCancellable = isCancellable,
+                usePlatformDefaultWidth = usePlatformDefaultWidth,
+                tileSchemas = tiles
             )
-        )
-        onTrigger(EventTriggers.onSuccess())
+                .onSuccess {
+                    onTrigger(EventTriggers.onSuccess())
+                }
+                .onFailure {
+                    onTrigger(
+                        eventTrigger = EventTriggers.onFailure(),
+                        data = it
+                    )
+                }
+        }
     }
 }

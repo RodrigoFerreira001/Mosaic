@@ -4,7 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.InlineEventTri
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadSuccessEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnBottomSheetDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
@@ -16,7 +15,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataUpdatedE
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDatePickerCloseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDatePickerOpenEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDateSelectedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDialogDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListCloseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListItemSelectedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListOpenEventTrigger
@@ -40,7 +38,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSuc
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationBarItemClickEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationDrawerDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntryChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntrySetEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEventTrigger
@@ -92,7 +89,6 @@ object EventTriggers {
     fun onAsyncImageLoadStart() = OnAsyncImageLoadStartEventTrigger
     fun onAsyncImageLoadFailure() = OnAsyncImageLoadFailureEventTrigger
     fun onAsyncImageLoadSuccess() = OnAsyncImageLoadSuccessEventTrigger
-    fun onBottomSheetDismissed() = OnBottomSheetDismissedEventTrigger
     fun onClick() = OnClickEventTrigger
     fun onCheckChanged() = OnCheckChangedEventTrigger
     fun onCheck() = OnCheckEventTrigger
@@ -109,7 +105,6 @@ object EventTriggers {
     fun onDatePickerOpen() = OnDatePickerOpenEventTrigger
     fun onDatePickerClose() = OnDatePickerCloseEventTrigger
     fun onDateSelected() = OnDateSelectedEventTrigger
-    fun onDialogDismissed() = OnDialogDismissedEventTrigger
     fun onDropdownListClose() = OnDropdownListCloseEventTrigger
     fun onDropdownListItemSelected(id: String) = OnDropdownListItemSelectedEventTrigger(id)
     fun onDropdownListOpen() = OnDropdownListOpenEventTrigger
@@ -130,7 +125,6 @@ object EventTriggers {
     fun onLongPress() = OnLongPressEventTrigger
     fun onMenuItemClick(itemId: String) = OnMenuItemClickEventTrigger(itemId)
     fun onNavigationBarItemClick(itemId: String) = OnNavigationBarItemClickEventTrigger(itemId)
-    fun onNavigationDrawerDismissed() = OnNavigationDrawerDismissedEventTrigger
     fun onNavigationEntryChanged() = OnNavigationEntryChangedEventTrigger
     fun onNavigationEntrySet(screenId: String) = OnNavigationEntrySetEventTrigger(screenId)
     fun onNavigation() = OnNavigationEventTrigger

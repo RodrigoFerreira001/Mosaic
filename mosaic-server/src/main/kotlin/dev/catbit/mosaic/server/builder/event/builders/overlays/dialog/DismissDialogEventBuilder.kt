@@ -9,26 +9,30 @@ import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 internal class DismissDialogEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
-    private val events: EventSchemaBuilderScope.() -> Unit = {}
+    private val events: EventSchemaBuilderScope.() -> Unit = {},
+    private val dialogId: String,
 ) : EventSchemaBuilder<DismissDialogEventSchema>() {
 
     override fun build() = DismissDialogEventSchema(
         id = id,
         trigger = trigger,
-        events = EventSchemaBuilderScope().apply(events).build()
+        events = EventSchemaBuilderScope().apply(events).build(),
+        dialogId = dialogId
     )
 }
 
 fun EventSchemaBuilderScope.DismissDialog(
     id: String = randomId(),
     trigger: EventTrigger,
-    events: EventSchemaBuilderScope.() -> Unit = {}
+    events: EventSchemaBuilderScope.() -> Unit = {},
+    dialogId: String,
 ) {
     addBuilder(
         DismissDialogEventBuilder(
             id = id,
             trigger = trigger,
-            events = events
+            events = events,
+            dialogId = dialogId
         )
     )
 }

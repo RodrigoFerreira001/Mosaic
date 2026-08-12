@@ -39,6 +39,8 @@ import dev.catbit.mosaic.core.data.schemas.event.events.networking.SetIncomingDa
 import dev.catbit.mosaic.core.data.schemas.event.events.popup.TogglePopupEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DismissBottomSheetEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DisplayBottomSheetEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.overlays.modal_bottom_sheet.DismissModalBottomSheetEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.overlays.modal_bottom_sheet.DisplayModalBottomSheetEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DismissDialogEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.dialog.DisplayDialogEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.navigation_drawer.DismissNavigationDrawerEventSchema
@@ -74,7 +76,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.InlineEventTri
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadSuccessEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnBottomSheetDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
@@ -83,7 +84,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataReceived
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataSentEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataUpdatedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDialogDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDatePickerCloseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDatePickerOpenEventTrigger
@@ -110,7 +110,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSuc
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationBarItemClickEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationDrawerDismissedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntryChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntrySetEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEventTrigger
@@ -1024,7 +1023,6 @@ class MosaicSerializer(
             OnAsyncImageLoadFailureEventTrigger::class to OnAsyncImageLoadFailureEventTrigger.serializer(),
             OnAsyncImageLoadStartEventTrigger::class to OnAsyncImageLoadStartEventTrigger.serializer(),
             OnAsyncImageLoadSuccessEventTrigger::class to OnAsyncImageLoadSuccessEventTrigger.serializer(),
-            OnBottomSheetDismissedEventTrigger::class to OnBottomSheetDismissedEventTrigger.serializer(),
             OnClickEventTrigger::class to OnClickEventTrigger.serializer(),
             OnCheckChangedEventTrigger::class to OnCheckChangedEventTrigger.serializer(),
             OnCheckEventTrigger::class to OnCheckEventTrigger.serializer(),
@@ -1040,7 +1038,6 @@ class MosaicSerializer(
             OnDatePickerOpenEventTrigger::class to OnDatePickerOpenEventTrigger.serializer(),
             OnDatePickerCloseEventTrigger::class to OnDatePickerCloseEventTrigger.serializer(),
             OnDateSelectedEventTrigger::class to OnDateSelectedEventTrigger.serializer(),
-            OnDialogDismissedEventTrigger::class to OnDialogDismissedEventTrigger.serializer(),
             OnDownloadFailureEventTrigger::class to OnDownloadFailureEventTrigger.serializer(),
             OnDownloadFinishEventTrigger::class to OnDownloadFinishEventTrigger.serializer(),
             OnDownloadProgressEventTrigger::class to OnDownloadProgressEventTrigger.serializer(),
@@ -1061,7 +1058,6 @@ class MosaicSerializer(
             OnMenuItemClickEventTrigger::class to OnMenuItemClickEventTrigger.serializer(),
             OnNavigationBarItemClickEventTrigger::class to OnNavigationBarItemClickEventTrigger.serializer(),
             OnPageChangedEventTrigger::class to OnPageChangedEventTrigger.serializer(),
-            OnNavigationDrawerDismissedEventTrigger::class to OnNavigationDrawerDismissedEventTrigger.serializer(),
             OnNavigationEntryChangedEventTrigger::class to OnNavigationEntryChangedEventTrigger.serializer(),
             OnNavigationEntrySetEventTrigger::class to OnNavigationEntrySetEventTrigger.serializer(),
             OnNavigationEventTrigger::class to OnNavigationEventTrigger.serializer(),
@@ -1196,6 +1192,8 @@ class MosaicSerializer(
             SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema::class to SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema.serializer(),
             DismissBottomSheetEventSchema::class to DismissBottomSheetEventSchema.serializer(),
             DisplayBottomSheetEventSchema::class to DisplayBottomSheetEventSchema.serializer(),
+            DismissModalBottomSheetEventSchema::class to DismissModalBottomSheetEventSchema.serializer(),
+            DisplayModalBottomSheetEventSchema::class to DisplayModalBottomSheetEventSchema.serializer(),
             DismissDialogEventSchema::class to DismissDialogEventSchema.serializer(),
             DisplayDialogEventSchema::class to DisplayDialogEventSchema.serializer(),
             DismissNavigationDrawerEventSchema::class to DismissNavigationDrawerEventSchema.serializer(),

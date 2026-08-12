@@ -1116,7 +1116,7 @@ TransformData(trigger = EventTriggers.onSuccess(), template = "<|uploadUrl|>", e
 ## Overlays
 
 ### DisplayDialog
-**Purpose:** Displays a modal dialog overlay populated with a server-defined tile tree. Shown immediately — no network call.
+**Purpose:** Pushes a dialog, populated with a server-defined tile tree, onto the screen's overlay stack. Shown immediately — no network call.
 **When to use:** Confirmation dialogs, custom alert dialogs, form dialogs.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.overlays.dialog.DisplayDialog`
 
@@ -1124,22 +1124,27 @@ TransformData(trigger = EventTriggers.onSuccess(), template = "<|uploadUrl|>", e
 | Field | Type | Default | Notes |
 |---|---|---|---|
 | `tiles` | `TileSchemaBuilderScope.() -> Unit` | required | Dialog content |
-| `isCancellable` | `Boolean` | required | Tap-outside or back dismisses when true |
-| `usePlatformDefaultWidth` | `Boolean` | required | Let tile tree control width when false |
+| `dialogId` | `String` | `randomId()` | Identifies this dialog for `DismissDialog` |
+| `isCancellable` | `Boolean` | `true` | Tap-outside or back dismisses when true |
+| `usePlatformDefaultWidth` | `Boolean` | `false` | Let tile tree control width when false |
 
-**Triggers fired:** None. Only pushes overlay state via broadcast.
+**Triggers fired:** `onSuccess()` after the dialog is pushed; `onFailure()` when the id is already on the stack.
 
 **Example:**
 ```kotlin
 DisplayDialog(
     trigger = EventTriggers.onClick(),
+    dialogId = "delete_confirmation",
     isCancellable = true,
     usePlatformDefaultWidth = false,
     tiles = {
         Column(id = "dialog_root") {
             SimpleText(id = "msg", text = "Delete this item?")
             Button(id = "confirm_btn", text = "Delete") {
-                DismissDialog(trigger = EventTriggers.onClick())
+                DismissDialog(
+                    trigger = EventTriggers.onClick(),
+                    dialogId = "delete_confirmation"
+                )
             }
         }
     }
@@ -1149,37 +1154,48 @@ DisplayDialog(
 ---
 
 ### DismissDialog
-**Purpose:** Programmatically dismisses the currently displayed dialog.
+**Purpose:** Programmatically dismisses the dialog with the given id.
 **When to use:** When dialog content contains a close/cancel button, or after an action inside the dialog completes.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.overlays.dialog.DismissDialog`
 
-**Triggers fired:** `onDialogDismissed()` — fired by the overlay container after fully dismissed.
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `dialogId` | `String` | required | Same id given to the `DisplayDialog` that opened it |
+
+**Triggers fired:** `onSuccess()`; `onFailure()` when no dialog with that id is on the stack.
 
 **Example:**
 ```kotlin
-DismissDialog(trigger = EventTriggers.onClick())
+DismissDialog(
+    trigger = EventTriggers.onClick(),
+    dialogId = "delete_confirmation"
+)
 ```
 
 ---
 
-### DisplayBottomSheet
-**Purpose:** Displays a modal bottom sheet populated with a server-defined tile tree. Shown immediately — no network call.
-**When to use:** Contextual menus, action sheets, inline forms, filter panels.
-**Import:** `import dev.catbit.mosaic.server.builder.event.builders.overlays.bottom_sheet.DisplayBottomSheet`
+### DisplayModalBottomSheet
+**Purpose:** Pushes a modal bottom sheet, populated with a server-defined tile tree, onto the screen's overlay stack. Shown immediately — no network call.
+**When to use:** Contextual menus, action sheets, inline forms, filter panels — anything that should interrupt the screen.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.overlays.modal_bottom_sheet.DisplayModalBottomSheet`
 
 **Fields:**
 | Field | Type | Default | Notes |
 |---|---|---|---|
 | `tiles` | `TileSchemaBuilderScope.() -> Unit` | required | Sheet content |
-| `isCancellable` | `Boolean` | required | Swipe-down/scrim tap dismisses when true |
-| `fill` | `Boolean` | required | Expands to full screen height when true |
+| `modalBottomSheetId` | `String` | `randomId()` | Identifies this sheet for `DismissModalBottomSheet` |
+| `isCancellable` | `Boolean` | `true` | Swipe-down/scrim tap/back dismisses when true |
+| `fill` | `Boolean` | `false` | Sheet goes to the top of the screen; otherwise it is as tall as its content |
+| `allowsPartialExpansion` | `Boolean` | `false` | Adds a resting position at half the screen and opens there. Ignored when the content is shorter than half the screen — pair it with `fill` |
 
-**Triggers fired:** None. Only pushes overlay state.
+**Triggers fired:** `onSuccess()` after the sheet is pushed; `onFailure()` when the id is already on the stack.
 
 **Example:**
 ```kotlin
-DisplayBottomSheet(
+DisplayModalBottomSheet(
     trigger = EventTriggers.onClick(),
+    modalBottomSheetId = "share_sheet",
     isCancellable = true,
     fill = false,
     tiles = {
@@ -1190,16 +1206,77 @@ DisplayBottomSheet(
 
 ---
 
-### DismissBottomSheet
-**Purpose:** Programmatically dismisses the currently displayed bottom sheet.
+### DismissModalBottomSheet
+**Purpose:** Programmatically dismisses the modal bottom sheet with the given id.
 **When to use:** When sheet content has a close/cancel button, or after an action inside completes.
-**Import:** `import dev.catbit.mosaic.server.builder.event.builders.overlays.bottom_sheet.DismissBottomSheet`
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.overlays.modal_bottom_sheet.DismissModalBottomSheet`
 
-**Triggers fired:** `onBottomSheetDismissed()`.
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `modalBottomSheetId` | `String` | required | Same id given to the `DisplayModalBottomSheet` that opened it |
+
+**Triggers fired:** `onSuccess()`; `onFailure()` when no sheet with that id is on the stack.
 
 **Example:**
 ```kotlin
-DismissBottomSheet(trigger = EventTriggers.onClick())
+DismissModalBottomSheet(
+    trigger = EventTriggers.onClick(),
+    modalBottomSheetId = "share_sheet"
+)
+```
+
+---
+
+### DisplayBottomSheet
+**Purpose:** Pushes a **non-modal** bottom sheet onto the screen's overlay stack. Same tile-tree content model as `DisplayModalBottomSheet`, but rendered inline in the screen layout: no scrim, and the content behind stays interactive.
+**When to use:** Persistent panels that coexist with the screen — media players, live filters, running summaries. If the user must deal with the sheet before continuing, use `DisplayModalBottomSheet` instead.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.overlays.bottom_sheet.DisplayBottomSheet`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `tiles` | `TileSchemaBuilderScope.() -> Unit` | required | Sheet content |
+| `bottomSheetId` | `String` | `randomId()` | Identifies this sheet for `DismissBottomSheet` |
+| `isCancellable` | `Boolean` | `true` | Swipe-down/back dismisses when true. There is no scrim to tap |
+| `fill` | `Boolean` | `false` | Sheet goes to the top of the screen; otherwise it is as tall as its content |
+| `allowsPartialExpansion` | `Boolean` | `false` | Adds a resting position at half the screen and opens there. Ignored when the content is shorter than half the screen — pair it with `fill` |
+
+**Triggers fired:** `onSuccess()`; `onFailure()` when the id is already on the stack.
+
+**Example:**
+```kotlin
+DisplayBottomSheet(
+    trigger = EventTriggers.onClick(),
+    bottomSheetId = "now_playing",
+    isCancellable = true,
+    fill = false,
+    tiles = {
+        Column(id = "player_root") { /* sheet content */ }
+    }
+)
+```
+
+---
+
+### DismissBottomSheet
+**Purpose:** Programmatically dismisses the non-modal bottom sheet with the given id.
+**When to use:** Close buttons inside the sheet, or after an action inside it completes.
+**Import:** `import dev.catbit.mosaic.server.builder.event.builders.overlays.bottom_sheet.DismissBottomSheet`
+
+**Fields:**
+| Field | Type | Default | Notes |
+|---|---|---|---|
+| `bottomSheetId` | `String` | required | Same id given to the `DisplayBottomSheet` that opened it |
+
+**Triggers fired:** `onSuccess()`; `onFailure()` when no sheet with that id is on the stack.
+
+**Example:**
+```kotlin
+DismissBottomSheet(
+    trigger = EventTriggers.onClick(),
+    bottomSheetId = "now_playing"
+)
 ```
 
 ---
@@ -1224,11 +1301,13 @@ DisplayNavigationDrawer(trigger = EventTriggers.onClick())
 **When to use:** After the user selects a navigation item inside the drawer.
 **Import:** `import dev.catbit.mosaic.server.builder.event.builders.overlays.navigation_drawer.DismissNavigationDrawer`
 
-**Triggers fired:** `onNavigationDrawerDismissed()`.
+**Triggers fired:** `onSuccess()` — fired when the dismiss signal is broadcast, not when the closing animation ends.
 
 **Example:**
 ```kotlin
-DismissNavigationDrawer(trigger = EventTriggers.onClick())
+DismissNavigationDrawer(trigger = EventTriggers.onClick(), events = {
+    Navigate(trigger = EventTriggers.onSuccess(), destination = "settings", navigatorId = "root")
+})
 ```
 
 ---

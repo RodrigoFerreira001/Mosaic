@@ -131,9 +131,6 @@ JSON serialization uses `@SerialName` as the `type` discriminator on the `trigge
 
 | DSL | @SerialName | Fired By |
 |---|---|---|
-| `EventTriggers.onDialogDismissed()` | `"OnDialogDismissed"` | DismissDialogEventSchema |
-| `EventTriggers.onBottomSheetDismissed()` | `"OnBottomSheetDismissed"` | DismissBottomSheetEventSchema |
-| `EventTriggers.onNavigationDrawerDismissed()` | `"OnNavigationDrawerDismissed"` | DismissNavigationDrawerEventSchema |
 | `EventTriggers.onSnackbarAction()` | `"OnSnackbarAction"` | DisplaySnackbarEventSchema |
 | `EventTriggers.onSnackbarDismissed()` | `"OnSnackbarDismissed"` | DisplaySnackbarEventSchema |
 

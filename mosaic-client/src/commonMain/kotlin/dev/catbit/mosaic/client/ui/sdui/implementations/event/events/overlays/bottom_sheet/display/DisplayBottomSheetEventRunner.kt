@@ -2,21 +2,28 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.b
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
-import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.internal.screen.ScreenTileScreenTilesBroadcastData
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.bottom_sheet.DisplayBottomSheetEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object DisplayBottomSheetEventRunner : EventRunner<DisplayBottomSheetEventSchema> {
     override suspend fun EventRunningScope.runEvent(event: DisplayBottomSheetEventSchema) {
-
-        tilesOverlaysEditor.setBottomSheetTiles(event.tiles)
-
-        broadcastData(
-            ScreenTileScreenTilesBroadcastData.OnDisplayBottomSheetRequested(
-                isCancellable = event.isCancellable,
-                fill = event.fill
+        with(event) {
+            tilesOverlaysEditor.addBottomSheet(
+                id = bottomSheetId,
+                isCancellable = isCancellable,
+                fill = fill,
+                allowsPartialExpansion = allowsPartialExpansion,
+                tileSchemas = tiles
             )
-        )
-        onTrigger(EventTriggers.onSuccess())
+                .onSuccess {
+                    onTrigger(EventTriggers.onSuccess())
+                }
+                .onFailure {
+                    onTrigger(
+                        eventTrigger = EventTriggers.onFailure(),
+                        data = it
+                    )
+                }
+        }
     }
 }

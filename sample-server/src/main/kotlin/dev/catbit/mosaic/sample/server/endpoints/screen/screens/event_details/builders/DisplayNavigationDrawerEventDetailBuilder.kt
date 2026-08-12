@@ -76,7 +76,7 @@ object DisplayNavigationDrawerEventDetailBuilder : EventDetailBuilder {
             }
 
             ShowroomRelated(
-                names = listOf("DismissNavigationDrawer", "ToggleMenu", "DisplayBottomSheet"),
+                names = listOf("DismissNavigationDrawer", "ToggleMenu", "DisplayModalBottomSheet"),
                 destination = "eventDetails"
             )
         }

@@ -9,26 +9,30 @@ import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 internal class DismissBottomSheetEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
-    private val events: EventSchemaBuilderScope.() -> Unit = {}
+    private val events: EventSchemaBuilderScope.() -> Unit = {},
+    private val bottomSheetId: String
 ) : EventSchemaBuilder<DismissBottomSheetEventSchema>() {
 
     override fun build() = DismissBottomSheetEventSchema(
         id = id,
         trigger = trigger,
-        events = EventSchemaBuilderScope().apply(events).build()
+        events = EventSchemaBuilderScope().apply(events).build(),
+        bottomSheetId = bottomSheetId
     )
 }
 
 fun EventSchemaBuilderScope.DismissBottomSheet(
     id: String = randomId(),
     trigger: EventTrigger,
-    events: EventSchemaBuilderScope.() -> Unit = {}
+    events: EventSchemaBuilderScope.() -> Unit = {},
+    bottomSheetId: String
 ) {
     addBuilder(
         DismissBottomSheetEventBuilder(
             id = id,
             trigger = trigger,
-            events = events
+            events = events,
+            bottomSheetId = bottomSheetId
         )
     )
 }
