@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.unit.dp
+import dev.catbit.mosaic.client.extensions.toBrush
 import dev.catbit.mosaic.client.extensions.toComposeColor
 import dev.catbit.mosaic.client.extensions.toComposeWindowInsets
 import dev.catbit.mosaic.client.extensions.toPaddingValues
@@ -25,7 +26,7 @@ fun Modifier.styledWith(
     .thenIfNotNull(style.margin) { Modifier.padding(it.toPaddingValues()) }
     .then(Modifier.size(style.size))
     .thenIfNotNull(style.clip) { Modifier.clip(it.shape.toShape()) }
-    .thenIfNotNull(style.background) { Modifier.background(it.toComposeColor()) }
+    .thenIfNotNull(style.background) { Modifier.background(brush = it.toBrush(), alpha = it.alpha) }
     .thenIfNotNull(onClick) { Modifier.clickable { it() } }
     .thenIfNotNull(style.border) { border ->
         Modifier.border(

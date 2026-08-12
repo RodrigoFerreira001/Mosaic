@@ -8,7 +8,7 @@ All tiles implement `TileSchema`. Every tile inherits these base fields:
 |---|---|---|
 | `id` | `String` | Unique identifier within the screen |
 | `events` | `List<EventSchema>?` | Events attached to this tile |
-| `style` | `StyleSchema` | Size, margin, padding, background, border, clip, windowInsets |
+| `style` | `StyleSchema` | Size, margin, padding, background (`BackgroundSchema` — solid or gradient), border, clip, windowInsets |
 | `visibility` | `TileSchema.Visibility` | `VISIBLE`, `INVISIBLE` (takes space), `GONE` (no space) |
 | `searchableTerms` | `List<String>?` | Terms used by parent container's `filterChildrenByTerm` to include/exclude this tile. `null` = always shown |
 

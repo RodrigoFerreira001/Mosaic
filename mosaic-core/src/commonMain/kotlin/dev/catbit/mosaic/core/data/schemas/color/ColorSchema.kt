@@ -39,7 +39,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed interface ColorSchema {
 
-    // TODO GRADIENT, BLUR?
+    // TODO BLUR?
 
     @Serializable
     @SerialName("hex")

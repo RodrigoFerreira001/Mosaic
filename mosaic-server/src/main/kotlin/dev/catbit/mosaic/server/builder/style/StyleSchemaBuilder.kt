@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.server.builder.style
 
 import dev.catbit.mosaic.core.data.schemas.color.ColorSchema
+import dev.catbit.mosaic.core.data.schemas.tile.style.BackgroundSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.BorderSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.ClipSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.MarginSchema
@@ -21,7 +22,7 @@ class StyleSchemaBuilderScope : GenericBuilderScope<StyleSchema, GenericBuilder<
     )
     private var margin: MarginSchema? = null
     private var padding: PaddingSchema? = null
-    private var background: ColorSchema? = null
+    private var background: BackgroundSchema? = null
     private var border: BorderSchema? = null
     private var clip: ClipSchema? = null
     private var windowInsetsSchema: WindowInsetsSchema? = null
@@ -115,9 +116,19 @@ class StyleSchemaBuilderScope : GenericBuilderScope<StyleSchema, GenericBuilder<
     }
 
     fun background(
-        color: ColorSchema
+        color: ColorSchema,
+        alpha: Float = 1f
     ) {
-        background = color
+        background = BackgroundSchema.SolidColor(
+            color = color,
+            alpha = alpha
+        )
+    }
+
+    fun background(
+        background: BackgroundSchema
+    ) {
+        this.background = background
     }
 
     fun border(

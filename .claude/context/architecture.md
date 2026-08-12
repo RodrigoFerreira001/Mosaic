@@ -394,13 +394,40 @@ StyleSchema
 ├── size: SizeSchema         → width + height (Fill, Wrap, Fixed(dp), Weight(float))
 ├── margin: MarginSchema?    → external spacing (start, top, end, bottom in dp)
 ├── padding: PaddingSchema?  → internal spacing
-├── background: ColorSchema? → fill color (#AARRGGBB or #RRGGBB)
+├── background: BackgroundSchema? → fill (solid color or gradient) + alpha
 ├── border: BorderSchema?    → stroke width + color
 ├── clip: ClipSchema?        → shape clipping (circle, rounded, etc.)
 └── windowInsets: WindowInsetsSchema? → system bars, ime, etc.
 ```
 
 Applied via `Modifier.styledWith(style: StyleSchema)` in the client.
+
+### BackgroundSchema
+
+Sealed interface mapping 1:1 to Compose `Brush` factories, applied with
+`Modifier.background(brush, alpha = alpha)`. Every variant carries an `alpha: Float = 1f`.
+
+| Variant | `@SerialName` | Fields (beyond `colorStops`/`alpha`) |
+|---|---|---|
+| `SolidColor` | `solid_color` | `color: ColorSchema` |
+| `LinearGradient` | `linear_gradient` | `start: OffsetSchema`, `end: OffsetSchema?`, `tileMode` |
+| `HorizontalGradient` | `horizontal_gradient` | `startX: Int`, `endX: Int?`, `tileMode` |
+| `VerticalGradient` | `vertical_gradient` | `startY: Int`, `endY: Int?`, `tileMode` |
+| `RadialGradient` | `radial_gradient` | `center: OffsetSchema?`, `radius: Int?`, `tileMode` |
+| `SweepGradient` | `sweep_gradient` | `center: OffsetSchema?` |
+
+Gradient colors are a `List<ColorStopSchema>` (`color` + optional `stop: Float?`). When every
+`stop` is `null` the colors are spread evenly; otherwise the client fills the gaps with an even
+distribution so colors and stops always match in size.
+
+`null` means "Compose default" and is resolved at draw time by the brush's shader — the server
+never needs the tile size: `end`/`endX`/`endY` → far edge (`Offset.Infinite` /
+`POSITIVE_INFINITY`), `center` → center of the tile (`Offset.Unspecified`), `radius` → largest
+radius that fits. All dimensions are `Int` in dp.
+
+DSL: `background(color(...))` (solid shorthand), or `solidColor`, `linearGradient`,
+`horizontalGradient`, `verticalGradient`, `radialGradient`, `sweepGradient`, `offset` from
+`builder/style/BackgroundHelper.kt`. Blur is not supported yet.
 
 ---
 
