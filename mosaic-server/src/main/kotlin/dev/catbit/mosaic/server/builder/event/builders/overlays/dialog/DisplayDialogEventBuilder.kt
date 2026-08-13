@@ -32,7 +32,7 @@ fun EventSchemaBuilderScope.DisplayDialog(
     id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
-    dialogId: String = randomId(),
+    dialogId: String,
     isCancellable: Boolean = true,
     usePlatformDefaultWidth: Boolean = false,
     tiles: TileSchemaBuilderScope.() -> Unit

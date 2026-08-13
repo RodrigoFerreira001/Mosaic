@@ -34,7 +34,7 @@ fun EventSchemaBuilderScope.DisplayBottomSheet(
     id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
-    bottomSheetId: String = randomId(),
+    bottomSheetId: String,
     isCancellable: Boolean = true,
     fill: Boolean = false,
     allowsPartialExpansion: Boolean = false,
