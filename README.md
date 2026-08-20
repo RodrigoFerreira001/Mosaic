@@ -3,7 +3,7 @@
 </p>
 
 <p align="center"><b>Server-Driven UI for real Kotlin Multiplatform teams</b></p>
-<p align="center">One backend describes the screen. One Compose Multiplatform client renders it — on Android, iOS, Desktop and Web.</p>
+<p align="center">Ship UI changes by editing Kotlin on the backend — no app store review, no client rebuild. One codebase, live on Android, iOS, Desktop and Web.</p>
 
 <p align="center">
   <a href="https://search.maven.org/search?q=g:dev.catbit+a:mosaic-core"><img src="https://img.shields.io/maven-central/v/dev.catbit/mosaic-core?label=Maven%20Central&color=2A6DB2" alt="Maven Central"></a>
@@ -20,7 +20,7 @@
     <img alt="Live Showcase" src="https://img.shields.io/badge/%E2%96%B6_Live_Showcase-Every_Tile_%26_Event%2C_running-2B6CA4?style=for-the-badge">
   </a>
   <br />
-  <sub>sample-client (wasmJs) on GitHub Pages, talking to sample-server on Cloud Run — see "Deploying the showroom" below</sub>
+  <sub>The real framework, running live — click through every tile and event yourself</sub>
 </p>
 
 ---
