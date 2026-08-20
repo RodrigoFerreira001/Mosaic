@@ -19,6 +19,10 @@ env:
   GCP_PROJECT_ID: mosaicsampleserver
   CLOUD_RUN_SERVICE: mosaic-sample-server
   CLOUD_RUN_REGION: us-central1
+  # Pre-created Artifact Registry repo (see: gcloud artifacts repositories create sample-server
+  # --location=us-central1 --repository-format=docker) — the deploy service account only has
+  # artifactregistry.writer (push to an existing repo), not repositories.create, on purpose.
+  AR_REPO: sample-server
 
 jobs:
   deploy:
@@ -31,9 +35,9 @@ jobs:
         uses: actions/checkout@v4
 
       # Requires the GCP_SA_KEY secret: a service account JSON key with the Cloud Run Admin,
-      # Cloud Build Editor, Artifact Registry Writer, Service Account User and Firebase Hosting
-      # Admin roles on the mosaicsampleserver project. See README "Deploying the showroom" for the
-      # one-time setup steps (enabling APIs, creating the service account, adding this secret).
+      # Artifact Registry Writer, Service Account User and Firebase Hosting Admin roles on the
+      # mosaicsampleserver project, plus a pre-created Artifact Registry repo (see AR_REPO above —
+      # the writer role can push to it but can't create a new one).
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -42,15 +46,26 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev --quiet
+
+      # Build context is the repo root — sample-server depends on sibling Gradle modules
+      # (mosaic-core, mosaic-server, sample-core) — so this can't be a Cloud Run source-based
+      # build scoped to sample-server/, and Buildpacks wouldn't pick up our Dockerfile anyway.
+      - name: Build and push image
+        run: |
+          IMAGE="${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.AR_REPO }}/${{ env.CLOUD_RUN_SERVICE }}:${{ github.sha }}"
+          docker build -f sample-server/Dockerfile -t "$IMAGE" .
+          docker push "$IMAGE"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
       - name: Deploy to Cloud Run
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: ${{ env.CLOUD_RUN_SERVICE }}
           region: ${{ env.CLOUD_RUN_REGION }}
           project_id: ${{ env.GCP_PROJECT_ID }}
-          source: .
-          # Build context is the repo root; sample-server depends on sibling Gradle modules.
-          docker_file: sample-server/Dockerfile
+          image: ${{ env.IMAGE }}
 
       # google-github-actions/auth already exported GOOGLE_APPLICATION_CREDENTIALS above;
       # firebase-tools picks up Application Default Credentials from it automatically.
