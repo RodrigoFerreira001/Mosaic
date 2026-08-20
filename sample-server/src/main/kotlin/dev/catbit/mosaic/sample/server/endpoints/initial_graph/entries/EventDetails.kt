@@ -5,5 +5,6 @@ import dev.catbit.mosaic.server.builder.graph.GraphEntryBuilderScope
 fun GraphEntryBuilderScope.EventDetails() {
     entry(
         screenId = "eventDetails",
+        initialTiles = { LoadingTiles() },
     )
 }

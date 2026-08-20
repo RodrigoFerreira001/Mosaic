@@ -230,6 +230,7 @@ slideInFromBottomTransition()  slideInFromTopTransition()
 slideOutToRightTransition()    slideOutToLeftTransition()
 slideOutToBottomTransition()   slideOutToTopTransition()
 slideHorizontalTransition()    slideVerticalTransition()
+slideHorizontalReverseTransition()   // pair with slideHorizontalTransition() as popTransition — mirrors push direction
 fadeTransition()               fadeAndSlideHorizontalTransition()
 slideOverTransition()          // new screen slides over previous (previous stays; exit uses KeepUntilTransitionsFinished)
 // Each accepts optional: animationSpec = AnimationSpecSchema.Tween() or AnimationSpecSchema.Spring()

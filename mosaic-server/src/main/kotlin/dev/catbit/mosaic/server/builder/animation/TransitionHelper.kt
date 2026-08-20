@@ -204,6 +204,32 @@ fun slideVerticalTransition(
 )
 
 /**
+ * Reverse of [slideHorizontalTransition] — the previous screen slides back in from the left while
+ * the current one slides out to the right. The natural `popTransition` to pair with
+ * [slideHorizontalTransition] as `transition`, so pushing and popping visually mirror each other
+ * instead of both sliding in the same direction. Used as a `Graph`/`NestedNavigationGraph`/entry
+ * `transition`, `popTransition` or `predictivePopTransition`.
+ *
+ * @param animationSpec Timing/easing curve driving the slide. Defaults to a standard tween.
+ */
+fun slideHorizontalReverseTransition(
+    animationSpec: AnimationSpecSchema = AnimationSpecSchema.Tween()
+) = ContentTransitionSchema(
+    enter = persistentListOf(
+        EnterTransitionSchema.SlideInHorizontally(
+            animationSpec = animationSpec,
+            initialOffset = OffsetType.NegativeFull
+        )
+    ),
+    exit = persistentListOf(
+        ExitTransitionSchema.SlideOutHorizontally(
+            animationSpec = animationSpec,
+            targetOffset = OffsetType.Full
+        )
+    )
+)
+
+/**
  * Cross-fade pair: the new screen fades in while the outgoing one fades out, both in place.
  * Used as a `Graph`/`NestedNavigationGraph`/entry `transition`, `popTransition` or
  * `predictivePopTransition`.

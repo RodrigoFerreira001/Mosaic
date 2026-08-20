@@ -5,5 +5,6 @@ import dev.catbit.mosaic.server.builder.graph.GraphEntryBuilderScope
 fun GraphEntryBuilderScope.Home() {
     entry(
         screenId = "home",
+        initialTiles = { LoadingTiles() },
     )
 }
