@@ -8,7 +8,10 @@ WORKDIR /workspace
 COPY . .
 RUN ./gradlew :sample-server:buildFatJar --no-daemon
 
-FROM eclipse-temurin:11-jre AS runtime
+# mosaic-core has no jvmToolchain pinned, so it compiles with whatever JDK runs Gradle above
+# (21-jdk) — the runtime image has to match that bytecode version, not sample-server's own
+# jvmToolchain(11), which only constrains sample-server's own sources.
+FROM eclipse-temurin:21-jre AS runtime
 WORKDIR /app
 
 COPY --from=build /workspace/sample-server/build/libs/*-all.jar app.jar
