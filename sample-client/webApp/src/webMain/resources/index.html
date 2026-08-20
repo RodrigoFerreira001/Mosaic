@@ -15,6 +15,23 @@
                               repeatCount="indefinite"/>
         </circle>
     </svg>
+    <script>
+        // Registers coi-serviceworker.js and reloads once, so this page is cross-origin isolated
+        // (SharedArrayBuffer/Atomics available) before the wasm app boots and touches OPFS SQLite.
+        // Guarded by sessionStorage so a failed/unnecessary registration can't loop reloads.
+        (function () {
+            if (self.crossOriginIsolated) return;
+            if (!window.isSecureContext || !navigator.serviceWorker) return;
+            if (sessionStorage.getItem('coiReloadedOnce')) return;
+
+            navigator.serviceWorker.register('coi-serviceworker.js').then(function () {
+                sessionStorage.setItem('coiReloadedOnce', '1');
+                window.location.reload();
+            }).catch(function (error) {
+                console.error('Failed to register coi-serviceworker.js', error);
+            });
+        })();
+    </script>
     <script type="application/javascript" src="webApp.js"></script>
 </body>
 </html>
