@@ -72,19 +72,14 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.bu
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.WipeTilesEventDetailBuilder
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.dokkaEventDocsUrl
 import dev.catbit.mosaic.server.builder.event.builders.navigation.NavigateUp
-import dev.catbit.mosaic.server.builder.event.builders.overlays.navigation_drawer.DismissNavigationDrawer
 import dev.catbit.mosaic.server.builder.event.builders.system.OpenExternalLink
 import dev.catbit.mosaic.server.builder.icon.icon
-import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
 import dev.catbit.mosaic.server.builder.screen.Screen
 import dev.catbit.mosaic.server.builder.tile.builders.app_bars.TopAppBar
-import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.IconButton
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 import dev.catbit.mosaic.server.builder.tile.builders.tooltip.Tooltip
-import dev.catbit.mosaic.server.builder.typography.typographyBodyMedium
-import dev.catbit.mosaic.server.builder.typography.typographyTitleMedium
 import io.ktor.server.routing.RoutingCall
 
 /**
@@ -178,28 +173,6 @@ object EventDetailsScreenBuilder : ScreenBuilder {
 
         return Screen(
             id = "eventDetails",
-            navigationDrawerTiles = {
-                Column(
-                    style = {
-                        size(width = fixedHorizontally(280), height = fillVertically())
-                        padding(horizontal = 20, vertical = 20)
-                    },
-                    arrangement = arrangeVerticallySpacedBy(12)
-                ) {
-                    SimpleText(text = "Showroom drawer", typography = typographyTitleMedium())
-                    SimpleText(
-                        text = "This drawer exists only so DisplayNavigationDrawer and DismissNavigationDrawer " +
-                            "have something real to open and close. Tap the button below to close it.",
-                        typography = typographyBodyMedium()
-                    )
-                    Button(
-                        text = "Close with DismissNavigationDrawer",
-                        events = {
-                            DismissNavigationDrawer(trigger = EventTriggers.onClick())
-                        }
-                    )
-                }
-            },
         ) {
             Column(
                 style = {

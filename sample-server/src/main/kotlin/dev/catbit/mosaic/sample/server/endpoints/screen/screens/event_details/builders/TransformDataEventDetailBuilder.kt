@@ -42,7 +42,7 @@ object TransformDataEventDetailBuilder : EventDetailBuilder {
                     events = {
                         TransformData(
                             trigger = EventTriggers.onTextChanged(),
-                            template = mapOf("greeting" to "Hello, <||>!"),
+                            template = mapOf("text" to "Hello, <||>!"),
                             events = {
                                 UpdateTiles(
                                     trigger = EventTriggers.onSuccess(),
@@ -63,10 +63,11 @@ object TransformDataEventDetailBuilder : EventDetailBuilder {
                     typography = typographyTitleMedium()
                 )
                 ShowroomNote(
-                    "Notice the template: mapOf(\"greeting\" to \"Hello, <||>!\") — here <||> is mixed with " +
-                        "text (\"Hello, \" + value + \"!\"), so even if the TextField delivered something that " +
-                        "wasn't a String, the final result would be coerced to text before becoming the " +
-                        "\"greeting\" tile's new value via incomingTileUpdateData()."
+                    "Notice the template: mapOf(\"text\" to \"Hello, <||>!\") — the key has to match the " +
+                        "target tile's own field name (\"text\" for SimpleText), since incomingTileUpdateData() " +
+                        "forwards the template's output map as-is to UpdateTiles. <||> is mixed with other " +
+                        "text here (\"Hello, \" + value + \"!\"), so even if the TextField delivered something " +
+                        "that wasn't a String, the final result would be coerced to a String."
                 )
             }
 
