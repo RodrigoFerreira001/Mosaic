@@ -6,34 +6,28 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Toggles the open/closed state of a MenuTile. At runtime the runner calls
- * [tilesEventDispatcher.onEvent] with [MenuTileEvents.OnToggleMenu] targeting the MenuTile
- * identified by [menuId]. If the menu is currently closed it opens; if open it closes.
+ * Flips the open/closed state of the `Menu` tile identified by [menuId], by dispatching a
+ * `MenuTileEvents.OnToggleMenu` to it. Since the tile itself only closes on dismissal, this is how
+ * a menu is opened from the server side — and, wired onto a menu item's click, how it is closed
+ * after acting on the selection.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — when the toggle signal is dispatched successfully.
- * - [OnFailureEventTrigger] — if no MenuTile with the given [menuId] is currently rendered
- *   (TileNotFoundException); incomingData is the exception.
- *
- * **Failure scenarios:** If no MenuTile with the given [menuId] is currently rendered, a
- * TileNotFoundException is thrown and [OnFailureEventTrigger] fires with the exception.
- *
- * **Notes:** The toggle is stateful inside the MenuTile's holder. Calling this event when the
- * menu is already open will close it, making it suitable as both an open and close action
- * depending on context.
+ * - `OnSuccessEventTrigger` — when the signal reached the tile. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when no tile with [menuId] is currently mounted; the `Throwable` is
+ *   passed as incomingData and the error is logged.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

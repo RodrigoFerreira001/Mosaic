@@ -76,14 +76,12 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.InlineEventTri
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnAsyncImageLoadSuccessEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCancelledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCheckEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTimerTickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataReceivedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataSentEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataUpdatedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDatePickerCloseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDatePickerOpenEventTrigger
@@ -110,12 +108,10 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSuc
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationBarItemClickEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntryChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntrySetEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationRailItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkFailureEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsAcquiredEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
@@ -129,7 +125,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScreenStopEv
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrollThresholdReachedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSearchEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSelectEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarActionEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSnackbarDismissedEventTrigger
@@ -138,11 +133,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSystemBroadcastEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTabItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTextChangedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesAddedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesRemovedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesReplacedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesUpdatedEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesWipedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimeFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimeLoopEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimePickerCloseEventTrigger
@@ -150,7 +140,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimePickerOp
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimeSelectedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTrailingIconClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUncheckEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUnselectEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUploadProgressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnWidthBreakpointNotSatisfiedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnWidthBreakpointSatisfiedEventTrigger
@@ -221,6 +210,45 @@ import kotlinx.serialization.modules.plus
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.serializer
 
+/**
+ * The polymorphic JSON serializer shared by `mosaic-server` and `mosaic-client` — the single source
+ * of truth for how a [TileSchema]/[EventSchema]/[EventTrigger] subtype resolves to and from JSON,
+ * and the mechanism that lets a wire payload carry a mix of built-in and third-party-registered
+ * types indistinguishably.
+ *
+ * Every polymorphic hierarchy is registered by `@SerialName` (each schema's own class carries one),
+ * not by any custom discriminator logic — this class only decides *which* classes participate. The
+ * built-in catalog is always registered (via the private `defaultTileSerializers`/
+ * `defaultEventSerializers`/`defaultEventTriggerSerializers` maps at the bottom of this file, one
+ * entry per shipped [TileSchema]/[EventSchema]/[EventTrigger]); the [tileSerializers]/
+ * [eventSerializers]/[eventTriggerSerializers] constructor parameters add third-party ones on top —
+ * this is exactly what `mosaic-client`'s `MosaicModules` builds from a consuming app's
+ * `MosaicDependencyInjectionConfig.tileDefinitions`/`eventDefinitions`/`eventTriggerDefinition`. A
+ * class present in both a default map and one of these parameters would collide; the framework never
+ * does this itself, since the built-in classes and any third-party ones are necessarily distinct
+ * types.
+ *
+ * Beyond the top-level [TileSchema]/[EventSchema]/[EventTrigger] hierarchies, the `json` builder also
+ * registers every *nested* sealed polymorphic type a schema declares internally (e.g.
+ * `TextFieldTileSchema.VisualTransformation`, `EvaluateDataEventSchema.Expression` and its whole
+ * operation tree, `AddTilesEventSchema.InsertionPosition`, the various `Where`/`Direction`/`FileType`
+ * sealed types) — those aren't extensible by third parties the way the 3 top-level hierarchies are,
+ * since they're closed `sealed` types owned entirely by their enclosing built-in schema.
+ *
+ * `Json` is configured with `explicitNulls = false` (an omitted field decodes as `null` rather than
+ * failing), `encodeDefaults = true` (default-valued fields are still written to the wire, so a
+ * client decoding an older/newer schema version still sees every field explicitly), and
+ * `ignoreUnknownKeys = true` (an unrecognized field is silently dropped rather than failing decode —
+ * the mechanism that keeps server and client tolerant of small version skew).
+ *
+ * @param tileSerializers third-party [TileSchema] registrations, merged with the built-in catalog.
+ * @param eventSerializers third-party [EventSchema] registrations, merged with the built-in catalog.
+ * @param eventTriggerSerializers third-party [EventTrigger] registrations, merged with the built-in
+ * catalog.
+ * @param additionalSerializersModule extra polymorphic serializers unrelated to the 3 hierarchies
+ * above — for a field type that itself needs its own serializer registration, independent of
+ * tile/event/trigger registration.
+ */
 class MosaicSerializer(
     tileSerializers: Map<KClass<out TileSchema>, KSerializer<out TileSchema>> = emptyMap(),
     eventSerializers: Map<KClass<out EventSchema>, KSerializer<out EventSchema>> = emptyMap(),
@@ -228,6 +256,10 @@ class MosaicSerializer(
     additionalSerializersModule: SerializersModule = EmptySerializersModule(),
 ) {
 
+    /** The configured [Json] instance every method on this class delegates to. Exposed directly
+     * (rather than kept private) for callers that need to hand it to a lower-level API expecting a
+     * plain `kotlinx.serialization` `Json` — e.g. Ktor's `ContentNegotiation` plugin
+     * (`json(get<MosaicSerializer>().json)`). */
     @Suppress("UNCHECKED_CAST")
     val json = Json {
         serializersModule = SerializersModule {
@@ -953,21 +985,32 @@ class MosaicSerializer(
         ignoreUnknownKeys = true
     }
 
+    /** Encodes [value] to a JSON string using the given [serializer] explicitly (rather than one
+     * resolved from [T]'s reified type) — the general escape hatch for a caller that already has its
+     * own `SerializationStrategy`. */
     fun <T> encodeToString(
         serializer: SerializationStrategy<T>,
         value: T
     ): String = json.encodeToString(serializer, value)
 
+    /** Decodes [string] as [T] using the given [deserializer] explicitly. */
     fun <T> decodeFromString(
         deserializer: DeserializationStrategy<T>,
         string: String
     ): T = json.decodeFromString(deserializer, string)
 
+    /** Encodes [value] to a [JsonElement] tree (not a string) using the given [serializer]. */
     fun <T> encodeToJsonElement(
         serializer: SerializationStrategy<T>,
         value: T
     ): JsonElement = json.encodeToJsonElement(serializer, value)
 
+    /**
+     * Encodes [tile] to a [JsonElement], resolving its serializer from its own runtime class — the
+     * mechanism `TileHolder.update` uses to encode a tile's current state before merging a JSON
+     * patch onto it, without the generic `TileHolder<T>` needing to know `T`'s concrete serializer
+     * ahead of time.
+     */
     @OptIn(InternalSerializationApi::class)
     @Suppress("UNCHECKED_CAST")
     fun encodeTileToJsonElement(
@@ -977,6 +1020,11 @@ class MosaicSerializer(
         value = tile
     )
 
+    /**
+     * Decodes [jsonElement] as a [TileSchema], resolving the concrete subtype polymorphically by its
+     * own `@SerialName` — the general entry point for decoding one tile out of a JSON tree whose
+     * concrete type isn't known ahead of time (e.g. one entry of a `tiles` array).
+     */
     fun decodeTileFromJsonElement(
         jsonElement: JsonElement
     ): TileSchema = json.decodeFromJsonElement(
@@ -984,6 +1032,7 @@ class MosaicSerializer(
         element = jsonElement
     )
 
+    /** Same as [encodeTileToJsonElement], for an [EventSchema] — used by `EventHolder.update`. */
     @OptIn(InternalSerializationApi::class)
     @Suppress("UNCHECKED_CAST")
     fun encodeEventToJsonElement(
@@ -993,6 +1042,9 @@ class MosaicSerializer(
         value = event
     )
 
+    /** Same as [decodeTileFromJsonElement], for an [EventSchema] — the mechanism behind
+     * `EventRunnerDataProcessor` decoding a broadcast/pushed payload as an event to run inline, and
+     * `MosaicRepository`'s own screen-payload decoding. */
     fun decodeEventFromJsonElement(
         jsonElement: JsonElement
     ): EventSchema = json.decodeFromJsonElement(
@@ -1000,23 +1052,37 @@ class MosaicSerializer(
         element = jsonElement
     )
 
+    /** Decodes [element] as [T] using the given [deserializer] explicitly — the general escape hatch
+     * for a caller that already has its own `DeserializationStrategy` and a [JsonElement] rather than
+     * a raw string. */
     fun <T> decodeFromJsonElement(
         deserializer: DeserializationStrategy<T>,
         element: JsonElement
     ): T = json.decodeFromJsonElement(deserializer, element)
 
+    /** Parses [string] into a raw [JsonElement] tree, without decoding it into any typed model —
+     * the first step before a polymorphic decode call that needs the tree to inspect/merge before
+     * committing to a concrete type. */
     fun parseToJsonElement(
         string: String
     ): JsonElement = json.parseToJsonElement(string)
 
+    /** Encodes [value] to a JSON string, resolving [T]'s serializer from this serializer's own
+     * `serializersModule` via reification — the convenient overload for a caller that has a
+     * compile-time type to encode, rather than an explicit `SerializationStrategy`. */
     inline fun <reified T> encodeToString(
         value: T
     ): String = encodeToString(json.serializersModule.serializer(), value)
 
+    /** Decodes [string] as [T], resolving [T]'s serializer from this serializer's own
+     * `serializersModule` via reification. */
     inline fun <reified T> decodeFromString(
         string: String
     ): T = decodeFromString(json.serializersModule.serializer(), string)
 
+    /** Every built-in [EventTrigger] subtype's serializer, one entry per shipped trigger — merged
+     * with the constructor's [eventTriggerSerializers] parameter when building the `json` block's
+     * `EventTrigger` polymorphic registration. */
     private val defaultEventTriggerSerializers
         get() = mapOf(
             InlineEventTrigger::class to InlineEventTrigger.serializer(),
@@ -1032,9 +1098,6 @@ class MosaicSerializer(
             OnDropdownListItemSelectedEventTrigger::class to OnDropdownListItemSelectedEventTrigger.serializer(),
             OnDropdownListOpenEventTrigger::class to OnDropdownListOpenEventTrigger.serializer(),
             OnDataReceivedEventTrigger::class to OnDataReceivedEventTrigger.serializer(),
-            OnDataRemovedEventTrigger::class to OnDataRemovedEventTrigger.serializer(),
-            OnDataSentEventTrigger::class to OnDataSentEventTrigger.serializer(),
-            OnDataUpdatedEventTrigger::class to OnDataUpdatedEventTrigger.serializer(),
             OnDatePickerOpenEventTrigger::class to OnDatePickerOpenEventTrigger.serializer(),
             OnDatePickerCloseEventTrigger::class to OnDatePickerCloseEventTrigger.serializer(),
             OnDateSelectedEventTrigger::class to OnDateSelectedEventTrigger.serializer(),
@@ -1058,12 +1121,10 @@ class MosaicSerializer(
             OnMenuItemClickEventTrigger::class to OnMenuItemClickEventTrigger.serializer(),
             OnNavigationBarItemClickEventTrigger::class to OnNavigationBarItemClickEventTrigger.serializer(),
             OnPageChangedEventTrigger::class to OnPageChangedEventTrigger.serializer(),
-            OnNavigationEntryChangedEventTrigger::class to OnNavigationEntryChangedEventTrigger.serializer(),
             OnNavigationEntrySetEventTrigger::class to OnNavigationEntrySetEventTrigger.serializer(),
-            OnNavigationEventTrigger::class to OnNavigationEventTrigger.serializer(),
             OnNavigationRailItemClickEventTrigger::class to OnNavigationRailItemClickEventTrigger.serializer(),
             OnNetworkFailureEventTrigger::class to OnNetworkFailureEventTrigger.serializer(),
-            OnNetworkResponseTrigger::class to OnNetworkResponseTrigger.serializer(),
+            OnNetworkResponseEventTrigger::class to OnNetworkResponseEventTrigger.serializer(),
             OnPermissionsAcquiredEventTrigger::class to OnPermissionsAcquiredEventTrigger.serializer(),
             OnPermissionsDeniedEventTrigger::class to OnPermissionsDeniedEventTrigger.serializer(),
             OnPauseEventTrigger::class to OnPauseEventTrigger.serializer(),
@@ -1078,18 +1139,13 @@ class MosaicSerializer(
             OnSearchEventTrigger::class to OnSearchEventTrigger.serializer(),
             OnSnackbarActionEventTrigger::class to OnSnackbarActionEventTrigger.serializer(),
             OnSnackbarDismissedEventTrigger::class to OnSnackbarDismissedEventTrigger.serializer(),
-            OnSelectChangedEventTrigger::class to OnSelectChangedEventTrigger.serializer(),
             OnSelectEventTrigger::class to OnSelectEventTrigger.serializer(),
             OnStartEventTrigger::class to OnStartEventTrigger.serializer(),
             OnSuccessEventTrigger::class to OnSuccessEventTrigger.serializer(),
+            OnCancelledEventTrigger::class to OnCancelledEventTrigger.serializer(),
             OnSystemBroadcastEventTrigger::class to OnSystemBroadcastEventTrigger.serializer(),
             OnTabItemClickEventTrigger::class to OnTabItemClickEventTrigger.serializer(),
             OnTextChangedEventTrigger::class to OnTextChangedEventTrigger.serializer(),
-            OnTilesAddedEventTrigger::class to OnTilesAddedEventTrigger.serializer(),
-            OnTilesRemovedEventTrigger::class to OnTilesRemovedEventTrigger.serializer(),
-            OnTilesReplacedEventTrigger::class to OnTilesReplacedEventTrigger.serializer(),
-            OnTilesUpdatedEventTrigger::class to OnTilesUpdatedEventTrigger.serializer(),
-            OnTilesWipedEventTrigger::class to OnTilesWipedEventTrigger.serializer(),
             OnTimeFinishEventTrigger::class to OnTimeFinishEventTrigger.serializer(),
             OnTimeLoopEventTrigger::class to OnTimeLoopEventTrigger.serializer(),
             OnTimePickerOpenEventTrigger::class to OnTimePickerOpenEventTrigger.serializer(),
@@ -1097,12 +1153,13 @@ class MosaicSerializer(
             OnTimeSelectedEventTrigger::class to OnTimeSelectedEventTrigger.serializer(),
             OnTrailingIconClickEventTrigger::class to OnTrailingIconClickEventTrigger.serializer(),
             OnUncheckEventTrigger::class to OnUncheckEventTrigger.serializer(),
-            OnUnselectEventTrigger::class to OnUnselectEventTrigger.serializer(),
             OnUploadProgressEventTrigger::class to OnUploadProgressEventTrigger.serializer(),
             OnWidthBreakpointSatisfiedEventTrigger::class to OnWidthBreakpointSatisfiedEventTrigger.serializer(),
             OnWidthBreakpointNotSatisfiedEventTrigger::class to OnWidthBreakpointNotSatisfiedEventTrigger.serializer(),
         )
 
+    /** Every built-in [TileSchema] subtype's serializer, one entry per shipped tile — merged with
+     * the constructor's [tileSerializers] parameter. */
     private val defaultTileSerializers
         get() = mapOf(
             AdaptiveVisibilityTileSchema::class to AdaptiveVisibilityTileSchema.serializer(),
@@ -1155,6 +1212,8 @@ class MosaicSerializer(
             FlexBoxTileSchema::class to FlexBoxTileSchema.serializer()
         )
 
+    /** Every built-in [EventSchema] subtype's serializer, one entry per shipped event — merged with
+     * the constructor's [eventSerializers] parameter. */
     private val defaultEventSerializers
         get() = mapOf(
             CheckForReceivedDataEventSchema::class to CheckForReceivedDataEventSchema.serializer(),

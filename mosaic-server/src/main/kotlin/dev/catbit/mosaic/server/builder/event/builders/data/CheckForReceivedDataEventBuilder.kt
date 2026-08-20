@@ -21,6 +21,17 @@ internal class CheckForReceivedDataEventBuilder(
     )
 }
 
+/**
+ * Reads a one-shot value from the client's `DataMailer` under [dataKey] and branches on whether
+ * it was there — the receiving half of a `SendData`/`CheckForReceivedData` handoff between
+ * screens. Does not consume `incomingData`. Dispatches `onDataReceived` and `onSuccess` (both
+ * carrying the value) when a value exists for [dataKey]; `onFailure` (no data) when none does.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onDataReceived`, `onSuccess`, `onFailure`).
+ * @param dataKey Mailer key to check, matching the [dataKey] a `SendData` posted under.
+ */
 fun EventSchemaBuilderScope.CheckForReceivedData(
     id: String = randomId(),
     trigger: EventTrigger,

@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -29,27 +26,46 @@ object DropCachesEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "System",
-                description = "Descarta caches locais persistidos pelo Mosaic — telas, grafo inicial de navegação e/ou versão de cache — cada um controlado por um flag booleano independente."
+                description = "Discards local caches persisted by Mosaic — screens, the initial navigation " +
+                    "graph, and/or the cache version — each controlled by an independent boolean flag. Useful " +
+                    "in logout flows, environment/tenant switching, or \"force refresh\" buttons on " +
+                    "settings/debug screens. Each flag is independent: you can discard just the screens cache " +
+                    "without touching the initial graph, for example."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Útil em fluxos de logout, troca de ambiente/tenant, ou botões de \"forçar " +
-                    "atualização\" em telas de configuração/debug. Cada flag é independente: você pode " +
-                    "descartar só o cache de telas sem mexer no grafo inicial, por exemplo."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("dropScreensCache", "Boolean", "Descarta todo ScreenResponse cacheado localmente."),
-                    ShowroomParam("dropInitialGraphCache", "Boolean", "Descarta o grafo de navegação inicial cacheado."),
-                    ShowroomParam("dropVersionCache", "Boolean", "Descarta a versão de cache-busting armazenada localmente."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Each button fires DropCaches with a different flag combination") {
+                SimpleText(
+                    id = "drop_caches_status",
+                    text = "Status: no cache discarded yet"
                 )
-            )
+                FlowRow(
+                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
+                    horizontalArrangement = arrangeHorizontallySpacedBy(8)
+                ) {
+                    Button(
+                        text = "Only dropScreensCache",
+                        buttonType = outlinedButton(),
+                        events = { dropCachesDemo("dropScreensCache = true", dropScreensCache = true, dropInitialGraphCache = false, dropVersionCache = false) }
+                    )
+                    Button(
+                        text = "Only dropInitialGraphCache",
+                        buttonType = outlinedButton(),
+                        events = { dropCachesDemo("dropInitialGraphCache = true", dropScreensCache = false, dropInitialGraphCache = true, dropVersionCache = false) }
+                    )
+                    Button(
+                        text = "Only dropVersionCache",
+                        buttonType = outlinedButton(),
+                        events = { dropCachesDemo("dropVersionCache = true", dropScreensCache = false, dropInitialGraphCache = false, dropVersionCache = true) }
+                    )
+                    Button(
+                        text = "Clear everything",
+                        events = { dropCachesDemo("all 3 flags = true", dropScreensCache = true, dropInitialGraphCache = true, dropVersionCache = true) }
+                    )
+                }
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 DropCaches(
@@ -64,42 +80,9 @@ object DropCachesEventDetailBuilder : EventDetailBuilder {
                 """
             )
 
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Cada botão dispara DropCaches com uma combinação de flags") {
-                SimpleText(
-                    id = "drop_caches_status",
-                    text = "Status: nenhum cache descartado ainda"
-                )
-                FlowRow(
-                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
-                    horizontalArrangement = arrangeHorizontallySpacedBy(8)
-                ) {
-                    Button(
-                        text = "Só dropScreensCache",
-                        buttonType = outlinedButton(),
-                        events = { dropCachesDemo("dropScreensCache = true", dropScreensCache = true, dropInitialGraphCache = false, dropVersionCache = false) }
-                    )
-                    Button(
-                        text = "Só dropInitialGraphCache",
-                        buttonType = outlinedButton(),
-                        events = { dropCachesDemo("dropInitialGraphCache = true", dropScreensCache = false, dropInitialGraphCache = true, dropVersionCache = false) }
-                    )
-                    Button(
-                        text = "Só dropVersionCache",
-                        buttonType = outlinedButton(),
-                        events = { dropCachesDemo("dropVersionCache = true", dropScreensCache = false, dropInitialGraphCache = false, dropVersionCache = true) }
-                    )
-                    Button(
-                        text = "Limpar tudo",
-                        events = { dropCachesDemo("os 3 flags = true", dropScreensCache = true, dropInitialGraphCache = true, dropVersionCache = true) }
-                    )
-                }
-            }
-
             ShowroomNote(
-                "DropCaches é destrutivo: force o reload das telas afetadas (RefreshScreen/GetScreen) " +
-                    "depois de descartar, senão a UI pode continuar mostrando dados obsoletos até a " +
-                    "próxima navegação."
+                "DropCaches is destructive: force a reload of the affected screens (RefreshScreen/GetScreen) " +
+                    "after discarding, otherwise the UI may keep showing stale data until the next navigation."
             )
 
             ShowroomRelated(
@@ -127,7 +110,7 @@ private fun dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope.dropC
                 updates = {
                     update(
                         tileId = "drop_caches_status",
-                        updateData = inlineTileUpdateData("text" to "Status: caches descartados ($label)")
+                        updateData = inlineTileUpdateData("text" to "Status: caches discarded ($label)")
                     )
                 }
             )

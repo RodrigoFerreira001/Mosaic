@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -21,7 +18,11 @@ import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.elevatedButton
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.filledButton
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.filledTonalButton
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.iconAtEnd
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.iconAtStart
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.outlinedButton
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.roundedButton
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.squareButton
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.textButton
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.FlowRow
 
@@ -32,49 +33,14 @@ object ButtonTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Buttons",
-                description = "Botão Material 3 em cinco estilos visuais (buttonType), com suporte a ícone, estado de loading e forma."
+                description = "A Material 3 button in five visual styles (buttonType), with support for an " +
+                    "icon, a loading state, and shape. Use it for a screen's primary action, form submission, " +
+                    "or any labeled clickable action. loading = true swaps the text/icon for a spinner " +
+                    "without disabling touch — only enabled = false actually blocks interaction."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para a ação principal de uma tela, submissão de formulário ou qualquer ação " +
-                    "clicável rotulada. loading = true troca texto/ícone por um spinner sem desabilitar " +
-                    "o toque — só enabled = false bloqueia interação de fato."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("text", "String", "Obrigatório. Rótulo do botão."),
-                    ShowroomParam("icon", "IconSchema?", "Opcional. Ícone acompanhando o texto."),
-                    ShowroomParam("buttonType", "Type", "filledButton() (padrão), elevatedButton(), filledTonalButton(), outlinedButton(), textButton()."),
-                    ShowroomParam("shape", "Shape", "roundedButton() (padrão) ou squareButton()."),
-                    ShowroomParam("loading", "Boolean", "Padrão false. Mostra spinner no lugar do conteúdo."),
-                    ShowroomParam("enabled", "Boolean", "Padrão true."),
-                    ShowroomParam("iconPosition", "IconPosition", "iconAtStart() (padrão) ou iconAtEnd()."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                Button(
-                    id = "loginButton",
-                    text = "Entrar",
-                    buttonType = filledButton(),
-                    style = {
-                        size(width = fillHorizontally(max = 400), height = fixedVertically(56))
-                    },
-                    events = {
-                        TriggerEvent(eventId = "loginEvent", trigger = EventTriggers.onClick())
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Os 5 buttonType, lado a lado — clique em qualquer um") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "The 5 buttonType values, side by side — click any of them") {
                 FlowRow(
                     style = { size(width = fillHorizontally(), height = wrapVertically()) },
                     horizontalArrangement = arrangeHorizontallySpacedBy(8)
@@ -107,7 +73,7 @@ object ButtonTileDetailBuilder : TileDetailBuilder {
                 }
                 Button(
                     id = "button_loading_demo",
-                    text = "Clique para carregar",
+                    text = "Click to load",
                     icon = icon("hourglass_top"),
                     events = {
                         UpdateTiles(
@@ -122,6 +88,47 @@ object ButtonTileDetailBuilder : TileDetailBuilder {
                     }
                 )
             }
+
+            ShowroomSectionTitle("shape — squareButton() vs roundedButton()")
+            ShowroomDemoCard(title = "SQUARE → medium theme shape, ROUNDED (default) → fully round") {
+                FlowRow(horizontalArrangement = arrangeHorizontallySpacedBy(8)) {
+                    Button(text = "squareButton()", buttonType = filledButton(), shape = squareButton())
+                    Button(text = "roundedButton()", buttonType = filledButton(), shape = roundedButton())
+                }
+            }
+
+            ShowroomSectionTitle("iconPosition — iconAtStart() vs iconAtEnd()")
+            ShowroomDemoCard(title = "Same icon, opposite side of the text") {
+                FlowRow(horizontalArrangement = arrangeHorizontallySpacedBy(8)) {
+                    Button(text = "Download", icon = icon("download"), iconPosition = iconAtStart())
+                    Button(text = "Download", icon = icon("download"), iconPosition = iconAtEnd())
+                }
+            }
+
+            ShowroomSectionTitle("enabled = false")
+            ShowroomDemoCard(title = "Blocks interaction for real, regardless of buttonType") {
+                FlowRow(horizontalArrangement = arrangeHorizontallySpacedBy(8)) {
+                    Button(text = "Disabled filled", buttonType = filledButton(), enabled = false)
+                    Button(text = "Disabled outlined", buttonType = outlinedButton(), enabled = false)
+                }
+            }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                Button(
+                    id = "loginButton",
+                    text = "Log in",
+                    buttonType = filledButton(),
+                    style = {
+                        size(width = fillHorizontally(max = 400), height = fixedVertically(56))
+                    },
+                    events = {
+                        TriggerEvent(eventId = "loginEvent", trigger = EventTriggers.onClick())
+                    }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("IconButton", "FloatingActionButton", "AssistChip"),

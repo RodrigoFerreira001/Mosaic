@@ -12,30 +12,18 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 [SuggestionChip] or [ElevatedSuggestionChip] displaying a text label.
- * Suggestion chips help narrow a user's intent by presenting dynamically generated suggestions,
- * such as possible responses or search filters.
+ * Renders a Material 3 suggestion chip displaying [text] as its label, with an optional
+ * leading [icon]. [variant] selects the composable: [Variant.DEFAULT] → `SuggestionChip`
+ * (outlined), [Variant.ELEVATED] → `ElevatedSuggestionChip`. [enabled] is forwarded to the
+ * underlying composable.
  *
- * The chip can be enabled or disabled via [enabled]. When tapped, it dispatches a click trigger
- * to its child events.
+ * **Triggers dispatched:**
+ * - `OnClickEventTrigger` — fired when the chip is tapped.
  *
- * **Variants:**
- * - [Variant.DEFAULT] — flat chip with a border outline (default).
- * - [Variant.ELEVATED] — elevated chip with shadow, no border. Maps to [ElevatedSuggestionChip].
- *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `text: String`, `icon: IconSchema?`,
- * `enabled: Boolean`, `variant: Variant`
- *
- * **Triggers dispatched:** `OnClickEventTrigger` — fired when the chip is tapped (only when
- * [enabled] is `true`; disabled chips do not fire click events).
+ * **Notes:** the chip is stateless — it has no selected state, and [icon] is decorative only.
  */
 @Immutable
-@Triggers(
-    [
-        OnClickEventTrigger::class
-    ]
-)
+@Triggers([OnClickEventTrigger::class])
 @Serializable
 @SerialName("SuggestionChip")
 data class SuggestionChipTileSchema(
@@ -50,11 +38,5 @@ data class SuggestionChipTileSchema(
     @SerialName("variant") val variant: Variant = Variant.DEFAULT,
 ) : TileSchema {
 
-    /**
-     * Visual style variant for the suggestion chip.
-     *
-     * - [DEFAULT] — flat chip with a border outline (maps to [SuggestionChip]).
-     * - [ELEVATED] — elevated chip with shadow and no border (maps to [ElevatedSuggestionChip]).
-     */
     enum class Variant { DEFAULT, ELEVATED }
 }

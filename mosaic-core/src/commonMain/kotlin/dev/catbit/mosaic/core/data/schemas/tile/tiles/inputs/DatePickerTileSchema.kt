@@ -13,36 +13,41 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Renders a Material 3 `TextField`-like input that opens a `DatePickerDialog` when tapped, in
- * either a filled or outlined visual style controlled by [kind].
+ * Renders a read-only text field that opens a Material 3 `DatePickerDialog` when tapped.
+ * [kind] picks the field composable: [Kind.FILLED] → `TextField`, [Kind.OUTLINED] →
+ * `OutlinedTextField`. The field always shows a `calendar_month` leading icon, displays
+ * [selectedDate] (empty when `null`), forwards [enabled] and [supportingText], and switches to
+ * Material's error styling when [state] is [State.ERROR]. Typing is impossible — the field is
+ * `readOnly` and its `onValueChange` is a no-op.
  *
- * **Form tile:** [produceValueWithKey] returns `mapOf(key to selectedDate)`. [selectedDate] is
- * nullable — `null` represents "no date selected".
+ * **Dates are ISO strings.** [selectedDate] is an ISO date (`yyyy-MM-dd`); the renderer converts
+ * it to/from epoch millis for the Compose `DatePickerState`.
  *
- * **Server contract:** the server always sends [expanded] as `false`; the client owns the
- * open/closed dialog state. [selectedDate] is an ISO-8601 date string (e.g. `"2026-07-07"`).
- *
- * **Updatable fields (via UpdateTiles):** `selectedDate`, `enabled`, `kind`, `dialogOptions`,
- * `supportingText`, `state`, `visibility`, `style`.
+ * **Open state:** [expanded] drives the dialog. Pressing the field dispatches a local
+ * `DatePickerTileEvents.OnDatePickerToggle` (holder flips [expanded]); confirming dispatches
+ * `OnDateConfirmed` (holder stores the date and closes); cancelling or dismissing dispatches
+ * `OnDatePickerDismissRequest` (holder closes). All of this is handled client-side, without a
+ * round trip to the server. The dialog's buttons are labelled with [confirmLabel] and
+ * [cancelLabel], and the confirm button stays disabled until a date is picked, so confirming
+ * always yields a date.
  *
  * **Triggers dispatched:**
- * - [OnDateSelectedEventTrigger] — fired when the user confirms a date in the dialog; carries
- *   the selected date as incomingData (ISO-8601 string).
- * - [OnDatePickerOpenEventTrigger] — fired when the dialog opens.
- * - [OnDatePickerCloseEventTrigger] — fired when the dialog closes (confirm, dismiss button, or
- *   outside-dismiss).
+ * - `OnDatePickerOpenEventTrigger` — when the field is pressed while closed.
+ * - `OnDateSelectedEventTrigger` — when the confirm button is pressed; the ISO date string is
+ *   passed as the event's incoming data.
+ * - `OnDatePickerCloseEventTrigger` — when the field is pressed while open, when the dialog is
+ *   dismissed, when cancel is pressed, and also right after a confirm.
  *
- * **Client state management:**
- * - `OnDatePickerToggle` TileEvent — toggles [expanded].
- * - `OnDatePickerDismissRequest` TileEvent — collapses [expanded] to `false`.
- * - `OnDateConfirmed` TileEvent — updates [selectedDate] and collapses [expanded] to `false`.
+ * **Value production:** the holder exposes [selectedDate] under a caller-chosen key so
+ * `GetData` / `EvaluateData` events can read this picker by its [id]. When no date is selected
+ * it produces no entry at all.
  */
 @Immutable
 @Triggers(
     [
-        OnDateSelectedEventTrigger::class,
         OnDatePickerOpenEventTrigger::class,
         OnDatePickerCloseEventTrigger::class,
+        OnDateSelectedEventTrigger::class,
     ]
 )
 @Serializable

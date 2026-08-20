@@ -2,8 +2,6 @@ package dev.catbit.mosaic.server.builder.event.builders.file
 
 import dev.catbit.mosaic.core.data.schemas.event.events.file.FileOutputType
 
-// ── FileOutputType helpers ─────────────────────────────────────────────────────
-
 /** Reads the whole file into memory and delivers it as a `ByteArray`. */
 fun arrayOfBytes(): FileOutputType = FileOutputType.ArrayOfBytes
 

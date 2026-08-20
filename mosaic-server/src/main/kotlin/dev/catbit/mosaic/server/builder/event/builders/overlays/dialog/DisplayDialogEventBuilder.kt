@@ -28,6 +28,22 @@ internal class DisplayDialogEventBuilder(
     )
 }
 
+/**
+ * Shows a dialog built from [tiles], registered under [dialogId] so a later `DismissDialog` can
+ * close it. [isCancellable] decides whether the user can dismiss it with the back gesture or a
+ * scrim tap, and [usePlatformDefaultWidth] whether the dialog keeps the platform's default width
+ * or sizes itself from its content. Does not consume `incomingData`. Dispatches `onSuccess` (no
+ * data) when the dialog was added; `onFailure` (carrying the thrown exception) when it could not
+ * be added, typically because [dialogId] is already in use.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param dialogId Id the dialog is registered under, matched by a later `DismissDialog`.
+ * @param isCancellable Whether the user can dismiss the dialog with the back gesture or a scrim tap. Defaults to true.
+ * @param usePlatformDefaultWidth Whether the dialog keeps the platform's default width instead of sizing from its content. Defaults to false.
+ * @param tiles Tile tree rendered as the dialog's content.
+ */
 fun EventSchemaBuilderScope.DisplayDialog(
     id: String = randomId(),
     trigger: EventTrigger,

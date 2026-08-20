@@ -28,6 +28,19 @@ internal class AddTilesEventBuilder(
     }
 }
 
+/**
+ * Appends [tiles] as children of the grouping tile identified by [groupingTileId], at [position],
+ * without rebuilding the rest of the screen. Does not consume `incomingData`. Dispatches
+ * `onSuccess` (no data) when the children were added; `onFailure` (carrying the thrown exception,
+ * logged) when no grouping tile carries [groupingTileId], or it cannot hold children.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param groupingTileId Id of the grouping tile (`Column`, `Row`, `LazyColumn`, etc) to append children to.
+ * @param position Where among the existing children to insert — [insertAtStart], [insertAtEnd], [insertBeforeTile], [insertAfterTile] or [insertAtIndex]. Defaults to the end.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param tiles Tiles appended as new children.
+ */
 fun EventSchemaBuilderScope.AddTiles(
     id: String = randomId(),
     trigger: EventTrigger,
@@ -48,8 +61,17 @@ fun EventSchemaBuilderScope.AddTiles(
     )
 }
 
+/** Inserts before every existing child. */
 fun insertAtStart() = AddTilesEventSchema.InsertionPosition.Start
+
+/** Inserts after every existing child. */
 fun insertAtEnd() = AddTilesEventSchema.InsertionPosition.End
+
+/** Inserts immediately before the child whose id is [tileId]. */
 fun insertBeforeTile(tileId: String) = AddTilesEventSchema.InsertionPosition.BeforeTile(tileId)
+
+/** Inserts immediately after the child whose id is [tileId]. */
 fun insertAfterTile(tileId: String) = AddTilesEventSchema.InsertionPosition.AfterTile(tileId)
+
+/** Inserts at the given zero-based [index] among the existing children. */
 fun insertAtIndex(index: Int) = AddTilesEventSchema.InsertionPosition.AtIndex(index)

@@ -15,7 +15,13 @@ object CancelEventsEventRunner : EventRunner<CancelEventsEventSchema> {
             get<CancellableEventsHolder>().cancelEvents(
                 cancellableEventId = cancellableEventId
             )
+                .onSuccess {
+                    onTrigger(EventTriggers.onSuccess())
+                }
+                .onFailure { throwable ->
+                    onTrigger(EventTriggers.onFailure(), data = throwable)
+                    logError(tag = "CancelEventsEventRunner", throwable = throwable)
+                }
         }
-        onTrigger(EventTriggers.onSuccess())
     }
 }

@@ -6,12 +6,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
+import dev.catbit.mosaic.client.extensions.filteredBy
 import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.extensions.onClick
+import dev.catbit.mosaic.client.extensions.onLongPress
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.extensions.toArrangement
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
@@ -23,7 +24,6 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingS
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger.ScrollDirection
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.ColumnTileSchema
-import kotlinx.collections.immutable.toImmutableList
 
 object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
 
@@ -58,22 +58,15 @@ object ColumnTileRenderer : TileRenderer<ColumnTileSchema> {
                 onScrollBackward = { triggerEvent(EventTriggers.onScrolled(ScrollDirection.Top)) }
             )
 
-            val displayedTiles = remember(tiles, filterChildrenByTerm) {
-                (filterChildrenByTerm?.takeIf { it.isNotEmpty() }?.let { filterTerm ->
-                    tiles.filter { tile ->
-                        tile.searchableTerms?.any {
-                            it.contains(filterTerm, ignoreCase = true)
-                        } == true
-                    }
-                } ?: tiles).toImmutableList()
-            }
+            val displayedTiles = tiles.filteredBy(filterChildrenByTerm)
 
             Column(
                 modifier = Modifier
                     .visible(isVisible())
                     .styledWith(
                         style = style,
-                        onClick = onClick(events)
+                        onClick = onClick(events),
+                        onLongClick = onLongPress(events)
                     )
                     .thenIf(scrollable) {
                         verticalScroll(scrollState)

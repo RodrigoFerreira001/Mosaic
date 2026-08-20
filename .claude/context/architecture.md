@@ -1,586 +1,176 @@
 # Mosaic — Architecture Reference
 
-> Atualizado: jun/2026. Para a API detalhada de cada mecanismo (EventRunningScope, TileRenderingScope, BuilderScope, DataHolder, etc.), veja [`mechanisms.md`](mechanisms.md).
+This document exists so that anyone — human or LLM — can pick up the Mosaic codebase and have a working mental model of how it fits together, without having to re-derive it by reading all three modules from scratch. It covers the module boundaries, the pipeline that turns a `Screen{}` DSL call into rendered UI and a user tap into a running event chain, and — the part that matters most for anyone extending the framework — every mechanism that holds the runtime together, split into **explicit** (a named class/singleton you can reach and reason about directly) and **implicit** (behavior that emerges from a convention followed consistently across the codebase, with no single class "owning" it).
 
-## Module Dependency Graph
+For the exhaustive field-by-field reference of every Tile and Event, see [`tiles-catalog.md`](tiles-catalog.md) and [`events-catalog.md`](events-catalog.md). This document does not repeat that content — it explains the machinery those catalogs' entries run on top of.
 
-```
-mosaic-core
-    ↑ (depends on)
-    ├── mosaic-client   (deserializes + renders)
-    ├── mosaic-server   (serializes + DSL)
-    ├── sample-client   (consumes client + core)
-    └── sample-server   (consumes server + core)
-```
+## 1. What Mosaic is
 
-`mosaic-core` has no dependencies on other Mosaic modules. It is the single source of truth for all contracts (Schemas).
-
----
-
-## Core Pattern: Schema → Builder → Renderer
-
-Every component in Mosaic follows this pattern across three layers:
-
-| Layer | Module | Type | Responsibility |
-|---|---|---|---|
-| Schema | `mosaic-core` | `data class` | Typed data contract. `@Serializable`, `@SerialName`. Registered in `MosaicSerializer`. |
-| Builder | `mosaic-server` | `class` / `object` | DSL class that constructs a Schema type-safely. Exposed as extension function on a scope. |
-| Definition | `mosaic-client` | `object` | Binds a Schema class to its Renderer and HolderBuilder. |
-| Renderer | `mosaic-client` | `object` | `@Composable` that receives a Schema and renders it via Compose. |
-| Holder | `mosaic-client` | `class` | Stateful wrapper around a Schema. Manages updates and child hierarchy. |
-| HolderBuilder | `mosaic-client` | `object` | Factory that produces a Holder from a Schema. |
-| Runner | `mosaic-client` | `object` | Executes the logic of an EventSchema within an `EventRunningScope`. |
-
----
-
-## System Map: Who Talks to Whom
+Mosaic is a Server-Driven UI (SDUI) framework split across three Kotlin Multiplatform modules, plus two reference apps:
 
 ```
-MosaicScreen (Composable)
-  │
-  ├── MosaicScreenStateHolder (ViewModel)
-  │     │
-  │     ├── TilesManager (implements 5 interfaces)
-  │     │     ├── TileHolderBuilderManager → TileHolderBuilder implementations
-  │     │     │     └── TileHolder tree (mutable, hierarchical)
-  │     │     │           └── EventHolder children
-  │     │     └── EventHolderBuilderManager → EventHolderBuilder implementations
-  │     │
-  │     ├── EventManager
-  │     │     ├── EventRunnerManager → EventRunner implementations
-  │     │     └── creates EventRunningScope (per event execution)
-  │     │           ├── tilesEditor          (→ TilesManager)
-  │     │           ├── tilesOverlaysEditor  (→ TilesManager)
-  │     │           ├── tilesEventDispatcher (→ TilesManager)
-  │     │           ├── dataHolder           (→ MosaicScreenStateHolder)
-  │     │           ├── screenBehaviorsHolder(→ MosaicScreenStateHolder)
-  │     │           └── Koin DI access
-  │     │
-  │     ├── TileRendererManager → TileRenderer implementations
-  │     │     └── creates TileRenderingScope (per tile render)
-  │     │           ├── dispatchEvent / triggerEvent (→ UIEvent → StateHolder)
-  │     │           └── RenderChild / RenderChildren
-  │     │
-  │     └── DefaultDataHolder (in-memory, screen-scoped)
-  │
-  └── CompositionLocals
-        ├── LocalTileRendererManager
-        └── LocalBroadcastChannel (SharedFlow<BroadcastData>)
-
-Koin DI (global)
-  ├── NavigatorsHolder
-  ├── DataMailer
-  ├── MosaicDatabase (SQLDelight)
-  ├── MosaicFileSystem
-  ├── MosaicRepository
-  └── DataProcessor implementations
+mosaic-core     — shared, @Serializable Schemas + the polymorphic serializer. No dependency on
+                  the other two modules. This is the wire contract both sides agree on.
+    ↑
+    ├── mosaic-server   — a type-safe Kotlin DSL that builds Schemas and serializes them to JSON.
+    │                     Plain JVM library — no Ktor/HTTP dependency of its own.
+    ├── mosaic-client   — Kotlin Multiplatform (Android, iOS, Desktop/JVM, WasmJS). Deserializes
+    │                     Schemas, renders them with Compose Multiplatform, and executes Events.
+    ├── sample-server   — a Ktor backend that uses mosaic-server to expose real screens over HTTP.
+    └── sample-client   — a reference client app that consumes sample-server via mosaic-client.
 ```
 
----
+Every displayable component is a **Tile** (`TileSchema`); every unit of behavior is an **Event** (`EventSchema`). Both follow the same three-layer split:
 
-## Full Data Flow: JSON → UI
-
-```
-1. JSON String (HTTP response or local)
-        │
-        ▼  MosaicSerializer.decodeFromJsonElement()
-2. TileSchema / EventSchema  (typed, immutable data classes)
-        │
-        ▼  TileHolderBuilderManager + EventHolderBuilderManager (via BuilderScope)
-3. TileHolder<T> / EventHolder<T>  (mutable state, full child hierarchy)
-        │
-        ▼  TilesManager.updateState()
-4. MosaicScreenStateHolder.uiState: StateFlow<State>
-        │
-        ▼  Compose collectAsState() → recomposition
-5. TileRendererManager.Render(tileSchema, onEvent)
-        │   checks isGone(), looks up tileSchema::class → TileRenderer<T>
-        ▼  TileRenderingScope.Render(tileSchema)
-6. Composable UI (Material 3 components)
-```
-
----
-
-## Full Event Flow: User Interaction → Action
-
-```
-1. User interaction in Compose (e.g., button click)
-        │
-        ▼  TileRenderingScope.triggerEvent(EventTriggers.onClick())
-2. UIEvent.EventSchemaHolderUIEvent emitted via onEvent callback
-        │
-        ▼  MosaicScreenStateHolder.onEvent(Event.OnUIEvent)
-3. onUIEvent() routes:
-        ├── TileEventHolderUIEvent   → TilesManager.onEvent(tileId, event)
-        ├── TileGroupEventHolderUIEvent → TilesManager.onGroupEvent(event)
-        └── EventSchemaHolderUIEvent → EventManager.runEvents(events, data)
-                │
-                ▼  EventRunnerManager looks up EventSchema::class → EventRunner<T>
-4. EventRunningScope created with all dependencies
-        │
-        ▼  EventRunner<T>.runEvent(EventRunningScope)
-5. Action executed (navigate, update tiles, network request, persist data, etc.)
-        │
-        ▼  mutations call TilesManager.updateState()
-6. StateFlow updated → Compose recomposes
-```
-
----
-
-## Full Suspend Flow: Async Operations in EventRunners
-
-```
-EventRunner.runEvent() {
-    runSuspendOnScreenScope {              // launches on screenCoroutineScope
-        withContext(Dispatchers.IO) {     // IO-bound work
-            // use cases, network, DB
-        }
-        // UI mutations back on main
-        tilesEditor.updateTile(...)
-        onTrigger(EventTriggers.onSuccess())
-    }
-}
-
-screenCoroutineScope  →  tied to Compose's rememberCoroutineScope (UI lifetime)
-stateHolderCoroutineScope  →  tied to ViewModel's viewModelScope (screen lifetime)
-```
-
-Both scopes use `SupervisorJob`: a failure in one launched block does not cancel the entire scope.
-
----
-
-## UIEvent Routing (Sealed Interface)
-
-```kotlin
-sealed interface UIEvent {
-    // Fired by TileRenderingScope.triggerEvent() — routes to EventManager
-    data class EventSchemaHolderUIEvent(
-        val events: List<EventSchema>,
-        val data: Any?
-    ) : UIEvent
-
-    // Fired by TileRenderingScope.dispatchEvent() — routes to TilesManager
-    data class TileEventHolderUIEvent(
-        val tileId: String,
-        val event: TileEvent          // marker interface
-    ) : UIEvent
-
-    // Fired by TileRenderingScope.dispatchGroupEvent() — routes to TilesManager
-    data class TileGroupEventHolderUIEvent(
-        val event: TileGroupEvent     // marker interface
-    ) : UIEvent
-}
-```
-
----
-
-## MosaicScreenStateHolder: The Orchestrator
-
-Extends `ScreenStateHolder<State, Event, Effect>` (ViewModel base).
-Implements `ScreenBehaviorsHolder`.
-Delegates `DataHolder` to `DefaultDataHolder`.
-
-**State machine:**
-```
-Initial ──onSuccess──► Displaying
-Initial ──onFailure──► Failure
-```
-
-**Owns:**
-- `internalUIState: MutableStateFlow<State>` — drives UI recomposition
-- `internalBroadcastChannel: MutableSharedFlow<BroadcastData>` — cross-tile communication
-- `TilesManager` — tile state
-- `EventManager` — event execution
-- `TileRendererManager` — rendering registry (via Koin)
-- `DefaultDataHolder` — in-memory screen data
-
-**Lifecycle hooks (ScreenStateHolder):**
-- `onFirstDisplay()` — called once on first appearance
-- `onDisplay()` — called every time the screen appears
-- `onPause()` — screen goes background
-- `onStop()` — ViewModel cleared, scope cancelled
-
----
-
-## TilesManager: The Tile State Coordinator
-
-Implements five behavior interfaces simultaneously:
-
-| Interface | Responsibility |
-|---|---|
-| `TilesEditor` | add / remove / replace / update / wipe tiles |
-| `TilesStateUpdater` | `updateState()` → triggers recomposition |
-| `TilesEventDispatcher` | `onEvent(tileId, TileEvent)` / `onGroupEvent(TileGroupEvent)` |
-| `TilesOverlaysEditor` | `addBottomSheet()` / `addModalBottomSheet()` / `addDialog()` / `dismiss*(id)` — pilha de overlays por id |
-| `TilesEventHolder` | `getEventsByTrigger(trigger)` |
-
-All mutations operate on the root `ScreenTileHolder` tree. After every mutation, `updateState()` is called, which invokes `onUpdateRequest(rootTile.get())` — updating the `StateFlow` and triggering Compose recomposition.
-
-**Parent reference:** `TilesManager` holds `private val parent: TilesManager?`. All tile lookup operations (`getTileHolderAndOwner`, `getTileHoldersByGroupEventAndOwner`) first search the local `ScreenTileHolder` tree, then delegate to `parent` recursively if the tile is not found locally. This allows tiles rendered inside nested contexts (e.g. `NestedNavigationGraphTile`) to dispatch tile management events (`AddTiles`, `RemoveTiles`, `UpdateTile`, `ReplaceTiles`, etc.) that target tiles in outer/parent screens — transparently, with no special handling required in the event runners.
-
-**ScreenTileHolder** is the root node. It extends `TileHolder` and additionally manages:
-- `stackableOverlays: LinkedHashMap<String, StackableOverlay>` — the overlay stack, keyed by the
-  server-defined overlay id, in insertion order. `StackableOverlay` is a sealed class with
-  `BottomSheet` (non-modal), `ModalBottomSheet` and `Dialog`.
-- `navigationDrawerTiles: List<TileHolder<*>>?`
-
-Search traversal priority: overlay stack (**top down**, skipping overlays with `isDismissing`) →
-navigationDrawer → main tiles → events.
-
-**Two-phase dismissal:** `dismissOverlay(id)` does not remove the entry — it replaces it with a
-copy carrying `isDismissing = true`. The renderer reacts to that flag, plays the exit animation,
-and dispatches `ScreenTileEvents.OnDismissOverlayFinished(id)`, which is what actually removes it.
-Dismissing overlays stay out of every search path (so an update never lands on a dying holder) but
-stay inside `isDirty()`, since they are still on screen and their schema must keep regenerating
-while the animation runs.
-
----
-
-## TileHolder: The Stateful Tree Node
-
-Abstract class (always `class`, never `object`). Manages mutable schema + child hierarchy.
-
-**Key capabilities:**
-- `var tile: T` — mutable schema reference (updated in-place by `update()`)
-- `tiles: MutableList<TileHolder<*>>?` — child tiles
-- `events: MutableList<EventHolder<*>>?` — associated events
-- `get(): T` — returns schema with all children's current state
-- `update(updateData: Map<String, Any?>)` — JSON merge update (no reflection)
-- `getTileHolder(tileId)` — recursive depth-first search
-- `getEventsByTrigger(trigger)` — finds matching events recursively
-- `onTileEvent(event: TileEvent)` — overridable tile-specific event handler
-- `onTileGroupEvent(event: TileGroupEvent)` — overridable group event handler
-
-**JSON-based update mechanism:**
-```
-1. Encode current tile to JsonObject
-2. Encode updateData to JsonObject
-3. Merge: updateData keys override tile keys (style merged separately)
-4. Decode merged JsonObject back to T via KSerializer
-5. tile = decoded result
-```
-
----
-
-## EventManager: The Event Orchestrator
-
-Constructs `EventRunningScope` for each event execution and delegates to `EventRunnerManager`.
-
-**Attachment methods** (called once during `MosaicScreenStateHolder` init):
-- `attachTilesEditor(TilesEditor)`
-- `attachTilesOverlaysEditor(TilesOverlaysEditor)`
-- `attachTilesEventHolder(TilesEventHolder)`
-- `attachScreenBehaviors(ScreenBehaviorsHolder)`
-- `attachDataHolder(DataHolder)`
-- `attachTilesEventDispatcher(TilesEventDispatcher)`
-
-**Execution methods:**
-- `triggerEvents(trigger, data)` — finds events on root by trigger, executes them
-- `runEvents(eventSchemas, data)` — executes a list
-- `runEvent(eventSchema, data)` — builds scope + runs single runner
-
----
-
-## EventRunnerManager: The Runner Registry
-
-Maps `KClass<out EventSchema>` → `EventRunner<*>`. Populated from `baseEventsDefinitions + customDefinitions` in Koin.
-
-On `runEvent()`, looks up runner by exact class, creates scope, calls `runner.runEvent(scope)`. Logs error if no runner found.
-
----
-
-## TileRendererManager: The Renderer Registry
-
-Maps `KClass<out TileSchema>` → `TileRenderer<*>`. Populated from `baseTilesDefinitions + customDefinitions` in Koin.
-
-On `Render()`:
-1. Checks `tileSchema.isGone()` — skips if true
-2. Looks up renderer by class
-3. Creates `TileRenderingScope` with tileId + events + onEvent callback
-4. Calls `renderer.Render(tileSchema)` in the scope
-
----
-
-## EventHolder: The Stateful Event Node
-
-Mirrors `TileHolder` for events. Abstract class (always `class`).
-
-- `event: T` — mutable schema reference
-- `trigger: EventTrigger` — determines when this event fires
-- `events: List<EventHolder<*>>?` — nested child events
-- `tiles: List<TileHolder<*>>?` — tiles referenced by the event (e.g. AddTilesEvent holds the tiles to add)
-- `get(): T` — returns updated schema with children
-- `update(updateData)` — JSON merge update
-
----
-
-## Definition Objects: Binding the Layers
-
-```kotlin
-// Tile Definition — binds schema class to renderer + holder builder
-object ButtonTileDefinition : TileDefinition<ButtonTileSchema> {
-    override val tileSchemaClass = ButtonTileSchema::class
-    override val tileRenderer = ButtonTileRenderer
-    override val tileHolderBuilder = ButtonTileHolderBuilder
-}
-
-// Event Definition — binds schema class to runner + holder builder
-object AddTilesEventDefinition : EventDefinition<AddTilesEventSchema> {
-    override val eventSchemaClass = AddTilesEventSchema::class
-    override val eventRunner = AddTilesEventRunner
-    override val eventHolderBuilder = AddTilesEventHolderBuilder
-}
-```
-
-Definitions are consumed by Koin to populate registries: `TileRendererManager`, `TileHolderBuilderManager`, `EventRunnerManager`, `EventHolderBuilderManager`, and `MosaicSerializer`.
-
----
-
-## Dependency Injection (Koin Modules)
-
-| Module | Provides |
-|---|---|
-| `applicationModule` | `NavigatorsHolder`, `DataMailer`, `ScreenExtrasHolder` |
-| `dataModule` | `MosaicDatabase`, `MosaicFileSystem`, `MosaicRepository`, `MosaicNetwork` |
-| `serializerModule` | `MosaicSerializer` (built from all definitions) |
-| `renderingModule` | `TileRendererManager`, `TileHolderBuilderManager` |
-| `eventModule` | `EventRunnerManager`, `EventHolderBuilderManager` |
-| `stateHolder` | `MosaicScreenStateHolder` (viewModel factory), `MosaicApplicationStateHolder` |
-| `useCaseModule` | All domain use cases (Get/Update/Remove for plain and segmented data, network, file) |
-| `dataProcessorsModule` | `EventRunnerDataProcessor` (bound as `DataProcessor`) |
-| `platformModule` | Platform-specific: `MosaicLogger`, `DataChest`, `PlatformFileHandler` |
-
----
-
-## Persistence Layer
-
-### DataHolder (in-memory, screen-scoped)
-Lives for the duration of a screen's ViewModel lifecycle. Three namespaces:
-- `plainData: Map<String, Any>` — global key/value
-- `segmentedData: Map<segmentId, Map<String, Any>>` — segmented key/value
-- `navigationData: Map<String, Any>` — immutable, set at navigation time
-
-### DataMailer (in-memory, global)
-Simple `Map<String, Any>` shared across screens. Used by `SendData` and `CheckForReceivedData` events.
-
-### MosaicDatabase (persistent, SQLDelight)
-Suspendable API. Two namespaces: `plainData` (key-value) and `segmentedData` (segment + key-value). Platform drivers: SQLite on Android/iOS/Desktop, sql.js on Web.
-
-### MosaicFileSystem (persistent, file I/O)
-Suspendable `saveFile`, `getFile`, `deleteFile` on `ByteArray`. Platform-specific via `PlatformFileHandler` expect/actual.
-
-### DataChest (persistent, key-value preferences)
-Typed getters/setters for `Int`, `Long`, `String`, `Float`, `Boolean`. Backed by SharedPreferences (Android) / UserDefaults (iOS).
-
-### TilesValueProducer (in-memory, tile-scoped)
-Read-only datasource that exposes values from active tiles. Accessed via `EventRunningScope.tilesValueProducer`.
-
-```kotlin
-interface TilesValueProducer {
-    fun getValueWithKey(tileId: String, key: String): Map<String, Any>?
-}
-```
-
-Used when a `DataSourceSchema.Tile(tileId, dataKey)` is referenced in a `GetDataEvent` or `EvaluateDataEvent`. The tile identified by `tileId` must expose the requested `key` through its holder. Returns `null` if the tile or key does not exist.
-
----
-
-## Style System
-
-`StyleSchema` is attached to every `TileSchema` and controls visual presentation:
-
-```
-StyleSchema
-├── size: SizeSchema         → width + height (Fill, Wrap, Fixed(dp), Weight(float))
-├── margin: MarginSchema?    → external spacing (start, top, end, bottom in dp)
-├── padding: PaddingSchema?  → internal spacing
-├── background: BackgroundSchema? → fill (solid color or gradient) + alpha
-├── border: BorderSchema?    → stroke width + color
-├── clip: ClipSchema?        → shape clipping (circle, rounded, etc.)
-└── windowInsets: WindowInsetsSchema? → system bars, ime, etc.
-```
-
-Applied via `Modifier.styledWith(style: StyleSchema)` in the client.
-
-### BackgroundSchema
-
-Sealed interface mapping 1:1 to Compose `Brush` factories, applied with
-`Modifier.background(brush, alpha = alpha)`. Every variant carries an `alpha: Float = 1f`.
-
-| Variant | `@SerialName` | Fields (beyond `colorStops`/`alpha`) |
+| Layer | Module | What it is |
 |---|---|---|
-| `SolidColor` | `solid_color` | `color: ColorSchema` |
-| `LinearGradient` | `linear_gradient` | `start: OffsetSchema`, `end: OffsetSchema?`, `tileMode` |
-| `HorizontalGradient` | `horizontal_gradient` | `startX: Int`, `endX: Int?`, `tileMode` |
-| `VerticalGradient` | `vertical_gradient` | `startY: Int`, `endY: Int?`, `tileMode` |
-| `RadialGradient` | `radial_gradient` | `center: OffsetSchema?`, `radius: Int?`, `tileMode` |
-| `SweepGradient` | `sweep_gradient` | `center: OffsetSchema?` |
+| **Schema** | `mosaic-core` | `@Serializable` data class — the wire contract, e.g. `ButtonTileSchema`, `SendNetworkRequestEventSchema`. Registered by `KClass` in `MosaicSerializer`'s polymorphic maps. |
+| **Builder** | `mosaic-server` | A DSL function (e.g. `fun TileSchemaBuilderScope.Button(...)`) plus an internal `TileSchemaBuilder`/`EventSchemaBuilder` subclass that constructs the Schema. This is what a backend developer writes. |
+| **Definition / Renderer / Holder / HolderBuilder / Runner** | `mosaic-client` | A `TileDefinition`/`EventDefinition` object binds a Schema's `KClass` to a `@Composable` renderer (tiles) or execution logic (events), plus a stateful `Holder` that tracks the live, mutable tree. |
 
-Gradient colors are a `List<ColorStopSchema>` (`color` + optional `stop: Float?`). When every
-`stop` is `null` the colors are spread evenly; otherwise the client fills the gaps with an even
-distribution so colors and stops always match in size.
+Neither `mosaic-server` nor `mosaic-client` needs to know about the other's existence — both only depend on `mosaic-core`. That's what makes the wire contract type-safe end to end without codegen: the same `EventTrigger`/`TileSchema`/`EventSchema` types are compiled once, in `mosaic-core`, and used by both sides.
 
-`null` means "Compose default" and is resolved at draw time by the brush's shader — the server
-never needs the tile size: `end`/`endX`/`endY` → far edge (`Offset.Infinite` /
-`POSITIVE_INFINITY`), `center` → center of the tile (`Offset.Unspecified`), `radius` → largest
-radius that fits. All dimensions are `Int` in dp.
-
-DSL: `background(color(...))` (solid shorthand), or `solidColor`, `linearGradient`,
-`horizontalGradient`, `verticalGradient`, `radialGradient`, `sweepGradient`, `offset` from
-`builder/style/BackgroundHelper.kt`. Blur is not supported yet.
-
----
-
-## Navigation Architecture
-
-- `NavigatorsHolder` — global registry of `NavigationController` instances by `navigatorId`.
-- `NavigationController` — wraps `NavBackStack<ScreenNavKey>`, supports `popUpTo` with `inclusive` flag.
-- Each `NestedNavigationGraphTileSchema` declares a `navigatorId` and a list of `Entry` objects.
-- `NavigateEventSchema.navigatorId` must match a registered navigator.
-- Navigation data passed via `navigationData` map becomes read-only `DataHolder.getNavigationData()` in the destination screen.
-
----
-
-## Broadcast System
-
-`BroadcastChannel` is a `typealias` for `SharedFlow<BroadcastData>`. Provided via `LocalBroadcastChannel` CompositionLocal.
-
-```kotlin
-typealias BroadcastChannel = SharedFlow<BroadcastData>
-
-interface BroadcastData {
-    val tileId: String?   // null = broadcast to all; set = targeted to a tile
-}
-```
-
-Tiles observe `LocalBroadcastChannel.current` to react to cross-tile signals (e.g., `ColumnTileRenderer` reacts to `ScrollToTop`, `ScrollTo(index)` broadcast data).
-
-EventRunners emit broadcasts via `EventRunningScope.broadcastData(data)`.
-
----
-
-## Data Processing Pipeline
+## 2. Entry point skeleton — from `MosaicApplication` to a rendered screen
 
 ```
-GetDataEventRunner
-    │  fetches data from one or more sources
-    ▼
-onSuccess trigger fired with data as incomingData
-    │
-    ▼ (if ProcessDataEvent is chained)
-ProcessDataEventRunner
-    │  get<DataProcessor>(named(event.processorId))
-    ▼
-EventRunnerDataProcessor
-    │  deserializes incomingData as List<EventSchema> or EventSchema
-    ▼
-runEventInline(eventSchema)   →  executes events (e.g., AddTilesEventRunner)
+MosaicApplication(applicationId, baseUrl, themeConfig, dependencyInjectionConfig, appSplash)
+  │
+  ├─ PlatformWrapper { ... }                         (expect/actual, per-platform setup)
+  ├─ KoinApplication { modules(MosaicModules(...)) }  (boots the whole DI graph — see §4)
+  ├─ MosaicApplicationStateHolder                     (fetches the initial navigation graph)
+  │     State: Loading → Displaying(graph) | Failure(loading)
+  ├─ MosaicTheme(colors, shapes, typography, ...)      (wraps everything below)
+  └─ NavDisplay (Navigation 3), one MosaicScreen per backstack entry
+        │
+        MosaicScreen(screenId, navigationData, parent: TilesManager?)
+          │
+          └─ MosaicScreenStateHolder (Koin viewModel, keyed by screenId)
+                ├─ TilesManager   — owns the live tile tree for this screen
+                ├─ EventManager   — runs events for this screen
+                └─ TileRendererManager (via CompositionLocal) — renders the root tile
 ```
 
-`DataProcessor` is an interface. Custom processors can be registered in Koin and referenced by ID in `ProcessDataEventSchema`.
+`MosaicApplicationStateHolder` runs `CheckCacheVersionUseCase` then `GetInitialGraphUseCase` before anything else — "best effort": if the version check fails, the app still tries to fetch the graph. Once the graph arrives, `ScreenExtrasHolder` (a Koin single, keyed by `screenId`) is populated with each entry's `initialTiles`/`initialEvents`/`failureTiles`/`failureEvents`/transitions — this is what decouples "the graph arrived" from "this specific screen was opened," since a screen may not be visited for a while after the graph loads.
 
----
+Every `MosaicScreen` sits on a `NavigationController`, registered under an id (`"root"` for the app's own `NavDisplay`) in `NavigatorsHolder` — a Koin single. `Navigate`/`NavigateUp`/`NavigateClearingStack` events look the controller up by that id and never touch the backstack directly.
 
-## Logging
+**`TilesManager`, `EventManager` and `TileRendererManager` are where §3 picks up** — this section only establishes where they're created and who owns them.
 
-`MosaicLogger` is an abstract class with level-based filtering (`DEBUG`, `INFO`, `WARNING`, `ERROR`). Implementations are platform-specific. Available via Koin DI. Use `logError()` / `log()` helpers in `EventRunningScope` and `BuilderScope`.
+## 3. The SDUI engine — Tile and Event pipelines
 
----
-
-## Server DSL: CompositionLocal System
-
-Inspired by Jetpack Compose's `CompositionLocal`, the server DSL provides a mechanism to pass values implicitly through the builder tree without threading them as explicit parameters.
-
-### API
-
-```kotlin
-// Define (tipicamente em sample-server ou em um arquivo dedicado do módulo)
-val LocalNameProvider = compositionLocalOf<String> { error("Name not provided") }
-
-// Fornecer um valor para uma subárvore
-CompositionLocalProvider(LocalNameProvider provides "Rodrigo") {
-    Column {
-        SimpleText(LocalNameProvider.current())  // lê "Rodrigo"
-    }
-}
-```
-
-| Função | Onde | Descrição |
-|---|---|---|
-| `compositionLocalOf<T> { default }` | qualquer lugar | Cria um `CompositionLocal<T>` com valor padrão (use `error()` para obrigatórios) |
-| `CompositionLocalProvider(...)` | `GenericBuilderScope` | Fornece valores para o escopo do bloco `content` |
-| `CompositionLocal<T>.current()` | `GenericBuilderScope` | Lê o valor atual; cai no default se não fornecido |
-| `snapshotLocals()` | `GenericBuilderScope` | Retorna cópia imutável do mapa atual de locals |
-| `pushLocals(map)` | `GenericBuilderScope` (internal) | Insere locals no mapa — uso exclusivo de `CompositionLocalProvider` |
-| `restoreLocals(snapshot)` | `GenericBuilderScope` (internal) | Restaura estado anterior — uso exclusivo de `CompositionLocalProvider` |
-
-### Como os valores propagam pelo builder tree
-
-O `GenericBuilderScope` mantém um `private val compositionLocals: MutableMap` com acesso controlado apenas pelos métodos acima.
-
-Quando um builder é registrado via `addBuilder()`, o scope **tira um snapshot imutável** do mapa naquele momento e o armazena no builder. Isso garante que os locals corretos são preservados mesmo após o `CompositionLocalProvider` restaurar o estado do scope.
+### Tile pipeline: Schema → Holder → Render
 
 ```
-DSL construction time:
-  CompositionLocalProvider(LocalX provides "value") {
-      Column { ... }   ← addBuilder() → builder.compositionLocals = snapshot { LocalX → "value" }
-  }
-  ← cleanup: scope restaura locals anteriores (snapshot do builder não é afetado)
-
-build() time:
-  ColumnTileSchemaBuilder.build()
-      TileSchemaBuilderScope()   ← invoke operator em GenericBuilder injeta builder.compositionLocals
-          └─ locals corretos disponíveis para sub-builders e .current()
+TileSchema (JSON, from mosaic-core)
+  │  TileHolderBuilderManager dispatches by KClass to the registered TileHolderBuilder
+  ▼
+TileHolder<T>            — mutable, stateful. Tracks isDirty(), re-serializes lazily via get().
+  │
+  │  TileRendererManager dispatches by KClass to the registered TileRenderer
+  ▼
+TileRenderingScope.Render(tileSchema)   — a fresh scope per Render() call
+  │  dispatchEvent / dispatchGroupEvent / triggerEvent / RenderChild(ren)
+  ▼
+Compose UI (Material 3)
 ```
 
-O `GenericBuilder` expõe invoke operators (`TileSchemaBuilderScope()`, `EventSchemaBuilderScope()`, etc.) que automaticamente injetam `compositionLocals` no novo scope. Todo builder deve criar sub-scopes **exclusivamente** por esses operators — nunca construindo os scopes diretamente.
+- **`TileHolder<T>`** is the mutable counterpart of an immutable `TileSchema`. Its `update()` is a JSON-patch operation, not a field-by-field assignment: it serializes the current tile to a `JsonObject`, shallow-merges the incoming update data (with `"style"` merged as its own nested object), and deserializes back. If the merge changes `tile.events`, the child `EventHolder`s are rebuilt from scratch — there is no event-level merge.
+- **`TilesManager`** is the per-screen (or per-nested-navigation-graph) owner of the whole tile tree. It implements six interfaces at once: `TilesEditor`, `TilesStateUpdater`, `TilesEventDispatcher`, `TilesOverlaysEditor`, `TilesEventHolder`, `TilesValueProducer`. Internally it always wraps the tiles it's given in a synthetic `ScreenTileSchema` (`id = "mosaic::root"`) — **every screen has this pseudo-root**, even though authors never see it in the DSL.
+- **`ScreenTileHolder`** (the root holder) additionally owns `stackableOverlays: LinkedHashMap<String, StackableOverlay>` (BottomSheet/ModalBottomSheet/Dialog, keyed by the id given in the DSL) and `navigationDrawerTiles`. Lookup priority when resolving a tile/event by id: visible overlays (top to bottom) → navigation drawer → main tiles.
+- **`TilesManager.parent`**: when a screen is nested (inside a `NestedNavigationGraph` tile), its `TilesManager` is constructed with `parent` pointing at the hosting screen's `TilesManager`. Lookups that miss locally recurse upward through `parent` — never downward. A tile-management event fired inside a nested screen can therefore reach a tile in the screen that hosts it; the reverse is not possible.
 
-### Caso especial: template avaliado com locals fora do build()
+### Event pipeline: Schema → Runner
 
-Quando um builder precisa avaliar um lambda **eagerly** (fora de `build()`) mas ainda precisa dos locals corretos, usar `snapshotLocals()` **antes** de `addBuilder()`:
-
-```kotlin
-fun EventSchemaBuilderScope.TransformData(..., eventTemplate: EventSchemaBuilderScope.() -> Unit) {
-    val locals = snapshotLocals()  // capturado com os locals corretos (antes do cleanup do provider)
-    addBuilder(
-        TransformDataEventBuilder(
-            ...,
-            template = {
-                EventSchemaBuilderScope(locals).apply(eventTemplate).build()
-            }
-        )
-    )
-}
+```
+EventSchema (JSON, from mosaic-core)
+  │  EventHolderBuilderManager dispatches by KClass — builds an EventHolder tree
+  │  (used ONLY for lookup/update by id — never for execution)
+  ▼
+EventManager.runEvent(eventSchema, data)
+  │  creates a NEW EventRunningScope per execution
+  │      triggerOwner = eventSchema, incomingData = data
+  ▼
+EventRunnerManager dispatches eventSchema::class to the registered EventRunner
+  ▼
+EventRunner<T>.runEvent(event)   — runs inside EventRunningScope as receiver
+  │  onTrigger(trigger, data) → filters triggerOwner.events by trigger == X → runs matches
+  ▼
+Side effects (mutate tiles, navigate, call network, etc.) + StateFlow update → recomposition
 ```
 
-Chamar `snapshotLocals()` **dentro** do lambda causaria leitura após o cleanup do `CompositionLocalProvider`, resultando em locals vazios.
+`EventRunningScope` is deliberately the most powerful of the runtime scopes — it exposes `tilesEditor`, `tilesEventDispatcher`, `tilesOverlaysEditor`, `tilesValueProducer`, `screenDataHolder`, `screenBehaviorsHolder`, Koin access (`get`/`getAll`/`getOrNull`), `onTrigger(...)`, `runEventInline`/`runEventsInline` (recursive execution without going through a trigger), and `broadcastData(...)`. This is the extension surface a custom `EventRunner` gets — see §4.
 
----
+## 4. Explicit mechanisms
 
-## Key Architectural Patterns
+These are named classes/singletons that *are* the mechanism — you can point at one class and say "this is where it lives." Each entry explains what it's for before how it's built, and closes with whether third-party code (a custom `TileRenderer`/`EventRunner` shipped by an app consuming `mosaic-client`) can reach it.
 
-| Pattern | Where Used |
-|---|---|
-| MVVM | `ScreenStateHolder` exposes `StateFlow` to Compose |
-| MVI | `UIEvent` as typed actions, processed by `EventManager` |
-| Registry | `TileRendererManager`, `EventRunnerManager` — O(1) lookup by KClass |
-| Strategy | `EventRunner` implementations — pluggable behaviors |
-| Composite | `TileHolder` tree — recursive structure with uniform `get()` |
-| Factory | `TileHolderBuilder`, `EventHolderBuilder` — produce holders from schemas |
-| Scope | `EventRunningScope`, `TileRenderingScope`, `BuilderScope` — context injection via extension functions |
-| Supervisor Coroutines | `supervisorScope {}` in all async paths — isolated failure |
-| JSON Merge Update | Tile updates via `JsonObject` merge — no reflection |
-| Composition over Inheritance | `TilesManager` implements 5 interfaces; `MosaicScreenStateHolder` delegates `DataHolder` |
-| CompositionLocal | `LocalTileRendererManager`, `LocalBroadcastChannel` — implicit Compose context |
+- **`NetworkParametersHolder`** — carries a dynamically-computed value (say, a signed upload URL fetched by a previous request) into the URL/body/headers/query params of the *next* network call, so a generic, reusable event like `UploadFile` doesn't need a field for something it can't know about upfront. It's a Koin single acting as a staging area: `SetIncomingDataToNetworkParamsHolder*` events write into it, and it's read — and cleared — by whichever network operation runs next. **Every** network-issuing operation (`getScreen`, `sendHttpRequest`, the 3 downloads, upload) consumes it, so it's meant to be used immediately before the one event it's targeting, not left staged across a longer chain. Reachable via `get<NetworkParametersHolder>()`.
+- **`DataMailer`** — moves a value from one part of the app to a completely unrelated one (a different screen, a different event chain) without threading it through navigation arguments or a shared data source. A Koin single acting as a one-shot mailbox (`sendData`/`getData` by key); reading a key removes it, so it's consume-once, not a cache. Reachable via `get<DataMailer>()`.
+- **`CancellableEventsHolder`** — lets a long-running chain of events (a timer, a poll) be stopped later from somewhere else in the app. A Koin single that runs a block of events inside its own coroutine `Job`, registered under an arbitrary `cancellableEventId` string chosen by whoever starts it — that id is a **global namespace**, not scoped to one screen, so two unrelated flows reusing the same id can cancel each other by accident. Reachable via `get<CancellableEventsHolder>()`.
+- **`ApplicationDataHolder` / `ScreenDataHolder`** — two data holders for two different lifetimes: a logged-in session should survive navigation, a form's draft value shouldn't leak into the next screen. Identical shape (plain + segmented key-value), different scope — `ApplicationDataHolder` is a Koin single that survives navigation; `ScreenDataHolder` is delegated inside `MosaicScreenStateHolder` and dies with the screen (it also exposes `getNavigationData()`, the read-only arguments the screen was opened with). `ApplicationDataHolder` is reachable via `get()`; `ScreenDataHolder` is already handed to you as `EventRunningScope.screenDataHolder`.
+- **`ScreenExtrasHolder`** — decouples "the navigation graph loaded" from "this specific screen was opened," since a screen can go unvisited for a while after the graph arrives. A Koin single, keyed by `screenId`, that caches each screen's `initialTiles`/`initialEvents`/`failureTiles`/`failureEvents`/transitions as soon as the graph is known, ready for whenever that screen actually opens. Registered/unregistered by whoever owns a backstack (the app root, or a `NestedNavigationGraph` tile). Reachable — mainly relevant if you're building your own nested-navigation-style tile (see the `AdaptiveNavigation` pattern below).
+- **`NavigatorsHolder`** — lets any event, at any depth in the tile tree, trigger navigation on a specific backstack, even though the backstack itself only exists at the top of a Compose tree and can't realistically be passed down as a parameter through every intermediate layer. A Koin single that's a lookup table of `NavigationController` by `navigatorId` — an event just asks for the controller by name. Reachable via `get<NavigatorsHolder>()`, usable the same way `NestedNavigationGraph` uses it, to register/unregister a custom backstack.
+- **`ScreenTilesBroadcastChannel` vs `SystemBroadcastChannel`** — lets one part of the tile tree tell another "something happened" (open the drawer, show a snackbar, scroll to an item) without either holding a reference to the other — plain pub/sub. Two channels with the identical shape (`SharedFlow` + `broadcast()`), differing only in scope: `ScreenTilesBroadcastChannel` is **per screen** (a plain field on `MosaicScreenStateHolder`, not a Koin single); `SystemBroadcastChannel` is **app-wide** (a Koin single), for signals that should reach every screen at once (e.g. a push notification). `EventRunningScope.broadcastData(...)` already delegates to the screen channel; the app-wide one is reachable via `get<SystemBroadcastChannel>()`.
+- **Hierarchy of `TilesManager` / `LocalTilesManager`** — lets a tile (like `NestedNavigationGraph`) host its own independent mini navigation graph and tile tree *inside itself*, while events fired in that nested tree can still reach tiles in the hosting screen when they're not found locally. `TilesManager` accepts an optional `parent`, and every lookup that misses locally recurses upward through it (never downward — see §3). A custom container tile gets this by composing its own `MosaicScreen(parent = LocalTilesManager.current)`, exactly like `NestedNavigationGraph` does — confirmed in real use by the `AdaptiveNavigation` sample tile.
+- **`stackableOverlays`** — lets bottom sheets, modal bottom sheets and dialogs stack, be addressed individually by id, and animate out properly instead of vanishing the instant a dismiss is requested. See §3 for the data structure and the two-phase dismissal note in §5 for the animation timing. Reachable indirectly, via `tilesOverlaysEditor` on `EventRunningScope`.
+- **`MosaicSerializer`** — decides which concrete Kotlin type a piece of incoming JSON becomes, when many tiles/events only share a common interface (`TileSchema`, `EventSchema`) that plain `kotlinx.serialization` can't resolve on its own — especially for custom types the framework doesn't know about ahead of time. A polymorphic registry mapping `KClass` → serializer for tiles, events and triggers, built from the built-in definitions plus whatever an app-host adds via `additionalSerializersModule`/custom tile-event definitions — never by editing the class itself. Reachable via `get<MosaicSerializer>()`, useful if a custom event needs to decode a dynamic polymorphic payload.
+- **`DrawableResourcesHolder`** — resolves the plain string name an `Image` tile references (as opposed to `AsyncImage`, which takes a URL/bytes) to an actual bundled drawable the app-host owns. A `Map<String, DrawableResource>` populated from `MosaicDependencyInjectionConfig.drawableResources` at startup. Reachable via `get<DrawableResourcesHolder>()`.
+- **`CameraManager`** — abstracts the device camera behind one `suspend fun takePicture(): ByteArray?` so `TakePicture`'s `EventRunner` doesn't need per-platform camera code. An interface with one implementation per platform target, bound once in that platform's own `platformModule` (e.g. `AndroidCameraManager` on Android) — not a Koin single shared cross-platform, a per-target binding. Reachable via `get<CameraManager>()`.
+- **`DataProcessor`** — the extension point behind `ProcessData(processWith = id)`, for handing `incomingData` to app-specific processing logic identified by a string id, decoupled from any one event chain. An interface (`val id: String` + `suspend fun EventRunningScope.process(data: Any): Result<Unit>`) resolved via Koin **multibinding** — `ProcessDataEventRunner` calls `getAll<DataProcessor>().firstOrNull { it.id == event.processWith }`, so any number of implementations can coexist, each addressed by its own `id`. The framework registers exactly one by default, `EventRunnerDataProcessor` (`id = "EVENT_RUNNER"`), which decodes `incomingData` as one or more `EventSchema`s and runs them inline — the way a value that's itself a serialized event (delivered over a push notification, say) gets executed. A third-party app adds its own by binding to this interface in `MosaicDependencyInjectionConfig.additionalKoinModule`: `single { MyProcessor } bind DataProcessor::class` — no `Definition`/no entry in any list, just a plain Koin multibinding, unlike how Tiles/Events register. Reachable to build; not reachable to enumerate from outside a `DataProcessor` itself.
+- **`MosaicHeadersPlugin`** — makes 9 pieces of device/platform context (platform name, device model, OS version, screen size/density, locale, timezone, dark mode, plus a free-form extras map) available to every backend endpoint without the DSL author ever declaring an intent to send them. A Ktor client plugin, installed exactly once — in `MosaicModules.dataModule`, on the single `HttpClient` `MosaicNetworkImpl` shares — that stamps `x-mosaic-*` headers onto every request built from that client, reading live off the per-platform `Platform` `expect object` on each call. Because `MosaicNetwork`/`MosaicRepository` is the one path every network-issuing operation goes through (`SendNetworkRequest`, `UploadFile`, all 3 downloads, `GetScreen`/`RefreshScreen`, the initial-graph fetch, the cache-version check), these headers arrive unconditionally, with no per-request opt-out — including on the very first request the app ever makes, before any DSL-authored logic has run. Not reachable/interceptable from a custom `EventRunner`'s own code — it lives below the request pipeline any event touches; a custom event that opens its *own* `HttpClient` instead of going through `MosaicNetwork` does not get these headers for free.
+- **`MosaicColors`** — lets the app's entire color scheme (light + dark) swap at runtime — e.g. a white-label app pulling brand colors from the server — without recomposing the app from its root. A mutable, Compose-observable holder of the current `ColorScheme`, swapped by the `SetTheme`/`ResetTheme` events. **Not reachable directly** — it's marked `internal` in `mosaic-client`; the only way to affect it from outside the module is through those two events.
+- **Cache TTL + fallback (in `MosaicRepositoryImpl`)** — keeps the app usable offline or on a slow connection without every screen load blocking on a network round-trip. Screens and the initial graph are cached locally with a TTL; even after the TTL expires, the stale cache is still served immediately rather than blocking — a fresh network fetch is only attempted while the TTL is still valid, and if that fetch fails, the stale cache is the fallback. In practice, "is my data actually fresh" is driven by `getVersion()`/`DropCaches`, not by the TTL forcing a refetch. Not directly reachable — internal to the repository; `DropCaches` (an event) is the extension point to invalidate manually.
+- **`BuildContext`** (server-side "CompositionLocal for build time") — lets a value set by an outer block of the DSL (e.g. `Screen{}` or a custom wrapper) reach a builder several levels deep, without every intermediate function threading it through as an explicit parameter. A `ThreadLocal`-backed mechanism in `mosaic-server`, modeled directly on Jetpack Compose's `CompositionLocal` — a builder reads ambient values set by an enclosing `CompositionLocalProvider { }` block; values are snapshotted when a builder is registered (`addBuilder()`) and restored when it actually runs (`build()`), so nesting order doesn't corrupt state. Reachable, but server-side only — not usable from a client `TileRenderer`/`EventRunner`; relevant if you're writing a custom `TileSchemaBuilder`.
+- **`TemplateProcessor`** — reshapes one event's dynamic output (e.g. a network response JSON) into exactly the fields another event expects, without a server author writing custom Kotlin transformation code for every case. The `<|path|>`/`</path/>` placeholder engine behind `TransformData` and `UpdateTiles`' `Mapped` update mode — a template string with embedded paths, resolved against `incomingData`. **Not reusable outside the module** — it's an `internal object` in `mosaic-client`; a custom event needing the same idea has to reimplement it.
+- **`ThresholdReachedEffect`** — tells infinite-scroll pagination exactly when the user is close enough to the end of the list to fetch more, without re-firing that signal repeatedly while the list stays the same size. The guard behind `LazyColumn`/`LazyRow`'s `scrollThreshold` — it fires at most once per item-count growth. Reachable — it's a public extension function, usable if you're writing a custom lazy-list-like tile.
+- **`GenericBuilder` / `GenericBuilderScope`** (server) — the shared machinery (accumulating a child list, participating in `BuildContext`) every tile/event builder needs, so it doesn't get reimplemented per builder. The base class every `TileSchemaBuilder`/`EventSchemaBuilder` extends. Confirmed extensible by third parties for custom nested sub-builders too, not just top-level tiles/events — see the sample's `AdaptiveNavigationTopBarSchemaBuilder`. Reachable, server-side.
 
----
+## 5. Implicit mechanisms
 
-## Extended Reference (outros arquivos em `.claude/context/`)
+These are behaviors that only exist because a pattern is followed consistently across the codebase — there is no dedicated class enforcing them, and a typo or a missed step fails silently (it compiles, it serializes, it just never fires). Same format as §4: what it's for, then how it works.
 
-| File | Content |
-|---|---|
-| `tiles-catalog.md` | Catálogo completo de todos os TileSchemas (41 tiles): campos, triggers suportados, notas |
-| `events-catalog.md` | Catálogo completo de todos os EventSchemas (49 eventos): campos, triggers filhos |
-| `triggers-catalog.md` | Todos os 72 EventTriggers: @SerialName, campos, quem dispara |
-| `mechanisms.md` | API detalhada de cada mecanismo de runtime: EventRunningScope, TileRenderingScope, BuilderScope, DataHolder, TilesEditor, etc. |
-| `boilerplate-templates.md` | Templates completos para gerar novos Tiles e Events (5 arquivos + 2 registros cada) |
+- **Event chaining / trigger matching** — how a "parent" event runs "child" events, which is the entire mechanism behind multi-step flows in the DSL (`SendNetworkRequest → UpdateData → Navigate`, etc.). Every `EventSchema` has a `trigger: EventTrigger` (the condition that must occur for **this** event to run) and a nested `events: List<EventSchema>` (its children, each declaring its own `trigger`). When a parent event finishes doing its work, it doesn't call its children directly — it fires a trigger value (e.g. `onSuccess()`), and the framework scans the parent's own `events` list for children whose `trigger` matches that exact value, running only those. That's why, in the DSL, you write a `UpdateData` event *nested inside* `SendNetworkRequest.events`, tagged with `trigger = EventTriggers.onSuccess()`: it only runs when the request it's nested under succeeds, and a sibling tagged `onFailure()` only runs on failure. Same idea for a Tile: a `Button`'s own `events` list is scanned when the user taps it, matching against `onClick()`.
+
+  Mechanically, there is no listener registry anywhere backing this — matching is always `events.filter { it.trigger == eventTrigger }`, a plain `data class`/`data object` equality check, evaluated fresh every time a trigger fires, never precomputed. This filter-and-run happens in exactly three places: `TileRenderingScope.triggerEvent` (scans a tile's own `events`), `EventRunningScope.onTrigger` (scans the currently-running event's own `events` — this is the one that makes chains like the one above work), and `TilesManager.getEventsByTrigger` (a recursive search across the whole tile tree, used for lifecycle-driven triggers like `onScreenStart` that aren't scoped to one parent). Parameterized triggers (`OnSystemBroadcastEventTrigger(broadcastId)`, `OnNetworkResponseEventTrigger(httpCode)`, ...) only match when the parameter value is also equal, not just the trigger type. **This is the primary extension point for custom code**: a custom `TileRenderer` calls `dispatchEvent`/`triggerEvent` to fire a trigger from a tile; a custom `EventRunner` calls `onTrigger(trigger, data)` to fire one from an event — in both cases, finding and running whoever declared a matching child is entirely automatic from there.
+- **`incomingData` propagation** — how a value produced by one event (the parsed JSON body of a `SendNetworkRequest` response, the file picked by `OpenFilePicker`) reaches the next event in the chain, without either one knowing about the other's implementation. There's no shared mutable context anywhere backing this — each `onTrigger(trigger, data)` call simply passes `data` along, and whatever child event matches that trigger receives it as its own `incomingData`, readable inside that event's `EventRunningScope`. A child can read it, ignore it, or pass a *new* value forward when it fires its own `onTrigger(...)`. `runEventInline`/`runEventsInline` (used by `TriggerEvent`, `RunEvents`, `RunCancellableEvents` to invoke events by id/payload instead of by trigger) follow the exact same rule — the invoked event still receives whatever `data` was passed in as its `incomingData`.
+- **The `campoProprio ?: incomingData` fallback** — how a single event supports both a value known upfront (hardcoded in the DSL) and one only available at runtime (produced by whatever ran before it), without needing two separate events for the same behavior. A design convention — not a type-enforced contract — used across several event schemas: the field is optional in the schema, and if omitted the runner falls back to whatever `incomingData` carries. `SendData.data`, and `SetIncomingDataToNetworkParamsHolderUrl` feeding `UploadFile.url`, are examples. Nothing in the type system enforces that the upstream event actually produced a compatible value — it's purely an authoring convention.
+- **Local `TileEvent` alongside a remote `EventTrigger` on the same interaction** — how a stateful tile's UI updates instantly on tap, with no round-trip, while still letting the server-authored `events` react (save the choice, navigate, etc.). Every stateful input tile (`Checkbox`, `Switch`, `RadioButton`, `FilterChip`/`InputChip`, `NavigationBar`/`NavigationRail`/`Tabs`, `Menu`/`Popup` toggle) calls both `dispatchEvent(...)` and `triggerEvent(...)` on the same interaction: `dispatchEvent` sends a local `TileEvent`, applied synchronously by the tile's own `TileHolder.onTileEvent`, updating the UI immediately; `triggerEvent` fires the remote `EventTrigger` so the DSL-authored `events` can run. These go through two different `UIEvent` paths with different execution timing (see next point) — there's no shared base class doing this for you, so a custom stateful tile has to call both explicitly.
+- **Sync vs. async execution order** — which of those two calls actually finishes first, and whether the UI is guaranteed to look right before the remote chain has had a chance to run. `dispatchEvent(...)` (the local `TileEvent`) resolves through `TilesManager.onEvent`, which runs **synchronously** on the UI thread and recomposes before returning. `triggerEvent(...)` (the remote `EventTrigger`) produces a `UIEvent` that only **schedules** a coroutine. Consequence: the local UI update always completes before the remote event chain starts running, regardless of which line appears first in the source code.
+- **`TileGroupEvent`** (mutual exclusion without a central group registry) — how a set of `RadioButton` tiles enforces "only one selected at a time" when they might not even be siblings in the tree, with no dedicated "radio group" container tracking them centrally. Grouping is a plain `groupId: String` field on the schema. A tap dispatches a `TileGroupEvent` that reaches **every** tile in the whole tree whose `handlesGroupEvent(event)` returns true (a type check), and each one individually compares `event.groupId` to decide whether to react — the ones in a different group simply ignore it. `TileHolder` exposes `handlesGroupEvent`/`onTileGroupEvent` as open hooks, so any custom tile can implement the same pattern for its own kind of cross-tile coordination.
+- **Two-phase overlay dismissal** — how a bottom sheet or dialog gets to play its exit animation before disappearing, when Compose recomposition (removing the overlay from the tree) happens instantly and the animation itself is an asynchronous, suspending operation. `dismissBottomSheet`/`dismissModalBottomSheet`/`dismissDialog` don't remove the overlay right away — they flip `isDismissing = true`. The renderer's `LaunchedEffect(overlay.isDismissing)` plays the exit animation (`sheetState.hide()`, a suspend call — `Dialog` has no equivalent, so its "dismissal" is instant), and only once that finishes does it dispatch `ScreenTileEvents.OnDismissOverlayFinished`, which is what actually removes the entry from `stackableOverlays`. No dedicated class orchestrates this sequence — it only works because renderer, holder and event definition all agree to follow the same two-step handshake.
+- **`GetScreen` → `ChangeScreenState`** — why fetching a screen's content and installing it on screen are two separate events instead of one: an author might want to insert a custom loading state, an animation, or extra logic between "the data arrived" and "the screen actually changes." `GetScreen` only *fetches* the screen's tiles/events from the server and hands them to whichever child listens for `onSuccess()`, as `incomingData` — it never installs anything by itself. Installing what comes back is `ChangeScreenState`, which swaps the screen's tile tree for real. Because that split is what most screens want anyway, it's baked in as a default: the `initialEvents` parameter of every `entry{}` block (`GraphEntryBuilderScope`/`NestedNavigationGraphEntryBuilderScope`) defaults to exactly `GetScreen(onDisplay()) { ChangeScreenState(onSuccess(), successState()) }` — nothing enforces this beyond it being the parameter default, and an author is free to override it for a custom loading/error flow. `RefreshScreen` is this same pair fused into a single event that also flips the screen to `Initial` (a visible loading state) before fetching, for the common "pull to refresh" case.
+- **`StyleSchema` application order** — why a tile's style fields (margin, padding, background, border, clip, window insets) — declared as independent, optional fields with no ordering info in the schema — still produce a consistent visual result: does the background paint over the margin? does the border sit inside or outside the padding? The client's `styledWith()` modifier chain always applies them in a fixed sequence — `windowInsets → margin → size → clip → background → onClick → border → padding` — so margin sits outside the background and padding sits inside the border, consistently, on every tile. This order is documented on the schema, but nothing enforces it beyond "this is what `styledWith()` happens to do."
+- **`Modifier.size()` + `LocalXScope` availability** — why a sizing instruction like "take up remaining space" (`Weight`) means something inside a `Row`/`Column`/`Grid`/lazy list, but nothing inside a plain `Box` — the schema has no way to know ahead of time what kind of container a tile will end up inside. A `SizeSchema.Behavior` like `Weight`/`Span`/`Flex` only takes effect if the right `CompositionLocal` (`LocalRowScope`, `LocalColumnScope`, `LocalGridScope`, `LocalFlexBoxScope`, `LocalLazyItemScope`) is currently provided by an ancestor container. If it isn't, the sizing instruction is silently ignored — no error, no log. A custom container tile that wants its children to support `weight`/`span` has to publish its own `LocalXScope`, the same way `Column`/`Row`/`Grid`/`Card` do.
+- **`@Triggers` annotation** — makes a schema's trigger list statically visible right next to the schema itself, instead of only discoverable by reading its `EventRunner`/`TileRenderer` implementation. Every `TileSchema`/`EventSchema` declares its trigger list via `@Triggers([...])`, `AnnotationRetention.SOURCE` — visible to anyone reading the source (IDE, KDoc, code review) and available to source-level tooling (a linter, a docs generator, a compiler plugin), but deliberately not carried into compiled bytecode, so it costs nothing at runtime. It's structured, statically-checkable documentation by design — declare it on any custom `TileSchema`/`EventSchema` too, it's the convention every built-in schema follows, and it's what the catalogs in this repo were cross-checked against.
+
+## 6. Data layer
+
+```
+MosaicRepository (interface, ~30 methods) — the ONLY thing use cases talk to
+  └─ MosaicRepositoryImpl
+       ├─ MosaicNetwork   → MosaicNetworkImpl (Ktor)
+       ├─ MosaicDatabase  → MosaicDatabaseImpl → MosaicRoomDatabase (Room; 3 DAOs/entities:
+       │                    generic cache key-value, plain data, segmented data)
+       ├─ MosaicFileSystem → MosaicFileSystemImpl → PlatformFileHandler (expect/actual)
+       └─ NetworkParametersHolder (§4)
+```
+
+Two of `MosaicRepositoryImpl`'s ~30 methods have real cache logic (`getInitialGraph`, `getScreen` — TTL + fallback, see §4); everything else is a thin pass-through wrapped in `safeResult { }`. Every screen's cache key incorporates its staged network params (read via `peek()`, which doesn't consume — `consume()` happens later, inside the actual network call) so two `GetScreen` calls with different bodies/query params don't collide in the cache. Every outgoing request also gets 9 `x-mosaic-*` device/telemetry headers injected unconditionally by `MosaicHeadersPlugin` (see §4).
+
+`GetData`/`UpdateData`/`RemoveData` route to one of several `DataSourceSchema` variants: `ApplicationPlainData`/`ApplicationSegmentedData` (in-memory, app-wide), `ScreenPlainData`/`ScreenSegmentedData`/`ScreenNavigationData` (in-memory, per-screen, the last one read-only), `PlainDataBase`/`SegmentedDataBase` (persisted via Room), and `Tile` (reads a live value a specific tile currently produces, e.g. a `TextField`'s text, via `TilesValueProducer`). Persisted sources skip `null` values on write; in-memory sources write `null` normally (it clears the entry).
+
+## 7. Platforms
+
+`mosaic-client` targets Android, iOS, JVM/Desktop and WasmJS via `expect`/`actual`. What's worth knowing without reading all four `actual` sets:
+
+- **Camera/gallery/permissions** are genuinely different per platform (Android registers via `ActivityResultContracts`+`FileProvider`; iOS drives `UIImagePickerController`; permission requests are batched on Android, sequential on iOS, and `Rationale` as a result is Android-only).
+- **Downloading to public storage** is silent on Android (`DownloadManager`) but always requires one user tap on iOS (`FileKit.openFileSaver()`) — an app that assumes silent downloads everywhere will surprise iOS users. WasmJS never streams to disk; it always buffers the full response in memory first (`XMLHttpRequest`, not the injected `HttpClient`) before saving/downloading.
+- **Local persistence** uses Room everywhere; the only difference is the SQLite driver (`BundledSQLiteDriver` natively, `WebWorkerSQLiteDriver` on WasmJS, running inside a dedicated Web Worker since OPFS's synchronous file API isn't available on the main thread).
+
+## 8. Where to go next
+
+- [`tiles-catalog.md`](tiles-catalog.md) — every Tile: parameters, DSL snippet, triggers fired, behavioral notes.
+- [`events-catalog.md`](events-catalog.md) — every Event: parameters, DSL snippet, triggers fired, behavioral notes.
+- `../../skill/mosaic/` — this same conceptual map, packaged as an agent skill.
+- `../../skill/mosaic-client/` — extending the client: custom `TileRenderer`/`EventRunner`, which mechanisms above are actually reachable from third-party code.
+- `../../skill/mosaic-server/` — writing screens with the `mosaic-server` DSL, backed by the two catalogs above.

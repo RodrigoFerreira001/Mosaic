@@ -14,35 +14,29 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders an image using Coil 3's [AsyncImage] composable. The image is loaded from [model]
- * (a remote URL, raw bytes, or a base64-encoded string) and displayed with the given
- * [contentScale], [alignment], and [alpha]. Optionally clips the image to its layout bounds
- * when [clipToBounds] is `true`.
- *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `model: Model`, `contentDescription: String?`,
- * `contentScale: ContentScale`, `alpha: Float`, `clipToBounds: Boolean`,
- * `alignment: AlignmentSchema.TwoDimensional`
+ * Renders a Coil `AsyncImage` that loads its content from [model], which can be a remote
+ * [Model.Url], raw [Model.ArrayOfBytes], or a [Model.Base64] string (decoded on the client
+ * before being handed to Coil). [contentScale] maps onto the Compose `ContentScale` of the same
+ * name, and [contentDescription], [alpha], [clipToBounds] and [alignment] are forwarded as-is.
  *
  * **Triggers dispatched:**
- * - `OnAsyncImageLoadStartEventTrigger` — fired when Coil begins loading the image
- *   (`onLoading` callback).
- * - `OnAsyncImageLoadSuccessEventTrigger` — fired when the image is successfully decoded and
- *   ready to display (`onSuccess` callback).
- * - `OnAsyncImageLoadFailureEventTrigger` — fired if the image fails to load for any reason
- *   (`onError` callback).
+ * - `OnAsyncImageLoadStartEventTrigger` — when Coil enters its loading state.
+ * - `OnAsyncImageLoadSuccessEventTrigger` — when the image has been decoded and drawn.
+ * - `OnAsyncImageLoadFailureEventTrigger` — when the load fails.
  *
- * **Notes:** All three load-state triggers are always wired regardless of whether events are
- * registered, meaning the server can react to load outcomes by attaching event runners to any
- * of these triggers. Content scale options are CROP, FIT, FILL_HEIGHT, FILL_WIDTH, INSIDE,
- * and FILL_BOUNDS.
+ * These fire on every load state change, including reloads after the [model] changes, so they
+ * may fire more than once over the tile's lifetime.
+ *
+ * **Notes:** the tile is not clickable and fires no display trigger — wrap it in a `Box` or
+ * `Card` when you need tap handling. There is no built-in placeholder or error image: render
+ * one yourself by reacting to the load triggers.
  */
 @Immutable
 @Triggers(
     [
-        OnAsyncImageLoadFailureEventTrigger::class,
         OnAsyncImageLoadStartEventTrigger::class,
-        OnAsyncImageLoadSuccessEventTrigger::class
+        OnAsyncImageLoadSuccessEventTrigger::class,
+        OnAsyncImageLoadFailureEventTrigger::class,
     ]
 )
 @Serializable

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import dev.catbit.mosaic.client.extensions.filteredBy
 import dev.catbit.mosaic.client.extensions.onClick
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
@@ -29,6 +30,9 @@ object FlexBoxTileRenderer : TileRenderer<FlexBoxTileSchema> {
         OnDisplayEffect()
 
         with(tileSchema) {
+
+            val displayedTiles = tiles.filteredBy(filterChildrenByTerm)
+
             FlexBox(
                 modifier = Modifier
                     .visible(isVisible())
@@ -44,7 +48,7 @@ object FlexBoxTileRenderer : TileRenderer<FlexBoxTileSchema> {
                 }
             ) {
                 CompositionLocalProvider(LocalFlexBoxScope provides this) {
-                    RenderChildren(tiles)
+                    RenderChildren(displayedTiles)
                 }
             }
         }

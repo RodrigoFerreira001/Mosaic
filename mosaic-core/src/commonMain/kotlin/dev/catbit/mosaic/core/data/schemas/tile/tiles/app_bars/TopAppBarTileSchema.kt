@@ -9,27 +9,22 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 top app bar in one of four styles controlled by [barStyle]:
- * - `DEFAULT` → [TopAppBar] (small, title left-aligned)
- * - `CENTER_ALIGNED` → [CenterAlignedTopAppBar] (small, title centered)
- * - `MEDIUM` → [MediumTopAppBar] (medium height, collapsible)
- * - `LARGE` → [LargeTopAppBar] (large height, collapsible)
+ * Renders a Material 3 top app bar. [barStyle] picks the composable:
+ * [TopAppBarStyle.DEFAULT] → `TopAppBar`, [TopAppBarStyle.CENTER_ALIGNED] →
+ * `CenterAlignedTopAppBar`, [TopAppBarStyle.MEDIUM] → `MediumTopAppBar`,
+ * [TopAppBarStyle.LARGE] → `LargeTopAppBar`.
  *
- * The [title] slot accepts any [TileSchema] as the title composable. The [navigationIcon]
- * slot accepts an optional tile rendered as the leading icon (e.g. a back button). The
- * [actions] slot accepts an optional list of tiles rendered as trailing action icons.
+ * **Slots:** [title] is rendered in the title slot (any tile, most often a `SimpleText`),
+ * [navigationIcon] in the leading slot, and [actions] in the trailing slot, laid out inside a
+ * `RowScope`. Both [navigationIcon] and [actions] are optional and render as empty slots when
+ * omitted.
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `title: TileSchema`, `navigationIcon: TileSchema?`,
- * `actions: SerializableImmutableList<TileSchema>?`, `barStyle: TopAppBarStyle`
+ * **Triggers dispatched:** none. The bar itself emits no trigger and is not clickable, so any
+ * `events` declared on it are never fired — wire events on the slot tiles (typically
+ * `IconButton`s) instead.
  *
- * **Triggers dispatched:** None directly. Interaction triggers (clicks, etc.) are dispatched
- * by child tiles placed in [navigationIcon] or [actions].
- *
- * **Notes:** The title, navigation icon, and action tiles are rendered as Composable lambdas
- * passed to the Material 3 app bar components. This means those slots are not part of the
- * normal `RenderChildren` hierarchy — each slot tile is rendered independently via
- * `RenderChild`.
+ * **Notes:** the bar has no scroll behavior, so the medium and large variants do not collapse
+ * as the content scrolls.
  */
 @Immutable
 @Serializable

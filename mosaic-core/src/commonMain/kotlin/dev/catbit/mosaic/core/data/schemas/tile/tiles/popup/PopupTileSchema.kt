@@ -10,35 +10,30 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Renders a [Box] wrapping its [tiles] (the anchor content, e.g. a button) plus a Compose
- * [Popup] rendered outside the normal layout flow when [expanded] is `true`. The [Popup]'s
- * content is [popupTiles] — arbitrary, free-form tiles (unlike [Menu], which is limited to a
- * fixed list of menu items).
+ * Renders an anchor — [tiles], laid out with `Box` semantics and carrying [style] and
+ * [visibility] — with a Compose `Popup` containing [popupTiles] floating over it. The popup is
+ * only composed while [expanded] is `true`.
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `tiles: SerializableImmutableList<TileSchema>`,
- * `popupTiles: SerializableImmutableList<TileSchema>`, `expanded: Boolean`,
- * `alignment: AlignmentSchema.TwoDimensional`, `offsetX: Int`, `offsetY: Int`,
- * `focusable: Boolean`, `dismissOnBackPress: Boolean`, `dismissOnClickOutside: Boolean`
+ * **Positioning:** [alignment] places the popup relative to the anchor's bounds, and
+ * [offsetX] / [offsetY] are dp offsets applied on top of that. `Top*` and `Bottom*` alignments
+ * put the popup fully above/below the anchor with [offsetY] as the gap; `CenterStart` /
+ * `CenterEnd` put it fully to the side with [offsetX] as the gap (mirrored under RTL); the
+ * corner alignments flush-align the popup's matching edge with the anchor's, with [offsetX] as a
+ * plain translation. The final position is clamped to the window, so a popup can never be pushed
+ * off screen.
  *
- * **Triggers dispatched:** none specific to this tile — standard triggers (`OnDisplay`,
- * `OnClick`, etc.) still apply to the tile as a whole.
+ * **Dismissal:** [focusable], [dismissOnBackPress] and [dismissOnClickOutside] map onto Compose
+ * `PopupProperties`. When a dismissal happens the renderer dispatches a local
+ * `PopupTileEvents.OnTogglePopup` and the holder flips [expanded], so closing by gesture needs
+ * no server round trip. Opening and closing from the server side is done with
+ * `TogglePopupEventSchema` pointing at this tile's [id] — typically wired to the anchor's click.
  *
- * **Notes:** The open/closed state of the popup is server-driven via [expanded]. Because
- * Compose's `Popup` composable has no `expanded` parameter, the renderer only composes it while
- * [expanded] is `true`. When the user dismisses the popup (back press or tap outside, depending
- * on [dismissOnBackPress]/[dismissOnClickOutside]), the renderer dispatches the internal
- * `PopupTileEvents.OnTogglePopup` event, which the client-side tile holder uses to flip
- * [expanded] locally while a server update is requested. [alignment] picks which side(s) of the
- * anchor the popup renders relative to, and is never overlapped vertically — e.g. `BottomEnd`
- * hangs below the anchor with its right edge flush against the anchor's right edge, like a
- * typical dropdown menu, while `CenterEnd` renders fully to the right of the anchor as a side
- * flyout. For corner alignments (`TopStart`/`TopEnd`/`BottomStart`/`BottomEnd`), [offsetX] is a
- * plain translation (in dp) from that flush position — positive shifts right, negative shifts
- * left, e.g. to nudge a popup anchored near a screen edge back on-screen. For `CenterStart`/
- * `CenterEnd`, [offsetX] is a positive gap from the anchor instead. [offsetY] is always a
- * positive gap for `Top`/`Bottom` alignments. [focusable], [dismissOnBackPress] and
- * [dismissOnClickOutside] map directly to Compose's `PopupProperties`.
+ * **Triggers dispatched:** none. The tile emits no trigger of its own, so any `events` declared
+ * on it are never fired — wire events on the anchor and popup tiles instead.
+ *
+ * **Notes:** [style] and [visibility] apply to the anchor only — the popup renders in its own
+ * window and is not affected by them. Its content is also unstyled and undecorated, so add a
+ * `Card` or a styled `Box` inside [popupTiles] if you want a surface behind it.
  */
 @Immutable
 @Serializable

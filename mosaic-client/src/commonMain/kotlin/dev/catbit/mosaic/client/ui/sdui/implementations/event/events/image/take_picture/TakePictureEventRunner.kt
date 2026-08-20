@@ -25,7 +25,7 @@ object TakePictureEventRunner : EventRunner<TakePictureEventSchema> {
                     val rawBytes = get<CameraManager>().takePicture()
 
                     if (rawBytes == null) {
-                        onTrigger(EventTriggers.onFailure())
+                        onTrigger(EventTriggers.onCancelled())
                         return@withContext
                     }
 

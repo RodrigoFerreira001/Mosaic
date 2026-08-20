@@ -14,25 +14,22 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 [FilterChip] or [ElevatedFilterChip] displaying a text label with a
- * toggleable [selected] state. Filter chips use tags or descriptive words to filter content and
- * can be a good alternative to toggle buttons or checkboxes.
+ * Renders a Material 3 filter chip with a toggleable [selected] state, [text] as its label and
+ * optional [leadingIcon] / [trailingIcon]. [variant] selects the composable:
+ * [Variant.DEFAULT] → `FilterChip` (outlined), [Variant.ELEVATED] → `ElevatedFilterChip`.
+ * [enabled] is forwarded to the underlying composable.
  *
- * Tapping the chip toggles the [selected] state. When [selected] is `true`, the chip renders
- * with a filled container; the [leadingIcon] can visually indicate selection (e.g. a checkmark).
+ * **Selection:** tapping the chip flips [selected]. The renderer dispatches a local
+ * `FilterChipTileEvents.OnCheckChanged` that the holder applies to its own state, so the new
+ * value survives without a round trip to the server.
  *
- * **Variants:**
- * - [Variant.DEFAULT] — flat chip with a border outline (default). Maps to [FilterChip].
- * - [Variant.ELEVATED] — elevated chip with shadow. Maps to [ElevatedFilterChip].
+ * **Triggers dispatched (in this order, on every tap):**
+ * - `OnCheckEventTrigger` — when the chip becomes selected.
+ * - `OnUncheckEventTrigger` — when the chip becomes unselected.
+ * - `OnCheckChangedEventTrigger` — always, right after one of the two above.
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `text: String`, `selected: Boolean`,
- * `leadingIcon: IconSchema?`, `trailingIcon: IconSchema?`, `enabled: Boolean`, `variant: Variant`
- *
- * **Triggers dispatched:**
- * - `OnCheckEventTrigger` — fired when the chip transitions to selected (`selected = true`).
- * - `OnUncheckEventTrigger` — fired when the chip transitions to unselected (`selected = false`).
- * - `OnCheckChangedEventTrigger` — fired on every selection state change.
+ * **Value production:** the holder exposes the current [selected] boolean under a caller-chosen
+ * key, so `GetData` / `EvaluateData` events can read this chip by its [id].
  */
 @Immutable
 @Triggers(
@@ -58,11 +55,5 @@ data class FilterChipTileSchema(
     @SerialName("variant") val variant: Variant = Variant.DEFAULT,
 ) : TileSchema {
 
-    /**
-     * Visual style variant for the filter chip.
-     *
-     * - [DEFAULT] — flat chip with a border outline (maps to [FilterChip]).
-     * - [ELEVATED] — elevated chip with shadow (maps to [ElevatedFilterChip]).
-     */
     enum class Variant { DEFAULT, ELEVATED }
 }

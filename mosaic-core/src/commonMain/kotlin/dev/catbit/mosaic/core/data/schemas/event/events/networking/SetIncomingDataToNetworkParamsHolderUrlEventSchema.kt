@@ -6,44 +6,26 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Stores `incomingData` as the request URL in the [NetworkParametersHolder], making it available
- * to the next network event in the same chain. Today it is consumed by
- * [UploadFileEventSchema] (when its `url` is `null`) — the typical use is feeding a **signed URL**
- * obtained at runtime from the backend into the upload request.
+ * Stores the event's incomingData as the URL in the client's `NetworkParametersHolder`, so a
+ * later request in the chain picks it up instead of carrying the URL on its own schema.
  *
- * The holder is consumed (and reset to `null`) on the next network call, regardless of whether
- * this event set anything. A non-null `url` in the network schema takes precedence over the
- * holder value.
- *
- * **incomingData consumed:** A `String` is stored as the URL. `null` or non-`String`
- * incomingData fires [onFailure()] and nothing is stored.
+ * **incomingData consumed:** required, and must be a `String`.
  *
  * **Triggers fired:**
- * - [onSuccess()] – URL stored successfully; incomingData is forwarded unchanged.
- * - [onFailure()] – incomingData is `null` or not a `String`; nothing is stored.
- *
- * **Typical usage:**
- * ```kotlin
- * SendNetworkRequest(trigger = EventTriggers.onClick(), url = "/uploads", method = HttpMethod.POST, events = {
- *     TransformData(trigger = EventTriggers.onSuccess(), /* extrai "uploadUrl" */ events = {
- *         SetIncomingDataToNetworkParamsHolderUrl(trigger = EventTriggers.onSuccess(), events = {
- *             // ... evento que produz os bytes, e então:
- *             UploadFile(trigger = EventTriggers.onSuccess(), contentType = "video/mp4")
- *         })
- *     })
- * })
- * ```
+ * - `OnSuccessEventTrigger` — when the URL was stored. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when incomingData is missing or is not a `String`; no data is passed
+ *   downstream and the error is logged.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

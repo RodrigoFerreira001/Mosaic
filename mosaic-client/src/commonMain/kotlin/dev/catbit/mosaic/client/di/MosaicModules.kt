@@ -79,7 +79,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.delete
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.get_file.GetFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.open_file_picker.OpenFilePickerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.save_file.SaveFileEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.image.get_image_from_galery.GetImageFromGalleryEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.image.get_image_from_gallery.GetImageFromGalleryEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.image.take_picture.TakePictureEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.menu.menu.ToggleMenuEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.navigation.navigate.NavigateEventDefinition
@@ -109,8 +109,8 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.pull_to_ref
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.change_screen_state.ChangeScreenStateEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.get_screen.GetScreenEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.screen.refresh_screen.RefreshScreenEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column.ScrollTileColumnEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.pager.ScrollTilePagerEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.column.ScrollColumnTileEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.pager.ScrollPagerTileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.scroll.row.ScrollRowTileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.security.request_permission.RequestPermissionEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.broadcast_to_system.BroadcastToSystemEventDefinition
@@ -495,8 +495,8 @@ internal class MosaicModules(
         NavigateClearingStackEventDefinition,
         ToggleMenuEventDefinition,
         TogglePopupEventDefinition,
-        ScrollTileColumnEventDefinition,
-        ScrollTilePagerEventDefinition,
+        ScrollColumnTileEventDefinition,
+        ScrollPagerTileEventDefinition,
         ScrollRowTileEventDefinition,
         AddTilesEventDefinition,
         CheckIfTileContainsChildrenEventDefinition,

@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -26,28 +23,42 @@ object DismissSnackbarEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Overlays",
-                description = "Fecha programaticamente o snackbar exibido no momento — útil pra encerrar um " +
-                    "snackbar Indefinite depois que uma operação assíncrona termina."
+                description = "Programmatically closes the currently displayed snackbar — useful for dismissing " +
+                    "an Indefinite-duration snackbar once an async operation finishes. It's mainly used with " +
+                    "snackbars whose duration = Indefinite, which don't disappear on their own — for example, " +
+                    "an \"Uploading...\" snackbar that needs to be closed manually as soon as the request " +
+                    "finishes (success or failure). Important: DismissSnackbar does NOT fire " +
+                    "onSnackbarDismissed() — that trigger is reserved for the natural dismissal (timeout, " +
+                    "swipe, or tap outside), not for programmatic dismissal."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use principalmente com snackbars de duration = Indefinite, que não somem sozinhos — por " +
-                    "exemplo, um \"Enviando...\" que precisa ser fechado manualmente assim que a requisição " +
-                    "terminar (sucesso ou falha). Importante: DismissSnackbar NÃO dispara " +
-                    "onSnackbarDismissed() — esse trigger é reservado pro fechamento natural (timeout, swipe " +
-                    "ou toque fora), não pro fechamento programático."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("—", "—", "DismissSnackbar não recebe parâmetros além de trigger/events."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Open an indefinite snackbar and close it manually") {
+                Button(
+                    text = "Open Indefinite snackbar",
+                    events = {
+                        DisplaySnackbar(
+                            trigger = EventTriggers.onClick(),
+                            message = "This snackbar won't disappear on its own — close it below",
+                            duration = snackbarIndefiniteDuration()
+                        )
+                    }
                 )
-            )
+                Button(
+                    text = "Close with DismissSnackbar",
+                    buttonType = outlinedButton(),
+                    events = {
+                        DismissSnackbar(trigger = EventTriggers.onClick())
+                    }
+                )
+                ShowroomNote(
+                    "Open the indefinite snackbar first; it stays on screen until you tap \"Close with " +
+                        "DismissSnackbar\" — note that closing it this way isn't the same as letting it " +
+                        "disappear naturally, since onSnackbarDismissed() only fires in that second case."
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 SendNetworkRequest(
@@ -55,39 +66,13 @@ object DismissSnackbarEventDetailBuilder : EventDetailBuilder {
                     url = "/api/upload",
                     method = HttpMethod.POST,
                     events = {
-                        DisplaySnackbar(trigger = EventTriggers.onStart(), message = "Enviando...", duration = snackbarIndefiniteDuration())
+                        DisplaySnackbar(trigger = EventTriggers.onStart(), message = "Uploading...", duration = snackbarIndefiniteDuration())
                         DismissSnackbar(trigger = EventTriggers.onSuccess())
                         DismissSnackbar(trigger = EventTriggers.onFailure())
                     }
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Abra um snackbar indefinido e feche-o manualmente") {
-                Button(
-                    text = "Abrir snackbar Indefinite",
-                    events = {
-                        DisplaySnackbar(
-                            trigger = EventTriggers.onClick(),
-                            message = "Este snackbar não some sozinho — feche-o abaixo",
-                            duration = snackbarIndefiniteDuration()
-                        )
-                    }
-                )
-                Button(
-                    text = "Fechar com DismissSnackbar",
-                    buttonType = outlinedButton(),
-                    events = {
-                        DismissSnackbar(trigger = EventTriggers.onClick())
-                    }
-                )
-                ShowroomNote(
-                    "Abra o snackbar indefinido primeiro; ele fica na tela até você tocar em \"Fechar com " +
-                        "DismissSnackbar\" — repare que fechar assim não é o mesmo que deixá-lo sumir " +
-                        "naturalmente, já que onSnackbarDismissed() só dispara nesse segundo caso."
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("DisplaySnackbar", "DismissDialog", "DismissModalBottomSheet"),

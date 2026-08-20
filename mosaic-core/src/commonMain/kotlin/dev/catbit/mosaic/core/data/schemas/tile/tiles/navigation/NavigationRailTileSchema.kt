@@ -12,30 +12,30 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 [NavigationRail] with a vertical list of destination items defined by
- * [items]. Each item shows an icon (filled when selected) and an optional label. An optional
- * [header] tile is rendered at the top of the rail and an optional [footer] tile is pushed to
- * the bottom via a [Spacer] with `weight(1f)`.
+ * Renders a Material 3 `NavigationRail` — the side-rail counterpart of
+ * [NavigationBarTileSchema] — with one `NavigationRailItem` per entry in [items], plus 4dp
+ * horizontal and 8dp vertical padding applied by the renderer. An item is selected when its
+ * [NavigationRailItem.id] equals [selectedItemId]; the selected item's icon is drawn in its
+ * **filled** variant, the others outlined. [NavigationRailItem.label] is rendered centered under
+ * the icon, or omitted when `null`.
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `items: SerializableImmutableList<NavigationRailItem>`,
- * `selectedItemId: String`, `header: TileSchema?`, `footer: TileSchema?`
+ * **Header and footer:** [header] is rendered in the rail's header slot above the items;
+ * [footer] is rendered at the very bottom, pushed down by a weighted spacer so it hugs the
+ * bottom edge. Both are arbitrary tiles and both are optional.
  *
- * **Triggers dispatched:** `OnNavigationRailItemClickEventTrigger` — fired when any item is
- * tapped, carrying the clicked item's [id] as the trigger parameter.
+ * **Selection:** tapping an item dispatches a local `NavigationRailTileEvents.OnItemClicked` and
+ * the holder stores the new [selectedItemId], so the highlight moves immediately without a
+ * server round trip. Tapping the already selected item still fires everything again.
  *
- * **Notes:** The selected state is server-driven via [selectedItemId]. Tapping an item
- * triggers both the event trigger and an internal `NavigationRailTileEvents.OnItemClicked`
- * dispatch. The renderer applies a fixed `padding(horizontal = 4.dp, vertical = 8.dp)` to the
- * rail regardless of the schema style. The [footer] tile is only rendered if non-null and is
- * always pushed to the bottom of the rail.
+ * **Triggers dispatched:**
+ * - `OnNavigationRailItemClickEventTrigger` — fired when an item is tapped, carrying that item's
+ *   [NavigationRailItem.id], so events can be wired per item.
+ *
+ * **Notes:** the rail itself is not clickable and fires no display trigger. It only tracks the
+ * selected item — performing the actual navigation is up to the events wired to the item clicks.
  */
 @Immutable
-@Triggers(
-    [
-        OnNavigationRailItemClickEventTrigger::class
-    ]
-)
+@Triggers([OnNavigationRailItemClickEventTrigger::class])
 @Serializable
 @SerialName("NavigationRail")
 data class NavigationRailTileSchema(

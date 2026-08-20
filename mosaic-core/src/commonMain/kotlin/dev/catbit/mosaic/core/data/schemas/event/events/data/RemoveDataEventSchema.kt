@@ -6,45 +6,35 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.data.AccessModeSchema
 import dev.catbit.mosaic.core.data.schemas.event.data.DataSourceSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDataRemovedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Deletes data from one or more data stores. Each entry in [deletions] specifies a target
- * [Deletion.dataSource] and an [Deletion.accessMode] that controls the scope of deletion:
- * a single key ([AccessModeSchema.Single]), a batch of keys ([AccessModeSchema.Batch]), or
- * the entire store ([AccessModeSchema.Full]).
+ * Deletes values from data sources. Runs on the IO dispatcher.
  *
- * **incomingData consumed:** Not used. This event only performs deletions.
+ * Each [Deletion] pairs a data source with an access mode: `Single` removes one id, `Batch`
+ * removes a list of ids, and `Full` wipes the source. Supported sources are the application and
+ * screen data holders (plain and segmented) and the plain and segmented local databases.
+ * Deletions targeting navigation data, a tile or an inline source are silently ignored.
+ *
+ * All deletions are attempted; a failure in one does not stop the others.
+ *
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [onDataRemoved()] – Declared in [@Triggers] but **not fired by the runner**. The runner
- *   performs all deletions and returns without calling any trigger.
- *
- * **Failure scenarios:**
- * - No explicit failure path. Use-case calls (database deletions) may throw, but those
- *   exceptions are not caught and will propagate unchecked.
- * - [DataSourceSchema.ScreenNavigationData] and [DataSourceSchema.Tile] are explicitly ignored
- *   (no-op) — deletions targeting these sources have no effect.
- *
- * **Notes:**
- * - Deletions are processed one [Deletion] at a time in list order; there is no grouping by
- *   data source (unlike [UpdateDataEventSchema]).
- * - [AccessModeSchema.Full] wipes the entire segment or plain store — use with caution.
- * - Screen-scoped data sources ([DataSourceSchema.ScreenPlainData],
- *   [DataSourceSchema.ScreenSegmentedData]) are deleted from the in-memory screen state holder,
- *   while database-backed sources ([DataSourceSchema.PlainDataBase],
- *   [DataSourceSchema.SegmentedDataBase]) are deleted from persistent storage.
- * - All I/O is dispatched on [Dispatchers.IO].
+ * - `OnSuccessEventTrigger` — when every deletion completed without error. No data is passed
+ *   downstream.
+ * - `OnFailureEventTrigger` — when at least one database deletion failed. Fired once at the end,
+ *   after all deletions were attempted, with no data attached.
  */
 @Immutable
 @Triggers(
     [
-        OnDataRemovedEventTrigger::class,
-        OnSuccessEventTrigger::class
+        OnSuccessEventTrigger::class,
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

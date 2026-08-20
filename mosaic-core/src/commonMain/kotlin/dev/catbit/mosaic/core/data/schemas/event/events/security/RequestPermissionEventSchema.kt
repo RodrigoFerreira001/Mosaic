@@ -9,55 +9,24 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionRa
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsAcquiredEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPermissionsDeniedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Requests one or more runtime permissions from the user using each platform's native mechanism.
+ * Asks the platform for the runtime permissions listed in [permissions], through the client's
+ * `PermissionManager`.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnPermissionsAcquiredEventTrigger] + [OnSuccessEventTrigger] — all permissions granted.
- * - [OnPermissionRationaleEventTrigger] — **Android only.** User denied once and
- *   `shouldShowRequestPermissionRationale` is `true`. Use to display an explanation
- *   before requesting again.
- * - [OnPermissionsDeniedEventTrigger] + [OnFailureEventTrigger] — permanently denied
- *   (Android second denial / "don't ask again"), or denied on iOS / Web.
+ * - `OnPermissionsAcquiredEventTrigger` then `OnSuccessEventTrigger` — when every requested
+ *   permission was granted.
+ * - `OnPermissionsDeniedEventTrigger` then `OnFailureEventTrigger` — when the request was denied.
+ * - `OnPermissionRationaleEventTrigger` — when the platform asks for a rationale to be shown
+ *   before requesting again; chain the explanation onto this trigger and request once more.
  *
- * ---
- *
- * ⚠️ **App-side requirements — without these entries the request fails at runtime:**
- *
- * **Android `AndroidManifest.xml`** (declare only the permissions you use):
- * ```xml
- * <uses-permission android:name="android.permission.CAMERA" />
- * <uses-permission android:name="android.permission.RECORD_AUDIO" />
- * <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
- * <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
- * <uses-permission android:name="android.permission.READ_CONTACTS" />
- * <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />           <!-- API 33+ -->
- * <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />            <!-- API 33+ -->
- * <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />             <!-- API 33+ -->
- * <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
- * <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
- * ```
- *
- * **iOS `Info.plist`** (the app crashes at runtime if a key is missing):
- * ```
- * NSCameraUsageDescription          → CAMERA
- * NSMicrophoneUsageDescription      → MICROPHONE
- * NSPhotoLibraryUsageDescription    → GALLERY
- * NSLocationWhenInUseUsageDescription → LOCATION
- * NSContactsUsageDescription        → CONTACTS
- * ```
- * `NOTIFICATION` on iOS does not require an `Info.plist` key.
- *
- * **Note on `GALLERY`:** only request this if you need broad, persistent gallery access (e.g.
- * reading `MediaStore` directly). Mosaic's `GetImageFromGallery` event picks images through the
- * Android Photo Picker / iOS `PHPickerViewController`, which need **no** storage or media
- * permission at all — don't request `GALLERY` just to use it.
+ * No data is passed downstream in any case.
  */
 @Immutable
 @Triggers(

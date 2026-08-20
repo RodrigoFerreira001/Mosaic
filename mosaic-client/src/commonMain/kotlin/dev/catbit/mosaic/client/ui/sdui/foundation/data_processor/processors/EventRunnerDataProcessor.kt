@@ -7,6 +7,15 @@ import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 
+/**
+ * The one [DataProcessor] the framework registers by default (`id = "EVENT_RUNNER"`, bound in
+ * `MosaicModules.dataProcessorsModule`) — decodes [data] as one [dev.catbit.mosaic.core.data.schemas.event.EventSchema]
+ * (a JSON object) or several (a JSON array of objects) and runs each one inline via
+ * `EventRunningScope.runEventInline`, bypassing trigger matching entirely. `ProcessData(processWith =
+ * "EVENT_RUNNER")` is how a value that is itself a serialized [dev.catbit.mosaic.core.data.schemas.event.EventSchema]
+ * — for instance, one delivered over a push notification or a system broadcast — gets executed.
+ * Any other JSON shape (not an object or array) is silently accepted and does nothing.
+ */
 object EventRunnerDataProcessor : DataProcessor {
     override val id: String = "EVENT_RUNNER"
 

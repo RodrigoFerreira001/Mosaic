@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -29,51 +26,23 @@ object TakePictureEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "File System",
-                description = "Abre a câmera do dispositivo pra capturar uma foto — implementação nativa " +
-                    "própria do Mosaic (CameraManager) em cada plataforma, sem biblioteca de terceiros."
+                description = "Opens the device camera to capture a photo — Mosaic's own native " +
+                    "implementation (CameraManager) on each platform, no third-party library. Use it for " +
+                    "any flow that requires capturing a photo with the camera — an avatar, document " +
+                    "scanning, an attachment. The camera always returns raw (lossless) PNG; if compression " +
+                    "is set, the result is re-encoded as WebP at the requested size/quality. incomingData " +
+                    "becomes a ByteArray (or a base64 String, with pictureBase64()) ready to chain with " +
+                    "SaveFile or send directly over the network."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra qualquer fluxo que exija capturar uma foto com a câmera — avatar, digitalização de " +
-                    "documento, anexo. A câmera sempre devolve PNG bruto (sem perdas); se compression for " +
-                    "definido, o resultado é recodificado como WebP no tamanho/qualidade pedidos. incomingData " +
-                    "vira um ByteArray (ou String base64, com pictureBase64()) pronto pra encadear com SaveFile " +
-                    "ou enviar direto por rede."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("compression", "CompressionScheme?", "null (padrão). byQuality(percentual) ou byTargetSize(kb)."),
-                    ShowroomParam("resize", "ImageResizeOptions?", "null (padrão, usa maxLongEdgePx=2560). Só se aplica com compression definido."),
-                    ShowroomParam("outputType", "OutputType", "pictureArrayOfBytes() (padrão) ou pictureBase64()."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                TakePicture(
-                    trigger = EventTriggers.onClick(),
-                    compression = byQuality(70f),
-                    outputType = pictureArrayOfBytes(),
-                    events = {
-                        SaveFile(trigger = EventTriggers.onSuccess(), fileName = "avatar.webp", overrideIfExists = true)
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Tire uma foto e salve-a no armazenamento privado do app") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Take a photo and save it to the app's private storage") {
                 SimpleText(
                     id = "take_picture_status",
-                    text = "Toque no botão para abrir a câmera."
+                    text = "Tap the button to open the camera."
                 )
                 Button(
-                    text = "Tirar foto e salvar como mosaic_demo_photo.webp",
+                    text = "Take photo and save as mosaic_demo_photo.webp",
                     events = {
                         TakePicture(
                             trigger = EventTriggers.onClick(),
@@ -88,13 +57,13 @@ object TakePictureEventDetailBuilder : EventDetailBuilder {
                                         UpdateTiles(
                                             trigger = EventTriggers.onSuccess(),
                                             updates = {
-                                                update("take_picture_status", inlineTileUpdateData("text" to "Foto capturada e salva ✓"))
+                                                update("take_picture_status", inlineTileUpdateData("text" to "Photo captured and saved ✓"))
                                             }
                                         )
                                         UpdateTiles(
                                             trigger = EventTriggers.onFailure(),
                                             updates = {
-                                                update("take_picture_status", inlineTileUpdateData("text" to "Falha ao salvar a foto"))
+                                                update("take_picture_status", inlineTileUpdateData("text" to "Failed to save the photo"))
                                             }
                                         )
                                     }
@@ -102,7 +71,7 @@ object TakePictureEventDetailBuilder : EventDetailBuilder {
                                 UpdateTiles(
                                     trigger = EventTriggers.onFailure(),
                                     updates = {
-                                        update("take_picture_status", inlineTileUpdateData("text" to "Captura cancelada ou sem câmera disponível"))
+                                        update("take_picture_status", inlineTileUpdateData("text" to "Capture canceled or no camera available"))
                                     }
                                 )
                             }
@@ -110,10 +79,24 @@ object TakePictureEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 ShowroomNote(
-                    "Use os eventos GetFile e DeleteFile pra ler ou apagar o arquivo mosaic_demo_photo.webp " +
-                        "salvo aqui."
+                    "Use the GetFile and DeleteFile events to read or delete the mosaic_demo_photo.webp file " +
+                        "saved here."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                TakePicture(
+                    trigger = EventTriggers.onClick(),
+                    compression = byQuality(70f),
+                    outputType = pictureArrayOfBytes(),
+                    events = {
+                        SaveFile(trigger = EventTriggers.onSuccess(), fileName = "avatar.webp", overrideIfExists = true)
+                    }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("GetImageFromGallery", "SaveFile", "GetFile"),

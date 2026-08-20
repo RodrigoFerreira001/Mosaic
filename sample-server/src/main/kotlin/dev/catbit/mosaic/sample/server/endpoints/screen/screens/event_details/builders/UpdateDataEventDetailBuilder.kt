@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -37,52 +34,18 @@ object UpdateDataEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Data",
-                description = "Escreve dados chave-valor em uma ou mais fontes — memória da tela (DataHolder) " +
-                    "ou banco persistente — para serem lidos depois com GetData."
+                description = "Writes key-value data into one or more sources — a screen's in-memory " +
+                    "DataHolder or a persistent database — to be read back later with GetData. Use it after " +
+                    "receiving a value that needs to be stored — a session token, a user preference, form " +
+                    "state. Always prefer explicitUpdateData(dataId, value) / " +
+                    "explicitIncomingUpdateData(dataId) to write a single value or an entire record under one " +
+                    "dataId. The legacy variants inlineUpdateData(...) / incomingUpdateData() explode each map " +
+                    "key into a separate dataId — only correct when the map genuinely represents independent " +
+                    "dataId → value pairs."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use depois de receber um dado que precisa ser guardado — token de sessão, preferência do " +
-                    "usuário, estado de formulário. Prefira sempre explicitUpdateData(dataId, value) / " +
-                    "explicitIncomingUpdateData(dataId) para gravar um valor único ou um registro inteiro " +
-                    "sob um dataId. As variantes legadas inlineUpdateData(...) / incomingUpdateData() " +
-                    "explodem cada chave do mapa em um dataId separado — só corretas quando o mapa " +
-                    "realmente representa pares independentes de dataId → valor."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("updates", "UpdateDataUpdateBuilderScope", "Obrigatório. Uma ou mais chamadas update(dataSource, updateData)."),
-                    ShowroomParam("updateData", "UpdateData", "explicitUpdateData(dataId, value), explicitIncomingUpdateData(dataId), explicitNullUpdateData(dataId), ou as legadas inlineUpdateData(...) / incomingUpdateData()."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                UpdateData(
-                    trigger = EventTriggers.onCheck(),
-                    updates = {
-                        update(
-                            dataSource = screenPlainData(),
-                            updateData = explicitUpdateData(dataId = "accepted_terms", value = true)
-                        )
-                    }
-                )
-                """
-            )
-
-            ShowroomNote(
-                "Sources ScreenNavigationData e Tile são ignoradas como alvo de escrita (no-op). " +
-                    "explicitNullUpdateData/explicitUpdateData(dataId, null) só funcionam em fontes em " +
-                    "memória — bancos persistentes descartam escritas de null silenciosamente."
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Marque, salve no DataHolder e leia de volta com GetData") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Check the box, save to the DataHolder, and read it back with GetData") {
                 Column(
                     style = { size(width = fillHorizontally(), height = wrapVertically()) },
                     arrangement = arrangeVerticallySpacedBy(12)
@@ -124,10 +87,10 @@ object UpdateDataEventDetailBuilder : EventDetailBuilder {
                                 )
                             }
                         )
-                        SimpleText(text = "Aceito os termos")
+                        SimpleText(text = "I accept the terms")
                     }
                     Button(
-                        text = "Ler",
+                        text = "Read",
                         events = {
                             GetData(
                                 trigger = EventTriggers.onClick(),
@@ -143,7 +106,7 @@ object UpdateDataEventDetailBuilder : EventDetailBuilder {
                                         updates = {
                                             update(
                                                 tileId = "ud_status",
-                                                updateData = mappedIncomingTileUpdateData("text" to "Gravado no DataHolder: <//>")
+                                                updateData = mappedIncomingTileUpdateData("text" to "Stored in the DataHolder: <//>")
                                             )
                                         }
                                     )
@@ -152,7 +115,7 @@ object UpdateDataEventDetailBuilder : EventDetailBuilder {
                                         updates = {
                                             update(
                                                 tileId = "ud_status",
-                                                updateData = inlineTileUpdateData("text" to "Nada gravado ainda.")
+                                                updateData = inlineTileUpdateData("text" to "Nothing stored yet.")
                                             )
                                         }
                                     )
@@ -160,9 +123,30 @@ object UpdateDataEventDetailBuilder : EventDetailBuilder {
                             )
                         }
                     )
-                    SimpleText(id = "ud_status", text = "Marque a caixa e clique em \"Ler\".")
+                    SimpleText(id = "ud_status", text = "Check the box and click \"Read\".")
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                UpdateData(
+                    trigger = EventTriggers.onCheck(),
+                    updates = {
+                        update(
+                            dataSource = screenPlainData(),
+                            updateData = explicitUpdateData(dataId = "accepted_terms", value = true)
+                        )
+                    }
+                )
+                """
+            )
+
+            ShowroomNote(
+                "The ScreenNavigationData and Tile sources are ignored as a write target (no-op). " +
+                    "explicitNullUpdateData/explicitUpdateData(dataId, null) only work on in-memory sources — " +
+                    "persistent databases silently discard null writes."
+            )
 
             ShowroomRelated(
                 names = listOf("GetData", "RemoveData", "SendData"),

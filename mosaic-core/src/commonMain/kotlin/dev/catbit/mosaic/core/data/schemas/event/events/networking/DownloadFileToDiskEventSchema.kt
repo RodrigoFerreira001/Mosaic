@@ -12,46 +12,24 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTr
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Downloads a file from [url] via [method] straight to local storage at [targetFileName],
- * streaming the response body to disk chunk by chunk without ever holding the full file in
- * memory. Use this instead of [DownloadFileEventSchema] whenever the downloaded content only
- * needs to be persisted (e.g. caching an asset for offline use), not processed as bytes.
+ * Downloads [url] into the client's own file storage under [targetFileName], where `GetFile` and
+ * `DeleteFile` can reach it afterwards. [method], [headers] and [body] shape the request.
  *
- * **incomingData consumed:** Not consumed directly. To pass data as request body or headers,
- * use [SetIncomingDataToNetworkParamsHolderBodyEventSchema] or
- * [SetIncomingDataToNetworkParamsHolderHeadersEventSchema] before this event.
- *
- * **Request body/headers resolution:** Same mechanism as [SendNetworkRequestEventSchema]:
- * - Body: schema [body] ?? holder.body
- * - Headers: holder.headers + schema.headers (schema takes precedence on collision)
- * The holder is always consumed on execution.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnStartEventTrigger] — immediately before the download request is dispatched.
- * - [OnDownloadProgressEventTrigger] — fired per chunk; incomingData becomes an `Int` 0–100
- *   representing completion percentage (only when `Content-Length` is available and > 0).
- * - [OnDownloadFinishEventTrigger] — fired once the file is fully written to disk; incomingData
- *   becomes [targetFileName] (a `String`), so downstream events can read it back (e.g. via
- *   `GetFile`).
- * - [OnSuccessEventTrigger] — fired after a successful download completes; incomingData becomes
- *   [targetFileName].
- * - [OnDownloadFailureEventTrigger] — fired if the download fails at any point; incomingData
- *   becomes the `Throwable`.
- * - [OnFailureEventTrigger] — fired for general failures (e.g. pre-request setup errors);
- *   incomingData becomes the `Throwable`.
- *
- * **Failure scenarios:**
- * - Non-2xx HTTP status code: throws `NetworkResponseException`; fires [OnDownloadFailureEventTrigger].
- * - Any network/IO error during streaming, or failure writing to disk: fires [OnDownloadFailureEventTrigger].
- *
- * **Notes:**
- * - [targetFileName] identifies the destination file by name within the app's private storage
- *   scope (e.g. `"models/abc123.glb"`).
+ * - `OnStartEventTrigger` — before the download begins.
+ * - `OnDownloadProgressEventTrigger` — repeatedly while downloading, with the progress passed as
+ *   incomingData.
+ * - `OnDownloadFinishEventTrigger` then `OnSuccessEventTrigger` — when the download completed,
+ *   both carrying [targetFileName] as incomingData.
+ * - `OnDownloadFailureEventTrigger` then `OnFailureEventTrigger` — when the download failed, both
+ *   carrying the `Throwable`; the error is logged.
  */
 @Immutable
 @Triggers(
@@ -59,8 +37,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
         OnStartEventTrigger::class,
         OnDownloadProgressEventTrigger::class,
         OnDownloadFinishEventTrigger::class,
-        OnSuccessEventTrigger::class,
         OnDownloadFailureEventTrigger::class,
+        OnSuccessEventTrigger::class,
         OnFailureEventTrigger::class,
     ]
 )

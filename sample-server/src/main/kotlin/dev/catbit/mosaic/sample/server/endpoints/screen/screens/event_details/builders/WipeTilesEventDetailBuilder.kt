@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -38,37 +35,15 @@ object WipeTilesEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Tile Management",
-                description = "Remove todos os filhos de um container numa única operação, deixando-o vazio — " +
-                    "mais direto que RemoveTiles quando o objetivo é limpar tudo."
+                description = "Removes every child of a container in a single operation, leaving it empty — " +
+                    "more direct than RemoveTiles when the goal is to clear everything. Use it when the goal " +
+                    "is to empty a container entirely, without having to enumerate the children's ids (which " +
+                    "RemoveTiles would require). Emptying an already-empty container is a no-op. After a " +
+                    "WipeTiles, use AddTiles or ReplaceTiles to repopulate the container."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use quando o objetivo é esvaziar um container por completo, sem precisar enumerar os ids " +
-                    "dos filhos (o que RemoveTiles exigiria). Esvaziar um container já vazio é um no-op. " +
-                    "Depois de um WipeTiles, use AddTiles ou ReplaceTiles para repopular o container."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("groupingTileId", "String", "Obrigatório. ID do container a esvaziar."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                WipeTiles(
-                    trigger = EventTriggers.onClick(),
-                    groupingTileId = "search_results"
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Esvazie a lista e reponha os itens") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Empty the list and put the items back") {
                 Column(
                     id = "wipe_tiles_list",
                     style = { size(width = fillHorizontally(), height = wrapVertically()) },
@@ -83,7 +58,7 @@ object WipeTilesEventDetailBuilder : EventDetailBuilder {
                     arrangement = arrangeHorizontallySpacedBy(8)
                 ) {
                     Button(
-                        text = "Esvaziar com WipeTiles",
+                        text = "Empty with WipeTiles",
                         buttonType = outlinedButton(),
                         events = {
                             WipeTiles(
@@ -93,24 +68,34 @@ object WipeTilesEventDetailBuilder : EventDetailBuilder {
                         }
                     )
                     Button(
-                        text = "Repor com AddTiles",
+                        text = "Restore with AddTiles",
                         events = {
                             AddTiles(
                                 trigger = EventTriggers.onClick(),
                                 groupingTileId = "wipe_tiles_list",
                                 position = insertAtEnd(),
                                 tiles = {
-                                    WipeTilesListItem(label = "Item reposto")
+                                    WipeTilesListItem(label = "Restored item")
                                 }
                             )
                         }
                     )
                 }
                 ShowroomNote(
-                    "Depois de esvaziar, a lista fica vazia até que outro evento (AddTiles ou ReplaceTiles) " +
-                        "a repopule — WipeTiles não tem posição nem conteúdo para repor sozinho."
+                    "After emptying, the list stays empty until another event (AddTiles or ReplaceTiles) " +
+                        "repopulates it — WipeTiles has no position or content to restore on its own."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                WipeTiles(
+                    trigger = EventTriggers.onClick(),
+                    groupingTileId = "search_results"
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("RemoveTiles", "ReplaceTiles", "AddTiles"),

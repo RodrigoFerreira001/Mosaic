@@ -24,6 +24,25 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalLazyItem
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalRowScope
 import dev.catbit.mosaic.core.data.schemas.tile.style.SizeSchema
 
+/**
+ * Converts a [SizeSchema] into a Compose sizing [Modifier] — the real implementation behind
+ * `style.size()`, applied by `Modifier.styledWith` as one step of the fixed style-application order.
+ * Width and height are resolved independently, each via its own `when` over `SizeSchema.Behavior`.
+ *
+ * The behaviors that depend on the tile's actual parent (`Weight`, `Span`, `Flex`, `FillRow`) all
+ * follow the same pattern: read the matching `CompositionLocal`
+ * (`LocalLazyItemScope`/`LocalRowScope`/`LocalColumnScope`/`LocalFlowRowScope`/`LocalGridScope`/
+ * `LocalFlexBoxScope`), and if it isn't currently provided by an ancestor container, silently fall
+ * back to a bare `Modifier` — no error, no log, the sizing instruction is just ignored. `Weight`
+ * checks `LocalLazyItemScope` **before** `LocalRowScope`/`LocalColumnScope`, so a weighted child
+ * inside a `LazyColumn`/`LazyRow` gets `fillParentMaxWidth`/`Height` treatment rather than a plain
+ * `Row`/`Column` `weight` — consistent with `LazyColumn`/`LazyRow` publishing `LazyItemScope` instead
+ * of `ColumnScope`/`RowScope` to their children (see `tiles-catalog.md`'s `LazyColumn`/`LazyRow`
+ * entries).
+ *
+ * @param size the schema to resolve.
+ * @return a `Modifier` applying the resolved width and height behavior.
+ */
 @OptIn(ExperimentalFlexBoxApi::class, ExperimentalGridApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun Modifier.size(size: SizeSchema): Modifier {

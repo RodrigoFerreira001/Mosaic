@@ -3,6 +3,9 @@ package dev.catbit.mosaic.client.extensions
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import io.ktor.http.HttpMethod as KtorHttpMethod
 
+/** Converts the wire-format [HttpMethod] into Ktor's own `HttpMethod` — every networking event
+ * (`SendNetworkRequest`, `UploadFile`, the download events, `GetScreen`/`RefreshScreen`) resolves its
+ * `method` through this before issuing the real request. */
 fun HttpMethod.toKtorHttpMethod() = when (this) {
     HttpMethod.GET -> KtorHttpMethod.Get
     HttpMethod.POST -> KtorHttpMethod.Post

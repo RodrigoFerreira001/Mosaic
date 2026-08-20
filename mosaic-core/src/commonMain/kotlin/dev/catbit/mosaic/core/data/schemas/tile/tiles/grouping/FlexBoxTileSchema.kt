@@ -3,6 +3,7 @@ package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
@@ -11,28 +12,35 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a CSS flexbox-style container using the experimental Compose [FlexBox] API.
- * The layout direction is controlled by [direction] (Row, RowReverse, Column, ColumnReverse),
- * main-axis alignment by [justifyContent], cross-axis alignment of individual items by
- * [alignItems], cross-axis alignment of wrapped lines by [alignContent], and wrapping
- * behavior by [wrap]. Gaps between items are set by [columnGap] and [rowGap] in dp.
+ * Renders a Compose `FlexBox` (experimental flexbox layout) hosting [tiles] with CSS-flexbox
+ * semantics. Every schema enum maps one-to-one onto the corresponding Compose flex value:
+ * [direction] → main axis and its reversal, [justifyContent] → distribution along the main axis,
+ * [alignItems] → alignment on the cross axis of a single line, [alignContent] → distribution of
+ * the lines themselves, [wrap] → whether items wrap. [columnGap] and [rowGap] are interpreted
+ * as dp.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `direction: FlexDirectionSchema`,
- * `justifyContent: FlexJustifyContentSchema`, `alignItems: FlexAlignItemsSchema`,
- * `alignContent: FlexAlignContentSchema`, `wrap: FlexWrapSchema`, `columnGap: Int`,
- * `rowGap: Int`
+ * **Child scope:** the tile publishes its `FlexBoxScope` as a CompositionLocal, so children can
+ * use flex scope modifiers (grow, shrink, basis, align-self).
  *
- * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
- * composition. `OnClickEventTrigger` — fired when the flex box container is
- * tapped (requires events to be wired on the schema).
+ * **Filtering:** when [filterChildrenByTerm] is non-null and non-empty, only children whose
+ * `searchableTerms` contain that term (case-insensitive, substring match) are rendered.
+ * Children without `searchableTerms` are filtered out.
  *
- * **Notes:** Uses `@OptIn(ExperimentalFlexBoxApi::class)`. The renderer exposes
- * [LocalFlexBoxScope] so that children that need [FlexBoxScope] modifiers (e.g. `flexGrow`,
- * `flexShrink`, `alignSelf`) can access it. Children are composed eagerly.
+ * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id).
+ * - `OnClickEventTrigger` — fired when the flex box is tapped, but **only if** an `OnClick`
+ *   event is declared on this tile.
+ *
+ * **Notes:** [alignContent] only takes effect when [wrap] allows multiple lines. The tile is
+ * never scrollable and composes every child eagerly.
  */
 @Immutable
-@Triggers([OnDisplayEventTrigger::class])
+@Triggers(
+    [
+        OnDisplayEventTrigger::class,
+        OnClickEventTrigger::class,
+    ]
+)
 @Serializable
 @SerialName("FlexBox")
 data class FlexBoxTileSchema(
@@ -41,6 +49,7 @@ data class FlexBoxTileSchema(
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
+    @SerialName("filterChildrenByTerm") val filterChildrenByTerm: String?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("direction") val direction: FlexDirectionSchema = FlexDirectionSchema.Row,
     @SerialName("justifyContent") val justifyContent: FlexJustifyContentSchema = FlexJustifyContentSchema.Start,

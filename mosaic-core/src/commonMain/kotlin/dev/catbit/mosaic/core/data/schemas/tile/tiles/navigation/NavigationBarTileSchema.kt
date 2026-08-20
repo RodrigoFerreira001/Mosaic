@@ -12,29 +12,24 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 [NavigationBar] with a fixed set of destination items defined by
- * [items]. Each item displays an icon (filled when selected, outlined otherwise) and an
- * optional text label. The currently selected item is identified by [selectedItemId].
+ * Renders a Material 3 `NavigationBar` with one `NavigationBarItem` per entry in [items]. An
+ * item is selected when its [NavigationBarItem.id] equals [selectedItemId]; the selected item's
+ * icon is drawn in its **filled** variant, the others outlined. [NavigationBarItem.label] is
+ * rendered centered under the icon, or omitted when `null`.
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `items: SerializableImmutableList<NavigationBarItem>`,
- * `selectedItemId: String`
+ * **Selection:** tapping an item dispatches a local `NavigationBarTileEvents.OnItemClicked` and
+ * the holder stores the new [selectedItemId], so the highlight moves immediately without a
+ * server round trip. Tapping the already selected item still fires everything again.
  *
- * **Triggers dispatched:** `OnNavigationBarItemClickEventTrigger` — fired when any item is
- * tapped, carrying the clicked item's [id] as the trigger parameter.
+ * **Triggers dispatched:**
+ * - `OnNavigationBarItemClickEventTrigger` — fired when an item is tapped, carrying that item's
+ *   [NavigationBarItem.id], so events can be wired per item.
  *
- * **Notes:** The selected state is entirely server-driven via [selectedItemId]; the client
- * never updates selection state locally. Tapping an item triggers both the event trigger
- * (for server-side event runners) and an internal `NavigationBarTileEvents.OnItemClicked`
- * dispatch (for client-side tile holder logic). The icon filling (filled vs. outlined) is
- * determined by comparing each item's [id] against [selectedItemId] at render time.
+ * **Notes:** the bar itself is not clickable and fires no display trigger. It only tracks the
+ * selected item — performing the actual navigation is up to the events wired to the item clicks.
  */
 @Immutable
-@Triggers(
-    [
-        OnNavigationBarItemClickEventTrigger::class
-    ]
-)
+@Triggers([OnNavigationBarItemClickEventTrigger::class])
 @Serializable
 @SerialName("NavigationBar")
 data class NavigationBarTileSchema(

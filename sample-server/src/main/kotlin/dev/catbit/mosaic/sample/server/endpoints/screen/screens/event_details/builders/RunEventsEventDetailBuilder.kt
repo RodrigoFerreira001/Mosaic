@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -29,28 +26,54 @@ object RunEventsEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Tile Management",
-                description = "Executa todos os eventos filhos incondicionalmente, agrupando uma cadeia sob um " +
-                    "único trigger — sem o encadeamento semântico onSuccess/onFailure entre eles."
+                description = "Runs all child events unconditionally, grouping a chain under a single " +
+                    "trigger — without the semantic onSuccess/onFailure chaining between them. Use it when " +
+                    "several independent events need to fire from the same trigger and chaining them via " +
+                    "onSuccess/onFailure would be misleading — for example, updating a tile, writing data, " +
+                    "and showing a snackbar, all as a direct reaction to a click, with none depending on the " +
+                    "others' result. RunEvents doesn't consume or transform the incomingData: it passes it " +
+                    "along, intact, to every child event."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use quando vários eventos independentes precisam disparar a partir do mesmo trigger e o " +
-                    "encadeamento onSuccess/onFailure entre eles seria enganoso — por exemplo, atualizar um " +
-                    "tile, gravar um dado e mostrar um snackbar, todos como reação direta a um clique, sem " +
-                    "que um dependa do resultado do outro. RunEvents não consome nem transforma o incomingData: " +
-                    "ele passa adiante, intacto, para cada evento filho."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("—", "—", "RunEvents não recebe parâmetros além de trigger/events."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Click and watch both events fire together") {
+                SimpleText(
+                    id = "run_events_status",
+                    text = "Waiting for click...",
+                    typography = typographyBodyMedium()
                 )
-            )
+                Button(
+                    text = "Fire events with RunEvents",
+                    buttonType = filledButton(),
+                    events = {
+                        RunEvents(
+                            trigger = EventTriggers.onClick(),
+                            events = {
+                                UpdateTiles(
+                                    trigger = EventTriggers.inline(),
+                                    updates = {
+                                        update(
+                                            tileId = "run_events_status",
+                                            updateData = inlineTileUpdateData("text" to "Tile updated ✓")
+                                        )
+                                    }
+                                )
+                                DisplaySnackbar(
+                                    trigger = EventTriggers.inline(),
+                                    message = "Snackbar fired alongside — without waiting for the UpdateTiles above"
+                                )
+                            }
+                        )
+                    }
+                )
+                ShowroomNote(
+                    "Notice that UpdateTiles and DisplaySnackbar both use EventTriggers.inline() — neither " +
+                        "one depends on the other's success. That's what sets RunEvents apart from chaining " +
+                        "events via onSuccess/onFailure."
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 RunEvents(
@@ -63,44 +86,6 @@ object RunEventsEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Clique e veja os 2 eventos disparando juntos") {
-                SimpleText(
-                    id = "run_events_status",
-                    text = "Aguardando clique...",
-                    typography = typographyBodyMedium()
-                )
-                Button(
-                    text = "Disparar events com RunEvents",
-                    buttonType = filledButton(),
-                    events = {
-                        RunEvents(
-                            trigger = EventTriggers.onClick(),
-                            events = {
-                                UpdateTiles(
-                                    trigger = EventTriggers.inline(),
-                                    updates = {
-                                        update(
-                                            tileId = "run_events_status",
-                                            updateData = inlineTileUpdateData("text" to "Tile atualizado ✓")
-                                        )
-                                    }
-                                )
-                                DisplaySnackbar(
-                                    trigger = EventTriggers.inline(),
-                                    message = "Snackbar disparado junto — sem esperar o UpdateTiles acima"
-                                )
-                            }
-                        )
-                    }
-                )
-                ShowroomNote(
-                    "Repare que o UpdateTiles e o DisplaySnackbar usam EventTriggers.inline() — nenhum dos " +
-                        "dois depende do sucesso do outro. É isso que diferencia RunEvents de encadear " +
-                        "eventos via onSuccess/onFailure."
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("TriggerEvent", "UpdateEvents", "AddTiles"),

@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -20,7 +17,7 @@ import dev.catbit.mosaic.server.builder.tile.builders.grouping.Row
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.RadioButton
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 
-private val frequencies = listOf("daily" to "Diário", "weekly" to "Semanal", "monthly" to "Mensal")
+private val frequencies = listOf("daily" to "Daily", "weekly" to "Weekly", "monthly" to "Monthly")
 
 object RadioButtonTileDetailBuilder : TileDetailBuilder {
 
@@ -29,27 +26,57 @@ object RadioButtonTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Inputs",
-                description = "Radio button Material 3 — tiles com o mesmo groupId formam um grupo de seleção única."
+                description = "A Material 3 radio button — tiles sharing the same groupId form a single-" +
+                    "selection group. On tap, the client fires OnSelect with the tapped tile's id and groupId, " +
+                    "but the server still decides who ends up selected: you need an UpdateTiles that manually " +
+                    "deselects the other members of the group."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Ao tocar, o client dispara OnSelect com o id e o groupId do tile tocado — mas quem " +
-                    "decide quem fica selected continua sendo o servidor: é preciso um UpdateTiles " +
-                    "desmarcando os outros membros do grupo manualmente."
-            )
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Pick a frequency — the other two get deselected") {
+                frequencies.forEach { (id, label) ->
+                    Row(arrangement = arrangeHorizontallySpacedBy(12), alignment = alignVerticallyToCenter()) {
+                        RadioButton(
+                            id = "radio_demo_$id",
+                            groupId = "radio_demo_group",
+                            selected = id == "daily",
+                            events = {
+                                UpdateTiles(
+                                    trigger = EventTriggers.onSelect(),
+                                    updates = {
+                                        frequencies.forEach { (otherId, _) ->
+                                            update(
+                                                tileId = "radio_demo_$otherId",
+                                                updateData = inlineTileUpdateData("selected" to (otherId == id))
+                                            )
+                                        }
+                                        update(
+                                            tileId = "radio_demo_selected_label",
+                                            updateData = inlineTileUpdateData("text" to "Selected: $label")
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                        SimpleText(text = label)
+                    }
+                }
+                SimpleText(id = "radio_demo_selected_label", text = "Selected: Daily")
+            }
 
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("selected", "Boolean", "Padrão false. Controlado pelo servidor."),
-                    ShowroomParam("groupId", "String", "Obrigatório. Tiles com o mesmo groupId formam um grupo."),
-                    ShowroomParam("enabled", "Boolean", "Padrão true."),
-                )
-            )
+            ShowroomSectionTitle("A second, independent group + enabled = false")
+            ShowroomDemoCard(title = "Different groupId — selecting here doesn't touch the group above") {
+                Row(arrangement = arrangeHorizontallySpacedBy(12), alignment = alignVerticallyToCenter()) {
+                    RadioButton(id = "radio_group_b_a", groupId = "radio_demo_group_b", selected = true)
+                    SimpleText(text = "Option A")
+                    RadioButton(id = "radio_group_b_b", groupId = "radio_demo_group_b", selected = false)
+                    SimpleText(text = "Option B")
+                    RadioButton(id = "radio_group_b_disabled", groupId = "radio_demo_group_b", selected = false, enabled = false)
+                    SimpleText(text = "Disabled")
+                }
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 listOf("daily", "weekly", "monthly").forEachIndexed { i, freq ->
@@ -74,38 +101,6 @@ object RadioButtonTileDetailBuilder : TileDetailBuilder {
                 }
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Selecione uma frequência — os outros dois se desmarcam") {
-                frequencies.forEach { (id, label) ->
-                    Row(arrangement = arrangeHorizontallySpacedBy(12), alignment = alignVerticallyToCenter()) {
-                        RadioButton(
-                            id = "radio_demo_$id",
-                            groupId = "radio_demo_group",
-                            selected = id == "daily",
-                            events = {
-                                UpdateTiles(
-                                    trigger = EventTriggers.onSelect(),
-                                    updates = {
-                                        frequencies.forEach { (otherId, _) ->
-                                            update(
-                                                tileId = "radio_demo_$otherId",
-                                                updateData = inlineTileUpdateData("selected" to (otherId == id))
-                                            )
-                                        }
-                                        update(
-                                            tileId = "radio_demo_selected_label",
-                                            updateData = inlineTileUpdateData("text" to "Selecionado: $label")
-                                        )
-                                    }
-                                )
-                            }
-                        )
-                        SimpleText(text = label)
-                    }
-                }
-                SimpleText(id = "radio_demo_selected_label", text = "Selecionado: Diário")
-            }
 
             ShowroomRelated(
                 names = listOf("Checkbox", "DropdownList", "Switch"),

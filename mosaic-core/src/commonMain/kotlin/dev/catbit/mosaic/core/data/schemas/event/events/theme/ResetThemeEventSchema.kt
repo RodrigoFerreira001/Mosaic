@@ -10,24 +10,16 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Reverts a previous [SetThemeEventSchema] override, restoring the app's default Material3 color
- * scheme (light and dark) for both mode variants.
+ * Drops any color scheme previously installed by `SetTheme`, putting the app back on the color
+ * scheme it was built with.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — always, once the default color scheme has been restored.
- *
- * **Notes:** Has no effect (besides re-confirming the default) if [SetThemeEventSchema] was never
- * dispatched. Like [SetThemeEventSchema], this is a global override — not tied to screen
- * navigation.
+ * - `OnSuccessEventTrigger` — always, after the reset. No data is passed downstream.
  */
 @Immutable
-@Triggers(
-    [
-        OnSuccessEventTrigger::class
-    ]
-)
+@Triggers([OnSuccessEventTrigger::class])
 @Serializable
 @SerialName("ResetTheme")
 data class ResetThemeEventSchema(

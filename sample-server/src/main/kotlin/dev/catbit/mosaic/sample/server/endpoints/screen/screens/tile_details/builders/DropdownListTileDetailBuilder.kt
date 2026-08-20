@@ -4,17 +4,18 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.TileDetailBuilder
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
+import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallySpacedBy
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.builders.grouping.Row
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.DropdownList
+import dev.catbit.mosaic.server.builder.tile.builders.inputs.errorDropdownList
+import dev.catbit.mosaic.server.builder.tile.builders.inputs.filledDropdownList
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.outlinedDropdownList
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.selectOption
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
@@ -26,36 +27,83 @@ object DropdownListTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Inputs",
-                description = "ExposedDropdownMenuBox do Material 3 — escolha de uma opção entre uma lista predefinida."
+                description = "Material 3's ExposedDropdownMenuBox — choosing one option from a predefined " +
+                    "list. The client always sends expanded = false — whether the menu is open is controlled " +
+                    "by the client itself, not the server. The server only needs to react to " +
+                    "OnDropdownListItemSelected(id) and keep selectedOptionId in sync."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "O client sempre manda expanded = false — quem controla se o menu está aberto é o " +
-                    "próprio client, não o servidor. O servidor só precisa reagir a OnDropdownListItemSelected(id) " +
-                    "e manter selectedOptionId sincronizado."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("options", "List<SelectOption>", "Obrigatório. Construído com selectOption(id, label)."),
-                    ShowroomParam("selectedOptionId", "String", "Obrigatório. Precisa bater com um id de options."),
-                    ShowroomParam("kind", "Kind", "outlinedDropdownList() (padrão) ou filledDropdownList()."),
-                    ShowroomParam("enabled", "Boolean", "Padrão true."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Pick a status — each option fires its own trigger") {
+                DropdownList(
+                    id = "dropdown_demo",
+                    options = listOf(
+                        selectOption("active", "Active"),
+                        selectOption("inactive", "Inactive"),
+                        selectOption("pending", "Pending"),
+                    ),
+                    selectedOptionId = "active",
+                    kind = outlinedDropdownList(),
+                    events = {
+                        UpdateTiles(
+                            trigger = EventTriggers.onDropdownListItemSelected("active"),
+                            updates = {
+                                update(tileId = "dropdown_demo", updateData = inlineTileUpdateData("selectedOptionId" to "active"))
+                                update(tileId = "dropdown_demo_label", updateData = inlineTileUpdateData("text" to "Status: Active"))
+                            }
+                        )
+                        UpdateTiles(
+                            trigger = EventTriggers.onDropdownListItemSelected("inactive"),
+                            updates = {
+                                update(tileId = "dropdown_demo", updateData = inlineTileUpdateData("selectedOptionId" to "inactive"))
+                                update(tileId = "dropdown_demo_label", updateData = inlineTileUpdateData("text" to "Status: Inactive"))
+                            }
+                        )
+                        UpdateTiles(
+                            trigger = EventTriggers.onDropdownListItemSelected("pending"),
+                            updates = {
+                                update(tileId = "dropdown_demo", updateData = inlineTileUpdateData("selectedOptionId" to "pending"))
+                                update(tileId = "dropdown_demo_label", updateData = inlineTileUpdateData("text" to "Status: Pending"))
+                            }
+                        )
+                    }
                 )
-            )
+                SimpleText(id = "dropdown_demo_label", text = "Status: Active")
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("kind, state, supportingText, enabled = false")
+            ShowroomDemoCard(title = "filledDropdownList(), errorDropdownList() with supportingText, disabled") {
+                Row(arrangement = arrangeHorizontallySpacedBy(12)) {
+                    DropdownList(
+                        options = listOf(selectOption("a", "Option A"), selectOption("b", "Option B")),
+                        selectedOptionId = "a",
+                        kind = filledDropdownList()
+                    )
+                    DropdownList(
+                        options = listOf(selectOption("a", "Option A"), selectOption("b", "Option B")),
+                        selectedOptionId = "a",
+                        kind = outlinedDropdownList(),
+                        state = errorDropdownList(),
+                        supportingText = "Selection required"
+                    )
+                    DropdownList(
+                        options = listOf(selectOption("a", "Option A"), selectOption("b", "Option B")),
+                        selectedOptionId = "a",
+                        kind = outlinedDropdownList(),
+                        enabled = false
+                    )
+                }
+            }
+
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 DropdownList(
                     id = "dd_status",
                     options = listOf(
-                        selectOption("active", "Ativo"),
-                        selectOption("inactive", "Inativo"),
-                        selectOption("pending", "Pendente"),
+                        selectOption("active", "Active"),
+                        selectOption("inactive", "Inactive"),
+                        selectOption("pending", "Pending"),
                     ),
                     selectedOptionId = "active",
                     kind = outlinedDropdownList(),
@@ -70,44 +118,6 @@ object DropdownListTileDetailBuilder : TileDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Escolha um status — cada opção dispara seu próprio trigger") {
-                DropdownList(
-                    id = "dropdown_demo",
-                    options = listOf(
-                        selectOption("active", "Ativo"),
-                        selectOption("inactive", "Inativo"),
-                        selectOption("pending", "Pendente"),
-                    ),
-                    selectedOptionId = "active",
-                    kind = outlinedDropdownList(),
-                    events = {
-                        UpdateTiles(
-                            trigger = EventTriggers.onDropdownListItemSelected("active"),
-                            updates = {
-                                update(tileId = "dropdown_demo", updateData = inlineTileUpdateData("selectedOptionId" to "active"))
-                                update(tileId = "dropdown_demo_label", updateData = inlineTileUpdateData("text" to "Status: Ativo"))
-                            }
-                        )
-                        UpdateTiles(
-                            trigger = EventTriggers.onDropdownListItemSelected("inactive"),
-                            updates = {
-                                update(tileId = "dropdown_demo", updateData = inlineTileUpdateData("selectedOptionId" to "inactive"))
-                                update(tileId = "dropdown_demo_label", updateData = inlineTileUpdateData("text" to "Status: Inativo"))
-                            }
-                        )
-                        UpdateTiles(
-                            trigger = EventTriggers.onDropdownListItemSelected("pending"),
-                            updates = {
-                                update(tileId = "dropdown_demo", updateData = inlineTileUpdateData("selectedOptionId" to "pending"))
-                                update(tileId = "dropdown_demo_label", updateData = inlineTileUpdateData("text" to "Status: Pendente"))
-                            }
-                        )
-                    }
-                )
-                SimpleText(id = "dropdown_demo_label", text = "Status: Ativo")
-            }
 
             ShowroomRelated(
                 names = listOf("RadioButton", "TextField", "Menu"),

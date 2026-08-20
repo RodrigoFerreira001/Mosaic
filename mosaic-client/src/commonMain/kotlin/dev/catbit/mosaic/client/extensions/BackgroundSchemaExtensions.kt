@@ -176,6 +176,7 @@ private inline fun gradient(
     fromColorStops(Array(colors.size) { index -> stops[index] to colors[index] })
 }
 
+/** Resolves every stop's [ColorStopSchema.color] to a Compose [Color], preserving order. */
 @Composable
 private fun List<ColorStopSchema>.toComposeColors(): List<Color> = map { it.color.toComposeColor() }
 
@@ -190,6 +191,8 @@ private fun List<ColorStopSchema>.toStops(): List<Float>? {
     return List(size) { index -> this[index].stop ?: (index.toFloat() / lastIndex) }
 }
 
+/** Converts an [OffsetSchema] to a Compose [Offset] in px, or [default] when the schema is `null` —
+ * used to resolve a gradient's `start`/`end`/`center`, each optional on the wire. */
 private fun OffsetSchema?.toOffset(
     density: Density,
     default: Offset
@@ -199,12 +202,17 @@ private fun OffsetSchema?.toOffset(
     Offset(x.toPxOrInfinity(density), y.toPxOrInfinity(density))
 }
 
+/** Converts this dp value to px under [density]. */
 private fun Int.toPx(density: Density): Float = with(density) { this@toPx.dp.toPx() }
 
+/** Same as [toPx], but resolves a `null` receiver to `Float.POSITIVE_INFINITY` — used for a
+ * gradient's optional `endX`/`endY`/`radius`, where omitted means "extend to infinity". */
 private fun Int?.toPxOrInfinity(
     density: Density
 ): Float = this?.toPx(density) ?: Float.POSITIVE_INFINITY
 
+/** Converts the wire-format [TileModeSchema] into its Compose [TileMode] counterpart — how a
+ * gradient repeats past its declared extent. */
 private fun TileModeSchema.toTileMode(): TileMode = when (this) {
     TileModeSchema.CLAMP -> TileMode.Clamp
     TileModeSchema.REPEATED -> TileMode.Repeated

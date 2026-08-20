@@ -5,66 +5,49 @@ import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkResponseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUploadProgressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Uploads a file as a raw binary body (no multipart) to [url] via [method], firing progress
- * triggers throughout the transfer. Designed for the **signed URL** pattern: the application
- * backend issues a temporary upload URL (GCS/S3) and the client sends the bytes directly to the
- * storage, so large files never pass through the application server.
+ * Uploads the file carried in the event's incomingData to [url] with [method], [headers] and
+ * [contentType], reporting progress as it goes. Pair it with `OpenFilePicker` or `GetFile` using
+ * their `PlatformFile` output.
  *
- * **incomingData consumed:** The file bytes as a `ByteArray` (e.g. produced by
- * [DownloadFileEventSchema]'s OnDownloadFinish or a binary [SendNetworkRequestEventSchema]
- * response). A non-`ByteArray` or `null` incomingData fires [OnFailureEventTrigger] without
- * making any request.
+ * **Response shape:** a JSON content type is parsed into plain maps, lists and primitives;
+ * anything else is passed through as raw bytes. A JSON body that fails to parse yields `null`.
  *
- * **URL resolution:** schema [url] ?? holder.url (set by
- * [SetIncomingDataToNetworkParamsHolderUrlEventSchema] earlier in the chain — the typical way to
- * feed a runtime-generated signed URL). If both are `null`, fires [OnFailureEventTrigger] with
- * `MissingUploadUrlException`.
- *
- * **Headers resolution:** holder.headers + schema.headers (schema takes precedence on collision).
- * The holder is always consumed on execution.
- *
- * **Content type:** [contentType] is applied to the binary body
- * (default `application/octet-stream`). For signed URLs it must match the content type used when
- * signing, or the storage will reject the request.
+ * **incomingData consumed:** required, and must be a `PlatformFile` — it is the file uploaded.
  *
  * **Triggers fired:**
- * - [OnStartEventTrigger] — immediately before the upload request is dispatched.
- * - [OnUploadProgressEventTrigger] — fired when the sent percentage changes; incomingData
- *   becomes an `Int` 0–100.
- * - [OnSuccessEventTrigger] — 2xx response when **no** child event declares a matching
- *   `onNetworkResponse(statusCode)` or `onNetworkFailure(statusCode)` trigger for that status;
- *   incomingData becomes the response body (JSON → `Any`, otherwise `ByteArray`).
- * - [OnFailureEventTrigger] — non-2xx response without a matching custom listener, network
- *   error, missing URL, or invalid incomingData; incomingData becomes the response body or
- *   the `Throwable`.
- * - [OnNetworkResponseTrigger] — fired **instead of** [OnSuccessEventTrigger] when a child
- *   event declares a matching trigger for a **2xx** status code; incomingData becomes the
- *   response body.
- * - [OnNetworkFailureEventTrigger] — fired **instead of** [OnFailureEventTrigger] when a child
- *   event declares a matching trigger for a **non-2xx** status code; incomingData becomes the
- *   response body. Never fired on network/IO exceptions.
- *
- * A child event activates custom dispatch for a given status code if it declares either
- * `onNetworkResponse(statusCode)` **or** `onNetworkFailure(statusCode)` for that code.
+ * - `OnStartEventTrigger` — after incomingData was validated, before the upload begins.
+ * - `OnUploadProgressEventTrigger` — repeatedly while uploading, with the progress passed as
+ *   incomingData.
+ * - `OnNetworkResponseEventTrigger` / `OnNetworkFailureEventTrigger` — when this event declares an
+ *   event wired to the response's exact HTTP status: the first for successful statuses, the second
+ *   for the rest. The parsed body is passed as incomingData.
+ * - `OnSuccessEventTrigger` — when the upload succeeded and no status-specific event was declared;
+ *   the parsed body is passed as incomingData.
+ * - `OnFailureEventTrigger` — when incomingData is not a `PlatformFile` (fired before
+ *   `OnStartEventTrigger`, with no data), when the response is unsuccessful and no status-specific
+ *   event was declared (the parsed body is passed), and when the upload itself fails (the
+ *   `Throwable` is passed). Failures are logged.
  */
 @Immutable
 @Triggers(
     [
         OnStartEventTrigger::class,
         OnUploadProgressEventTrigger::class,
+        OnNetworkResponseEventTrigger::class,
+        OnNetworkFailureEventTrigger::class,
         OnSuccessEventTrigger::class,
         OnFailureEventTrigger::class,
-        OnNetworkResponseTrigger::class
     ]
 )
 @Serializable

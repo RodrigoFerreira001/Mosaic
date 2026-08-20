@@ -12,33 +12,19 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 [AssistChip] or [ElevatedAssistChip] displaying a text label with
- * optional leading and trailing icons. Assist chips represent smart or automated actions that
- * can span multiple apps, such as opening a calendar event from the home screen.
+ * Renders a Material 3 assist chip displaying [text] as its label, with optional
+ * [leadingIcon] and [trailingIcon]. [variant] selects the composable:
+ * [Variant.DEFAULT] → `AssistChip` (outlined), [Variant.ELEVATED] → `ElevatedAssistChip`.
+ * [enabled] is forwarded to the underlying composable.
  *
- * The chip can be enabled or disabled via [enabled]. When tapped, it dispatches a click trigger
- * to its child events.
+ * **Triggers dispatched:**
+ * - `OnClickEventTrigger` — fired when the chip is tapped.
  *
- * **Use case example:** a chip with a calendar icon as [leadingIcon] and a chevron-down as
- * [trailingIcon] to open a date-picker menu (like Google Drive's "Type" filter chip).
- *
- * **Variants:**
- * - [Variant.DEFAULT] — flat chip with a border outline (default). Maps to [AssistChip].
- * - [Variant.ELEVATED] — elevated chip with shadow, no border. Maps to [ElevatedAssistChip].
- *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `text: String`, `leadingIcon: IconSchema?`,
- * `trailingIcon: IconSchema?`, `enabled: Boolean`, `variant: Variant`
- *
- * **Triggers dispatched:** `OnClickEventTrigger` — fired when the chip is tapped (only when
- * [enabled] is `true`; disabled chips do not fire click events).
+ * **Notes:** the chip is stateless — it has no selected state, and the icons are purely
+ * decorative (tapping either icon fires the same chip-level click).
  */
 @Immutable
-@Triggers(
-    [
-        OnClickEventTrigger::class
-    ]
-)
+@Triggers([OnClickEventTrigger::class])
 @Serializable
 @SerialName("AssistChip")
 data class AssistChipTileSchema(
@@ -54,11 +40,5 @@ data class AssistChipTileSchema(
     @SerialName("variant") val variant: Variant = Variant.DEFAULT,
 ) : TileSchema {
 
-    /**
-     * Visual style variant for the assist chip.
-     *
-     * - [DEFAULT] — flat chip with a border outline (maps to [AssistChip]).
-     * - [ELEVATED] — elevated chip with shadow and no border (maps to [ElevatedAssistChip]).
-     */
     enum class Variant { DEFAULT, ELEVATED }
 }

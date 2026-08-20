@@ -6,9 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -28,69 +25,30 @@ object DownloadFileEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "File System",
-                description = "Baixa um arquivo de uma URL direto para o armazenamento público/geral do dispositivo — a pasta Downloads visível no gerenciador de arquivos do SO."
+                description = "Downloads a file from a URL directly into the device's public/general storage " +
+                    "— the Downloads folder visible in the OS's file manager. Use it for any \"save this " +
+                    "download somewhere the user can find it\" flow — reports, exports, media the user wants " +
+                    "to keep outside the app. If you only need the bytes in memory, use " +
+                    "DownloadFileToMemory; if the file just needs to live in the app's private sandbox, use " +
+                    "DownloadFileToDisk. This event behaves differently per platform — a real OS constraint, " +
+                    "not an implementation gap. Android: delegated to the system's DownloadManager — silent, " +
+                    "no dialog, shows a download notification and lands in the public Downloads folder (only " +
+                    "GET with no body is supported, a DownloadManager limitation). iOS: there's no public " +
+                    "\"Downloads\" folder writable by the app — this event opens FileKit.openFileSaver() (an " +
+                    "export UIDocumentPickerViewController), requiring a tap to choose the destination; " +
+                    "cancelling fires onFailure() with no data, the same convention as OpenFilePicker's " +
+                    "cancellation. JVM/Desktop: written silently to ~/Downloads. wasmJs/Web: triggers the " +
+                    "browser's native download flow."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para qualquer fluxo de \"salvar este download em algum lugar que o usuário encontre\" " +
-                    "— relatórios, exportações, mídia que o usuário quer manter fora do app. Se você precisa " +
-                    "só dos bytes em memória, use DownloadFileToMemory; se o arquivo só precisa viver no " +
-                    "sandbox privado do app, use DownloadFileToDisk."
-            )
-            ShowroomParagraph(
-                "Este evento se comporta diferente por plataforma — uma restrição real do SO, não uma " +
-                    "lacuna de implementação. Android: delegado ao DownloadManager do sistema — silencioso, " +
-                    "sem diálogo, mostra notificação de download e cai na pasta Downloads pública (só GET " +
-                    "sem body é suportado, limitação do DownloadManager). iOS: não existe pasta \"Downloads\" " +
-                    "pública gravável pelo app — este evento abre o FileKit.openFileSaver() (um " +
-                    "UIDocumentPickerViewController de exportação), exigindo um toque para escolher o " +
-                    "destino; cancelar dispara onFailure() sem dado, mesma convenção do cancelamento do " +
-                    "OpenFilePicker. JVM/Desktop: gravado silenciosamente em ~/Downloads. wasmJs/Web: aciona " +
-                    "o fluxo nativo de download do navegador."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("url", "String", "Obrigatório. Mesma resolução de SendNetworkRequest."),
-                    ShowroomParam("method", "HttpMethod", "Obrigatório."),
-                    ShowroomParam("body", "AnySerializable?", "Padrão null. No Android, DownloadManager só suporta GET sem body."),
-                    ShowroomParam("headers", "Map<String, String>?", "Padrão null."),
-                    ShowroomParam("targetFileName", "String", "Obrigatório. Nome de exibição (com extensão) na pasta Downloads do usuário."),
-                    ShowroomParam("mimeType", "String?", "Padrão null → inferido pela extensão de targetFileName."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                DownloadFile(
-                    trigger = EventTriggers.onClick(),
-                    url = "https://raw.githubusercontent.com/octocat/Hello-World/master/README",
-                    method = HttpMethod.GET,
-                    targetFileName = "hello-world-readme.txt",
-                    mimeType = "text/plain",
-                    events = {
-                        UpdateTiles(trigger = EventTriggers.onDownloadProgress(), updates = {
-                            update("progress_bar", incomingTileUpdateData())
-                        })
-                        DisplaySnackbar(trigger = EventTriggers.onSuccess(), message = "Salvo em Downloads")
-                        DisplaySnackbar(trigger = EventTriggers.onFailure(), message = "Download cancelado ou falhou")
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Download real — dispara o comportamento nativo da plataforma do dispositivo") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Real download — triggers the device platform's native behavior") {
                 SimpleText(
                     id = "download_file_status_text",
-                    text = "Toque no botão para baixar um arquivo real para a pasta Downloads."
+                    text = "Tap the button to download a real file to the Downloads folder."
                 )
                 Button(
-                    text = "Baixar hello-world-readme.txt",
+                    text = "Download hello-world-readme.txt",
                     events = {
                         DownloadFile(
                             trigger = EventTriggers.onClick(),
@@ -102,7 +60,7 @@ object DownloadFileEventDetailBuilder : EventDetailBuilder {
                                 UpdateTiles(
                                     trigger = EventTriggers.onStart(),
                                     updates = {
-                                        update("download_file_status_text", inlineTileUpdateData("text" to "onStart · baixando..."))
+                                        update("download_file_status_text", inlineTileUpdateData("text" to "onStart · downloading..."))
                                     }
                                 )
                                 UpdateTiles(
@@ -117,13 +75,13 @@ object DownloadFileEventDetailBuilder : EventDetailBuilder {
                                 UpdateTiles(
                                     trigger = EventTriggers.onSuccess(),
                                     updates = {
-                                        update("download_file_status_text", inlineTileUpdateData("text" to "onSuccess · salvo em Downloads"))
+                                        update("download_file_status_text", inlineTileUpdateData("text" to "onSuccess · saved to Downloads"))
                                     }
                                 )
                                 UpdateTiles(
                                     trigger = EventTriggers.onFailure(),
                                     updates = {
-                                        update("download_file_status_text", inlineTileUpdateData("text" to "onFailure · cancelado ou erro"))
+                                        update("download_file_status_text", inlineTileUpdateData("text" to "onFailure · cancelled or error"))
                                     }
                                 )
                             }
@@ -132,9 +90,29 @@ object DownloadFileEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                DownloadFile(
+                    trigger = EventTriggers.onClick(),
+                    url = "https://raw.githubusercontent.com/octocat/Hello-World/master/README",
+                    method = HttpMethod.GET,
+                    targetFileName = "hello-world-readme.txt",
+                    mimeType = "text/plain",
+                    events = {
+                        UpdateTiles(trigger = EventTriggers.onDownloadProgress(), updates = {
+                            update("progress_bar", incomingTileUpdateData())
+                        })
+                        DisplaySnackbar(trigger = EventTriggers.onSuccess(), message = "Saved to Downloads")
+                        DisplaySnackbar(trigger = EventTriggers.onFailure(), message = "Download cancelled or failed")
+                    }
+                )
+                """
+            )
+
             ShowroomNote(
-                "A interação real depende do dispositivo — no Android o download acontece silenciosamente " +
-                    "via notificação do sistema; no iOS abre um seletor de destino nativo."
+                "The real interaction depends on the device — on Android the download happens silently via a " +
+                    "system notification; on iOS it opens a native destination picker."
             )
 
             ShowroomRelated(

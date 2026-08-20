@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -38,47 +35,15 @@ object CheckForReceivedDataEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Data",
-                description = "Lê o DataMailer por um valor postado sob dataKey e o encaminha como " +
-                    "incomingData para os eventos filhos. Contraparte de leitura do SendData."
+                description = "Reads the DataMailer for a value posted under dataKey and forwards it as " +
+                    "incomingData to the child events — the read counterpart of SendData. It's typically fired " +
+                    "on the destination screen's onDisplay(), to pick up the value the previous screen posted " +
+                    "via SendData before navigating. It can also be used on demand — for example, a \"Refresh\" " +
+                    "button that polls manually."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Tipicamente disparado no onDisplay() da tela de destino, para pegar o valor que a tela " +
-                    "anterior postou via SendData antes de navegar. Também pode ser usado sob demanda — " +
-                    "por exemplo, um botão \"Atualizar\" que faz o polling manualmente."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("dataKey", "String", "Obrigatório. Chave a procurar no DataMailer."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                CheckForReceivedData(
-                    trigger = EventTriggers.onDisplay(),
-                    dataKey = "selected_environment",
-                    events = {
-                        UpdateTiles(trigger = EventTriggers.onDataReceived(), updates = {
-                            update("env_name_label", incomingTileUpdateData())
-                        })
-                    }
-                )
-                """
-            )
-
-            ShowroomNote(
-                "Dispara onDataReceived(value) e em seguida onSuccess(value) quando encontra algo; " +
-                    "onFailure() quando não há nada postado sob essa dataKey."
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Envie um valor e depois cheque se ele chegou") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Send a value, then check whether it arrived") {
                 Column(
                     style = { size(width = fillHorizontally(), height = wrapVertically()) },
                     arrangement = arrangeVerticallySpacedBy(12)
@@ -86,13 +51,13 @@ object CheckForReceivedDataEventDetailBuilder : EventDetailBuilder {
                     TextField(
                         id = "cfrd_value",
                         kind = outlinedTextField(),
-                        label = "Valor a enviar",
-                        placeholder = "Ex: ola-mosaic",
+                        label = "Value to send",
+                        placeholder = "E.g.: hello-mosaic",
                         style = { size(width = fillHorizontally(), height = wrapVertically()) }
                     )
                     Row(arrangement = arrangeHorizontallySpacedBy(8)) {
                         Button(
-                            text = "Enviar",
+                            text = "Send",
                             buttonType = outlinedButton(),
                             events = {
                                 GetData(
@@ -113,7 +78,7 @@ object CheckForReceivedDataEventDetailBuilder : EventDetailBuilder {
                                                     updates = {
                                                         update(
                                                             tileId = "cfrd_status",
-                                                            updateData = inlineTileUpdateData("text" to "Enviado. Clique em \"Checar\".")
+                                                            updateData = inlineTileUpdateData("text" to "Sent. Click \"Check\".")
                                                         )
                                                     }
                                                 )
@@ -124,7 +89,7 @@ object CheckForReceivedDataEventDetailBuilder : EventDetailBuilder {
                             }
                         )
                         Button(
-                            text = "Checar",
+                            text = "Check",
                             events = {
                                 CheckForReceivedData(
                                     trigger = EventTriggers.onClick(),
@@ -135,7 +100,7 @@ object CheckForReceivedDataEventDetailBuilder : EventDetailBuilder {
                                             updates = {
                                                 update(
                                                     tileId = "cfrd_status",
-                                                    updateData = mappedIncomingTileUpdateData("text" to "Recebido: <//>")
+                                                    updateData = mappedIncomingTileUpdateData("text" to "Received: <//>")
                                                 )
                                             }
                                         )
@@ -144,7 +109,7 @@ object CheckForReceivedDataEventDetailBuilder : EventDetailBuilder {
                                             updates = {
                                                 update(
                                                     tileId = "cfrd_status",
-                                                    updateData = inlineTileUpdateData("text" to "Nada recebido ainda.")
+                                                    updateData = inlineTileUpdateData("text" to "Nothing received yet.")
                                                 )
                                             }
                                         )
@@ -153,9 +118,29 @@ object CheckForReceivedDataEventDetailBuilder : EventDetailBuilder {
                             }
                         )
                     }
-                    SimpleText(id = "cfrd_status", text = "Nada enviado ainda.")
+                    SimpleText(id = "cfrd_status", text = "Nothing sent yet.")
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                CheckForReceivedData(
+                    trigger = EventTriggers.onDisplay(),
+                    dataKey = "selected_environment",
+                    events = {
+                        UpdateTiles(trigger = EventTriggers.onDataReceived(), updates = {
+                            update("env_name_label", incomingTileUpdateData())
+                        })
+                    }
+                )
+                """
+            )
+
+            ShowroomNote(
+                "Fires onDataReceived(value) followed by onSuccess(value) when it finds something; " +
+                    "onFailure() when nothing has been posted under that dataKey."
+            )
 
             ShowroomRelated(
                 names = listOf("SendData", "GetData", "TransformData"),

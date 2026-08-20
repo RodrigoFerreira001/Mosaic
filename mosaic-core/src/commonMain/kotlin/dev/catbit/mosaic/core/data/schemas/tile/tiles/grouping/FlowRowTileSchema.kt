@@ -3,6 +3,7 @@ package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.placement.ArrangementSchema
@@ -12,24 +13,33 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a horizontally-wrapping flow layout using Compose's [FlowRow]. Children are placed
- * left-to-right and wrap onto new rows when they exceed the available width. The maximum
- * number of items per row is capped by [maxItemsInEachRow].
+ * Renders a Compose `FlowRow` laying its [tiles] out horizontally and wrapping onto new lines
+ * when they no longer fit. [horizontalArrangement] spaces items within a line,
+ * [verticalArrangement] spaces the lines themselves, and [maxItemsInEachRow] caps how many
+ * children a single line may hold (defaults to unlimited).
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `horizontalArrangement: ArrangementSchema.Horizontal`,
- * `verticalArrangement: ArrangementSchema.Vertical`, `maxItemsInEachRow: Int`
+ * **Child scope:** the tile publishes its `FlowRowScope` as a CompositionLocal (and clears the
+ * row and lazy-item scopes), so children can use flow-row scope modifiers such as `weight` and
+ * `fillMaxRowHeight`.
  *
- * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
- * composition. `OnClickEventTrigger` — fired when the flow row container is
- * tapped (requires events to be wired on the schema).
+ * **Filtering:** when [filterChildrenByTerm] is non-null and non-empty, only children whose
+ * `searchableTerms` contain that term (case-insensitive, substring match) are rendered.
+ * Children without `searchableTerms` are filtered out.
  *
- * **Notes:** The renderer exposes [LocalFlowRowScope] so that children that need
- * [FlowRowScope] modifiers (e.g. `fillMaxRowHeight`, `weight`) can access it. Children are
- * composed eagerly (not lazy).
+ * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id).
+ * - `OnClickEventTrigger` — fired when the flow row is tapped, but **only if** an `OnClick`
+ *   event is declared on this tile.
+ *
+ * **Notes:** the tile is never scrollable and composes every child eagerly.
  */
 @Immutable
-@Triggers([OnDisplayEventTrigger::class])
+@Triggers(
+    [
+        OnDisplayEventTrigger::class,
+        OnClickEventTrigger::class,
+    ]
+)
 @Serializable
 @SerialName("FlowRow")
 data class FlowRowTileSchema(
@@ -38,6 +48,7 @@ data class FlowRowTileSchema(
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
+    @SerialName("filterChildrenByTerm") val filterChildrenByTerm: String?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("horizontalArrangement") val horizontalArrangement: ArrangementSchema.Horizontal = ArrangementSchema.Horizontal.Start,
     @SerialName("verticalArrangement") val verticalArrangement: ArrangementSchema.Vertical = ArrangementSchema.Vertical.Top,

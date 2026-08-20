@@ -3,9 +3,6 @@ package dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.bu
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -28,34 +25,35 @@ object TooltipTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Tooltip",
-                description = "Envolve um tile âncora e mostra um texto ao segurar/passar o mouse — o gesto é tratado inteiramente pelo client, sem estado no servidor."
+                description = "Wraps an anchor tile and shows text on long-press/hover — the gesture is handled " +
+                    "entirely by the client, with no server-side state. Unlike Menu/Popup, Tooltip has no " +
+                    "server-controlled expanded — it's purely client-side. text, position, and appearance " +
+                    "(shape/colors) are fixed in the schema, not reactive to events."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Diferente de Menu/Popup, Tooltip não tem expanded controlado pelo servidor — é " +
-                    "puramente client-side. text, position e aparência (shape/cores) são fixos no schema, " +
-                    "não reativos a eventos."
-            )
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Long-press/hover each icon — 4 different positions") {
+                Row(arrangement = arrangeHorizontallySpacedBy(16)) {
+                    Tooltip(text = "Above", position = tooltipPositionAbove(), showCaret = true) {
+                        IconButton(icon = icon("arrow_upward"))
+                    }
+                    Tooltip(text = "Below", position = tooltipPositionBelow(), showCaret = true) {
+                        IconButton(icon = icon("arrow_downward"))
+                    }
+                    Tooltip(text = "Start", position = tooltipPositionStart(), showCaret = true) {
+                        IconButton(icon = icon("arrow_back"))
+                    }
+                    Tooltip(text = "End", position = tooltipPositionEnd(), showCaret = true) {
+                        IconButton(icon = icon("arrow_forward"))
+                    }
+                }
+            }
 
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("text", "String", "Obrigatório. Texto exibido no tooltip."),
-                    ShowroomParam("position", "Position", "tooltipPositionAbove() (padrão), Below, Left, Right, Start, End."),
-                    ShowroomParam("spacing / maxWidth", "Int?", "Opcionais."),
-                    ShowroomParam("showCaret", "Boolean", "Padrão false. Seta apontando pra âncora."),
-                    ShowroomParam("contentColor / containerColor", "ColorSchema?", "Cores customizadas do tooltip."),
-                    ShowroomParam("tiles", "TileSchemaBuilderScope.() -> Unit", "Obrigatório. O tile âncora envolvido."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 Tooltip(
-                    text = "Iniciar timer",
+                    text = "Start timer",
                     position = tooltipPositionBelow(),
                     showCaret = true
                 ) {
@@ -63,24 +61,6 @@ object TooltipTileDetailBuilder : TileDetailBuilder {
                 }
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Segure/passe o mouse em cada ícone — 4 posições diferentes") {
-                Row(arrangement = arrangeHorizontallySpacedBy(16)) {
-                    Tooltip(text = "Acima", position = tooltipPositionAbove(), showCaret = true) {
-                        IconButton(icon = icon("arrow_upward"))
-                    }
-                    Tooltip(text = "Abaixo", position = tooltipPositionBelow(), showCaret = true) {
-                        IconButton(icon = icon("arrow_downward"))
-                    }
-                    Tooltip(text = "Início", position = tooltipPositionStart(), showCaret = true) {
-                        IconButton(icon = icon("arrow_back"))
-                    }
-                    Tooltip(text = "Fim", position = tooltipPositionEnd(), showCaret = true) {
-                        IconButton(icon = icon("arrow_forward"))
-                    }
-                }
-            }
 
             ShowroomRelated(
                 names = listOf("IconButton", "Popup", "Menu"),

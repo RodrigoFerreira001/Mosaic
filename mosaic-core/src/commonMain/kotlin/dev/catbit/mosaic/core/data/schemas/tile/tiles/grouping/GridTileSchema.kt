@@ -3,7 +3,9 @@ package dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping
 import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
@@ -12,27 +14,38 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 import kotlinx.collections.immutable.persistentListOf
 
 /**
- * Renders a CSS-grid-like two-dimensional layout using the experimental Compose
- * [Grid] API. Column tracks are defined by [columns] and row tracks by [rows], each
- * expressed as a [GridTrackSchema] (Fixed dp, Fraction, Flexible fr-units, Auto,
- * MaxContent, or MinContent). Items flow in the direction specified by [flow]
- * (Row-first or Column-first). Gaps between tracks are set by [columnGap] and [rowGap] in dp.
+ * Renders a Compose `Grid` (experimental CSS-grid-like layout) hosting [tiles]. [columns] and
+ * [rows] declare the track template, each track being one of:
+ * [GridTrackSchema.Fixed] (dp), [GridTrackSchema.Fraction] (fraction of the available space),
+ * [GridTrackSchema.Flexible] (`fr` unit), [GridTrackSchema.Auto], [GridTrackSchema.MaxContent]
+ * or [GridTrackSchema.MinContent]. [flow] decides whether children are placed row-first or
+ * column-first, and [columnGap] / [rowGap] are interpreted as dp.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `columns: SerializableImmutableList<GridTrackSchema>`,
- * `rows: SerializableImmutableList<GridTrackSchema>`, `columnGap: Int`, `rowGap: Int`, `flow: GridFlowSchema`
+ * **Child scope:** the tile publishes its `GridScope` as a CompositionLocal, so children can use
+ * grid scope modifiers (row/column span and placement).
  *
- * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
- * composition. `OnClickEventTrigger` — fired when the grid container is tapped
- * (requires events to be wired on the schema).
+ * **Filtering:** when [filterChildrenByTerm] is non-null and non-empty, only children whose
+ * `searchableTerms` contain that term (case-insensitive, substring match) are rendered.
+ * Children without `searchableTerms` are filtered out.
  *
- * **Notes:** Uses `@OptIn(ExperimentalGridApi::class)`. The renderer exposes
- * [LocalGridScope] so that children can access grid-scoped placement modifiers such as
- * `columnSpan` and `rowSpan`. Children are rendered via `forEach` (not lazy) so all items
- * are composed eagerly.
+ * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id).
+ * - `OnClickEventTrigger` — fired when the grid is tapped, but **only if** an `OnClick` event is
+ *   declared on this tile.
+ * - `OnLongPressEventTrigger` — fired when the grid is long-pressed, but **only if** an
+ *   `OnLongPress` event is declared on this tile.
+ *
+ * **Notes:** [rows] defaults to empty, in which case row tracks are derived implicitly. The tile
+ * is never scrollable and composes every child eagerly.
  */
 @Immutable
-@Triggers([OnDisplayEventTrigger::class])
+@Triggers(
+    [
+        OnDisplayEventTrigger::class,
+        OnClickEventTrigger::class,
+        OnLongPressEventTrigger::class,
+    ]
+)
 @Serializable
 @SerialName("Grid")
 data class GridTileSchema(
@@ -41,6 +54,7 @@ data class GridTileSchema(
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
+    @SerialName("filterChildrenByTerm") val filterChildrenByTerm: String?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("columns") val columns: SerializableImmutableList<GridTrackSchema>,
     @SerialName("rows") val rows: SerializableImmutableList<GridTrackSchema> = persistentListOf(),

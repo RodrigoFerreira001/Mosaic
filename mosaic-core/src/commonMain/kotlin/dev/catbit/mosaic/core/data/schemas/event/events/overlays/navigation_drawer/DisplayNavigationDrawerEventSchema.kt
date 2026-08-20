@@ -5,32 +5,24 @@ import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Opens the screen's navigation drawer by broadcasting an open signal to the active screen.
- * The drawer's content is defined by the screen tile itself, not by this event — no tile
- * data is supplied here.
+ * Opens the screen's navigation drawer, by broadcasting an open command on the screen channel.
+ * The drawer content is declared on the screen itself, so this event carries no parameters and
+ * there is only ever one drawer per screen.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
- * **Triggers fired:** None. This event fires no lifecycle triggers; it only pushes the
- * overlay state to the screen via [ScreenTileBroadcastData.DisplayNavigationDrawer].
- *
- * **Failure scenarios:** None defined. The runner does not perform any fallible operation.
- *
- * **Notes:** The navigation drawer must already be configured on the screen tile for this
- * event to have a visible effect. Sending this event when the drawer is already open is
- * a no-op on the UI side.
+ * **Triggers fired:**
+ * - `OnSuccessEventTrigger` — always, right after the command was broadcast. The broadcast is
+ *   fire-and-forget, so this fires even when the screen declares no drawer. No data is passed
+ *   downstream.
  */
 @Immutable
-@Triggers(
-    [
-        OnSuccessEventTrigger::class
-    ]
-)
+@Triggers([OnSuccessEventTrigger::class])
 @Serializable
 @SerialName("DisplayNavigationDrawer")
 data class DisplayNavigationDrawerEventSchema(

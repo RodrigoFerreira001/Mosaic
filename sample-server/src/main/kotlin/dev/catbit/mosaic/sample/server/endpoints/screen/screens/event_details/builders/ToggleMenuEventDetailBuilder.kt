@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -27,83 +24,42 @@ object ToggleMenuEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Menu",
-                description = "Alterna (abre/fecha) o estado de um MenuTile identificado por menuId — se estiver aberto fecha, se estiver fechado abre."
+                description = "Toggles (opens/closes) the state of a MenuTile identified by menuId — if it's " +
+                    "open it closes, if it's closed it opens. ToggleMenu doesn't explicitly open or close: " +
+                    "it flips the target MenuTile's current state. The most common pattern is using the " +
+                    "same ToggleMenu both on the button that opens the menu and on each menu item (to close " +
+                    "it after a choice)."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "ToggleMenu não abre nem fecha explicitamente: ele inverte o estado atual do MenuTile alvo. " +
-                    "O padrão mais comum é usar o mesmo ToggleMenu tanto no botão que abre o menu quanto em cada " +
-                    "item de menu (para fechar depois de uma escolha)."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("menuId", "String", "Obrigatório. id do MenuTile a alternar."),
-                    ShowroomParam("trigger", "EventTrigger", "Obrigatório. Ex.: onClick() no botão que abre/fecha."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                Menu(
-                    id = "actions_menu",
-                    items = {
-                        addMenuItem(id = "actions_menu_edit", label = "Editar", leadingIcon = icon("edit"))
-                        addMenuItem(id = "actions_menu_delete", label = "Excluir", leadingIcon = icon("delete"))
-                    },
-                    events = {
-                        RunEvents(
-                            trigger = EventTriggers.onMenuItemClick("actions_menu_edit"),
-                            events = {
-                                ToggleMenu(trigger = EventTriggers.inline(), menuId = "actions_menu")
-                                // ação de editar aqui
-                            }
-                        )
-                    }
-                ) {
-                    IconButton(
-                        icon = icon("more_vert"),
-                        events = {
-                            ToggleMenu(trigger = EventTriggers.onClick(), menuId = "actions_menu")
-                        }
-                    )
-                }
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Clique no botão para abrir o menu, escolha um item") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Click the button to open the menu, pick an item") {
                 Menu(
                     id = "toggle_menu_demo",
                     items = {
-                        addMenuItem(id = "toggle_menu_demo_share", label = "Compartilhar", leadingIcon = icon("share"))
-                        addMenuItem(id = "toggle_menu_demo_favorite", label = "Favoritar", leadingIcon = icon("star"))
-                        addMenuItem(id = "toggle_menu_demo_delete", label = "Excluir", leadingIcon = icon("delete"))
+                        addMenuItem(id = "toggle_menu_demo_share", label = "Share", leadingIcon = icon("share"))
+                        addMenuItem(id = "toggle_menu_demo_favorite", label = "Favorite", leadingIcon = icon("star"))
+                        addMenuItem(id = "toggle_menu_demo_delete", label = "Delete", leadingIcon = icon("delete"))
                     },
                     events = {
                         RunEvents(
                             trigger = EventTriggers.onMenuItemClick("toggle_menu_demo_share"),
                             events = {
                                 ToggleMenu(trigger = EventTriggers.inline(), menuId = "toggle_menu_demo")
-                                DisplaySnackbar(trigger = EventTriggers.inline(), message = "Compartilhar selecionado")
+                                DisplaySnackbar(trigger = EventTriggers.inline(), message = "Share selected")
                             }
                         )
                         RunEvents(
                             trigger = EventTriggers.onMenuItemClick("toggle_menu_demo_favorite"),
                             events = {
                                 ToggleMenu(trigger = EventTriggers.inline(), menuId = "toggle_menu_demo")
-                                DisplaySnackbar(trigger = EventTriggers.inline(), message = "Favoritar selecionado")
+                                DisplaySnackbar(trigger = EventTriggers.inline(), message = "Favorite selected")
                             }
                         )
                         RunEvents(
                             trigger = EventTriggers.onMenuItemClick("toggle_menu_demo_delete"),
                             events = {
                                 ToggleMenu(trigger = EventTriggers.inline(), menuId = "toggle_menu_demo")
-                                DisplaySnackbar(trigger = EventTriggers.inline(), message = "Excluir selecionado")
+                                DisplaySnackbar(trigger = EventTriggers.inline(), message = "Delete selected")
                             }
                         )
                     }
@@ -120,9 +76,37 @@ object ToggleMenuEventDetailBuilder : EventDetailBuilder {
                 }
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                Menu(
+                    id = "actions_menu",
+                    items = {
+                        addMenuItem(id = "actions_menu_edit", label = "Edit", leadingIcon = icon("edit"))
+                        addMenuItem(id = "actions_menu_delete", label = "Delete", leadingIcon = icon("delete"))
+                    },
+                    events = {
+                        RunEvents(
+                            trigger = EventTriggers.onMenuItemClick("actions_menu_edit"),
+                            events = {
+                                ToggleMenu(trigger = EventTriggers.inline(), menuId = "actions_menu")
+                                // edit action here
+                            }
+                        )
+                    }
+                ) {
+                    IconButton(
+                        icon = icon("more_vert"),
+                        events = {
+                            ToggleMenu(trigger = EventTriggers.onClick(), menuId = "actions_menu")
+                        }
+                    )
+                }
+                """
+            )
             ShowroomNote(
-                "Sempre feche o menu (ToggleMenu de novo) ao reagir a um addMenuItem — senão ele permanece " +
-                    "aberto depois da escolha."
+                "Always close the menu (ToggleMenu again) when reacting to an addMenuItem — otherwise it " +
+                    "stays open after the choice."
             )
 
             ShowroomRelated(

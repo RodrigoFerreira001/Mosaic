@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -39,53 +36,25 @@ object CheckIfTileContainsChildrenEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Tile Management",
-                description = "Verifica de forma síncrona se um container possui todos os filhos indicados — " +
-                    "útil pra evitar duplicar um tile que já foi adicionado."
+                description = "Synchronously checks whether a container has all of the given children — useful " +
+                    "for avoiding duplicate insertion of a tile that's already been added. Use it when logic " +
+                    "needs to branch depending on whether certain ids are already present in a container — for " +
+                    "example, before adding a \"favorited\" item, checking whether it's already in the favorites " +
+                    "list. The check only looks at direct children, not deeper descendants, and an empty " +
+                    "childrenIds list always results in success."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use quando a lógica precisa se ramificar dependendo se certos ids já estão presentes num " +
-                    "container — por exemplo, antes de adicionar um item \"favoritado\", verificar se ele já " +
-                    "não está na lista de favoritos. A checagem olha só os filhos diretos, não descendentes " +
-                    "mais profundos, e uma lista vazia de childrenIds sempre resulta em sucesso."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("groupingTileId", "String", "Obrigatório. ID do container a inspecionar."),
-                    ShowroomParam("childrenIds", "List<String>", "Obrigatório. IDs a verificar; lista vazia sempre resulta em sucesso."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                CheckIfTileContainsChildren(
-                    trigger = EventTriggers.onClick(),
-                    groupingTileId = "pinned_list",
-                    childrenIds = listOf("item_42"),
-                    events = {
-                        // onSuccess = já está fixado; onFailure = ainda não, adiciona
-                        AddTiles(trigger = EventTriggers.onFailure(), groupingTileId = "pinned_list", tiles = { /* ... */ })
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Clique duas vezes: a segunda vez detecta a duplicata") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Click twice: the second time detects the duplicate") {
                 Column(
                     id = "check_children_list",
                     style = { size(width = fillHorizontally(), height = wrapVertically()) },
                     arrangement = arrangeVerticallySpacedBy(8)
                 ) {
-                    CheckChildrenRow(id = "check_children_seed", label = "Item semente (sempre presente)")
+                    CheckChildrenRow(id = "check_children_seed", label = "Seed item (always present)")
                 }
                 Button(
-                    text = "Fixar \"item_42\" se ainda não estiver na lista",
+                    text = "Pin \"item_42\" if it isn't already in the list",
                     buttonType = filledTonalButton(),
                     events = {
                         CheckIfTileContainsChildren(
@@ -95,14 +64,14 @@ object CheckIfTileContainsChildrenEventDetailBuilder : EventDetailBuilder {
                             events = {
                                 DisplaySnackbar(
                                     trigger = EventTriggers.onSuccess(),
-                                    message = "item_42 já estava na lista — nada foi adicionado"
+                                    message = "item_42 was already in the list — nothing was added"
                                 )
                                 AddTiles(
                                     trigger = EventTriggers.onFailure(),
                                     groupingTileId = "check_children_list",
                                     position = insertAtEnd(),
                                     tiles = {
-                                        CheckChildrenRow(id = "check_children_item_42", label = "item_42 (recém fixado)")
+                                        CheckChildrenRow(id = "check_children_item_42", label = "item_42 (just pinned)")
                                     }
                                 )
                             }
@@ -110,11 +79,27 @@ object CheckIfTileContainsChildrenEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 ShowroomNote(
-                    "Na primeira vez, item_42 não existe: CheckIfTileContainsChildren falha e o AddTiles do " +
-                        "onFailure o insere. Na segunda vez, ele já é filho direto do container: a checagem " +
-                        "sucede e apenas o snackbar do onSuccess dispara — nada é duplicado."
+                    "The first time, item_42 doesn't exist: CheckIfTileContainsChildren fails and the " +
+                        "onFailure AddTiles inserts it. The second time, it's already a direct child of the " +
+                        "container: the check succeeds and only the onSuccess snackbar fires — nothing gets " +
+                        "duplicated."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                CheckIfTileContainsChildren(
+                    trigger = EventTriggers.onClick(),
+                    groupingTileId = "pinned_list",
+                    childrenIds = listOf("item_42"),
+                    events = {
+                        // onSuccess = already pinned; onFailure = not yet, add it
+                        AddTiles(trigger = EventTriggers.onFailure(), groupingTileId = "pinned_list", tiles = { /* ... */ })
+                    }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("AddTiles", "GetTileChildrenCount", "RemoveTiles"),

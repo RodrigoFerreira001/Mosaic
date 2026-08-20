@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnSearch")
+/** Fires on `SearchBar` when the search action is submitted (e.g. the keyboard's search IME
+ * action). */
 object OnSearchEventTrigger : EventTrigger

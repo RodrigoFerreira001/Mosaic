@@ -3,6 +3,10 @@ package dev.catbit.mosaic.client.domain.file
 import dev.catbit.mosaic.client.data.repository.MosaicRepository
 import dev.catbit.mosaic.core.domain.base.UseCase
 
+/**
+ * Deletes a file from the client's own private file storage — backs the `DeleteFile` event.
+ * Reachable via `get<DeleteFileUseCase>()`.
+ */
 class DeleteFileUseCase(
     private val repository: MosaicRepository
 ) : UseCase<Unit, DeleteFileUseCase.Params>() {
@@ -11,6 +15,7 @@ class DeleteFileUseCase(
         repository.deleteFile(fileName = fileName)
     }
 
+    /** @property fileName file to delete. */
     data class Params(
         val fileName: String
     )

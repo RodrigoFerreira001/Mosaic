@@ -2,16 +2,21 @@ package dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.b
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
+import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder
+import dev.catbit.mosaic.server.builder.event.builders.overlays.snackbar.DisplaySnackbar
+import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
+import dev.catbit.mosaic.server.builder.event.builders.tiles.mappedIncomingTileUpdateData
+import dev.catbit.mosaic.server.builder.event.builders.time.StartCountdownTimer
+import dev.catbit.mosaic.server.builder.event.builders.time.seconds
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
+import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 
 object StartCountdownTimerEventDetailBuilder : EventDetailBuilder {
 
@@ -20,53 +25,70 @@ object StartCountdownTimerEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Time",
-                description = "Inicia uma contagem regressiva no cliente, de timerData.initial até zero, em " +
-                    "decrementos de timerData.step."
+                description = "Starts a countdown on the client, from timerData.initial down to timerData.step, " +
+                    "in decrements of step. Meant for OTP-expiration countdowns, session-timeout warnings, or " +
+                    "deadline-driven actions. onTimeTick fires once per step with the remaining count as " +
+                    "incomingData (an Int); onTimeFinish fires once at the very end, with no data. step must " +
+                    "be strictly less than initial, or the event fails to build."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Pensado para contagens regressivas de expiração de OTP, avisos de timeout de sessão, ou " +
-                    "ações com prazo — onTimeTick() dispararia a cada step decorrido, com o tempo restante " +
-                    "como incomingData, e onTimeFinish() dispararia uma única vez ao chegar a zero."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("timerData", "TimerData", "Obrigatório. Construído com milliseconds(initial, step) ou seconds(initial, step) — step precisa ser menor que initial."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Start — a real 8-second countdown, ticking once per second") {
+                SimpleText(id = "countdown_demo_label", text = "Not started")
+                Button(
+                    text = "Start countdown",
+                    events = {
+                        StartCountdownTimer(
+                            trigger = EventTriggers.onClick(),
+                            timerData = seconds(initial = 8, step = 1),
+                            events = {
+                                UpdateTiles(
+                                    trigger = EventTriggers.onTimeTick(),
+                                    updates = {
+                                        update(
+                                            tileId = "countdown_demo_label",
+                                            updateData = mappedIncomingTileUpdateData("text" to "Time left: <||>s")
+                                        )
+                                    }
+                                )
+                                UpdateTiles(
+                                    trigger = EventTriggers.onTimeFinish(),
+                                    updates = {
+                                        update(tileId = "countdown_demo_label", updateData = mappedIncomingTileUpdateData("text" to "Done!"))
+                                    }
+                                )
+                                DisplaySnackbar(
+                                    trigger = EventTriggers.onTimeFinish(),
+                                    message = "Countdown finished"
+                                )
+                            }
+                        )
+                    }
                 )
-            )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 StartCountdownTimer(
                     trigger = EventTriggers.onDisplay(),
                     timerData = seconds(initial = 120, step = 1),
                     events = {
-                        UpdateTiles(trigger = EventTriggers.onTimeTick(), updates = {
-                            update("timer_label", incomingTileUpdateData())
-                        })
+                        UpdateTiles(
+                            trigger = EventTriggers.onTimeTick(),
+                            updates = {
+                                update(tileId = "timer_label", updateData = mappedIncomingTileUpdateData("text" to "<||>s left"))
+                            }
+                        )
                         DisplaySnackbar(trigger = EventTriggers.onTimeFinish(), message = "Session expired")
                     }
                 )
                 """
             )
 
-            ShowroomSectionTitle("Por que não há demo interativa aqui")
-            ShowroomParagraph(
-                "O próprio schema deste evento documenta que seu runner no cliente é atualmente um " +
-                    "placeholder — a lógica de contagem regressiva e disparo de onTimeTick()/onTimeFinish() " +
-                    "ainda não foi implementada (StartCountdownTimerEventSchema, mosaic-core). Diferente do " +
-                    "StartTimeLoop (que já funciona de verdade), montar uma demo \"ao vivo\" aqui simularia um " +
-                    "comportamento que o framework ainda não entrega."
-            )
-
             ShowroomNote(
-                "Use StartTimeLoop para laços de tempo recorrentes que já funcionam hoje — ele é a base sobre " +
-                    "a qual a contagem regressiva provavelmente será implementada."
+                text = "There's no way to cancel a running countdown mid-flight — unlike StartTimeLoop, it " +
+                    "isn't paired with a matching CancelEvents mechanism. Once started, it runs to completion."
             )
 
             ShowroomRelated(

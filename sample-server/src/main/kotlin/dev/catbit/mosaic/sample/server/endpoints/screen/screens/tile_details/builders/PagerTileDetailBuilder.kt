@@ -5,9 +5,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnPageChangedE
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -30,45 +27,14 @@ object PagerTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Containers",
-                description = "Pager horizontal deslizável, cada tile filho ocupa uma página inteira — onboarding, galerias, wizards."
+                description = "A swipeable horizontal pager — each child tile occupies a full page. Great for " +
+                    "onboarding, galleries, and wizards. OnPageChanged fires with a Direction (Any/Start/End/" +
+                    "Index(n)) every time the page settles on a new one (the initial page is skipped), carrying " +
+                    "the new 0-based page index as incomingData."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "OnPageChanged dispara com uma Direction (Any/Start/End/Index(n)) toda vez que a " +
-                    "página muda — exceto na primeira composição, pra evitar disparo espúrio."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("pageSize", "PageSizeSchema", "pageFill() (padrão) ou pageFixed(dp)."),
-                    ShowroomParam("pageSpacing / contentPadding", "Int", "Padrão 0dp."),
-                    ShowroomParam("beyondViewportPageCount", "Int", "Padrão 0. Páginas extras pré-compostas."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                Pager(
-                    id = "onboardingPager",
-                    pageSize = pageFill(),
-                    events = {
-                        UpdateTiles(
-                            trigger = EventTriggers.onPageChanged(),
-                            updates = { update(tileId = "pageIndicator", updateData = incomingTileUpdateData()) }
-                        )
-                    }
-                ) {
-                    onboardingPages.forEach { page -> Column(id = "page_${'$'}{page.index}") { SimpleText(text = page.title) } }
-                }
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Arraste entre as 3 páginas — o indicador abaixo reage de verdade") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Swipe between the 3 pages — the indicator below reacts for real") {
                 Pager(
                     id = "pager_demo",
                     pageSize = pageFill(),
@@ -79,25 +45,48 @@ object PagerTileDetailBuilder : TileDetailBuilder {
                             updates = {
                                 update(
                                     tileId = "pager_demo_indicator",
-                                    updateData = mappedIncomingTileUpdateData("text" to "Página atual: <||>")
+                                    updateData = mappedIncomingTileUpdateData("text" to "Current page index: <||>")
                                 )
                             }
                         )
                     }
                 ) {
-                    listOf("1", "2", "3").forEach { page ->
+                    listOf("0", "1", "2").forEach { page ->
                         Box(
                             style = {
                                 size(width = fillHorizontally(), height = fillVertically())
                                 background(color(themeColorPrimaryContainer()))
                             }
                         ) {
-                            SimpleText(text = "Página $page")
+                            SimpleText(text = "Page index $page")
                         }
                     }
                 }
-                SimpleText(id = "pager_demo_indicator", text = "Página atual: 0", color = color(themeColorOnSurfaceVariant()))
+                SimpleText(id = "pager_demo_indicator", text = "Current page index: 0", color = color(themeColorOnSurfaceVariant()))
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                Pager(
+                    id = "onboardingPager",
+                    pageSize = pageFill(),
+                    events = {
+                        UpdateTiles(
+                            trigger = EventTriggers.onPageChanged(OnPageChangedEventTrigger.Direction.Any),
+                            updates = {
+                                update(
+                                    tileId = "pageIndicator",
+                                    updateData = mappedIncomingTileUpdateData("text" to "Page <||>")
+                                )
+                            }
+                        )
+                    }
+                ) {
+                    onboardingPages.forEach { page -> Column(id = "page_${'$'}{page.index}") { SimpleText(text = page.title) } }
+                }
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("Carousel", "Tabs", "LazyRow"),

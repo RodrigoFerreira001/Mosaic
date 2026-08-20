@@ -24,6 +24,18 @@ internal class ReplaceTilesEventBuilder(
     )
 }
 
+/**
+ * Swaps the whole children list of the grouping tile identified by [groupingTileId] for [tiles].
+ * Does not consume `incomingData`. Dispatches `onSuccess` (no data) when the children were
+ * replaced; `onFailure` (carrying the thrown exception, logged) when no grouping tile carries
+ * [groupingTileId].
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param groupingTileId Id of the grouping tile whose children are replaced.
+ * @param tiles New tiles that replace the whole children list.
+ */
 fun EventSchemaBuilderScope.ReplaceTiles(
     id: String = randomId(),
     trigger: EventTrigger,

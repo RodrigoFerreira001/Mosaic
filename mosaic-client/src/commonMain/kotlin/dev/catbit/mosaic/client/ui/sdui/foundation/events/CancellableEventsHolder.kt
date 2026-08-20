@@ -27,10 +27,11 @@ class CancellableEventsHolder {
 
     fun cancelEvents(
         cancellableEventId: String
-    ) {
-        runningJobs[cancellableEventId]?.let { cancellableJob ->
-            cancellableJob.cancel()
-            runningJobs.remove(cancellableEventId)
-        }
-    }
+    ): Result<Unit> = runningJobs[cancellableEventId]?.let { cancellableJob ->
+        cancellableJob.cancel()
+        runningJobs.remove(cancellableEventId)
+        Result.success(Unit)
+    } ?: Result.failure(
+        NoSuchElementException("No running events registered under '$cancellableEventId'")
+    )
 }

@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnTimePickerClose")
+/** Fires on `TimePicker` whenever the dialog closes — after confirming, on cancel, or on
+ * dismiss. */
 data object OnTimePickerCloseEventTrigger : EventTrigger

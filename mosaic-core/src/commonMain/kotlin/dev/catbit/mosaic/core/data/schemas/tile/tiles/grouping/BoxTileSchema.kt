@@ -14,25 +14,27 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a stacking container that overlays its child tiles on top of each other using
- * Compose's [Box] layout. Children are aligned according to [alignment].
+ * Renders a Compose `Box` that stacks its [tiles] on top of each other in declaration order
+ * (later children paint above earlier ones), positioning all of them with [alignment].
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `alignment: AlignmentSchema.TwoDimensional`
+ * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id).
+ * - `OnClickEventTrigger` — fired when the box is tapped.
+ * - `OnLongPressEventTrigger` — fired when the box is long-pressed.
  *
- * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
- * composition. `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when
- * the box itself is tapped or long-pressed (requires events to be wired on the schema).
+ * Both are wired only when the matching event is declared on this tile; with neither declared,
+ * the box is not made interactive at all.
  *
- * **Notes:** Unlike [ColumnTileSchema] and [RowTileSchema], this tile does not support
- * scrolling and does not expose a scoped CompositionLocal for child scope modifiers.
+ * **Notes:** unlike [ColumnTileSchema] and [RowTileSchema], this tile is never scrollable and
+ * publishes no scope CompositionLocal, so children cannot use column/row scope modifiers such
+ * as `weight`.
  */
 @Immutable
 @Triggers(
     [
         OnDisplayEventTrigger::class,
         OnClickEventTrigger::class,
-        OnLongPressEventTrigger::class
+        OnLongPressEventTrigger::class,
     ]
 )
 @Serializable

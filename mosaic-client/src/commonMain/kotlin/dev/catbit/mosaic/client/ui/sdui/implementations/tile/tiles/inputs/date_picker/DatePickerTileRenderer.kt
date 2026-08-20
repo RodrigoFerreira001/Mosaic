@@ -95,15 +95,14 @@ object DatePickerTileRenderer : TileRenderer<DatePickerTileSchema> {
                         triggerEvent(EventTriggers.onDatePickerClose())
                     },
                     confirmButton = {
+                        val selectedIsoDate = datePickerState.selectedDateMillis?.let(::epochMillisToIsoDate)
+
                         TextButton(
+                            enabled = selectedIsoDate != null,
                             onClick = {
-                                val iso = datePickerState.selectedDateMillis?.let(::epochMillisToIsoDate)
-                                if (iso != null) {
-                                    dispatchEvent(DatePickerTileEvents.OnDateConfirmed(iso))
-                                    triggerEvent(trigger = EventTriggers.onDateSelected(), data = iso)
-                                } else {
-                                    dispatchEvent(DatePickerTileEvents.OnDatePickerDismissRequest)
-                                }
+                                selectedIsoDate ?: return@TextButton
+                                dispatchEvent(DatePickerTileEvents.OnDateConfirmed(selectedIsoDate))
+                                triggerEvent(trigger = EventTriggers.onDateSelected(), data = selectedIsoDate)
                                 triggerEvent(EventTriggers.onDatePickerClose())
                             }
                         ) {

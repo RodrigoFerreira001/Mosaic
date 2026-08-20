@@ -11,29 +11,20 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Dismisses a non-modal bottom sheet previously opened by a [DisplayBottomSheetEventSchema] — the
- * "reaction" half of the pair. No tile data is altered.
+ * Closes the bottom sheet registered under [bottomSheetId].
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — fired once the sheet is marked for dismissal. The sheet then plays
- *   its exit animation and leaves the overlay stack.
- * - [OnFailureEventTrigger] — fired with the offending id when no sheet with [bottomSheetId] is
- *   on the stack.
- *
- * **Failure scenarios:** Dismissing a [bottomSheetId] that is not currently on the overlay stack
- * fails, which also covers dismissing the same sheet twice.
- *
- * **Notes:** [bottomSheetId] must match the id given to the [DisplayBottomSheetEventSchema] that
- * opened the sheet. Because overlays are stackable, this is what allows a sheet buried under other
- * overlays to be closed without touching the ones above it.
+ * - `OnSuccessEventTrigger` — when the sheet was dismissed. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when no bottom sheet is showing under [bottomSheetId]; the
+ *   `Throwable` is passed as incomingData.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

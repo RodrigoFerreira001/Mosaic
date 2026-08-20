@@ -6,9 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -19,7 +16,7 @@ import dev.catbit.mosaic.server.builder.event.builders.theme.colorsScheme
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
 
-// Esquema de exemplo (tons de "oceano") só pra esta demo — não é o baseline oficial do Material.
+// Sample scheme ("ocean" tones) for this demo only — not the app's official Material baseline.
 private val oceanLightScheme = colorScheme(
     primary = "#006874", onPrimary = "#FFFFFF", primaryContainer = "#9EEFFD", onPrimaryContainer = "#001F24",
     inversePrimary = "#83D2E0",
@@ -68,51 +65,18 @@ object SetThemeEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Theme",
-                description = "Sobrescreve o color scheme Material 3 do app inteiro em tempo de execução — " +
-                    "claro e escuro — até que ResetTheme seja disparado ou o app reinicie."
+                description = "Overrides the whole app's Material 3 color scheme at runtime — light and dark " +
+                    "— until ResetTheme is fired or the app restarts. Use it for server-controlled " +
+                    "theming/branding, multi-tenant white-labeling, or accent themes chosen by the user. " +
+                    "colorsScheme(lightColorScheme, darkColorScheme) requires a complete colorScheme(...) for " +
+                    "each mode — all 46 roles of Compose Material3's ColorScheme, each as a hex String (e.g. " +
+                    "\"#006874\"), with no default values."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para theming/branding controlado pelo servidor, white-labeling multi-tenant, ou temas de " +
-                    "destaque escolhidos pelo usuário. colorsScheme(lightColorScheme, darkColorScheme) exige um " +
-                    "colorScheme(...) completo pra cada modo — todas as 46 roles do ColorScheme do Compose " +
-                    "Material3, cada uma como uma String hex (ex: \"#006874\"), sem valores padrão."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("colorsScheme", "ColorsScheme", "Obrigatório. Construído com colorsScheme(lightColorScheme, darkColorScheme), cada um via colorScheme(...) com todas as 46 roles."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                SetTheme(
-                    trigger = EventTriggers.onClick(),
-                    colorsScheme = colorsScheme(
-                        lightColorScheme = colorScheme(
-                            primary = "#006874", onPrimary = "#FFFFFF",
-                            primaryContainer = "#9EEFFD", onPrimaryContainer = "#001F24",
-                            // ...as demais 42 roles
-                        ),
-                        darkColorScheme = colorScheme(
-                            primary = "#83D2E0", onPrimary = "#00363D",
-                            primaryContainer = "#004F58", onPrimaryContainer = "#9EEFFD",
-                            // ...as demais 42 roles
-                        )
-                    )
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Aplique um tema \"oceano\" ao app inteiro") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Apply an \"ocean\" theme to the whole app") {
                 Button(
-                    text = "Aplicar tema com SetTheme",
+                    text = "Apply theme with SetTheme",
                     events = {
                         SetTheme(
                             trigger = EventTriggers.onClick(),
@@ -121,11 +85,32 @@ object SetThemeEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 ShowroomNote(
-                    "O efeito não é local a este card — ele muda as cores do app inteiro, em qualquer tela, " +
-                        "até você disparar ResetTheme ou fechar o app. Navegue para outra aba do rail depois " +
-                        "de aplicar pra ver o tema persistindo."
+                    "The effect isn't local to this card — it changes the whole app's colors, on any " +
+                        "screen, until you fire ResetTheme or close the app. Navigate to another rail tab " +
+                        "after applying it to see the theme persist."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                SetTheme(
+                    trigger = EventTriggers.onClick(),
+                    colorsScheme = colorsScheme(
+                        lightColorScheme = colorScheme(
+                            primary = "#006874", onPrimary = "#FFFFFF",
+                            primaryContainer = "#9EEFFD", onPrimaryContainer = "#001F24",
+                            // ...the remaining 42 roles
+                        ),
+                        darkColorScheme = colorScheme(
+                            primary = "#83D2E0", onPrimary = "#00363D",
+                            primaryContainer = "#004F58", onPrimaryContainer = "#9EEFFD",
+                            // ...the remaining 42 roles
+                        )
+                    )
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("ResetTheme"),

@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -29,35 +26,54 @@ object GetScreenEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Screen",
-                description = "Busca a definição de uma tela no servidor e expõe o resultado como " +
-                    "incomingData — sem aplicá-la automaticamente à tela atual."
+                description = "Fetches a screen's definition from the server and exposes the result as " +
+                    "incomingData — without automatically applying it to the current screen. Use it when you " +
+                    "need to inspect the fetched ScreenModel before deciding how to apply it, or when you want " +
+                    "to control the state transition manually (for example, showing a custom loading state " +
+                    "while fetching). For the simple \"reload this screen\" case, prefer RefreshScreen, which " +
+                    "already wraps GetScreen + ChangeScreenState. This is how every entry in this app " +
+                    "(HomeScreenBuilder, each rail tab) loads its initial content: GetScreen on onDisplay, " +
+                    "followed by ChangeScreenState(successState()) on onSuccess."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use quando você precisa inspecionar o ScreenModel buscado antes de decidir como aplicá-lo, " +
-                    "ou quando quer controlar manualmente a transição de estado (por exemplo, mostrar um " +
-                    "loading customizado enquanto busca). Para o caso simples de \"recarregar a tela\", " +
-                    "prefira RefreshScreen, que já encapsula GetScreen + ChangeScreenState. É assim que toda " +
-                    "entry deste app (HomeScreenBuilder, cada aba do rail) carrega seu conteúdo inicial: " +
-                    "GetScreen no onDisplay, seguido de ChangeScreenState(successState()) no onSuccess."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("method", "HttpMethod", "GET (padrão)."),
-                    ShowroomParam("body", "AnySerializable?", "Opcional. Corpo da requisição; o schema vence sobre o holder."),
-                    ShowroomParam("headers", "Map<String, String>?", "Opcional. Mesclado com os headers do holder."),
-                    ShowroomParam("timeoutMillis", "Long?", "Opcional. Override de timeout em ms; null usa o padrão global do cliente (20s)."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Fetch this very screen's definition without navigating away") {
+                SimpleText(
+                    id = "get_screen_status",
+                    text = "Not fetched yet",
+                    typography = typographyBodyMedium()
                 )
-            )
+                Button(
+                    text = "Fetch with GetScreen (no navigation)",
+                    buttonType = filledTonalButton(),
+                    events = {
+                        GetScreen(
+                            trigger = EventTriggers.onClick(),
+                            events = {
+                                DisplaySnackbar(
+                                    trigger = EventTriggers.onSuccess(),
+                                    message = "ScreenModel received as incomingData — not applied, just demonstrated"
+                                )
+                                DisplaySnackbar(
+                                    trigger = EventTriggers.onFailure(),
+                                    message = "Failed to fetch the screen"
+                                )
+                            }
+                        )
+                    }
+                )
+                ShowroomNote(
+                    "Notice this GetScreen has NO ChangeScreenState(successState()) chained after it — that's " +
+                        "why the screen doesn't flash/reload on click. That's exactly the practical difference " +
+                        "from RefreshScreen: GetScreen alone only fetches and hands over the data; applying it " +
+                        "is up to you."
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
-                // Padrão usado em toda entry deste app (ver Graph.entry's initialEvents padrão)
+                // Pattern used by every entry in this app (see Graph.entry's default initialEvents)
                 GetScreen(
                     trigger = EventTriggers.onDisplay(),
                     events = {
@@ -67,39 +83,6 @@ object GetScreenEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Busque a definição desta própria tela sem trocar de tela") {
-                SimpleText(
-                    id = "get_screen_status",
-                    text = "Ainda não buscado",
-                    typography = typographyBodyMedium()
-                )
-                Button(
-                    text = "Buscar com GetScreen (sem navegar)",
-                    buttonType = filledTonalButton(),
-                    events = {
-                        GetScreen(
-                            trigger = EventTriggers.onClick(),
-                            events = {
-                                DisplaySnackbar(
-                                    trigger = EventTriggers.onSuccess(),
-                                    message = "ScreenModel recebido como incomingData — não aplicado, só demonstrado"
-                                )
-                                DisplaySnackbar(
-                                    trigger = EventTriggers.onFailure(),
-                                    message = "Falha ao buscar a tela"
-                                )
-                            }
-                        )
-                    }
-                )
-                ShowroomNote(
-                    "Note que este GetScreen NÃO tem um ChangeScreenState(successState()) encadeado — por " +
-                        "isso a tela não pisca/recarrega ao clicar. É exatamente essa a diferença prática " +
-                        "para RefreshScreen: GetScreen sozinho só busca e entrega o dado; quem aplica é você."
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("RefreshScreen", "ChangeScreenState", "Navigate"),

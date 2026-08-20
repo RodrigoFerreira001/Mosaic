@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -24,26 +21,29 @@ object ResetThemeEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Theme",
-                description = "Reverte um SetTheme anterior, restaurando o color scheme padrão do app — " +
-                    "claro e escuro."
+                description = "Reverts a previous SetTheme, restoring the app's default color scheme — " +
+                    "light and dark. Use it for \"restore default theme\" actions, or when ending a " +
+                    "white-labeled session that had applied custom colors with SetTheme. It takes no " +
+                    "parameters: it always goes back to the app's original scheme, the same as before any " +
+                    "SetTheme was ever fired."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use em ações de \"restaurar tema padrão\", ou ao encerrar uma sessão white-labeled que tinha " +
-                    "aplicado cores customizadas com SetTheme. Não recebe parâmetros: sempre volta pro esquema " +
-                    "original do app, o mesmo de antes de qualquer SetTheme ter sido disparado."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("—", "—", "ResetTheme não recebe parâmetros além de trigger/events."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Restore the default theme") {
+                ShowroomNote(
+                    "Go to the SetTheme event and apply the \"ocean\" theme first — then come back here and " +
+                        "tap the button below to see the app's colors return to normal."
                 )
-            )
+                Button(
+                    text = "Restore with ResetTheme",
+                    buttonType = outlinedButton(),
+                    events = {
+                        ResetTheme(trigger = EventTriggers.onClick())
+                    }
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 ResetTheme(
@@ -51,21 +51,6 @@ object ResetThemeEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Restaure o tema padrão") {
-                ShowroomNote(
-                    "Vá até o evento SetTheme e aplique o tema \"oceano\" primeiro — depois volte aqui e " +
-                        "toque no botão abaixo pra ver as cores do app voltarem ao normal."
-                )
-                Button(
-                    text = "Restaurar com ResetTheme",
-                    buttonType = outlinedButton(),
-                    events = {
-                        ResetTheme(trigger = EventTriggers.onClick())
-                    }
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("SetTheme"),

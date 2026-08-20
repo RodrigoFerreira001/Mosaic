@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.visible
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import dev.catbit.mosaic.client.extensions.filteredBy
 import dev.catbit.mosaic.client.extensions.onClick
 import dev.catbit.mosaic.client.extensions.toArrangement
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
@@ -24,6 +25,9 @@ object FlowRowTileRenderer : TileRenderer<FlowRowTileSchema> {
         OnDisplayEffect()
 
         with(tileSchema) {
+
+            val displayedTiles = tiles.filteredBy(filterChildrenByTerm)
+
             FlowRow(
                 modifier = Modifier
                     .visible(isVisible())
@@ -37,7 +41,7 @@ object FlowRowTileRenderer : TileRenderer<FlowRowTileSchema> {
                     LocalRowScope provides null,
                     LocalLazyItemScope provides null,
                 ) {
-                    RenderChildren(tiles)
+                    RenderChildren(displayedTiles)
                 }
             }
         }

@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -37,28 +34,46 @@ object AddTilesEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Tile Management",
-                description = "Insere um ou mais tiles novos na lista de filhos de um container, numa posição " +
-                    "específica — sem recarregar a tela inteira."
+                description = "Inserts one or more new tiles into a container's list of children, at a specific " +
+                    "position — without reloading the whole screen. Use it to dynamically append items to an " +
+                    "already-rendered container: a new card in a list after the user confirms an action, an item " +
+                    "appended to a cart, and so on. The insertion point is controlled by the position parameter."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para acrescentar dinamicamente itens a um container já renderizado: um novo card numa " +
-                    "lista após o usuário confirmar uma ação, um item ao final de um carrinho, etc. A posição de " +
-                    "inserção é controlada pelo parâmetro position."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("groupingTileId", "String", "Obrigatório. ID do container (Column, Row, LazyColumn etc.) alvo."),
-                    ShowroomParam("tiles", "TileSchemaBuilderScope.() -> Unit", "Obrigatório. Os novos tiles a inserir."),
-                    ShowroomParam("position", "InsertionPosition", "insertAtEnd() (padrão), insertAtStart(), insertBeforeTile(id), insertAfterTile(id), insertAtIndex(n)."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Click to add a new item to the list") {
+                Column(
+                    id = "add_tiles_list",
+                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
+                    arrangement = arrangeVerticallySpacedBy(8)
+                ) {
+                    AddTilesListItem(label = "Item 1")
+                    AddTilesListItem(label = "Item 2")
+                }
+                Button(
+                    text = "Add item",
+                    icon = icon("add"),
+                    buttonType = filledTonalButton(),
+                    events = {
+                        AddTiles(
+                            trigger = EventTriggers.onClick(),
+                            groupingTileId = "add_tiles_list",
+                            position = insertAtEnd(),
+                            tiles = {
+                                AddTilesListItem(label = "New item")
+                            }
+                        )
+                    }
                 )
-            )
+                ShowroomNote(
+                    "In this static demo the server describes a fixed tree, so the inserted item always has the " +
+                        "same id — clicking repeatedly duplicates the id. In production, generate a unique id per " +
+                        "item (e.g. randomId() inside a loop over data coming from the database) on each real " +
+                        "execution of the event."
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 AddTiles(
@@ -71,38 +86,6 @@ object AddTilesEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Clique para adicionar um item novo à lista") {
-                Column(
-                    id = "add_tiles_list",
-                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
-                    arrangement = arrangeVerticallySpacedBy(8)
-                ) {
-                    AddTilesListItem(label = "Item 1")
-                    AddTilesListItem(label = "Item 2")
-                }
-                Button(
-                    text = "Adicionar item",
-                    icon = icon("add"),
-                    buttonType = filledTonalButton(),
-                    events = {
-                        AddTiles(
-                            trigger = EventTriggers.onClick(),
-                            groupingTileId = "add_tiles_list",
-                            position = insertAtEnd(),
-                            tiles = {
-                                AddTilesListItem(label = "Item novo")
-                            }
-                        )
-                    }
-                )
-                ShowroomNote(
-                    "Nesta demo estática o servidor descreve uma árvore fixa, então o item inserido tem sempre " +
-                        "o mesmo id — clicar várias vezes duplica o id. Em produção, gere um id único por item " +
-                        "(ex: randomId() dentro de um loop sobre dados vindos do banco) a cada execução real do evento."
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("RemoveTiles", "ReplaceTiles", "WipeTiles"),

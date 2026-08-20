@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnLoadTilesSuccess")
+/** Fires on `LazyTiles` when its network fetch succeeds and the response was decoded into a tile
+ * list. */
 object OnLoadTilesSuccessEventTrigger : EventTrigger

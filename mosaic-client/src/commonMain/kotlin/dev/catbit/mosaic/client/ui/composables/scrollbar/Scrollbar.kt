@@ -1,5 +1,12 @@
 @file:JvmName("Scrollbar_common")
 
+/**
+ * Cross-platform scrollbar implementation, adapted from JetBrains Compose Desktop's own
+ * (`org.jetbrains.compose.foundation`) scrollbar — vendored here so `LazyColumn`/`LazyRow`'s
+ * `displayScrollbar` works on every Mosaic target, including ones where the JetBrains version isn't
+ * available. Internal to `mosaic-client`'s rendering of those two tiles; not part of the public
+ * extension surface.
+ */
 package dev.catbit.mosaic.client.ui.composables.scrollbar
 
 import androidx.compose.animation.animateColorAsState

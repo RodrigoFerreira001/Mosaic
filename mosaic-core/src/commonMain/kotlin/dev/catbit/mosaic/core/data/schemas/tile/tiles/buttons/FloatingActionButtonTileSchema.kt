@@ -12,28 +12,21 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 Floating Action Button (FAB) that displays a single [icon]. The visual
- * footprint is controlled by [size].
+ * Renders a Material 3 floating action button sized by [size]:
+ * [Size.DEFAULT] → `SmallFloatingActionButton`, [Size.MEDIUM] → `FloatingActionButton`,
+ * [Size.LARGE] → `LargeFloatingActionButton`. Renders [icon] with its color, size and style
+ * applied.
  *
- * **Updatable fields (via UpdateTiles):** `icon`, `size`, `loading`, `enabled`, `visibility`, `style`.
+ * **No `enabled`/`loading`:** the Material 3 FAB composables intentionally have no `enabled`
+ * parameter — per Material Design guidance, a FAB represents a screen's primary action, and a
+ * disabled-but-visible FAB fights that emphasis. Use this tile's inherited [visibility] to hide
+ * the FAB entirely when its action isn't currently available, instead of disabling it in place.
  *
  * **Triggers dispatched:**
- * - [OnClickEventTrigger] — fired when the user taps the FAB.
- *
- * **Notes:** [size] maps to three Compose variants: `DEFAULT` renders a [SmallFloatingActionButton],
- * `MEDIUM` renders a standard [FloatingActionButton], and `LARGE` renders a
- * [LargeFloatingActionButton]. Despite the schema carrying an [enabled] field, the current
- * renderer does not pass `enabled` to the underlying composable — the FAB is always interactive
- * at the Compose level regardless of the schema value. When [loading] is `true` the icon is
- * replaced by a [CircularProgressIndicator], same behavior as [ButtonTileSchema.loading]. [icon]
- * is required and rendered via the shared [Icon] composable using [icon.name].
+ * - `OnClickEventTrigger` — fired when the FAB is tapped.
  */
 @Immutable
-@Triggers(
-    [
-        OnClickEventTrigger::class
-    ]
-)
+@Triggers([OnClickEventTrigger::class])
 @Serializable
 @SerialName("FloatingActionButton")
 data class FloatingActionButtonTileSchema(
@@ -44,8 +37,6 @@ data class FloatingActionButtonTileSchema(
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("icon") val icon: IconSchema,
     @SerialName("size") val size: Size,
-    @SerialName("loading") val loading: Boolean = false,
-    @SerialName("enabled") val enabled: Boolean,
 ) : TileSchema {
 
     enum class Size {

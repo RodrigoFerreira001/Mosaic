@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -28,26 +25,59 @@ object CheckboxTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Inputs",
-                description = "Checkbox Material 3 cujo estado marcado/desmarcado é totalmente controlado pelo servidor."
+                description = "A Material 3 checkbox whose checked/unchecked state is fully controlled by the " +
+                    "server. It's a 100% controlled component: the visual always reverts to the checked value " +
+                    "the server last sent. A click fires OnCheck or OnUncheck — it's up to the server to " +
+                    "respond with UpdateTiles confirming (or denying) the change."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Componente 100% controlado: o visual sempre volta pro valor checked que o servidor " +
-                    "mandou por último. Um clique dispara OnCheck ou OnUncheck — cabe ao servidor " +
-                    "responder com UpdateTiles confirmando (ou negando) a mudança."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("checked", "Boolean", "Padrão false. Controlado pelo servidor."),
-                    ShowroomParam("enabled", "Boolean", "Padrão true."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Accepting the terms unlocks the button — just like a real form") {
+                Row(arrangement = arrangeHorizontallySpacedBy(12), alignment = alignVerticallyToCenter()) {
+                    Checkbox(
+                        id = "checkbox_demo_terms",
+                        checked = false,
+                        events = {
+                            UpdateTiles(
+                                trigger = EventTriggers.onCheck(),
+                                updates = {
+                                    update(tileId = "checkbox_demo_terms", updateData = inlineTileUpdateData("checked" to true))
+                                    update(tileId = "checkbox_demo_submit", updateData = inlineTileUpdateData("enabled" to true))
+                                }
+                            )
+                            UpdateTiles(
+                                trigger = EventTriggers.onUncheck(),
+                                updates = {
+                                    update(tileId = "checkbox_demo_terms", updateData = inlineTileUpdateData("checked" to false))
+                                    update(tileId = "checkbox_demo_submit", updateData = inlineTileUpdateData("enabled" to false))
+                                }
+                            )
+                        }
+                    )
+                    SimpleText(text = "I accept the terms of use")
+                }
+                Button(
+                    id = "checkbox_demo_submit",
+                    text = "Submit",
+                    enabled = false
                 )
-            )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("enabled = false")
+            ShowroomDemoCard(title = "Checked and unchecked, both disabled") {
+                Row(arrangement = arrangeHorizontallySpacedBy(24), alignment = alignVerticallyToCenter()) {
+                    Row(arrangement = arrangeHorizontallySpacedBy(8), alignment = alignVerticallyToCenter()) {
+                        Checkbox(checked = true, enabled = false)
+                        SimpleText(text = "Checked, disabled")
+                    }
+                    Row(arrangement = arrangeHorizontallySpacedBy(8), alignment = alignVerticallyToCenter()) {
+                        Checkbox(checked = false, enabled = false)
+                        SimpleText(text = "Unchecked, disabled")
+                    }
+                }
+            }
+
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 Checkbox(
@@ -72,38 +102,6 @@ object CheckboxTileDetailBuilder : TileDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Aceitar os termos libera o botão — igual a um form real") {
-                Row(arrangement = arrangeHorizontallySpacedBy(12), alignment = alignVerticallyToCenter()) {
-                    Checkbox(
-                        id = "checkbox_demo_terms",
-                        checked = false,
-                        events = {
-                            UpdateTiles(
-                                trigger = EventTriggers.onCheck(),
-                                updates = {
-                                    update(tileId = "checkbox_demo_terms", updateData = inlineTileUpdateData("checked" to true))
-                                    update(tileId = "checkbox_demo_submit", updateData = inlineTileUpdateData("enabled" to true))
-                                }
-                            )
-                            UpdateTiles(
-                                trigger = EventTriggers.onUncheck(),
-                                updates = {
-                                    update(tileId = "checkbox_demo_terms", updateData = inlineTileUpdateData("checked" to false))
-                                    update(tileId = "checkbox_demo_submit", updateData = inlineTileUpdateData("enabled" to false))
-                                }
-                            )
-                        }
-                    )
-                    SimpleText(text = "Aceito os termos de uso")
-                }
-                Button(
-                    id = "checkbox_demo_submit",
-                    text = "Enviar",
-                    enabled = false
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("Switch", "RadioButton", "FilterChip"),

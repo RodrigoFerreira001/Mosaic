@@ -4,9 +4,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
+import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -30,35 +28,16 @@ object BadgeTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Badge",
-                description = "Badge Material 3 — um pontinho ou uma pílula colorida com texto. content = null vira um ponto; com texto, vira pílula."
+                description = "A Material 3 badge — a small dot or a colored pill with text. content = null " +
+                    "renders a dot; with text, it renders a pill. Mosaic only has this one badge tile — there " +
+                    "is no separate BadgeBox equivalent to Material3's BadgedBox. This Badge mirrors " +
+                    "Material3's standalone Badge composable (the one that goes inside a BadgedBox), not " +
+                    "BadgedBox itself: it doesn't auto-anchor to a sibling, so you position it yourself, " +
+                    "typically inside a Box aligned over the icon it decorates (see the demo below)."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Não é interativo por si só e normalmente vive dentro de um Box junto de um ícone. " +
-                    "Contadores de notificação, indicadores de não-lido, marcadores de status."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("content", "String?", "null = só o ponto; texto = pílula com esse texto."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                Box(id = "notifBox") {
-                    IconButton(icon = icon("notifications"), events = { Navigate(trigger = EventTriggers.onClick(), destination = "notifications") })
-                    Badge(id = "notifBadge", content = "3")
-                }
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Alterne entre ponto e pílula com contagem real") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Toggle between dot and pill with a real count") {
                 Box(style = { size(width = fixedHorizontally(56), height = fixedVertically(56)) }) {
                     IconButton(icon = icon("notifications"))
                     Box(style = { size(width = fixedHorizontally(56), height = fixedVertically(56)) }, alignment = alignToBottomEnd()) {
@@ -67,7 +46,7 @@ object BadgeTileDetailBuilder : TileDetailBuilder {
                 }
                 Row(arrangement = arrangeHorizontallySpacedBy(8)) {
                     Button(
-                        text = "Ponto",
+                        text = "Dot",
                         events = {
                             UpdateTiles(trigger = EventTriggers.onClick(), updates = { update(tileId = "badge_demo", updateData = inlineTileUpdateData("content" to null)) })
                         }
@@ -86,6 +65,29 @@ object BadgeTileDetailBuilder : TileDetailBuilder {
                     )
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                // Badge doesn't auto-anchor — position it yourself, e.g. a second same-size Box
+                // aligned over the icon it decorates.
+                Box(id = "notifBox", style = { size(width = fixedHorizontally(56), height = fixedVertically(56)) }) {
+                    IconButton(icon = icon("notifications"), events = { Navigate(trigger = EventTriggers.onClick(), navigatorId = "root", destination = "notifications") })
+                    Box(
+                        style = { size(width = fixedHorizontally(56), height = fixedVertically(56)) },
+                        alignment = alignToBottomEnd()
+                    ) {
+                        Badge(id = "notifBadge", content = "3")
+                    }
+                }
+                """
+            )
+
+            ShowroomNote(
+                text = "Badge vs BadgeBox: Mosaic only exposes Badge, not a BadgedBox equivalent. It's the " +
+                    "same relationship Material3 itself has between its standalone Badge composable and " +
+                    "BadgedBox — Badge is the visual shape, positioning is the caller's job."
+            )
 
             ShowroomRelated(
                 names = listOf("Box", "Icon", "IconButton"),

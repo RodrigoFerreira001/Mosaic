@@ -4,6 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import dev.catbit.mosaic.core.data.schemas.tile.style.WindowInsetsSchema
 
+/** Converts the wire-format [WindowInsetsSchema] into its Compose `WindowInsets` counterpart — used
+ * by `Modifier.styledWith` to apply `style.windowInsets`, the first modifier in the fixed style
+ * application order. */
 @Composable
 fun WindowInsetsSchema.toComposeWindowInsets() = when (this) {
     WindowInsetsSchema.CaptionBar -> WindowInsets.captionBar

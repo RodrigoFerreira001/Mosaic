@@ -5,9 +5,6 @@ import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.CardTileSchema
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -30,42 +27,14 @@ object CardTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Containers",
-                description = "Container Material 3 com elevação, forma e cor do tema — agrupa conteúdo relacionado com destaque visual."
+                description = "A Material 3 container with elevation, shape, and theme color — groups related " +
+                    "content with visual emphasis. The click is always \"on\" in a Card, even without registered " +
+                    "events — nothing visible just happens if no event is listening to onClick. Internally it " +
+                    "uses ColumnScope, so children can use Column modifiers."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "O clique fica sempre \"ligado\" no Card, mesmo sem events registrados — só não " +
-                    "acontece nada visível se nenhum evento estiver escutando onClick. Internamente " +
-                    "usa ColumnScope, então filhos podem usar modifiers de Column."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("kind", "Kind", "DEFAULT (padrão, preenchido), ELEVATED (sombra), OUTLINED (borda)."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                Card(
-                    id = "env_card_${'$'}{env.id}",
-                    kind = CardTileSchema.Kind.OUTLINED,
-                    events = {
-                        Navigate(trigger = EventTriggers.onClick(), navigatorId = "root", destination = "env_detail")
-                    }
-                ) {
-                    SimpleText(text = env.name, typography = typographyTitleMedium())
-                    SimpleText(text = env.url, color = color(themeColorOnSurfaceVariant()))
-                }
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Os 3 kinds lado a lado — todos clicáveis de verdade") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "The 3 kinds side by side — all really clickable") {
                 Row(arrangement = arrangeHorizontallySpacedBy(12)) {
                     listOf(
                         CardTileSchema.Kind.DEFAULT to "Default",
@@ -76,7 +45,7 @@ object CardTileDetailBuilder : TileDetailBuilder {
                             kind = kind,
                             style = { size(width = weightHorizontally(1f), height = wrapVertically()) },
                             events = {
-                                DisplaySnackbar(trigger = EventTriggers.onClick(), message = "Card $label clicado")
+                                DisplaySnackbar(trigger = EventTriggers.onClick(), message = "Card $label clicked")
                             }
                         ) {
                             SimpleText(
@@ -94,6 +63,22 @@ object CardTileDetailBuilder : TileDetailBuilder {
                     }
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                Card(
+                    id = "env_card_${'$'}{env.id}",
+                    kind = CardTileSchema.Kind.OUTLINED,
+                    events = {
+                        Navigate(trigger = EventTriggers.onClick(), navigatorId = "root", destination = "env_detail")
+                    }
+                ) {
+                    SimpleText(text = env.name, typography = typographyTitleMedium())
+                    SimpleText(text = env.url, color = color(themeColorOnSurfaceVariant()))
+                }
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("Column", "Box", "Carousel"),

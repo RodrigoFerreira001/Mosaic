@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -38,45 +35,16 @@ object SendDataEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Data",
-                description = "Posta um valor no DataMailer — um barramento em memória, global ao app — " +
-                    "sob uma dataKey, para ser lido depois em qualquer tela via CheckForReceivedData."
+                description = "Posts a value onto the DataMailer — an in-memory bus, global to the app — " +
+                    "under a dataKey, to be read later from any screen via CheckForReceivedData. Use it to " +
+                    "pass data between screens during navigation: the source screen posts the value before " +
+                    "navigating; the destination screen polls with CheckForReceivedData, typically in " +
+                    "onDisplay(). The DataMailer isn't persistent — it's gone when the process ends — and " +
+                    "each key only holds the last value posted."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para passar dados entre telas na navegação: a tela de origem posta o valor antes " +
-                    "de navegar; a tela de destino faz o polling com CheckForReceivedData, tipicamente no " +
-                    "onDisplay(). O DataMailer não é persistente — some ao encerrar o processo — e cada " +
-                    "chave guarda apenas o último valor postado."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("dataKey", "String", "Obrigatório. Chave sob a qual o valor é guardado no DataMailer."),
-                    ShowroomParam("data", "AnySerializable?", "Padrão null. Payload estático; se null, usa o incomingData do evento pai."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                SendData(
-                    trigger = EventTriggers.onClick(),
-                    dataKey = "selected_environment",
-                    data = environment.id
-                )
-                """
-            )
-
-            ShowroomNote(
-                "Se data for null e não houver incomingData, o evento dispara onFailure() sem postar nada. " +
-                    "Postar de novo na mesma dataKey sobrescreve o valor anterior."
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Envie um valor e depois cheque se ele chegou") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Send a value, then check whether it arrived") {
                 Column(
                     style = { size(width = fillHorizontally(), height = wrapVertically()) },
                     arrangement = arrangeVerticallySpacedBy(12)
@@ -84,13 +52,13 @@ object SendDataEventDetailBuilder : EventDetailBuilder {
                     TextField(
                         id = "sd_value",
                         kind = outlinedTextField(),
-                        label = "Valor a enviar",
-                        placeholder = "Ex: ola-mosaic",
+                        label = "Value to send",
+                        placeholder = "e.g. hello-mosaic",
                         style = { size(width = fillHorizontally(), height = wrapVertically()) }
                     )
                     Row(arrangement = arrangeHorizontallySpacedBy(8)) {
                         Button(
-                            text = "Enviar",
+                            text = "Send",
                             events = {
                                 GetData(
                                     trigger = EventTriggers.onClick(),
@@ -110,7 +78,7 @@ object SendDataEventDetailBuilder : EventDetailBuilder {
                                                     updates = {
                                                         update(
                                                             tileId = "sd_status",
-                                                            updateData = inlineTileUpdateData("text" to "Enviado para o DataMailer!")
+                                                            updateData = inlineTileUpdateData("text" to "Sent to the DataMailer!")
                                                         )
                                                     }
                                                 )
@@ -121,7 +89,7 @@ object SendDataEventDetailBuilder : EventDetailBuilder {
                             }
                         )
                         Button(
-                            text = "Checar recebido",
+                            text = "Check received",
                             buttonType = outlinedButton(),
                             events = {
                                 CheckForReceivedData(
@@ -133,7 +101,7 @@ object SendDataEventDetailBuilder : EventDetailBuilder {
                                             updates = {
                                                 update(
                                                     tileId = "sd_status",
-                                                    updateData = mappedIncomingTileUpdateData("text" to "Recebido: <//>")
+                                                    updateData = mappedIncomingTileUpdateData("text" to "Received: <//>")
                                                 )
                                             }
                                         )
@@ -142,7 +110,7 @@ object SendDataEventDetailBuilder : EventDetailBuilder {
                                             updates = {
                                                 update(
                                                     tileId = "sd_status",
-                                                    updateData = inlineTileUpdateData("text" to "Nada recebido ainda.")
+                                                    updateData = inlineTileUpdateData("text" to "Nothing received yet.")
                                                 )
                                             }
                                         )
@@ -151,9 +119,24 @@ object SendDataEventDetailBuilder : EventDetailBuilder {
                             }
                         )
                     }
-                    SimpleText(id = "sd_status", text = "Nada enviado ainda.")
+                    SimpleText(id = "sd_status", text = "Nothing sent yet.")
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                SendData(
+                    trigger = EventTriggers.onClick(),
+                    dataKey = "selected_environment",
+                    data = environment.id
+                )
+                """
+            )
+            ShowroomNote(
+                "If data is null and there's no incomingData, the event fires onFailure() without posting " +
+                    "anything. Posting again to the same dataKey overwrites the previous value."
+            )
 
             ShowroomRelated(
                 names = listOf("CheckForReceivedData", "GetData", "UpdateData"),

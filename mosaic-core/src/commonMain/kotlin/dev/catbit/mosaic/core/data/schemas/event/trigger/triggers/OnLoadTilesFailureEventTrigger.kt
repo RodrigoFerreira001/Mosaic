@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnLoadTilesFailure")
+/** Fires on `LazyTiles` when its network fetch or response decoding fails, carrying the causing
+ * `Throwable` as incoming data. */
 object OnLoadTilesFailureEventTrigger : EventTrigger

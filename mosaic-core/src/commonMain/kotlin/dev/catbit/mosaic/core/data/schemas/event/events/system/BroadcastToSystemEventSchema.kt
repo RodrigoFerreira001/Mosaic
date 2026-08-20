@@ -7,32 +7,30 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Emits a named broadcast via [SystemBroadcastChannel], allowing any subscriber in the app to
- * react to a `broadcastId`/payload pair without direct coupling to the event chain.
+ * Publishes a value on the client's system broadcast channel under [broadcastId], where the host
+ * application and any mounted `SystemBroadcastListener` tile can pick it up. This is the outbound
+ * half of the bridge between server-declared flows and native app code.
  *
- * **incomingData consumed:** Only when [data] is [BroadcastData.Incoming]. The current
- * `incomingData` is forwarded as the broadcast payload. If `incomingData` is `null` in that case,
- * no broadcast is emitted and [OnFailureEventTrigger] fires instead.
+ * [data] chooses the payload: `Inline` publishes a literal declared on the event, `Incoming`
+ * publishes the event's incomingData.
+ *
+ * **incomingData consumed:** published as the payload when [data] is `Incoming`.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — fired after the broadcast is emitted successfully.
- * - [OnFailureEventTrigger] — fired when [data] is [BroadcastData.Incoming] and `incomingData`
- *   is `null`.
- *
- * **Failure scenarios:**
- * - [BroadcastData.Incoming] with `incomingData == null`: fires [OnFailureEventTrigger], no
- *   broadcast is emitted.
+ * - `OnSuccessEventTrigger` — after the value was published. No data is passed downstream.
+ * - `OnFailureEventTrigger` — only in the `Incoming` case, when incomingData is `null` so there is
+ *   nothing to publish; no data is passed downstream.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

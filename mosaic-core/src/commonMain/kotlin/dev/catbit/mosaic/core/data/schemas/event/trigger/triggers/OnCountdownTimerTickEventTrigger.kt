@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnCountdownTimerTick")
+/** Fires repeatedly on `StartCountdownTimer`, once per tick, carrying the remaining value as
+ * incoming data. */
 data object OnCountdownTimerTickEventTrigger : EventTrigger

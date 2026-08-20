@@ -6,8 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -25,31 +23,45 @@ object RefreshScreenEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Screen",
-                description = "Recarrega a tela atual do zero — reseta para Initial, busca a definição no " +
-                    "servidor e aplica o resultado automaticamente, sem passos manuais."
+                description = "Reloads the current screen from scratch — resets it to Initial, fetches the " +
+                    "definition from the server, and applies the result automatically, with no manual steps. " +
+                    "Use it for the simple pull-to-refresh or \"try again\" pattern, when the goal is to " +
+                    "re-fetch and re-render the whole screen without manually managing state transitions: " +
+                    "GetScreen and ChangeScreenState are already baked in, unlike GetScreen alone, which only " +
+                    "delivers the data without applying it."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para o padrão simples de puxar-para-atualizar ou \"tentar novamente\", quando o objetivo " +
-                    "é rebuscar e re-renderizar a tela inteira sem gerenciar transições de estado manualmente. " +
-                    "A tela volta para Initial antes da requisição começar (mostrando o loading implícito), e " +
-                    "GetScreen + ChangeScreenState já estão embutidos — diferente de GetScreen sozinho, que " +
-                    "só entrega o dado sem aplicá-lo."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("method", "HttpMethod", "GET (padrão)."),
-                    ShowroomParam("body", "AnySerializable?", "Opcional. Corpo da requisição."),
-                    ShowroomParam("headers", "Map<String, String>?", "Opcional. Mesclado com os headers do holder."),
-                    ShowroomParam("timeoutMillis", "Long?", "Opcional. Override de timeout em ms."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Reload this very page with RefreshScreen") {
+                ShowroomParagraph(
+                    "Clicking the button below fires a real RefreshScreen: the whole screen goes back to " +
+                        "Initial (a brief loading flash), fetches the definition from the server again, and " +
+                        "re-renders it — exactly like a pull-to-refresh would, just triggered by a click " +
+                        "instead of a drag."
                 )
-            )
+                Button(
+                    text = "Reload with RefreshScreen",
+                    buttonType = filledButton(),
+                    events = {
+                        RefreshScreen(
+                            trigger = EventTriggers.onClick(),
+                            events = {
+                                DisplaySnackbar(
+                                    trigger = EventTriggers.onFailure(),
+                                    message = "Failed to reload the screen"
+                                )
+                            }
+                        )
+                    }
+                )
+                ShowroomNote(
+                    "There's no success snackbar here on purpose: when RefreshScreen applies the new " +
+                        "definition, the entire screen is replaced — including this very demo card — so the " +
+                        "visible \"result\" is the whole page reloading before your eyes."
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 RefreshScreen(
@@ -61,36 +73,6 @@ object RefreshScreenEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Recarregue esta própria página com RefreshScreen") {
-                ShowroomParagraph(
-                    "Clicar no botão abaixo dispara um RefreshScreen real: a tela inteira volta a Initial " +
-                        "(um piscar breve de loading), busca a definição no servidor de novo e a re-renderiza " +
-                        "— exatamente como um pull-to-refresh faria, só que disparado por clique em vez de " +
-                        "arrastar."
-                )
-                Button(
-                    text = "Recarregar com RefreshScreen",
-                    buttonType = filledButton(),
-                    events = {
-                        RefreshScreen(
-                            trigger = EventTriggers.onClick(),
-                            events = {
-                                DisplaySnackbar(
-                                    trigger = EventTriggers.onFailure(),
-                                    message = "Falha ao recarregar a tela"
-                                )
-                            }
-                        )
-                    }
-                )
-                ShowroomNote(
-                    "Não há um snackbar de sucesso aqui de propósito: quando RefreshScreen aplica a nova " +
-                        "definição, a tela inteira é substituída — incluindo este próprio card de demo — " +
-                        "então o \"resultado\" visível é a página inteira recarregando diante dos seus olhos."
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("GetScreen", "ChangeScreenState", "StopRefreshing"),

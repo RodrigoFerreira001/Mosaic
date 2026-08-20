@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -37,36 +34,14 @@ object ScrollPagerTileEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Scroll",
-                description = "Navega imperativamente um Pager até uma página alvo via broadcast — troca de " +
-                    "aba/página programática, sem depender de swipe."
+                description = "Imperatively navigates a Pager to a target page via broadcast — programmatic " +
+                    "tab/page switching, without relying on a swipe. Use it for button-driven page/tab " +
+                    "switching — advancing an onboarding flow, going back a page in a step carousel. If " +
+                    "tileId doesn't match any Pager in the tree, the broadcast is silently ignored."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra troca de página/aba controlada por botão — avançar um onboarding, voltar uma página " +
-                    "num carrossel de passos. Se o tileId não corresponder a nenhum Pager na árvore, o " +
-                    "broadcast é silenciosamente ignorado."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("tileId", "String", "Obrigatório. ID do Pager a navegar."),
-                    ShowroomParam("where", "Where", "Obrigatório. scrollPageToBegin(), scrollPageToEnd(), scrollPageToNextPage() ou scrollPageToPreviousPage()."),
-                    ShowroomParam("smoothly", "Boolean", "true (padrão). Transição animada vs instantânea."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                ScrollPager(trigger = EventTriggers.onClick(), tileId = "onboarding_pager", where = scrollPageToNextPage(), smoothly = true)
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Avance e volte páginas com botões, sem arrastar") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Move pages forward and back with buttons, no dragging") {
                 Pager(
                     id = "scroll_pager_demo",
                     pageSize = pageFill(),
@@ -82,7 +57,7 @@ object ScrollPagerTileEventDetailBuilder : EventDetailBuilder {
                             }
                         ) {
                             SimpleText(
-                                text = "Página $pageNumber",
+                                text = "Page $pageNumber",
                                 typography = typographyTitleMedium(),
                                 color = color(themeColorOnSecondaryContainer())
                             )
@@ -94,7 +69,7 @@ object ScrollPagerTileEventDetailBuilder : EventDetailBuilder {
                     arrangement = arrangeHorizontallySpacedBy(8)
                 ) {
                     Button(
-                        text = "Anterior",
+                        text = "Previous",
                         buttonType = outlinedButton(),
                         events = {
                             ScrollPager(
@@ -106,7 +81,7 @@ object ScrollPagerTileEventDetailBuilder : EventDetailBuilder {
                         }
                     )
                     Button(
-                        text = "Próxima",
+                        text = "Next",
                         buttonType = outlinedButton(),
                         events = {
                             ScrollPager(
@@ -119,10 +94,17 @@ object ScrollPagerTileEventDetailBuilder : EventDetailBuilder {
                     )
                 }
                 ShowroomNote(
-                    "scrollPageToNextPage()/scrollPageToPreviousPage() não fazem nada (silenciosamente) ao " +
-                        "chegar na última/primeira página — não há wrap-around."
+                    "scrollPageToNextPage()/scrollPageToPreviousPage() do nothing (silently) when already " +
+                        "on the last/first page — there's no wrap-around."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                ScrollPager(trigger = EventTriggers.onClick(), tileId = "onboarding_pager", where = scrollPageToNextPage(), smoothly = true)
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("ScrollColumnTile", "ScrollRowTile", "Pager"),

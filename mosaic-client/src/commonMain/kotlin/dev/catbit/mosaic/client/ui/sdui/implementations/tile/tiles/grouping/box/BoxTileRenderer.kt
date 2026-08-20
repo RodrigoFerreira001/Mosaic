@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.extensions.onClick
+import dev.catbit.mosaic.client.extensions.onLongPress
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
@@ -28,7 +29,8 @@ object BoxTileRenderer : TileRenderer<BoxTileSchema> {
                     .visible(isVisible())
                     .styledWith(
                         style = style,
-                        onClick = onClick(events)
+                        onClick = onClick(events),
+                        onLongClick = onLongPress(events)
                     ),
                 contentAlignment = alignment.toAlignment()
             ) {

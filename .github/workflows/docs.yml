@@ -1,0 +1,65 @@
+name: Deploy Pages (API Docs + Showroom)
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'mosaic-core/**'
+      - 'mosaic-client/**'
+      - 'mosaic-server/**'
+      - 'sample-core/**'
+      - 'sample-client/**'
+      - 'build.gradle.kts'
+      - 'gradle/libs.versions.toml'
+      - '.github/workflows/docs.yml'
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Generate Dokka HTML
+        run: ./gradlew dokkaGeneratePublicationHtml
+
+      - name: Build sample-client wasmJs distribution
+        run: ./gradlew :sample-client:webApp:wasmJsBrowserDistribution
+
+      # GitHub Pages serves a single artifact per site: docs at the root (preserving today's
+      # https://<user>.github.io/Mosaic/ link), the live showroom demo nested under /showroom/.
+      - name: Assemble combined Pages site
+        run: |
+          mkdir -p _site
+          cp -r build/dokka/html/. _site/
+          mkdir -p _site/showroom
+          cp -r sample-client/webApp/build/dist/wasmJs/productionExecutable/. _site/showroom/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

@@ -9,25 +9,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.extensions.ThresholdReachedEffect
+import dev.catbit.mosaic.client.extensions.filteredBy
 import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.extensions.onClick
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.extensions.toArrangement
-import dev.catbit.mosaic.client.platform.Platform
 import dev.catbit.mosaic.client.ui.composables.scrollbar.VerticalScrollbar
 import dev.catbit.mosaic.client.ui.composables.scrollbar.defaultScrollbarStyle
 import dev.catbit.mosaic.client.ui.composables.scrollbar.rememberScrollbarAdapter
@@ -40,7 +35,6 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.colu
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger.ScrollDirection
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.grouping.LazyColumnTileSchema
-import kotlinx.collections.immutable.toImmutableList
 
 object LazyColumnTileRenderer : TileRenderer<LazyColumnTileSchema> {
 
@@ -50,12 +44,6 @@ object LazyColumnTileRenderer : TileRenderer<LazyColumnTileSchema> {
     ) {
 
         OnDisplayEffect()
-
-        val isCompact by rememberUpdatedState(
-            !currentWindowAdaptiveInfoV2()
-                .windowSizeClass
-                .isWidthAtLeastBreakpoint(WIDTH_DP_MEDIUM_LOWER_BOUND)
-        )
 
         with(tileSchema) {
             val lazyListState = rememberLazyListState()
@@ -90,15 +78,7 @@ object LazyColumnTileRenderer : TileRenderer<LazyColumnTileSchema> {
                 onScrollBackward = { triggerEvent(EventTriggers.onScrolled(ScrollDirection.Top)) }
             )
 
-            val displayedTiles = remember(tiles, filterChildrenByTerm) {
-                (filterChildrenByTerm?.takeIf { it.isNotEmpty() }?.let { filterTerm ->
-                    tiles.filter { tile ->
-                        tile.searchableTerms?.any {
-                            it.contains(filterTerm, ignoreCase = true)
-                        } == true
-                    }
-                } ?: tiles).toImmutableList()
-            }
+            val displayedTiles = tiles.filteredBy(filterChildrenByTerm)
 
             Box(
                 contentAlignment = Alignment.TopEnd
@@ -123,7 +103,7 @@ object LazyColumnTileRenderer : TileRenderer<LazyColumnTileSchema> {
                         }
                     }
                 }
-                if ((Platform.name == "WasmJs" || Platform.name == "Jvm") && !isCompact) {
+                if (displayScrollbar) {
                     VerticalScrollbar(
                         modifier = Modifier.fillMaxHeight(),
                         style = defaultScrollbarStyle().copy(

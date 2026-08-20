@@ -13,40 +13,41 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Renders a Material 3 `ExposedDropdownMenuBox` with a list of selectable options, in either a
- * filled or outlined visual style controlled by [kind].
+ * Renders a Material 3 `ExposedDropdownMenuBox`: a read-only anchor field showing the label of
+ * the currently selected option, plus a dropdown listing every entry in [options]. [kind] picks
+ * the anchor composable — [Kind.FILLED] → `TextField`, [Kind.OUTLINED] → `OutlinedTextField` —
+ * each with the matching `ExposedDropdownMenuDefaults` colors and the standard expand/collapse
+ * trailing icon. [enabled] and [supportingText] are forwarded, and [state] set to [State.ERROR]
+ * switches the field into Material's error styling.
  *
- * **Form tile:** [produceValueWithKey] always returns `mapOf(key to selectedOptionId)`. There is
- * no nullable/placeholder concept — [selectedOptionId] is always a valid option id. To represent
- * a "please select" state, include a dedicated option in [options] and pass its id as the initial
- * [selectedOptionId].
- *
- * **Server contract:** the server always sends [expanded] as `false`; the client owns the
- * expanded/collapsed state. The server builder validates that [selectedOptionId] is present in
- * [options] at build time.
- *
- * **Updatable fields (via UpdateTiles):** `selectedOptionId`, `enabled`, `options`, `kind`,
- * `supportingText`, `state`, `visibility`, `style`.
+ * **Selection:** the anchor displays the [SelectOption.label] of the option whose
+ * [SelectOption.id] equals [selectedOptionId]. Tapping an item dispatches a local
+ * `DropdownListTileEvents.OnItemSelected`, and the holder stores the new [selectedOptionId] and
+ * closes the menu — no round trip to the server. Toggling the anchor dispatches
+ * `OnDropdownListToggle` (holder flips [expanded]) and dismissing dispatches
+ * `OnDropdownListDismissRequest` (holder closes).
  *
  * **Triggers dispatched:**
- * - [OnDropdownListItemSelectedEventTrigger] — fired when the user taps an option in the menu;
- *   carries the selected option `id` as incomingData.
- * - [OnDropdownListOpenEventTrigger] — fired when the dropdown menu opens (either by user toggle
- *   or after a dismiss-then-open sequence).
- * - [OnDropdownListCloseEventTrigger] — fired when the dropdown menu closes (user toggle or
- *   outside-dismiss via `onDismissRequest`).
+ * - `OnDropdownListOpenEventTrigger` — when the anchor is tapped while closed.
+ * - `OnDropdownListCloseEventTrigger` — whenever the menu closes: when the anchor is tapped
+ *   while open, when the menu is dismissed by tapping outside, and right after an item is
+ *   picked.
+ * - `OnDropdownListItemSelectedEventTrigger` — when an item is picked, right before the close
+ *   trigger above. The trigger carries the selected [SelectOption.id], so events can be wired
+ *   per option.
  *
- * **Client state management:**
- * - `OnDropdownListToggle` TileEvent — toggles [expanded].
- * - `OnDropdownListDismissRequest` TileEvent — collapses [expanded] to `false`.
- * - `OnItemSelected` TileEvent — updates [selectedOptionId] and collapses [expanded] to `false`.
+ * **Value production:** the holder exposes the current [selectedOptionId] under a caller-chosen
+ * key, so `GetData` / `EvaluateData` events can read this dropdown by its [id].
+ *
+ * **Notes:** when [selectedOptionId] matches none of the [options] the anchor renders empty; the
+ * menu itself still lists every option, so the user can recover by picking one.
  */
 @Immutable
 @Triggers(
     [
-        OnDropdownListItemSelectedEventTrigger::class,
         OnDropdownListOpenEventTrigger::class,
         OnDropdownListCloseEventTrigger::class,
+        OnDropdownListItemSelectedEventTrigger::class,
     ]
 )
 @Serializable

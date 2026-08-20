@@ -1,939 +1,1370 @@
-# Mosaic — Tiles Catalog
+# Mosaic — Tile Catalog
 
-> Atualizado: jun/2026. Validado contra TileSchema, TileRenderer e TileHolder de cada tile.
+Complete, field-by-field reference for every `TileSchema` shipped in `mosaic-core`. Every entry below was written directly from that schema's KDoc (the primary source of truth) and cross-checked against its `mosaic-server` DSL builder — not paraphrased from any other document. If the framework's actual behavior ever needs re-verifying, re-read the schema in `mosaic-core/.../data/schemas/tile/tiles/` and the matching builder in `mosaic-server/.../builder/tile/builders/`.
 
-All tiles implement `TileSchema`. Every tile inherits these base fields:
+Every tile shares 5 base fields, always available and not repeated per entry below:
 
-| Field | Type | Description |
-|---|---|---|
-| `id` | `String` | Unique identifier within the screen |
-| `events` | `List<EventSchema>?` | Events attached to this tile |
-| `style` | `StyleSchema` | Size, margin, padding, background (`BackgroundSchema` — solid or gradient), border, clip, windowInsets |
-| `visibility` | `TileSchema.Visibility` | `VISIBLE`, `INVISIBLE` (takes space), `GONE` (no space) |
-| `searchableTerms` | `List<String>?` | Terms used by parent container's `filterChildrenByTerm` to include/exclude this tile. `null` = always shown |
+| Field | Type | Default | What it's for |
+|---|---|---|---|
+| `id` | `String` | random id | Unique identifier — how events, updates and lookups address this tile. |
+| `events` | `List<EventSchema>?` | `null` | The events this tile can fire, each declaring which `EventTrigger` runs it. See `architecture.md` §5, "Event chaining". |
+| `style` | `StyleSchema` | varies per tile | Size, margin, padding, background, border, clip, window insets — see `architecture.md` §5 for the fixed application order. |
+| `visibility` | `TileSchema.Visibility` | `visible()` | `visible()` shows the tile; `invisible()` hides it but keeps its layout space; `gone()` removes it from layout entirely. |
+| `searchableTerms` | `List<String>?` | `null` | Terms an ancestor container's `filterChildrenByTerm` matches against (case-insensitive substring) to decide whether this tile survives a filter. |
 
-JSON serialization uses `@SerialName` as the `type` discriminator field.
+For the underlying mechanics of trigger matching, `TileGroupEvent`, how stateful tiles combine a local `TileEvent` with a remote `EventTrigger` on the same interaction, and `Modifier.size()`/`LocalXScope` availability, see [`architecture.md`](architecture.md) — this catalog documents *what* each tile does and *what its triggers are*, not how the dispatch machinery works.
 
 ---
 
 ## Text
 
-### SimpleTextTileSchema
-**JSON type:** `"Text"`
+### `SimpleText`
 
-| Field | Type | Default |
-|---|---|---|
-| `text` | `String` | required |
-| `color` | `ColorSchema?` | `null` (falls back to `LocalTextStyle` color) |
-| `typography` | `TypographySchema?` | `null` (falls back to `LocalTextStyle`) |
-| `autoSize` | `AutoSizeSchema?` | `null` (no auto-sizing) |
-| `fontSize` | `Float?` | `null` (sp — falls back to `TextUnit.Unspecified`) |
-| `fontStyle` | `FontStyleSchema?` | `null` — `NORMAL`, `ITALIC` |
-| `fontWeight` | `FontWeightSchema?` | `null` — `THIN`, `EXTRA_LIGHT`, `LIGHT`, `NORMAL`, `MEDIUM`, `SEMI_BOLD`, `BOLD`, `EXTRA_BOLD`, `BLACK` |
-| `fontFamily` | `FontFamilySchema?` | `null` — `DEFAULT`, `SERIF`, `SANS_SERIF`, `MONOSPACE`, `CURSIVE` |
-| `letterSpacing` | `Float?` | `null` (sp — falls back to `TextUnit.Unspecified`) |
-| `textDecoration` | `TextDecorationSchema?` | `null` — `NONE`, `UNDERLINE`, `LINE_THROUGH` |
-| `textAlign` | `TextAlignSchema?` | `null` — `LEFT`, `RIGHT`, `CENTER`, `JUSTIFY`, `START`, `END` |
-| `lineHeight` | `Float?` | `null` (sp — falls back to `TextUnit.Unspecified`) |
-| `overflow` | `TextOverflowSchema?` | `null` → `CLIP` — `CLIP`, `ELLIPSIS`, `VISIBLE` |
-| `softWrap` | `Boolean?` | `null` → `true` |
-| `maxLines` | `Int?` | `null` → `Int.MAX_VALUE` |
-| `minLines` | `Int?` | `null` → `1` |
+Renders plain text. `typography` provides the base text style (falls back to the ambient default when `null`); every other styling field overrides one property on top of that base and is ignored when `null`. Not clickable and dispatches no triggers — `events` declared on it are never fired. Renders plain text only, no inline annotations/links/markdown; wrap in a `SelectionContainer` to make it selectable.
 
-`AutoSizeSchema.StepBased`: `{ "type": "StepBased", "minFontSize": Float, "maxFontSize": Float, "stepSize": Float? }` — values in sp.
-Individual text properties (`fontSize`, `fontWeight`, etc.) override the corresponding values from `typography` when both are set.
+**Parameters** (beyond the 5 base fields):
 
-**Supported triggers:** none
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `text` | `String` | required | Text content displayed. |
+| `color` | `ColorSchema?` | `null` | Text color override. |
+| `typography` | `TypographySchema?` | `null` | Base text style (size/weight/line-height as a set). Falls back to the ambient default. |
+| `autoSize` | `AutoSizeSchema?` | `null` | Automatic font-size scaling to fit the available space. |
+| `fontSize` | `Float?` | `null` | Font size override, in sp. |
+| `fontStyle` | `FontStyleSchema?` | `null` | Font style override (e.g. italic). |
+| `fontWeight` | `FontWeightSchema?` | `null` | Font weight override. |
+| `fontFamily` | `FontFamilySchema?` | `null` | Font family override. |
+| `letterSpacing` | `Float?` | `null` | Letter spacing override, in sp. |
+| `textDecoration` | `TextDecorationSchema?` | `null` | Text decoration override (e.g. underline). |
+| `textAlign` | `TextAlignSchema?` | `null` | Text alignment override. |
+| `lineHeight` | `Float?` | `null` | Line height override, in sp. |
+| `overflow` | `TextOverflowSchema?` | `null` (clip) | How overflowing text is handled. |
+| `softWrap` | `Boolean?` | `null` (true) | Whether the text wraps at soft line breaks. |
+| `maxLines` | `Int?` | `null` (unbounded) | Maximum number of lines shown. |
+| `minLines` | `Int?` | `null` (1) | Minimum number of lines reserved. |
 
----
+**DSL example:**
+```kotlin
+SimpleText(
+    text = "Welcome back",
+    typography = headlineSmallTypography(),
+    color = color(ColorSchema.Theme.Color.ON_SURFACE)
+)
+```
+
+**Triggers fired:** none.
+
+**Notes:** `style` defaults to wrap-content on both axes (not the framework-wide fill/wrap default) so a bare `SimpleText("Hello")` doesn't stretch to its parent's width. `text` is the DSL function's first parameter (ahead of `id`/`events`/`style`), so the minimal call is just `SimpleText("Hello")`.
 
 ## Buttons
 
-### ButtonTileSchema
-**JSON type:** `"Button"`
+### `Button`
 
-| Field | Type | Default |
-|---|---|---|
-| `text` | `String` | required |
-| `icon` | `IconSchema?` | `null` |
-| `buttonType` | `Type` | `FILLED` |
-| `shape` | `Shape` | `ROUNDED` |
-| `loading` | `Boolean` | `false` |
-| `enabled` | `Boolean` | `true` |
-| `iconPosition` | `IconPosition` | `START` |
+Renders a Material 3 button. The concrete composable is picked by `buttonType`: `FILLED` → `Button`, `ELEVATED` → `ElevatedButton`, `FILLED_TONAL` → `FilledTonalButton`, `OUTLINED` → `OutlinedButton`, `TEXT` → `TextButton`. `shape` picks the corner style: `SQUARE` → theme's medium corner radius, `ROUNDED` → fully rounded (pill/circle).
 
-`Type`: `FILLED`, `ELEVATED`, `FILLED_TONAL`, `OUTLINED`, `TEXT`
-`Shape`: `SQUARE`, `ROUNDED`
-`IconPosition`: `START`, `END`
+**Parameters:**
 
-**Note:** When `loading = true`, shows `CircularProgressIndicator` instead of text/icon.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `text` | `String` | required | Label displayed on the button. |
+| `icon` | `IconSchema?` | `null` | Optional icon rendered alongside the text. |
+| `buttonType` | `Type` (`FILLED`/`ELEVATED`/`FILLED_TONAL`/`OUTLINED`/`TEXT`) | `FILLED` | Visual variant — DSL helpers `filledButton()`, `elevatedButton()`, `filledTonalButton()`, `outlinedButton()`, `textButton()`. |
+| `shape` | `Shape` (`SQUARE`/`ROUNDED`) | `ROUNDED` | Corner style — `squareButton()`/`roundedButton()`. |
+| `loading` | `Boolean` | `false` | Shows a 24dp spinner instead of the content, and forces the button disabled for real (see Notes). |
+| `enabled` | `Boolean` | `true` | Whether the button is interactive. Ignored (treated as disabled) while `loading` is `true`. |
+| `iconPosition` | `IconPosition` (`START`/`END`) | `START` | Where the icon sits relative to the text — `iconAtStart()`/`iconAtEnd()`, separated by an 8dp spacer. |
 
-**Supported triggers:** `OnClick`, `OnLongPress`
+**DSL example:**
+```kotlin
+Button(
+    id = "submit",
+    text = "Sign in",
+    buttonType = filledButton(),
+    events = {
+        SendNetworkRequest(
+            trigger = EventTriggers.onClick(),
+            url = "/api/login",
+            method = HttpMethod.POST
+        )
+    }
+)
+```
 
----
+**Triggers fired:** `OnClick` — fired when tapped while interactive.
 
-### IconButtonTileSchema
-**JSON type:** `"IconButton"`
+**Notes:** the button is interactive only when `enabled` is `true` **and** `loading` is `false` — the two combine into the single `enabled` the Material composable receives, so a loading button takes Material's real disabled colors and is reported as disabled to accessibility services, not just visually different. A slow action can't be submitted twice by mashing the button.
 
-| Field | Type | Default |
-|---|---|---|
-| `icon` | `IconSchema` | required |
-| `buttonType` | `Type` | `DEFAULT` |
-| `loading` | `Boolean` | `false` |
-| `enabled` | `Boolean` | required |
+### `FloatingActionButton`
 
-`Type`: `DEFAULT`, `FILLED`, `FILLED_TONAL`, `OUTLINED`
+Renders a Material 3 floating action button. `size` picks both the composable and the icon's rendered size: `DEFAULT` (small) → `SmallFloatingActionButton`, icon scaled to 24dp; `MEDIUM` → `FloatingActionButton`, 28dp; `LARGE` → `LargeFloatingActionButton`, 36dp.
 
-**Note:** When `loading = true`, shows `CircularProgressIndicator` instead of the icon.
+**Parameters:**
 
-**Supported triggers:** `OnClick`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `icon` | `IconSchema` | required | Icon rendered inside the FAB; its `size` field is overridden based on `size` (24/28/36dp) regardless of what's passed in. |
+| `size` | `Size` (`DEFAULT`/`MEDIUM`/`LARGE`) | `defaultFloatingActionButon()` | FAB size — DSL helpers `defaultFloatingActionButon()`, `mediumFloatingActionButon()`, `largeFloatingActionButon()`. |
 
----
+**DSL example:**
+```kotlin
+FloatingActionButton(
+    id = "add",
+    icon = icon("add"),
+    size = mediumFloatingActionButon(),
+    events = { AddTiles(trigger = EventTriggers.onClick(), groupingTileId = "list", tiles = { /* ... */ }) }
+)
+```
 
-### FloatingActionButtonTileSchema
-**JSON type:** `"FloatingActionButton"`
+**Triggers fired:** `OnClick` — fired when tapped.
 
-| Field | Type | Default |
-|---|---|---|
-| `icon` | `IconSchema` | required |
-| `size` | `Size` | required |
-| `loading` | `Boolean` | `false` |
-| `enabled` | `Boolean` | required |
+**Notes:** no `enabled`/`loading` — Material 3 FAB composables intentionally have no `enabled` parameter, since a disabled-but-visible FAB fights the emphasis it's meant to carry. Hide it via the inherited `visibility` field (`"GONE"`/`"VISIBLE"` via `UpdateTiles`) when its action isn't currently available, instead of trying to gray it out. `style` defaults to wrap-content on both axes.
 
-`Size`: `DEFAULT` → `SmallFloatingActionButton`, `MEDIUM` → `FloatingActionButton`, `LARGE` → `LargeFloatingActionButton`
+### `IconButton`
 
-**Note:** When `loading = true`, shows `CircularProgressIndicator` instead of the icon.
+Renders a Material 3 icon-only button. The concrete composable is picked by `buttonType`: `DEFAULT` → `IconButton`, `FILLED` → `FilledIconButton`, `FILLED_TONAL` → `FilledTonalIconButton`, `OUTLINED` → `OutlinedIconButton`.
 
-**Supported triggers:** `OnClick`
+**Parameters:**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `icon` | `IconSchema` | required | Icon rendered inside the button, with its color/size/style applied as-is. |
+| `buttonType` | `Type` (`DEFAULT`/`FILLED`/`FILLED_TONAL`/`OUTLINED`) | `defaultIconButton()` | Visual variant — DSL helpers `defaultIconButton()`, `filledIconButton()`, `filledTonalIconButton()`, `outlinedIconButton()`. |
+| `loading` | `Boolean` | `false` | Shows a 24dp spinner instead of the icon, and forces the button disabled for real. |
+| `enabled` | `Boolean` | required (no default) | Whether the button is interactive. Ignored (treated as disabled) while `loading` is `true`. |
+
+**DSL example:**
+```kotlin
+IconButton(
+    id = "favorite",
+    icon = icon("favorite"),
+    buttonType = filledTonalIconButton(),
+    enabled = true,
+    events = { ToggleMenu(trigger = EventTriggers.onClick(), menuId = "options") }
+)
+```
+
+**Triggers fired:** `OnClick` — fired when tapped while interactive.
+
+**Notes:** unlike the FAB, `IconButton`'s underlying Material composables do accept `enabled` natively, so it's forwarded directly rather than simulated. `style` defaults to wrap-content on both axes. `enabled` has no default — must always be passed explicitly.
 
 ## Chips
 
-### AssistChipTileSchema
-**JSON type:** `"AssistChip"`
+### `AssistChip`
 
-| Field | Type | Default |
-|---|---|---|
-| `text` | `String` | required |
-| `leadingIcon` | `IconSchema?` | `null` |
-| `trailingIcon` | `IconSchema?` | `null` |
-| `enabled` | `Boolean` | required |
-| `variant` | `Variant` | `DEFAULT` |
+Renders a Material 3 assist chip — suggests a single contextual action. `variant` picks the composable: `DEFAULT` → `AssistChip` (outlined), `ELEVATED` → `ElevatedAssistChip`.
 
-`Variant`: `DEFAULT` → `AssistChip`, `ELEVATED` → `ElevatedAssistChip`
+**Parameters:**
 
-**Use case:** action chip with optional icons on both ends. Suitable as menu trigger (leading icon + label + chevron trailing icon).
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `text` | `String` | required | Label displayed on the chip. |
+| `leadingIcon` | `IconSchema?` | `null` | Optional icon before the text. |
+| `trailingIcon` | `IconSchema?` | `null` | Optional icon after the text. |
+| `enabled` | `Boolean` | required (no default) | Forwarded directly to the underlying Material composable. |
+| `variant` | `Variant` (`DEFAULT`/`ELEVATED`) | `defaultAssistChip()` | Visual variant — `defaultAssistChip()`/`elevatedAssistChip()`. |
 
-**Supported triggers:** `OnClick`
+**DSL example:**
+```kotlin
+AssistChip(
+    id = "call",
+    text = "Call support",
+    leadingIcon = icon("call"),
+    enabled = true,
+    events = { OpenExternalLink(trigger = EventTriggers.onClick(), url = "tel:+15551234567") }
+)
+```
 
----
+**Triggers fired:** `OnClick` — fired when tapped.
 
-### FilterChipTileSchema
-**JSON type:** `"FilterChip"`
+**Notes:** stateless — no selected state. Both icons are purely decorative: tapping either one fires the same chip-level click as tapping anywhere else on the chip.
 
-| Field | Type | Default |
-|---|---|---|
-| `text` | `String` | required |
-| `selected` | `Boolean` | required |
-| `leadingIcon` | `IconSchema?` | `null` |
-| `trailingIcon` | `IconSchema?` | `null` |
-| `enabled` | `Boolean` | required |
-| `variant` | `Variant` | `DEFAULT` |
+### `FilterChip`
 
-`Variant`: `DEFAULT` → `FilterChip`, `ELEVATED` → `ElevatedFilterChip`
+Renders a Material 3 filter chip with a toggleable `selected` state — used to filter a list or result set. `variant` picks the composable: `DEFAULT` → `FilterChip` (outlined), `ELEVATED` → `ElevatedFilterChip`.
 
-**Note:** When `selected = true`, M3 renders a filled container; `leadingIcon` can visually indicate selection (e.g. a checkmark icon).
+**Parameters:**
 
-**Supported triggers:** `OnCheck`, `OnUncheck`, `OnCheckChanged`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `text` | `String` | required | Label displayed on the chip. |
+| `selected` | `Boolean` | required (no default) | Current selection state. |
+| `leadingIcon` | `IconSchema?` | `null` | Optional icon before the text. |
+| `trailingIcon` | `IconSchema?` | `null` | Optional icon after the text. |
+| `enabled` | `Boolean` | required (no default) | Forwarded directly to the underlying Material composable. |
+| `variant` | `Variant` (`DEFAULT`/`ELEVATED`) | `defaultFilterChip()` | Visual variant — `defaultFilterChip()`/`elevatedFilterChip()`. |
 
----
+**DSL example:**
+```kotlin
+FilterChip(
+    id = "filter_active",
+    text = "Active",
+    selected = true,
+    enabled = true,
+    events = { UpdateTiles(trigger = EventTriggers.onCheckChanged(), updates = { /* refresh list */ }) }
+)
+```
 
-### InputChipTileSchema
-**JSON type:** `"InputChip"`
+**Triggers fired (in this order, on every tap):** `OnCheck` (becomes selected) or `OnUncheck` (becomes unselected), then always `OnCheckChanged`.
 
-| Field | Type | Default |
-|---|---|---|
-| `text` | `String` | required |
-| `selected` | `Boolean` | required |
-| `leadingIcon` | `IconSchema?` | `null` |
-| `trailingIcon` | `IconSchema?` | `null` (typically a close/remove icon) |
-| `enabled` | `Boolean` | required |
+**Notes:** tapping the chip flips `selected` locally first (no round trip needed for the visual state to update) — the three triggers above fire in parallel so the server-authored `events` can react. The holder exposes the current `selected` boolean by this tile's `id`, so `GetData`/`EvaluateData` can read it via the `Tile` data source.
 
-**Note:** No `variant` — `InputChip` has no elevated variant in Material 3. `trailingIcon` is purely visual; no separate trailing-icon click callback.
+### `InputChip`
 
-**Supported triggers:** `OnCheck`, `OnUncheck`, `OnCheckChanged`
+Renders a Material 3 `InputChip` with a toggleable `selected` state — represents a piece of user input (e.g. a selected tag). Always maps to the flat `InputChip` composable; unlike the other three chips, it has no `variant`/elevated option.
 
----
+**Parameters:**
 
-### SuggestionChipTileSchema
-**JSON type:** `"SuggestionChip"`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `text` | `String` | required | Label displayed on the chip. |
+| `selected` | `Boolean` | required (no default) | Current selection state. |
+| `leadingIcon` | `IconSchema?` | `null` | Optional icon before the text. |
+| `trailingIcon` | `IconSchema?` | `null` | Optional icon after the text — decorative, see Notes. |
+| `enabled` | `Boolean` | required (no default) | Forwarded directly to the underlying Material composable. |
 
-| Field | Type | Default |
-|---|---|---|
-| `text` | `String` | required |
-| `icon` | `IconSchema?` | `null` |
-| `enabled` | `Boolean` | required |
-| `variant` | `Variant` | `DEFAULT` |
+**DSL example:**
+```kotlin
+InputChip(
+    id = "tag_kotlin",
+    text = "Kotlin",
+    selected = true,
+    enabled = true
+)
+```
 
-`Variant`: `DEFAULT` → `SuggestionChip`, `ELEVATED` → `ElevatedSuggestionChip`
+**Triggers fired (in this order, on every tap):** `OnCheck`/`OnUncheck`, then always `OnCheckChanged` — identical sequence to `FilterChip`.
 
-**Supported triggers:** `OnClick`
+**Notes:** same local-selection-first mechanism as `FilterChip`; the holder exposes `selected` by `id` for `GetData`/`EvaluateData`. `trailingIcon` does **not** fire a separate dismiss trigger despite what its position suggests — tapping anywhere on the chip toggles it the same way.
 
----
+### `SuggestionChip`
+
+Renders a Material 3 suggestion chip — surfaces a dynamically generated suggestion. `variant` picks the composable: `DEFAULT` → `SuggestionChip` (outlined), `ELEVATED` → `ElevatedSuggestionChip`.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `text` | `String` | required | Label displayed on the chip. |
+| `icon` | `IconSchema?` | `null` | Optional leading icon. |
+| `enabled` | `Boolean` | required (no default) | Forwarded directly to the underlying Material composable. |
+| `variant` | `Variant` (`DEFAULT`/`ELEVATED`) | `defaultSuggestionChip()` | Visual variant — `defaultSuggestionChip()`/`elevatedSuggestionChip()`. |
+
+**DSL example:**
+```kotlin
+SuggestionChip(
+    id = "suggest_1",
+    text = "Try dark mode",
+    enabled = true,
+    events = { /* ... */ }
+)
+```
+
+**Triggers fired:** `OnClick` — fired when tapped.
+
+**Notes:** stateless — no selected state. `icon` is decorative only.
 
 ## Inputs
 
-### TextFieldTileSchema
-**JSON type:** `"TextFieldTileSchema"` (class name, no @SerialName override)
+### `Checkbox`
+
+Renders a bare Material 3 `Checkbox` reflecting `checked` — no label is drawn, pair with a `SimpleText` inside a `Row` for a caption.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `checked` | `Boolean` | `false` | Current checked state. |
+| `enabled` | `Boolean` | `true` | Forwarded directly to the underlying composable. |
 
-| Field | Type | Default |
-|---|---|---|
-| `value` | `String` | required |
-| `enabled` | `Boolean` | required |
-| `leadingIcon` | `IconSchema?` | — |
-| `clickableLeadingIcon` | `Boolean` | — |
-| `trailingIcon` | `IconSchema?` | — |
-| `clickableTrailingIcon` | `Boolean` | — |
-| `prefixText` | `String?` | — |
-| `suffixText` | `String?` | — |
-| `placeholder` | `String?` | — |
-| `label` | `String?` | — |
-| `supportingText` | `String?` | — |
-| `minLines` | `Int` | — |
-| `maxLines` | `Int` | — |
-| `kind` | `Kind` | — |
-| `state` | `State` | — |
-| `keyboardOptions` | `KeyboardOptions?` | — |
-| `visualTransformation` | `VisualTransformation?` | — |
+**DSL example:**
+```kotlin
+Row {
+    Checkbox(id = "accept_terms", checked = false)
+    SimpleText(text = "I agree to the terms")
+}
+```
 
-`Kind`: `FILLED`, `OUTLINED`
-`State`: `NORMAL`, `ERROR`
-`VisualTransformation`: `None`, `Password`, `Custom(mask: String)`
-`KeyboardOptions.ImeAction`: `Unspecified`, `Default`, `None`, `Go`, `Search`, `Send`, `Previous`, `Next`, `Done`
-`KeyboardOptions.KeyboardType`: `Unspecified`, `Text`, `Ascii`, `Number`, `Phone`, `Uri`, `Email`, `Password`, `NumberPassword`, `Decimal`
-`KeyboardOptions.KeyboardCapitalization`: `Unspecified`, `None`, `Characters`, `Words`, `Sentences`
+**Triggers fired (in this order, on every toggle):** `OnCheck` (becomes checked) or `OnUncheck` (becomes unchecked), then always `OnCheckChanged`.
 
-**Note:** Renderer holds local `TextFieldValue` state. `LaunchedEffect` watches `schema.value` and syncs when server pushes update (cursor moved to end). `OnTextChanged` fires only when new text differs from previously known value.
+**Notes:** toggling flips the state locally first (no round trip needed for the checkbox to visually update); the holder exposes `checked` by `id` for `GetData`/`EvaluateData`. `style` defaults to wrap-content on both axes.
 
-**Supported triggers:** `OnTextChanged`, `OnKeyboardDone`, `OnKeyboardGo`, `OnKeyboardNext`, `OnKeyboardPrevious`, `OnKeyboardSearch`, `OnKeyboardSend`, `OnLeadingIconClick` (when `clickableLeadingIcon = true`), `OnTrailingIconClick` (when `clickableTrailingIcon = true`)
+### `Switch`
 
----
+Renders a bare Material 3 `Switch` reflecting `checked` — no label or thumb icon is drawn, pair with a `SimpleText` inside a `Row` for a caption.
 
-### CheckboxTileSchema
-**JSON type:** `"Checkbox"`
+**Parameters:**
 
-| Field | Type |
-|---|---|
-| `checked` | `Boolean` |
-| `enabled` | `Boolean` |
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `checked` | `Boolean` | `false` | Current on/off state. |
+| `enabled` | `Boolean` | `true` | Forwarded directly to the underlying composable. |
+
+**DSL example:**
+```kotlin
+Switch(
+    id = "notifications",
+    checked = true,
+    events = {
+        UpdateData(trigger = EventTriggers.onCheckChanged(), updates = { /* ... */ })
+    }
+)
+```
 
-**Note:** Fully controlled component. Dispatch order on change: directional trigger (`OnCheck`/`OnUncheck`) → `OnCheckChanged` → local `CheckboxTileEvents.OnCheckChanged` (updates holder state).
+**Triggers fired (in this order, on every toggle):** `OnCheck` (turns on) or `OnUncheck` (turns off), then always `OnCheckChanged`.
 
-**Supported triggers:** `OnCheck`, `OnUncheck`, `OnCheckChanged`
+**Notes:** same local-first toggle mechanism as `Checkbox`; the holder exposes `checked` by `id` for `GetData`/`EvaluateData`.
 
----
+### `RadioButton`
 
-### RadioButtonTileSchema
-**JSON type:** `"RadioButton"`
+Renders a bare Material 3 `RadioButton` reflecting `selected` — no label is drawn, pair with a `SimpleText` inside a `Row` for a caption.
 
-| Field | Type |
-|---|---|
-| `selected` | `Boolean` |
-| `enabled` | `Boolean` |
-| `groupId` | `String` |
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `selected` | `Boolean` | `false` | Current selection state. |
+| `enabled` | `Boolean` | `true` | Forwarded directly to the underlying composable. |
+| `groupId` | `String` | required | Groups radio buttons together for mutual exclusion — see Notes. |
+
+**DSL example:**
+```kotlin
+Column {
+    RadioButton(
+        id = "plan_free",
+        selected = true,
+        groupId = "plan"
+    )
+    RadioButton(
+        id = "plan_pro",
+        selected = false,
+        groupId = "plan"
+    )
+}
+```
 
-**Note:** On tap, fires both `OnSelectEventTrigger` and group-level `RadioButtonTileGroupEvents.OnRadioSelected` (carrying id and groupId), allowing sibling radios with the same groupId to deselect client-side without a server round-trip.
+**Triggers fired:** `OnSelect` — fired only on the radio button that becomes selected. Tapping an already-selected radio fires nothing; radio buttons that lose selection fire nothing either.
 
-**Supported triggers:** `OnSelect`
+**Notes:** mutual exclusion is handled entirely client-side — tapping a radio button broadcasts a group event that every `RadioButton` holder with the same `groupId` reacts to, flipping its own `selected` without any server round trip or `UpdateTiles` needed to clear the others. Radio buttons don't need to be siblings for this to work; only `groupId` matters. The holder exposes `selected` by `id` for `GetData`/`EvaluateData`. `style` defaults to wrap-content on both axes.
 
----
+### `DropdownList`
+
+Renders a Material 3 `ExposedDropdownMenuBox` — a read-only anchor field showing the selected option's label plus a dropdown listing every entry in `options`. `kind` picks the anchor composable: `FILLED` → `TextField`, `OUTLINED` → `OutlinedTextField`.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `options` | `List<SelectOption>` (`id`, `label`) | required | The entries listed in the dropdown menu. |
+| `selectedOptionId` | `String` | required | Id of the option whose label is shown on the anchor. |
+| `enabled` | `Boolean` | `true` | Forwarded to the underlying composable. |
+| `kind` | `Kind` (`FILLED`/`OUTLINED`) | `outlinedDropdownList()` | Anchor field variant. |
+| `supportingText` | `String?` | `null` | Helper text shown below the field. |
+| `state` | `State` (`NORMAL`/`ERROR`) | `normalDropdownList()` | `ERROR` switches the field into Material's error styling. |
+
+**DSL example:**
+```kotlin
+DropdownList(
+    id = "country",
+    options = listOf(selectOption("br", "Brazil"), selectOption("us", "United States")),
+    selectedOptionId = "br",
+    kind = outlinedDropdownList()
+)
+```
+
+**Triggers fired:** `OnDropdownListOpen` (anchor tapped while closed) → `OnDropdownListItemSelected` (item picked, carries the picked id as incoming data) → `OnDropdownListClose` (always fires whenever the menu closes: after picking an item, tapping the anchor while open, or dismissing by tapping outside).
+
+**Notes:** selecting an item and closing the menu are both handled client-side, with no round trip needed. When `selectedOptionId` matches none of `options`, the anchor renders empty but the menu still lists every option, so the user can recover by picking one.
+
+### `DatePicker`
+
+Renders a read-only text field that opens a Material 3 `DatePickerDialog` when tapped. `kind` picks the field composable: `FILLED` → `TextField`, `OUTLINED` → `OutlinedTextField`. Always shows a `calendar_month` leading icon. Typing is impossible — the field is `readOnly`.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `selectedDate` | `String?` | `null` | Selected date as an ISO string (`yyyy-MM-dd`); shown empty when `null`. |
+| `enabled` | `Boolean` | `true` | Forwarded to the underlying composable. |
+| `kind` | `Kind` (`FILLED`/`OUTLINED`) | `outlinedDatePicker()` | Field variant. |
+| `confirmLabel` | `String` | required | Label of the dialog's confirm button. |
+| `cancelLabel` | `String` | required | Label of the dialog's cancel button. |
+| `supportingText` | `String?` | `null` | Helper text shown below the field. |
+| `state` | `State` (`NORMAL`/`ERROR`) | `normalDatePicker()` | `ERROR` switches the field into Material's error styling. |
+
+**DSL example:**
+```kotlin
+DatePicker(
+    id = "birth_date",
+    confirmLabel = "OK",
+    cancelLabel = "Cancel",
+    kind = outlinedDatePicker()
+)
+```
 
-### SwitchTileSchema
-**JSON type:** `"Switch"`
+**Triggers fired:** `OnDatePickerOpen` (field pressed while closed) → `OnDateSelected` (confirm pressed, the ISO date string is the event's incoming data) → `OnDatePickerClose` (always fires whenever the dialog closes: after confirming, on cancel, or on dismiss).
 
-| Field | Type |
-|---|---|
-| `checked` | `Boolean` |
-| `enabled` | `Boolean` |
+**Notes:** the confirm button stays disabled until a date is picked, so a confirm always yields a date. The renderer converts the ISO string to/from epoch millis only to drive Compose's `DatePickerState` — the schema always stores/produces the ISO string. All of open/confirm/cancel is handled client-side, no round trip needed. `selectedDate` produces no entry at all for `GetData`/`EvaluateData` when `null`, rather than an empty string.
 
-**Note:** Fully controlled component with identical trigger semantics to `CheckboxTileSchema`.
+### `TimePicker`
+
+Renders a read-only text field that opens a Material 3 `TimePickerDialog` when tapped. `kind` picks the field composable the same way as `DatePicker`. Always shows an `alarm` leading icon. The dialog is always 24-hour, vertical layout; typing is impossible.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `selectedTime` | `String?` | `null` | Selected time as an ISO string (`HH:mm`); shown empty when `null`. Dialog opens at `00:00` when `null`. |
+| `enabled` | `Boolean` | `true` | Forwarded to the underlying composable. |
+| `kind` | `Kind` (`FILLED`/`OUTLINED`) | `outlinedTimePicker()` | Field variant. |
+| `confirmLabel` | `String` | required | Label of the dialog's confirm button. |
+| `cancelLabel` | `String` | required | Label of the dialog's cancel button. |
+| `supportingText` | `String?` | `null` | Helper text shown below the field. |
+| `state` | `State` (`NORMAL`/`ERROR`) | `normalTimePicker()` | `ERROR` switches the field into Material's error styling. |
+
+**DSL example:**
+```kotlin
+TimePicker(
+    id = "reminder_time",
+    confirmLabel = "OK",
+    cancelLabel = "Cancel"
+)
+```
 
-**Supported triggers:** `OnCheck`, `OnUncheck`, `OnCheckChanged`
+**Triggers fired:** `OnTimePickerOpen` → `OnTimeSelected` (confirm pressed, ISO time string as incoming data) → `OnTimePickerClose` (always fires on any close path).
 
----
+**Notes:** same client-side open/confirm/cancel handling as `DatePicker`; `selectedTime` produces no `GetData`/`EvaluateData` entry when `null`.
 
-## Images and Icons
+### `TextField`
+
+Renders a Material 3 text input field. `kind` picks the composable: `FILLED` → `TextField`, `OUTLINED` → `OutlinedTextField`. `label`, `prefixText`, `suffixText`, `supportingText` and `placeholder` render only when non-null.
 
-### IconTileSchema
-**JSON type:** `"Icon"`
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `value` | `String` | `""` | Current text content. |
+| `enabled` | `Boolean` | `true` | Forwarded to the underlying composable. |
+| `leadingIcon` | `IconSchema?` | `null` | Icon before the text — plain by default (see `clickableLeadingIcon`). |
+| `clickableLeadingIcon` | `Boolean` | `false` | When `true`, wraps `leadingIcon` in an `IconButton` that fires `OnLeadingIconClick`. |
+| `trailingIcon` | `IconSchema?` | `null` | Icon after the text — plain by default (see `clickableTrailingIcon`). |
+| `clickableTrailingIcon` | `Boolean` | `true` | When `true`, wraps `trailingIcon` in an `IconButton` that fires `OnTrailingIconClick`. |
+| `prefixText` | `String?` | `null` | Fixed text rendered inside the field, before the value. |
+| `suffixText` | `String?` | `null` | Fixed text rendered inside the field, after the value. |
+| `placeholder` | `String?` | `null` | Text shown when `value` is empty. |
+| `label` | `String?` | `null` | Floating label. |
+| `supportingText` | `String?` | `null` | Helper text shown below the field. |
+| `minLines` | `Int` | `1` | Minimum number of lines reserved. |
+| `maxLines` | `Int` | `Int.MAX_VALUE` | Maximum number of lines shown. |
+| `kind` | `Kind` (`FILLED`/`OUTLINED`) | `outlinedTextField()` | Field variant. |
+| `state` | `State` (`NORMAL`/`ERROR`) | `normalTextField()` | `ERROR` switches the field into Material's error styling. |
+| `keyboardOptions` | `KeyboardOptions?` | `null` | Capitalization, keyboard type, IME action, autocorrect, show-on-focus — see helpers below. |
+| `visualTransformation` | `VisualTransformation?` | `null` | `None`, `Password` (dots) via `keyboardVisualTransformationPassword()`, or `Custom(mask)` via `keyboardVisualTransformationCustom(mask)`. |
+
+**DSL example:**
+```kotlin
+TextField(
+    id = "password",
+    label = "Password",
+    visualTransformation = keyboardVisualTransformationPassword(),
+    events = { /* OnTextChanged, keyboard actions, etc. */ }
+)
+```
+
+**Triggers fired:** `OnTextChanged` (every keystroke where the text actually changes vs. `value`, new text as incoming data) — plus, depending on `keyboardOptions.imeAction`, exactly one of `OnKeyboardDone`/`OnKeyboardGo`/`OnKeyboardNext`/`OnKeyboardPrevious`/`OnKeyboardSearch`/`OnKeyboardSend` — plus `OnLeadingIconClick`/`OnTrailingIconClick`, only when the matching `clickable*Icon` flag is `true`.
+
+**Notes:** `clickableTrailingIcon` defaults to `true` while `clickableLeadingIcon` defaults to `false` — a real asymmetry, not an oversight (matches the common "clear button on the right" pattern). The renderer re-syncs its local cursor state whenever the server pushes a new `value` (e.g. via `UpdateTiles`), placing the caret at the end of the new text — editing a field the user is actively focused on can move their cursor. `GetData`/`EvaluateData` see no entry at all when `value` is empty, not an empty string.
+
+## Images & icons
+
+### `Icon`
+
+Renders a single Material Symbol described by `icon` — its name, color, size and style. The standalone icon tile; `style` applies to the icon's own layout node.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `icon` | `IconSchema` | required | Material Symbol name, color, size and style. |
+
+**DSL example:**
+```kotlin
+Icon(id = "star", icon = icon(name = "star", color = color(ColorSchema.Theme.Color.PRIMARY)))
+```
 
-| Field | Type |
-|---|---|
-| `icon` | `IconSchema` |
+**Triggers fired:** none — not even `OnDisplay`. Not clickable; use `IconButton` for a tappable icon, or wrap this tile in a clickable container.
 
-`IconSchema`: `{ "name": "material_symbol_name" }`
+**Notes:** `style` defaults to wrap-content on both axes.
+
+### `Image`
 
-**Supported triggers:** none
+Renders a Compose `Image` from a drawable bundled with the client application. `resourceName` is looked up in the app's `DrawableResourcesHolder` (populated by the app-host at startup) — when nothing is registered under that name, **nothing is rendered at all**, no fallback, no error trigger.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `resourceName` | `String` | required | Name looked up in the client's `DrawableResourcesHolder`. |
+| `contentDescription` | `String?` | `null` | Accessibility description. |
+| `contentScale` | `ContentScale` (`CROP`/`FIT`/`FILL_HEIGHT`/`FILL_WIDTH`/`INSIDE`/`FILL_BOUNDS`) | `imageFitContentScale()` | How the image scales to its bounds. |
+| `alpha` | `Float` | `1.0f` | Opacity. |
+| `alignment` | `AlignmentSchema.TwoDimensional` | `alignToCenter()` | Placement of the image within its bounds when the aspect ratio doesn't fill them. |
 
----
+**DSL example:**
+```kotlin
+Image(
+    id = "logo",
+    resourceName = "app_logo",
+    contentScale = imageFitContentScale()
+)
+```
 
-### ImageTileSchema
-**JSON type:** `"Image"`
+**Triggers fired:** none — not clickable.
 
-| Field | Type | Default |
-|---|---|---|
-| `resourceName` | `String` | required — key in `DrawableResourcesHolder` map |
-| `contentDescription` | `String?` | `null` |
-| `contentScale` | `ContentScale` | — |
-| `alpha` | `Float` | — |
-| `alignment` | `AlignmentSchema.TwoDimensional` | — |
+**Notes:** use `AsyncImage` for images from the network or raw bytes — this tile can only show assets bundled with the client app.
 
-`ContentScale`: `CROP`, `FIT`, `FILL_HEIGHT`, `FILL_WIDTH`, `INSIDE`, `FILL_BOUNDS`
+### `AsyncImage`
 
-**Note:** Renders nothing if `resourceName` is not found in `DrawableResourcesHolder`. Register drawable resources via `mosaicDependencyInjectionConfig(drawableResources = mapOf(...))`.
+Renders a Coil `AsyncImage` loading its content from `model` — a remote URL, raw bytes, or base64 (decoded client-side before being handed to Coil).
 
-**Supported triggers:** none
+**Parameters:**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `model` | `Model` (`Url(url)`/`ArrayOfBytes(byteArray)`/`Base64(base64)`) | required | Image source — `urlImageModel(url)`, `arrayOfBytesImageModel(bytes)`, `base64ImageModel(base64)`. |
+| `contentDescription` | `String?` | `null` | Accessibility description. |
+| `contentScale` | `ContentScale` (`CROP`/`FIT`/`FILL_HEIGHT`/`FILL_WIDTH`/`INSIDE`/`FILL_BOUNDS`) | `fitContentScale()` | How the image scales to its bounds. |
+| `alpha` | `Float` | `1.0f` | Opacity. |
+| `clipToBounds` | `Boolean` | `true` | Whether the image is clipped to its layout bounds. |
+| `alignment` | `AlignmentSchema.TwoDimensional` | `alignToCenter()` | Placement within its bounds. |
 
-### AsyncImageTileSchema
-**JSON type:** `"AsyncImage"`
+**DSL example:**
+```kotlin
+AsyncImage(
+    id = "avatar",
+    model = urlImageModel("https://example.com/avatar.png"),
+    contentScale = cropContentScale(),
+    events = {
+        AddTiles(
+            trigger = EventTriggers.onAsyncImageLoadFailure(),
+            groupingTileId = "avatar_box",
+            tiles = { /* fallback */ }
+        )
+    }
+)
+```
 
-| Field | Type | Default |
-|---|---|---|
-| `model` | `Model` | required |
-| `contentDescription` | `String?` | — |
-| `contentScale` | `ContentScale` | — |
-| `alpha` | `Float` | — |
-| `clipToBounds` | `Boolean` | — |
-| `alignment` | `AlignmentSchema.TwoDimensional` | — |
+**Triggers fired:** `OnAsyncImageLoadStart` (Coil enters loading state), `OnAsyncImageLoadSuccess` (decoded and drawn), `OnAsyncImageLoadFailure` (load failed) — all three can fire more than once over the tile's lifetime, including on every reload triggered by `model` changing.
 
-`Model` (sealed interface): `Url(url: String)`, `ArrayOfBytes(byteArray: ByteArray)`, `Base64(base64: String)`
+**Notes:** not clickable, fires no `OnDisplay`. There's no built-in placeholder or error image — render one yourself by reacting to the load triggers.
 
-`ContentScale`: `CROP`, `FIT`, `FILL_HEIGHT`, `FILL_WIDTH`, `INSIDE`, `FILL_BOUNDS`
+## Containers & layout
 
-**Note:** Uses Coil 3's `AsyncImage`. All three load-state triggers are always wired regardless of events registration.
+### `AdaptiveVisibility`
 
-**Supported triggers:** `OnAsyncImageLoadStart`, `OnAsyncImageLoadSuccess`, `OnAsyncImageLoadFailure`
+Conditionally renders `tiles` based on the current window size class. Children are composed only when **both** `widthVisibility` and `heightVisibility` are satisfied — otherwise nothing is emitted at all (not composed, not merely hidden).
 
----
+**Parameters:**
 
-## Containers / Grouping
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | The children, composed only when both breakpoints are satisfied. |
+| `widthVisibility` | `WidthVisibility` (`VisibleFrom(bp)`/`VisibleUntil(bp)`, `bp` ∈ Compact/Medium/Expanded/Large/ExtraLarge) | `widthVisibleUntilExtraLarge()` | Width condition — `VisibleFrom` satisfied above the breakpoint (exclusive); `VisibleUntil` satisfied at or below it (inclusive). |
+| `heightVisibility` | `HeightVisibility` (same shape, `bp` ∈ Compact/Medium/Expanded — 3 levels, not 5) | `heightVisibleUntilExpanded()` | Height condition, same semantics as width. |
 
-### ColumnTileSchema
-**JSON type:** `"Column"`
+**DSL example:**
+```kotlin
+AdaptiveVisibility(
+    widthVisibility = widthVisibleFrom(WidthBreakpoint.Medium)
+) {
+    NavigationRail(/* ... */)
+}
+```
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required |
-| `arrangement` | `ArrangementSchema.Vertical` | — |
-| `alignment` | `AlignmentSchema.Horizontal` | — |
-| `scrollable` | `Boolean` | `false` |
-| `filterChildrenByTerm` | `String?` | `null` |
+**Triggers fired:** `OnDisplay` (always, once, regardless of whether the breakpoints are satisfied), `OnWidthBreakpointSatisfied`/`OnWidthBreakpointNotSatisfied` (on first composition and every width change), `OnHeightBreakpointSatisfied`/`OnHeightBreakpointNotSatisfied` (same, for height).
 
-**Note:** Exposes `LocalColumnScope` CompositionLocal for children that need `ColumnScope` modifiers (e.g. `weight`). Broadcast channel (shared with `LazyColumnTileSchema`): `ScrollToTop`, `ScrollTo(index)`, `ScrollToBottom`. When `filterChildrenByTerm` is non-null, only children whose `searchableTerms` contains the term (case-insensitive) are rendered; children with `null` `searchableTerms` are always shown.
+**Notes:** width and height conditions are evaluated independently — one can report satisfied while the other reports not satisfied, and in that case the children still stay hidden. Width has 5 breakpoint levels, height only 3 — a real asymmetry in the schema. When both conditions hold, children are hosted in a `Box` carrying this tile's `style`/`visibility`.
 
-**Supported triggers:** `OnDisplay`, `OnClick`, `OnLongPress`, `OnScrolled`
+### `Box`
 
----
+Renders a Compose `Box` stacking `tiles` on top of each other in declaration order (later children paint above earlier ones), all positioned by `alignment`.
 
-### LazyColumnTileSchema
-**JSON type:** `"LazyColumn"`
+**Parameters:**
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required (items keyed by id) |
-| `arrangement` | `ArrangementSchema.Vertical` | — |
-| `alignment` | `AlignmentSchema.Horizontal` | — |
-| `scrollThreshold` | `Int?` | `null` |
-| `considerLoadingItemAtEndOnThresholdReached` | `Boolean` | `true` |
-| `filterChildrenByTerm` | `String?` | `null` |
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | `{}` (empty) | Stacked children. |
+| `alignment` | `AlignmentSchema.TwoDimensional` | `alignToTopStart()` | Placement applied to every child. |
 
-**Note:** Uses Compose `LazyColumn` — only visible items are composed. Items are keyed by tile id. Exposes `LocalLazyColumnRenderingScope` CompositionLocal (provides `LazyItemScope`). `scrollThreshold` fires `OnScrollThresholdReached` when the user scrolls within that many items of the end. Broadcast channel shared with `ColumnTileSchema`: `ScrollToTop`, `ScrollTo(index)`, `ScrollToBottom`. When `filterChildrenByTerm` is non-null, only children whose `searchableTerms` contains the term (case-insensitive) are rendered; children with `null` `searchableTerms` are always shown.
+**DSL example:**
+```kotlin
+Box(alignment = alignToCenter()) {
+    Image(id = "cover", resourceName = "hero")
+    SimpleText(text = "Welcome", color = color(ColorSchema.Theme.Color.ON_PRIMARY))
+}
+```
 
-**Supported triggers:** `OnDisplay`, `OnScrolled`, `OnScrollThresholdReached`, `OnClick`, `OnLongPress`
+**Triggers fired:** `OnDisplay` (always), `OnClick`/`OnLongPress` (only if the matching event is declared on this tile — otherwise the box isn't made interactive at all).
 
----
+**Notes:** never scrollable, publishes no scope `CompositionLocal` — children can't use `weight` or other column/row scope modifiers inside a `Box`.
 
-### RowTileSchema
-**JSON type:** `"Row"`
+### `Card`
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required |
-| `arrangement` | `ArrangementSchema.Horizontal` | — |
-| `alignment` | `AlignmentSchema.Vertical` | — |
-| `scrollable` | `Boolean` | `false` |
+Renders a Material 3 card hosting `tiles` in a `ColumnScope`. `kind` picks the composable: `DEFAULT` → `Card`, `ELEVATED` → `ElevatedCard`, `OUTLINED` → `OutlinedCard`.
 
-**Note:** Exposes `LocalRowScope` CompositionLocal for children that need `RowScope` modifiers (e.g. `weight`). Broadcast channel (shared with `LazyRowTileSchema`): `ScrollToStart`, `ScrollTo(index)`, `ScrollToEnd`.
+**Parameters:**
 
-**Supported triggers:** `OnDisplay`, `OnClick`, `OnLongPress`, `OnScrolled`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | Children, stacked vertically. |
+| `kind` | `Kind` (`DEFAULT`/`ELEVATED`/`OUTLINED`) | `defaultCard()` | Visual variant — `defaultCard()`/`elevatedCard()`/`outlinedCard()`. |
 
----
+**DSL example:**
+```kotlin
+Card(kind = elevatedCard()) {
+    SimpleText(text = "Order #1234")
+    SimpleText(text = "Delivered", color = color(ColorSchema.Theme.Color.PRIMARY))
+}
+```
 
-### LazyRowTileSchema
-**JSON type:** `"LazyRow"`
+**Triggers fired:** `OnDisplay` (always), `OnClick` (always — unlike `Box`, the Material `Card` composable always has an `onClick` slot, so this fires on tap regardless of whether an `OnClick` event is declared).
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required (items keyed by id) |
-| `arrangement` | `ArrangementSchema.Horizontal` | — |
-| `alignment` | `AlignmentSchema.Vertical` | — |
-| `scrollThreshold` | `Float?` | `null` |
-| `considerLoadingItemAtEndOnThresholdReached` | `Boolean` | `false` |
+**Notes:** publishes `ColumnScope` (children can use `weight`) and clears the lazy-item scope.
 
-**Note:** Uses Compose `LazyRow` — only visible items are composed. Items are keyed by tile id. Exposes `LocalLazyRowRenderingScope` CompositionLocal (provides `LazyItemScope`). `scrollThreshold` fires `OnScrollThresholdReached` with direction `End` or `Start`. Broadcast channel shared with `RowTileSchema`: `ScrollToStart`, `ScrollTo(index)`, `ScrollToEnd`.
+### `Column`
 
-**Supported triggers:** `OnDisplay`, `OnScrolled`, `OnScrollThresholdReached`, `OnClick`, `OnLongPress`
+Renders a Compose `Column` stacking `tiles` vertically, spaced by `arrangement` and aligned horizontally by `alignment`. When `scrollable` is `true`, gets a `verticalScroll` modifier — every child is still composed eagerly (not lazily), so prefer `LazyColumn` for long lists.
 
----
+**Parameters:**
 
-### BoxTileSchema
-**JSON type:** `"Box"`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | Children, stacked vertically. |
+| `filterChildrenByTerm` | `String?` | `null` | When set, only renders children whose `searchableTerms` contain this term (case-insensitive substring); children without `searchableTerms` are filtered out. |
+| `arrangement` | `ArrangementSchema.Vertical` | `arrangeVerticallyToTop()` | Spacing between children along the main axis. |
+| `alignment` | `AlignmentSchema.Horizontal` | `alignHorizontallyToStart()` | Cross-axis alignment. |
+| `scrollable` | `Boolean` | `false` | Whether the column can be scrolled vertically. |
 
-| Field | Type |
-|---|---|
-| `tiles` | `List<TileSchema>` |
-| `alignment` | `AlignmentSchema.TwoDimensional` |
+**DSL example:**
+```kotlin
+Column(arrangement = arrangeVerticallySpacedBy(12), scrollable = true) {
+    SimpleText(text = "Item 1")
+    SimpleText(text = "Item 2")
+}
+```
 
-**Note:** Stacking container — children overlay on top of each other. No scroll. No scoped CompositionLocal.
+**Triggers fired:** `OnDisplay` (always), `OnClick`/`OnLongPress` (only if declared), `OnScrolled` (fires when scroll direction changes — `ScrollDirection.Bottom` forward, `ScrollDirection.Top` backward; only meaningful when `scrollable` is `true`).
 
-**Supported triggers:** `OnDisplay`, `OnClick`, `OnLongPress`
+**Notes:** publishes `ColumnScope` (children can use `weight`) and clears the lazy-item scope. Also listens on the screen broadcast channel for programmatic scroll-to-top/bottom/offset commands addressed to its `id` — the offset variant is a **pixel offset**, not an item index (contrast with `LazyColumn`, below).
 
----
+### `LazyColumn`
 
-### SelectionContainerTileSchema
-**JSON type:** `"SelectionContainer"`
+Renders a Compose `LazyColumn` over `tiles` — one lazy item per child, keyed by the child's `id`. Only visible children are composed, making this the tile for long or paginated lists.
 
-| Field | Type |
-|---|---|
-| `tiles` | `List<TileSchema>` |
+**Parameters:**
 
-**Note:** Wraps children in Compose's `SelectionContainer`, enabling text selection spanning multiple descendant tiles. No layout of its own (no arrangement/alignment) — purely a selection boundary.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | Children, virtualized. |
+| `filterChildrenByTerm` | `String?` | `null` | Same substring filter as `Column`. |
+| `arrangement` | `ArrangementSchema.Vertical` | `arrangeVerticallyToTop()` | Spacing between items. |
+| `alignment` | `AlignmentSchema.Horizontal` | `alignHorizontallyToStart()` | Cross-axis alignment. |
+| `scrollThreshold` | `Int?` | `null` | Infinite-scroll pagination guard — see Notes. |
+| `considerLoadingItemAtEndOnThresholdReached` | `Boolean` | `true` | Requires the list to have grown by more than one item to re-fire the threshold trigger, accounting for a trailing loading placeholder. |
+| `displayScrollbar` | `Boolean` | `false` | Draws a vertical scrollbar on the trailing edge — honoured on every platform, typically useful on desktop/web. |
 
-**Supported triggers:** none.
+**DSL example:**
+```kotlin
+LazyColumn(scrollThreshold = 5, displayScrollbar = true) {
+    items.forEach { item -> Card(id = item.id) { SimpleText(text = item.title) } }
+}
+```
 
----
+**Triggers fired:** `OnDisplay` (always), `OnClick` (only if declared), `OnScrolled` (`ScrollDirection.Bottom`/`Top`), `OnScrollThresholdReached` (only when `scrollThreshold` is set — fires at most once per item count, not again until the list actually grows).
 
-### CardTileSchema
-**JSON type:** `"Card"`
+**Notes:** publishes `LazyItemScope` per item (children get `animateItem`/`fillParentMaxSize`, but **not** `ColumnScope.weight`) and clears the column scope. Programmatic scroll-to-item commands take a **child index**, not a pixel offset (contrast with the non-lazy `Column`).
 
-| Field | Type |
-|---|---|
-| `tiles` | `List<TileSchema>` |
-| `kind` | `Kind` |
+### `LazyRow`
 
-`Kind`: `DEFAULT` (filled), `ELEVATED` (shadow), `OUTLINED` (border)
+Horizontal counterpart of `LazyColumn` — same virtualization, pagination and scrollbar mechanics, laid out horizontally.
 
-**Note:** Uses `ColumnScope` internally. Exposes `LocalColumnScope`. Always fires `OnClick` regardless of events registration.
+**Parameters:**
 
-**Supported triggers:** `OnDisplay`, `OnClick`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | Children, virtualized. |
+| `filterChildrenByTerm` | `String?` | `null` | Same substring filter. |
+| `arrangement` | `ArrangementSchema.Horizontal` | `arrangeHorizontallyToStart()` | Spacing between items. |
+| `alignment` | `AlignmentSchema.Vertical` | `alignVerticallyToTop()` | Cross-axis alignment. |
+| `scrollThreshold` | `Int?` | `null` | Same pagination guard as `LazyColumn`. |
+| `considerLoadingItemAtEndOnThresholdReached` | `Boolean` | `true` | Same as `LazyColumn`. |
+| `displayScrollbar` | `Boolean` | `false` | Draws a horizontal scrollbar along the bottom edge. |
 
----
+**DSL example:**
+```kotlin
+LazyRow(arrangement = arrangeHorizontallySpacedBy(8)) {
+    tags.forEach { tag -> AssistChip(id = tag.id, text = tag.label) }
+}
+```
 
-### GridTileSchema
-**JSON type:** `"Grid"`
+**Triggers fired:** `OnDisplay`, `OnClick` (only if declared), `OnScrolled` (`ScrollDirection.End`/`Start`), `OnScrollThresholdReached` (same semantics as `LazyColumn`).
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required |
-| `columns` | `List<GridTrackSchema>` | required |
-| `rows` | `List<GridTrackSchema>` | required |
-| `columnGap` | `Int` | `0` |
-| `rowGap` | `Int` | `0` |
-| `flow` | `GridFlowSchema` | — |
+**Notes:** publishes `LazyItemScope` per item (not `RowScope.weight`), clears the row and flow-row scopes. Scroll-to-item commands take a child index.
 
-`GridTrackSchema` (sealed):
-- `Fixed(value: Int)` — fixed dp size
-- `Fraction(value: Float)` — fraction of available space (0.0–1.0)
-- `Flexible(value: Float)` — flex units (`fr`)
-- `Auto` — size to content
-- `MaxContent` — max content size
-- `MinContent` — min content size
+### `Row`
 
-`GridFlowSchema`: `Row` (row-first), `Column` (column-first)
+Renders a Compose `Row` laying `tiles` out horizontally, spaced by `arrangement` and aligned vertically by `alignment`. When `scrollable` is `true`, gets a `horizontalScroll` modifier — children still composed eagerly, prefer `LazyRow` for long lists.
 
-**Note:** Uses Compose experimental Grid API (`@OptIn(ExperimentalGridApi)`). Eager composition (not lazy). Exposes `LocalGridScope` CompositionLocal for children needing grid placement modifiers (columnSpan, rowSpan).
+**Parameters:**
 
-**Supported triggers:** `OnDisplay`, `OnClick`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | Children, laid out horizontally. |
+| `filterChildrenByTerm` | `String?` | `null` | Same substring filter as `Column`. |
+| `arrangement` | `ArrangementSchema.Horizontal` | `arrangeHorizontallyToStart()` | Spacing between children. |
+| `alignment` | `AlignmentSchema.Vertical` | `alignVerticallyToTop()` | Cross-axis alignment. |
+| `scrollable` | `Boolean` | `false` | Whether the row can be scrolled horizontally. |
 
----
+**DSL example:**
+```kotlin
+Row(arrangement = arrangeHorizontallySpacedBy(8), alignment = alignVerticallyToCenter()) {
+    Icon(icon = icon("info"))
+    SimpleText(text = "Info")
+}
+```
 
-### FlexBoxTileSchema
-**JSON type:** `"FlexBox"`
+**Triggers fired:** `OnDisplay`, `OnClick`/`OnLongPress` (only if declared), `OnScrolled` (`ScrollDirection.End`/`Start`; only meaningful when `scrollable` is `true`).
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required |
-| `direction` | `FlexDirectionSchema` | — |
-| `justifyContent` | `JustifyContentSchema` | — |
-| `alignItems` | `AlignItemsSchema` | — |
-| `alignContent` | `AlignContentSchema` | — |
-| `wrap` | `WrapSchema` | — |
-| `columnGap` | `Int` | `0` |
-| `rowGap` | `Int` | `0` |
+**Notes:** publishes `RowScope` (children can use `weight`), clears the lazy-item and flow-row scopes. Scroll-to-offset commands are a pixel offset, same as `Column`.
 
-`FlexDirectionSchema`: `Row`, `RowReverse`, `Column`, `ColumnReverse`
-`JustifyContentSchema`: `Start`, `Center`, `End`, `SpaceBetween`, `SpaceAround`, `SpaceEvenly`
-`AlignItemsSchema`: `Start`, `End`, `Center`, `Stretch`, `Baseline`
-`AlignContentSchema`: `Start`, `End`, `Center`, `Stretch`, `SpaceBetween`, `SpaceAround`
-`WrapSchema`: `NoWrap`, `Wrap`, `WrapReverse`
+### `SelectionContainer`
 
-**Note:** Uses Compose experimental FlexBox API (`@OptIn(ExperimentalFlexBoxApi)`). Exposes `LocalFlexBoxScope` CompositionLocal for children needing flex modifiers (flexGrow, flexShrink, alignSelf).
+Wraps `tiles` in a Compose `SelectionContainer`, making text rendered by its descendants selectable and copyable with the platform's selection handles and context menu.
 
-**Supported triggers:** `OnDisplay`, `OnClick`
+**Parameters:**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | `{}` (empty) | Children whose text becomes selectable. |
 
-### FlowRowTileSchema
-**JSON type:** `"FlowRow"`
+**DSL example:**
+```kotlin
+SelectionContainer {
+    SimpleText(text = "This paragraph can be selected and copied.")
+}
+```
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required |
-| `horizontalArrangement` | `ArrangementSchema.Horizontal` | — |
-| `verticalArrangement` | `ArrangementSchema.Vertical` | — |
-| `maxItemsInEachRow` | `Int?` | `null` (unlimited) |
+**Triggers fired:** none — not even `OnDisplay`. `events` declared on this tile are never fired; wire events on the children instead.
 
-**Note:** Uses Compose `FlowRow` — items wrap to the next row when the row is full. Eager composition (not lazy). Exposes `LocalFlowRowScope` CompositionLocal for children.
+**Notes:** children are rendered without a scope `CompositionLocal` — behaves like a `Box` for layout, put a `Column`/`Row` inside for a specific arrangement.
 
-**Supported triggers:** `OnDisplay`, `OnClick`
+### `Shimmer`
 
----
+Renders a `Box` hosting `tiles` with a continuously animated shimmer effect applied over the whole subtree — the standard way to build a skeleton/loading placeholder out of plain tiles.
 
-### PagerTileSchema
-**JSON type:** `"Pager"`
+**Parameters:**
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required |
-| `pageSize` | `PageSizeSchema` | `Fill` |
-| `pageSpacing` | `Int` | `0` |
-| `contentPadding` | `Int` | `0` |
-| `beyondViewportPageCount` | `Int` | `0` |
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | The placeholder shapes to shimmer over. |
 
-`PageSizeSchema` (sealed): `Fill` (fills viewport), `Fixed(value: Int dp)`
+**DSL example:**
+```kotlin
+Shimmer {
+    Column {
+        Box(style = { size(width = fillHorizontally(), height = fixedVertically(16)) }) {}
+    }
+}
+```
 
-**Note:** Uses Compose `HorizontalPager`. Page count derived from `tiles.size`. Initial page change from page 0 is suppressed to avoid spurious triggers on composition. Broadcast: `ScrollToBegin`, `ScrollToEnd`, `ScrollToNextPage`, `ScrollToPreviousPage`.
+**Triggers fired:** `OnDisplay` — always, once.
 
-`OnPageChanged` triggers fired per change: `Direction.Any` (always), `Direction.Start` (if new page is 0), `Direction.End` (if new page is last), `Direction.Index(n)` (always, carrying zero-based page index).
+**Notes:** the shimmer is purely visual — children stay interactive, so build the placeholder out of non-clickable tiles to avoid confusing taps. The tile itself is never clickable; children are laid out with `Box` semantics (stacked, no scope `CompositionLocal`).
 
-**Supported triggers:** `OnDisplay`, `OnPageChanged`
+### `Carousel`
 
----
+Renders a Material 3 horizontal carousel over `tiles`, one child per item. `type` picks the composable: `MultiBrowse` → `HorizontalMultiBrowseCarousel` (items vary in size, edges shrink), `Uncontained` → `HorizontalUncontainedCarousel` (fixed item width).
 
-### CarouselTileSchema
-**JSON type:** `"Carousel"`
+**Parameters:**
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required |
-| `type` | `CarouselType` | — |
-| `itemSpacing` | `Int` | — |
-| `contentPadding` | `Int` | — |
-| `userScrollEnabled` | `Boolean` | `true` |
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | One child per carousel item. |
+| `type` | `CarouselTypeSchema` — `multiBrowse(preferredItemWidth, minSmallItemWidth?, maxSmallItemWidth?)` or `uncontained(itemWidth)` | required | Layout strategy — see above. |
+| `itemSpacing` | `Int` | `0` | Gap between items, dp. |
+| `contentPadding` | `Int` | `0` | Horizontal padding around the carousel content, dp. |
+| `userScrollEnabled` | `Boolean` | `true` | Whether the user can swipe manually. |
 
-`CarouselType`: `MultiBrowse` (multiple items with peeking), `Uncontained` (fixed width items)
+**DSL example:**
+```kotlin
+Carousel(type = multiBrowse(preferredItemWidth = 280)) {
+    items.forEach { item -> Card(id = item.id) { Image(resourceName = item.image) } }
+}
+```
 
-**Note:** Material 3 horizontal carousel. `contentPadding` applied as symmetric horizontal padding. `userScrollEnabled = false` for programmatic-only scrolling.
+**Triggers fired:** `OnDisplay` (always), `OnPageChanged` (fires once per matching direction when the current item changes — `Direction.Any` always, `Direction.Start`/`Direction.End` when landing on the first/last item, `Direction.Index(item)` for the new index; the initial item doesn't fire; carries the new item index as `incomingData`).
 
-**Supported triggers:** `OnDisplay`
+**Notes:** shares its scroll-control broadcast channel with `Pager` — the same `ScrollColumnTile`/`ScrollPagerTile`-style commands addressed to this tile's `id` drive it (begin/end/next/previous, clamped to the valid range, so requesting past the ends is a no-op). Children are rendered by index, no scope `CompositionLocal`.
 
----
+### `FlexBox`
 
-### ShimmerTileSchema
-**JSON type:** `"Shimmer"`
+Renders a Compose `FlexBox` (experimental) hosting `tiles` with CSS-flexbox semantics.
 
-| Field | Type |
-|---|---|
-| `tiles` | `List<TileSchema>` |
+**Parameters:**
 
-**Note:** Always active while visible. To stop shimmer: replace or hide the tile. Uses `compose-shimmer` library.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | Children, laid out with flexbox rules. |
+| `filterChildrenByTerm` | `String?` | `null` | Same substring filter as `Column`. |
+| `direction` | `FlexDirectionSchema` (`Row`/`RowReverse`/`Column`/`ColumnReverse`) | `flexDirectionRow()` | Main axis and its reversal. |
+| `justifyContent` | `FlexJustifyContentSchema` (`Start`/`Center`/`End`/`SpaceBetween`/`SpaceAround`/`SpaceEvenly`) | `flexJustifyStart()` | Distribution along the main axis. |
+| `alignItems` | `FlexAlignItemsSchema` (`Start`/`End`/`Center`/`Stretch`/`Baseline`) | `flexAlignItemsStart()` | Cross-axis alignment within a line. |
+| `alignContent` | `FlexAlignContentSchema` (`Start`/`End`/`Center`/`Stretch`/`SpaceBetween`/`SpaceAround`) | `flexAlignContentStart()` | Distribution of the lines themselves — only takes effect when `wrap` allows multiple lines. |
+| `wrap` | `FlexWrapSchema` (`NoWrap`/`Wrap`/`WrapReverse`) | `flexNoWrap()` | Whether items wrap onto new lines. |
+| `columnGap` | `Int` | `0` | Column gap, dp. |
+| `rowGap` | `Int` | `0` | Row gap, dp. |
 
-**Supported triggers:** `OnDisplay`
+**DSL example:**
+```kotlin
+FlexBox(wrap = flexWrap(), justifyContent = flexJustifySpaceBetween()) {
+    tags.forEach { tag -> AssistChip(id = tag.id, text = tag.label) }
+}
+```
 
----
+**Triggers fired:** `OnDisplay` (always), `OnClick` (only if declared).
 
-### PullToRefreshTileSchema
-**JSON type:** `"PullToRefresh"`
+**Notes:** publishes `FlexBoxScope` (children get grow/shrink/basis/align-self modifiers). Never scrollable, every child composed eagerly.
 
-| Field | Type |
-|---|---|
-| `tiles` | `List<TileSchema>` |
-| `isRefreshing` | `Boolean` |
+### `FlowRow`
 
-**Note:** Uses Material 3 `PullToRefreshBox`. Server must toggle `isRefreshing = false` via `UpdateTiles` when refresh completes. `style`/`visibility` are not forwarded to `PullToRefreshBox`.
+Renders a Compose `FlowRow` laying `tiles` out horizontally, wrapping onto new lines when they no longer fit.
 
-**Supported triggers:** `OnDisplay`, `OnPull`
+**Parameters:**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | Children, wrapped across lines as needed. |
+| `filterChildrenByTerm` | `String?` | `null` | Same substring filter as `Column`. |
+| `horizontalArrangement` | `ArrangementSchema.Horizontal` | `arrangeHorizontallyToStart()` | Spacing between items within a line. |
+| `verticalArrangement` | `ArrangementSchema.Vertical` | `arrangeVerticallyToTop()` | Spacing between the lines themselves. |
+| `maxItemsInEachRow` | `Int` | `Int.MAX_VALUE` | Caps how many children a single line may hold. |
 
-### AdaptiveVisibilityTileSchema
-**JSON type:** `"AdaptiveVisibility"`
+**DSL example:**
+```kotlin
+FlowRow(horizontalArrangement = arrangeHorizontallySpacedBy(8)) {
+    filters.forEach { f -> FilterChip(id = f.id, text = f.label, selected = f.active) }
+}
+```
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required |
-| `width_visibility` | `WidthVisibility` | required (DSL default: `widthVisibleUntilExtraLarge()`) |
-| `height_visibility` | `HeightVisibility` | required (DSL default: `heightVisibleUntilExpanded()`) |
+**Triggers fired:** `OnDisplay` (always), `OnClick` (only if declared).
 
-`WidthVisibility` / `HeightVisibility`: `{ "type": "visible_from" | "visible_until", "breakpoint": { "type": ... } }`
+**Notes:** publishes `FlowRowScope` (children get `weight` and `fillMaxRowHeight`), clears the row and lazy-item scopes. Never scrollable, every child composed eagerly. Stable (not experimental), unlike `FlexBox`/`Grid`.
 
-Semantics:
-- `visible_from` — **exclusive**: visible at breakpoints **above** the specified one. `fromCompact` = Medium and up; `fromMedium` = Expanded and up.
-- `visible_until` — **inclusive**: visible at the specified breakpoint **and below**. `untilMedium` = Compact and Medium.
+### `Grid`
 
-`WidthBreakpoint`: `compact`, `medium`, `expanded`, `large`, `extra_large`.
-`HeightBreakpoint`: `compact`, `medium`, `expanded`.
+Renders a Compose `Grid` (experimental, CSS-grid-like) hosting `tiles`. `columns`/`rows` declare the track template.
 
-**Note:** Transparent (logical) container. Observes `currentWindowAdaptiveInfoV2()` and only composes children when **both** axes are satisfied. Creates no layout node — `style` is not applied.
+**Parameters:**
 
-DSL helpers (in `AdaptiveVisibilityTileSchemaBuilder.kt`): `widthVisibleFrom[Compact|Medium|Expanded|Large|ExtraLarge]()`, `widthVisibleUntil[...]()`, `heightVisibleFrom[Compact|Medium|Expanded]()`, `heightVisibleUntil[...]()`.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | Children, placed onto the grid. |
+| `filterChildrenByTerm` | `String?` | `null` | Same substring filter as `Column`. |
+| `columns` | `List<GridTrackSchema>` | required | Column tracks — `gridColumnFixed(dp)`, `gridColumnFraction(f)`, `gridColumnFlexible(fr)`, `gridColumnAuto()`, `gridColumnMaxContent()`, `gridColumnMinContent()`. |
+| `rows` | `List<GridTrackSchema>` | required (builder), empty allowed in schema | Row tracks — same helpers with `gridRow*` prefix. Empty derives row tracks implicitly. |
+| `columnGap` | `Int` | `0` | Column gap, dp. |
+| `rowGap` | `Int` | `0` | Row gap, dp. |
+| `flow` | `GridFlowSchema` (`Row`/`Column`) | `flowGridThroughRows()` | Whether children are placed row-first or column-first. |
 
-**Supported triggers:** `OnDisplay`, `OnWidthBreakpointSatisfied`, `OnWidthBreakpointNotSatisfied`, `OnHeightBreakpointSatisfied`, `OnHeightBreakpointNotSatisfied`
+**DSL example:**
+```kotlin
+Grid(
+    columns = listOf(gridColumnFlexible(1f), gridColumnFlexible(1f)),
+    rows = emptyList(),
+    columnGap = 8, rowGap = 8
+) {
+    products.forEach { p -> Card(id = p.id) { Image(resourceName = p.image) } }
+}
+```
 
----
+**Triggers fired:** `OnDisplay` (always), `OnClick`/`OnLongPress` (only if declared).
 
-### LazyTilesTileSchema
-**JSON type:** `"LazyTiles"`
+**Notes:** the DSL function's `rows` parameter has **no default**, even though the underlying schema defaults it to an empty list — pass `rows = emptyList()` explicitly to get the "derive row tracks implicitly" behavior via the DSL. Publishes `GridScope` (row/column span and placement modifiers). Never scrollable, every child composed eagerly.
 
-Self-loading tile container that fetches child tiles from a remote endpoint on first render.
+### `LazyTiles`
 
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>?` | `null` (loaded remotely on first render) |
-| `placeholderTiles` | `List<TileSchema>` | shown while loading |
-| `failureTiles` | `List<TileSchema>` | shown on error |
-| `isFailureState` | `Boolean` | `false` |
-| `url` | `String` | required |
-| `method` | `HttpMethod` | required |
-| `body` | `AnySerializable?` | — |
-| `headers` | `Map<String, String>?` | — |
+Renders a `Column` whose content is fetched from the network at display time — the only tile that issues its own network call directly, outside the event pipeline.
 
-`HttpMethod`: `GET`, `POST`, `PUT`, `DELETE`, `PATCH`
+**Parameters:**
 
-**Note:** Network call via `SingleEffect` (one-shot). If `tiles` is non-null, fetch is skipped. Response decoded as `List<TileSchema>`. Outer layout is `Column`. Use `ReloadLazyTilesEventSchema` to force re-fetch.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `url` | `String` | required | Endpoint fetched to load the real content. |
+| `method` | `HttpMethod` | `HttpMethod.GET` | HTTP method used for the fetch. |
+| `body` | `AnySerializable?` | `null` | Request body. |
+| `headers` | `Map<String, String>?` | `null` | Request headers. |
+| `failureTiles` | `List<TileSchema>` | `{}` (empty) | Rendered when the fetch or decode fails. |
+| `placeholderTiles` | `List<TileSchema>` | `{}` (empty) | Rendered while the fetch is in flight. |
 
-**Supported triggers:** `OnDisplay`, `OnLoadTilesStart`, `OnLoadTilesSuccess`, `OnLoadTilesFailure`
+**DSL example:**
+```kotlin
+LazyTiles(
+    url = "/api/recommendations",
+    placeholderTiles = { Shimmer { /* skeleton */ } },
+    failureTiles = { SimpleText(text = "Couldn't load recommendations") }
+)
+```
 
----
+**Triggers fired:** `OnDisplay` (always), `OnLoadTilesStart` (right before the request), then exactly one of `OnLoadTilesSuccess` (response received and decoded) or `OnLoadTilesFailure` (transport or decode error — the `Throwable` is the incoming data).
 
-## App Bars
+**Notes:** the expected response is a JSON array of tile schemas, replacing `placeholderTiles`/`failureTiles` once loaded. The fetch fires once, on the IO dispatcher, via a single-shot effect — since it bypasses the event pipeline entirely, it's not affected by event chaining and there's no `trigger` to hook the request itself to. Reloading is done remotely via the `ReloadLazyTiles` event, targeting this tile's `id`. Children are laid out in a plain `Column`, no scope `CompositionLocal`, never scrollable.
 
-### TopAppBarTileSchema
-**JSON type:** `"TopAppBar"`
+### `Pager`
 
-| Field | Type | Default |
-|---|---|---|
-| `title` | `TileSchema` | required |
-| `navigationIcon` | `TileSchema?` | `null` |
-| `actions` | `List<TileSchema>?` | `null` |
-| `barStyle` | `TopAppBarStyle` | `DEFAULT` |
+Renders a Compose `HorizontalPager` over `tiles`, one page per child.
 
-`TopAppBarStyle`: `DEFAULT` (small, title left-aligned), `CENTER_ALIGNED` (title centered), `MEDIUM` (collapsible, medium height), `LARGE` (collapsible, large height)
+**Parameters:**
 
-**Note:** Slots rendered as independent `RenderChild` calls (not in `RenderChildren` hierarchy). Triggers come from child tiles, not the app bar itself.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | One child per page. |
+| `pageSize` | `PageSizeSchema` (`Fill`/`Fixed(dp)`) | `pageFill()` | Full-width pages or a fixed width — `pageFill()`/`pageFixed(dp)`. |
+| `pageSpacing` | `Int` | `0` | Gap between pages, dp. |
+| `contentPadding` | `Int` | `0` | Horizontal padding around the pager content, dp. |
+| `beyondViewportPageCount` | `Int` | `0` | How many off-screen pages stay composed. |
 
-**Supported triggers:** none
+**DSL example:**
+```kotlin
+Pager(pageSize = pageFill()) {
+    onboardingSteps.forEach { step -> Column(id = step.id) { /* ... */ } }
+}
+```
 
----
+**Triggers fired:** `OnDisplay` (always), `OnPageChanged` (fires once per matching direction on every settled page change — `Direction.Any` always, `Direction.Start`/`End` on first/last page, `Direction.Index(page)` for the new index; the initial page doesn't fire; carries the new page index as `incomingData`. Wiring several directions means several chains run for the same page change).
 
-### BottomAppBarTileSchema
-**JSON type:** `"BottomAppBar"`
+**Notes:** horizontal only. Same scroll-control broadcast mechanism as `Carousel` (begin/end/next/previous, clamped to valid range). Children rendered by index, no scope `CompositionLocal`.
 
-| Field | Type | Default |
-|---|---|---|
-| `actions` | `List<TileSchema>` | required |
-| `floatingActionButton` | `TileSchema?` | `null` |
+### `PullToRefresh`
 
-**Note:** `actions` rendered in `RowScope`. `floatingActionButton` rendered independently. Triggers come from child tiles.
+Renders a Material 3 `PullToRefreshBox` wrapping `tiles`, showing the refresh indicator while `isRefreshing` is `true`.
 
-**Supported triggers:** none
+**Parameters:**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | `List<TileSchema>` | required | Content wrapped by the pull gesture — put a scrollable tile inside for the gesture to feel natural. |
+| `isRefreshing` | `Boolean` | `false` | Whether the refresh indicator is currently shown. |
+
+**DSL example:**
+```kotlin
+PullToRefresh(isRefreshing = false, events = {
+    RefreshScreen(
+        trigger = EventTriggers.onPull(),
+        events = {
+            StopRefreshing(trigger = EventTriggers.onSuccess(), tileId = "list")
+        }
+    )
+}) {
+    LazyColumn { /* ... */ }
+}
+```
+
+**Triggers fired:** `OnDisplay` (always), `OnPull` (fired when the user completes a pull gesture — hook the refresh work to this).
+
+**Notes:** pulling sets `isRefreshing = true` locally, immediately, with no server round trip — but nothing turns it back off automatically. The server must chain a `StopRefreshing` event pointing at this tile's `id` onto **both** the success and the failure branch of the refresh flow, or the indicator spins forever. Children laid out with `Box` semantics, no scope `CompositionLocal`.
+
+## App bars
+
+### `TopAppBar`
+
+Renders a Material 3 top app bar. `barStyle` picks the composable: `DEFAULT` → `TopAppBar`, `CENTER_ALIGNED` → `CenterAlignedTopAppBar`, `MEDIUM` → `MediumTopAppBar`, `LARGE` → `LargeTopAppBar`.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `title` | tile block | required | Fills the title slot — most often a `SimpleText`. |
+| `navigationIcon` | tile block? | `null` | Fills the leading slot — typically an `IconButton`. Empty slot when omitted. |
+| `actions` | tile block? | `null` | Fills the trailing slot (`RowScope`). Empty slot when omitted. |
+| `barStyle` | `TopAppBarStyle` (`DEFAULT`/`CENTER_ALIGNED`/`MEDIUM`/`LARGE`) | `defaultTopAppBar()` | Visual variant — `defaultTopAppBar()`, `centerAlignedTopAppBar()`, `mediumTopAppBar()`, `largeTopAppBar()`. |
+
+**DSL example:**
+```kotlin
+TopAppBar(
+    title = { SimpleText(text = "Settings") },
+    navigationIcon = { IconButton(icon = icon("arrow_back"), events = { NavigateUp(trigger = EventTriggers.onClick(), navigatorId = "root") }) },
+    barStyle = centerAlignedTopAppBar()
+)
+```
+
+**Triggers fired:** none — not clickable. Wire events on the slot tiles (typically `IconButton`s inside `navigationIcon`/`actions`) instead.
+
+**Notes:** `title` is required — omitting it throws at grid-build time on the server. `title` and `navigationIcon` only keep the **last** tile declared inside their block if more than one is added; declare exactly one. The bar has no scroll behavior, so `MEDIUM`/`LARGE` don't collapse as content scrolls.
+
+### `BottomAppBar`
+
+Renders a Material 3 `BottomAppBar` with `actions` laid out on the leading side and an optional `floatingActionButton` docked at the trailing edge.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `actions` | `List<TileSchema>` | required | Tiles laid out in a `RowScope` on the leading side. |
+| `floatingActionButton` | tile block? | `null` | Any tile docked at the trailing edge, typically a `FloatingActionButton`. |
+
+**DSL example:**
+```kotlin
+BottomAppBar(
+    actions = { IconButton(icon = icon("search"), events = { /* ... */ }) },
+    floatingActionButton = { FloatingActionButton(icon = icon("add"), size = mediumFloatingActionButon()) }
+)
+```
+
+**Triggers fired:** none — not clickable. Wire events on the action tiles instead.
+
+**Notes:** `floatingActionButton` also keeps only the last declared tile if more than one is added.
 
 ## Navigation
 
-### TabsTileSchema
-**JSON type:** `"Tabs"`
+### `NavigationBar`
+
+Renders a Material 3 `NavigationBar` with one `NavigationBarItem` per entry in `items`. The selected item's icon draws filled; the rest outlined.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `items` | `List<NavigationBarItem>` (`id`, `icon`, `label?`) — built via `item(id, icon, label?)` | required | Entries, one per bar item. |
+| `selectedItemId` | `String` | required | Id of the currently highlighted item. |
+
+**DSL example:**
+```kotlin
+NavigationBar(
+    selectedItemId = "home",
+    items = {
+        item(
+            id = "home",
+            icon = icon("home"),
+            label = "Home"
+        )
+        item(
+            id = "profile",
+            icon = icon("person"),
+            label = "Profile"
+        )
+    },
+    events = { Navigate(trigger = EventTriggers.onNavigationBarItemClick("home"), destination = "home", navigatorId = "root") }
+)
+```
+
+**Triggers fired:** `OnNavigationBarItemClick` — fired on tap, carrying the tapped item's `id` (so events can be wired per item, matching the trigger's parameter). Tapping the already-selected item still fires it again.
+
+**Notes:** selection moves locally, instantly, with no server round trip — the bar only tracks which item is highlighted; actually navigating is the job of whatever event you wire to the click. Not clickable itself, fires no `OnDisplay`.
+
+### `NavigationRail`
+
+Side-rail counterpart of `NavigationBar` — same selection mechanism, plus optional `header`/`footer` slots. The renderer applies 4dp horizontal / 8dp vertical padding.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `items` | `List<NavigationRailItem>` (`id`, `icon`, `label?`) — built via `addItem(id, icon, label?)` | required | Entries, one per rail item. |
+| `selectedItemId` | `String` | required | Id of the currently highlighted item. |
+| `header` | tile block? | `null` | Rendered above the items. |
+| `footer` | tile block? | `null` | Rendered at the bottom, pushed down by a weighted spacer. |
+
+**DSL example:**
+```kotlin
+NavigationRail(
+    selectedItemId = "home",
+    items = { addItem(id = "home", icon = icon("home"), label = "Home") },
+    footer = { IconButton(icon = icon("settings"), events = { /* ... */ }) }
+)
+```
 
-| Field | Type |
-|---|---|
-| `selectedTabId` | `String` |
-| `tabItems` | `List<TabItem>` |
-| `tabType` | `Type` |
-| `scrollable` | `Boolean` |
+**Triggers fired:** `OnNavigationRailItemClick` — same semantics as `NavigationBar`'s `OnNavigationBarItemClick`.
 
-`TabItem`: `{ id: String, label: String?, icon: IconSchema?, badgeText: String? }`
-`Type`: `PRIMARY`, `SECONDARY`
+**Notes:** the sub-builder for adding an item is named `addItem` here, not `item` (as in `NavigationBar`) — a real naming inconsistency between the two, not a typo in this catalog. Same "selection is local-only, navigation is your job" pattern as `NavigationBar`.
 
-**Note:** Selected index computed client-side from `selectedTabId`. `badgeText` field is defined in schema but not yet rendered in the current renderer.
+### `Tabs`
 
-**Supported triggers:** `OnTabItemClick`
+Renders a Material 3 tab row with one `Tab` per entry in `tabItems`. `tabType` picks the emphasis (`PRIMARY`/`SECONDARY`); `scrollable` picks between the fixed row and the scrollable one.
 
----
+**Parameters:**
 
-### NavigationBarTileSchema
-**JSON type:** `"NavigationBar"`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `selectedTabId` | `String` | required | Id of the currently selected tab. |
+| `tabItems` | `List<TabItem>` (`id`, `label?`, `icon?`, `badgeText?`) — built via `addTab(id, label?, icon?, badgeText?)` | required | Entries, one per tab. |
+| `tabType` | `Type` (`PRIMARY`/`SECONDARY`) | `primaryTabs()` | Visual emphasis — `primaryTabs()`/`secondaryTabs()`. |
+| `scrollable` | `Boolean` | required (no default) | `false` for a fixed row, `true` for a horizontally scrollable one. |
 
-| Field | Type |
-|---|---|
-| `items` | `List<NavigationBarItem>` |
-| `selectedItemId` | `String` |
+**DSL example:**
+```kotlin
+Tabs(
+    selectedTabId = "all",
+    scrollable = false,
+    tabItems = {
+        addTab(id = "all", label = "All")
+        addTab(
+            id = "unread",
+            label = "Unread",
+            badgeText = ""
+        )
+    },
+    events = { UpdateTiles(trigger = EventTriggers.onTabItemClick("unread"), updates = { /* filter list */ }) }
+)
+```
 
-`NavigationBarItem`: `{ id: String, icon: IconSchema, label: String? }`
+**Triggers fired:** `OnTabItemClick` — fired on tap, carrying the tapped tab's `id`.
 
-**Note:** Selected state is server-driven. Icon filling (filled vs outlined) determined by id matching `selectedItemId`.
+**Notes:** `badgeText` on a `TabItem`: `null` = no badge, empty string = small dot badge, any other value = badge with that text — 3 states, not 2. The badge attaches to the icon if present, otherwise to the label. When `selectedTabId` matches none of `tabItems`, the first tab is highlighted as a silent fallback. An empty `tabItems` renders nothing. Selection is local-only, same as the other two navigation tiles.
 
-**Supported triggers:** `OnNavigationBarItemClick`
+### `NestedNavigationGraph`
 
----
+Hosts a self-contained Navigation 3 `NavDisplay` inside a tile — a region of a screen gets its own back stack, independent of the screen it lives in.
 
-### NavigationRailTileSchema
-**JSON type:** `"NavigationRail"`
+**Parameters:**
 
-| Field | Type | Default |
-|---|---|---|
-| `items` | `List<NavigationRailItem>` | required |
-| `selectedItemId` | `String` | required |
-| `header` | `TileSchema?` | `null` |
-| `footer` | `TileSchema?` | `null` |
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `navigatorId` | `String` | required | Id under which this graph's `NavigationController` is registered — `Navigate`/`NavigateUp`/`NavigateClearingStack` events target it by this id. |
+| `startEntryId` | `String` | required | `screenId` of the entry shown first. |
+| `entries` | `NestedNavigationGraphEntryBuilderScope.() -> Unit` — built via `entry(screenId, initialTiles?, initialEvents?, failureTiles?, failureEvents?, transition?, popTransition?, predictivePopTransition?)` | required | Every screen this graph can show. |
+| `defaultTransition` | `ContentTransitionSchema?` | `null` | Fallback enter/exit transition for entries that don't declare their own. |
+| `defaultPopTransition` | `ContentTransitionSchema?` | `null` | Fallback transition for popping back. |
+| `defaultPredictivePopTransition` | `ContentTransitionSchema?` | `null` | Fallback transition for the predictive-back gesture. |
 
-`NavigationRailItem`: `{ id: String, icon: IconSchema, label: String? }`
+**DSL example:**
+```kotlin
+NestedNavigationGraph(
+    navigatorId = "settings_graph",
+    startEntryId = "settings_home",
+    entries = {
+        entry(screenId = "settings_home")
+        entry(screenId = "settings_profile")
+    }
+)
+```
 
-**Note:** `header` rendered at top; `footer` pushed to bottom via `weight(1f)` Spacer. Fixed padding applied (4.dp horizontal, 8.dp vertical).
+**Triggers fired:** `OnNavigationEntrySet` — fired whenever an entry is displayed, carrying that entry's `screenId`. Fires for the start destination too, and again every time navigation returns to an already-visited entry.
 
-**Supported triggers:** `OnNavigationRailItemClick`
+**Notes:** registration of the `navigatorId` and every `entry` is tied to this tile's own composition — both are undone the moment the tile leaves the screen, so events targeting this graph's `navigatorId` only work while it's actually on screen. Each entry's `initialEvents` defaults to the framework-wide `GetScreen(onDisplay()) { ChangeScreenState(onSuccess(), successState()) }` pair (see `architecture.md` §5) unless overridden. Each entry keeps its own saveable state and `ViewModelStore`, so navigating back and forth within the graph preserves screen state. The system back gesture pops this graph's own stack, not the screen's.
 
----
+## Progress
 
-### NestedNavigationGraphTileSchema
-**JSON type:** `"NestedNavigationGraph"`
+### `CircularProgressIndicator`
 
-| Field | Type | Default |
-|---|---|---|
-| `entries` | `List<Entry>` | required |
-| `startEntryId` | `String` | required |
-| `defaultTransition` | `TransitionSchema?` | `null` |
-| `defaultPopTransition` | `TransitionSchema?` | `null` |
-| `defaultPredictivePopTransition` | `TransitionSchema?` | `null` |
+Renders a Material 3 `CircularProgressIndicator`. `null` progress → indeterminate spinner; a value → determinate arc (`0f` empty, `1f` complete).
 
-`Entry`: `{ screenId: String, initialTiles: List<TileSchema>, initialEvents: List<EventSchema>?, failureTiles: List<TileSchema>?, failureEvents: List<EventSchema>?, transition: TransitionSchema?, popTransition: TransitionSchema?, predictivePopTransition: TransitionSchema? }`
+**Parameters:**
 
-**Note:** Embeds a Navigation 3 `NavDisplay` hosting a full navigation back-stack. Registers a `NavigationController` in `NavigatorsHolder` (unregistered on `DisposableEffect`). Per-entry transitions override defaults. Back-stack key type is `ScreenNavKey`. ViewModel scope preserved per entry.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `progress` | `Float?` | `null` (indeterminate) | Determinate fraction, `0f`–`1f`. |
 
-**Supported triggers:** `OnNavigationEntrySet`, `OnNavigationEntryChanged`
+**DSL example:**
+```kotlin
+CircularProgressIndicator(progress = 0.6f)
+```
 
----
+**Triggers fired:** none — not clickable.
 
-## Progress Indicators
+**Notes:** `style` defaults to a **fixed 48×48dp** size (the only progress tile with a non-trivial style default, since a circle has no intrinsic content to wrap). Colors/stroke are Material defaults — only `style` (size, padding, background) is applied. Drive a determinate indicator over time by pushing new `progress` values via `UpdateTiles`.
 
-### CircularProgressIndicatorTileSchema
-**JSON type:** `"CircularProgressIndicator"`
+### `LinearProgressIndicator`
 
-| Field | Type | Default |
-|---|---|---|
-| `progress` | `Float?` | `null` (indeterminate) |
+Renders a Material 3 `LinearProgressIndicator`. Same `progress` semantics as `CircularProgressIndicator`.
 
-**Note:** `progress` non-null = determinate mode with fixed fill; `progress` null = animated indeterminate spinner.
+**Parameters:**
 
-**Supported triggers:** none
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `progress` | `Float?` | `null` (indeterminate) | Determinate fraction, `0f`–`1f`. |
 
----
+**DSL example:**
+```kotlin
+LinearProgressIndicator(progress = null, style = { size(width = fillHorizontally(), height = fixedVertically(4)) })
+```
 
-### LinearProgressIndicatorTileSchema
-**JSON type:** `"LinearProgressIndicator"`
+**Triggers fired:** none — not clickable.
 
-| Field | Type | Default |
-|---|---|---|
-| `progress` | `Float?` | `null` (indeterminate) |
+**Notes:** unlike `CircularProgressIndicator`, `style` uses the plain framework default (fill/wrap) — it can stretch horizontally on its own since it's a bar, not a circle. Colors/track/cap are Material defaults.
 
-**Note:** Same determinate/indeterminate toggle as `CircularProgressIndicatorTileSchema`.
+## Feedback & overlays
 
-**Supported triggers:** none
+### `Badge`
 
----
+Renders a Material 3 `Badge`. Non-null `content` → pill-shaped badge with that text; `null` → small empty dot.
 
-## Badge
+**Parameters:**
 
-### BadgeTileSchema
-**JSON type:** `"Badge"`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `content` | `String?` | `null` (dot form) | Text shown inside the badge. |
 
-| Field | Type | Default |
-|---|---|---|
-| `content` | `String?` | `null` (renders as plain dot) |
+**DSL example:**
+```kotlin
+Box(alignment = alignToTopEnd()) {
+    Icon(icon = icon("notifications"))
+    Badge(content = "3")
+}
+```
+
+**Triggers fired:** none — not clickable.
+
+**Notes:** a standalone badge, **not** a `BadgedBox` — it doesn't attach itself to a sibling automatically. Position it yourself, typically inside a `Box` aligned over the tile it decorates (as in the example above).
+
+### `Menu`
+
+Renders an anchor (`tiles`) with a Material 3 `DropdownMenu` attached, listing one entry per `items`. Uses the theme's large shape, respects system bars, caps at 400dp tall (scrolls beyond that).
+
+**Parameters:**
 
-**Note:** `content` non-null = text in pill; `content` null = plain dot. Typically used inside `BadgedBox`.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | tile block | required | The anchor — laid out with `Box` semantics, carries `style`/`visibility`. |
+| `items` | `List<MenuItem>` (`id`, `label`, `leadingIcon?`, `trailingIcon?`) — built via `addMenuItem(id, label, leadingIcon?, trailingIcon?)` | required | Entries in the dropdown. |
+| `expanded` | `Boolean` | `false` | Whether the menu is currently open. |
 
-**Supported triggers:** none
+**DSL example:**
+```kotlin
+Menu(
+    expanded = false,
+    items = {
+        addMenuItem(
+            id = "edit",
+            label = "Edit",
+            leadingIcon = icon("edit")
+        )
+        addMenuItem(
+            id = "delete",
+            label = "Delete",
+            leadingIcon = icon("delete")
+        )
+    },
+    events = { ToggleMenu(trigger = EventTriggers.onClick(), menuId = "item_menu") }
+) {
+    IconButton(icon = icon("more_vert"))
+}
+```
 
----
+**Triggers fired:** `OnMenuItemClick` — fired when an item is tapped, carrying that item's `id`.
 
-## Search
+**Notes:** dismissing by gesture (tap outside, back) closes the menu locally, no round trip needed. Opening the menu, or closing it programmatically (e.g. after acting on a selection), requires the `ToggleMenu` event pointed at this tile's `id` — it's a toggle, not separate open/close events. `style`/`visibility` apply only to the anchor; the dropdown itself is positioned by Material and unaffected by them.
 
-### SearchBarTileSchema
-**JSON type:** `"SearchBar"`
+### `Popup`
 
-| Field | Type | Default |
-|---|---|---|
-| `query` | `String` | `""` |
-| `placeholder` | `String?` | `null` |
-| `leadingIcon` | `TileSchema?` | `null` |
+Renders an anchor (`tiles`) with a Compose `Popup` containing `popupTiles` floating over it, composed only while `expanded` is `true`.
 
-**Note:** Built on `BasicTextField` with Material 3 styling. Fixed height 56 dp. IME action `ImeAction.Search`. Trailing icon is a hardcoded clear button (appears animated when `query` is non-empty) — not configurable from schema. Server must update `query` via `UpdateTiles` on each keystroke. Custom triggers: `onQueryCleared` (clear button), `onSearch` (IME search action).
+**Parameters:**
 
-**Supported triggers:** `OnTextChanged`, `OnQueryChanged`, `OnQueryCleared`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | tile block | required | The anchor. |
+| `popupTiles` | tile block | required | Content of the floating popup — unstyled by default, see Notes. |
+| `expanded` | `Boolean` | `false` | Whether the popup is currently shown. |
+| `alignment` | `AlignmentSchema.TwoDimensional` | `alignToTopStart()` | Placement relative to the anchor's bounds — see behavior notes below. |
+| `offsetX` | `Int` | `0` | Horizontal dp offset — meaning depends on `alignment` (see Notes). |
+| `offsetY` | `Int` | `0` | Vertical dp offset — meaning depends on `alignment`. |
+| `focusable` | `Boolean` | `false` | Whether the popup can take focus. |
+| `dismissOnBackPress` | `Boolean` | `true` | Whether the back gesture dismisses it. |
+| `dismissOnClickOutside` | `Boolean` | `true` | Whether tapping outside dismisses it. |
 
----
+**DSL example:**
+```kotlin
+Popup(
+    expanded = false,
+    alignment = alignToBottomStart(),
+    offsetY = 8,
+    events = { TogglePopup(trigger = EventTriggers.onClick(), popupId = "info_popup") },
+    tiles = { IconButton(icon = icon("info")) },
+    popupTiles = { Card { SimpleText(text = "More information here") } }
+)
+```
 
-## Menu
+**Triggers fired:** none. `events` declared on this tile are never fired — wire events on the anchor and popup tiles instead.
 
-### MenuTileSchema
-**JSON type:** `"Menu"`
+**Notes:** the meaning of `offsetX`/`offsetY` is not uniform across `alignment` values: `Top*`/`Bottom*` alignments put the popup fully above/below the anchor with `offsetY` as the gap; `CenterStart`/`CenterEnd` put it fully to the side with `offsetX` as the gap (mirrored in RTL); corner alignments flush-align the matching edges, with `offsetX` as a plain translation. The final position is always clamped to the window — a popup can never be pushed off screen. Dismissal by gesture flips `expanded` locally, no round trip; programmatic open/close is via `TogglePopup` pointed at this tile's `id`. `popupTiles` renders completely unstyled — add a `Card` or a styled `Box` inside if you want a visible surface behind the content.
 
-| Field | Type |
-|---|---|
-| `tiles` | `List<TileSchema>` |
-| `items` | `List<MenuItem>` |
-| `expanded` | `Boolean` |
+### `SearchBar`
 
-`MenuItem`: `{ id: String, label: String, leadingIcon: IconSchema?, trailingIcon: IconSchema? }`
+Renders a search field — a `Surface` (extra-large shape, high surface-container color) wrapping a single-line text field. The keyboard's IME action is always "Search".
 
-**Note:** `Box` overlaying a `DropdownMenu` on top of anchor content (`tiles`). `expanded` state is server-driven. When user dismisses menu externally, renderer dispatches `MenuTileEvents.OnToggleMenu` → `MenuTileHolder` toggles `tile.expanded`. Max dropdown height 400 dp. Complex builder scenario — `MenuTileSchemaBuilder` has nested `MenuItem` builders; always study the existing implementation before modifying.
+**Parameters:**
 
-**Supported triggers:** `OnMenuItemClick`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `query` | `String` | `""` | Current search text. |
+| `placeholder` | `String?` | `null` | Shown when `query` is empty. |
+| `leadingIcon` | tile block? | `null` | **Any tile** in the leading slot (not just `IconSchema`). |
+| `trailingIcon` | tile block? | `null` | **Any tile** in the trailing slot — cross-fades out for a built-in clear button once `query` has text, see Notes. |
 
----
+**DSL example:**
+```kotlin
+SearchBar(
+    id = "search",
+    placeholder = "Search tiles…",
+    events = {
+        TransformData(
+            trigger = EventTriggers.onQueryChanged(),
+            template = mapOf("filterChildrenByTerm" to "<||>"),
+            events = { UpdateTiles(trigger = EventTriggers.onSuccess(), updates = { update(tileId = "results", updateData = incomingTileUpdateData()) }) }
+        )
+    }
+)
+```
 
-## Popup
+**Triggers fired:** `OnQueryChanged` (every keystroke, new text as incoming data — clearing also fires it, with an empty string), `OnQueryCleared` (clear button pressed, fires right before `OnQueryChanged` above), `OnSearch` (IME "Search" pressed, current `query` as incoming data).
 
-### PopupTileSchema
-**JSON type:** `"Popup"`
+**Notes:** `leadingIcon`/`trailingIcon` accept **any tile**, not just an icon — the one exception among all icon-bearing fields across the tile catalog. The trailing slot is shared with a built-in clear button: while `query` is empty it shows `trailingIcon` (if set); as soon as there's text it cross-fades to `clear`, so a custom trailing icon and the clear button are never visible together. This is only the input field — no suggestion list, no expanded state; pair it with a `LazyColumn`/`Column`'s `filterChildrenByTerm` to show results, as in the example.
 
-| Field | Type |
-|---|---|
-| `tiles` | `List<TileSchema>` |
-| `popupTiles` | `List<TileSchema>` |
-| `expanded` | `Boolean` |
-| `alignment` | `AlignmentSchema.TwoDimensional` |
-| `offsetX` | `Int` |
-| `offsetY` | `Int` |
-| `focusable` | `Boolean` |
-| `dismissOnBackPress` | `Boolean` |
-| `dismissOnClickOutside` | `Boolean` |
+### `SystemBroadcastListener`
 
-**Note:** `Box` wrapping anchor content (`tiles`) plus a Compose `Popup` composed only while `expanded` is `true` (unlike `DropdownMenu`, `Popup` has no `expanded` param). `popupTiles` is free-form content (not a fixed item list like Menu). `alignment`/`offsetX`/`offsetY` position the popup relative to the anchor; `focusable`/`dismissOnBackPress`/`dismissOnClickOutside` map to Compose's `PopupProperties`. Dismiss dispatches `PopupTileEvents.OnTogglePopup` locally → `PopupTileHolder` toggles `tile.expanded`, same pattern as Menu. Two separate walkable child groups (`tiles` + `popupTiles`), following the `ScreenTileHolder` precedent rather than merging into one list.
+Renders `tiles` and, while they're on screen, subscribes to the app-wide system broadcast channel — every broadcast received becomes a trigger.
 
-Corner alignments (`TopStart`/`TopEnd`/`BottomStart`/`BottomEnd`) flush-align the popup's matching horizontal edge with the anchor's edge (dropdown-menu style, e.g. `BottomEnd` hangs below with right edges lined up); `offsetX` there is a plain left/right translation from that flush position (negative allowed — useful to nudge a corner popup anchored near a screen edge back on-screen). `CenterStart`/`CenterEnd` instead render as a pure side flyout fully outside the anchor, with `offsetX` as a positive gap. `offsetY` is always a positive gap for `Top`/`Bottom` alignments.
+**Parameters:**
 
-**Supported triggers:** none specific — standard tile triggers (`OnDisplay`, `OnClick`, etc.) apply.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | tile block | required | Children, hosted in a `Box`. |
 
----
+**DSL example:**
+```kotlin
+SystemBroadcastListener(events = { RefreshScreen(trigger = EventTriggers.onSystemBroadcast("push_received")) }) {
+    Column { /* screen content */ }
+}
+```
 
-## Tooltip
+**Triggers fired:** `OnSystemBroadcast` — fired per broadcast received, carrying the broadcast's own id (so events can be wired per broadcast) with the payload as incoming data.
 
-### TooltipTileSchema
-**JSON type:** `"Tooltip"`
+**Notes:** this is how host-app signals (push notifications, connectivity changes, anything the app publishes on the system broadcast channel — see `architecture.md` §4) drive server-declared event flows. The subscription lives only as long as the tile is composed — off screen, broadcasts aren't observed. Multiple instances across different screens each react independently to the same broadcast.
 
-| Field | Type |
-|---|---|
-| `tiles` | `List<TileSchema>` |
-| `text` | `String` |
-| `position` | `Position` (`ABOVE`, `BELOW`, `LEFT`, `RIGHT`, `START`, `END`) |
-| `spacing` | `Int?` |
-| `showCaret` | `Boolean` |
-| `maxWidth` | `Int?` |
-| `shape` | `ShapeSchema?` |
-| `contentColor` | `ColorSchema?` |
-| `containerColor` | `ColorSchema?` |
+### `Tooltip`
 
-**Note:** Renders Material3's `TooltipBox` wrapping the anchor content (`tiles`) with a `PlainTooltip` showing `text`. Unlike `Menu`/`Popup`, `TooltipBox` handles gesture detection (hover on desktop/web, long-press on touch) and dismissal entirely on the client — there is no server-driven `expanded` state and no toggle `TileEvent`. `position` controls placement via `TooltipDefaults.rememberTooltipPositionProvider`; `spacing` is the gap in dp between tooltip and anchor — `null` falls back to Compose's own default spacing. `showCaret` toggles `TooltipDefaults.caretShape()` (the caret is a dedicated triangular shape combined with `shape` by `PlainTooltip` internally — it isn't a `ShapeSchema`, which only models plain container shapes). `maxWidth`, `shape`, `contentColor`, `containerColor` mirror `PlainTooltip`'s remaining appearance parameters; `null` falls back to the Material3 default. Deliberately simple — no rich tooltip variant, no free-form tooltip content (text only).
+Wraps `tiles` in a Material 3 `TooltipBox` showing a `PlainTooltip` with `text`. Driven entirely by the platform's own gestures (long press on touch, hover on pointer) — the server never opens or observes it.
 
-**Supported triggers:** none specific — standard tile triggers (`OnDisplay`, `OnClick`, etc.) apply.
+**Parameters:**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tiles` | tile block | required | The anchor content. |
+| `text` | `String` | required | Tooltip text. |
+| `position` | `Position` (`ABOVE`/`BELOW`/`LEFT`/`RIGHT`/`START`/`END`) | `tooltipPositionAbove()` | Where the tooltip appears relative to the anchor. |
+| `spacing` | `Int?` | `null` (Material default) | Gap from the anchor, dp. |
+| `showCaret` | `Boolean` | `false` | Whether to show the little pointer arrow. |
+| `maxWidth` | `Int?` | `null` | Maximum tooltip width, dp. |
+| `shape` | `ShapeSchema?` | `null` | Overrides the tooltip surface's shape. |
+| `contentColor` | `ColorSchema?` | `null` | Overrides the tooltip text color. |
+| `containerColor` | `ColorSchema?` | `null` | Overrides the tooltip surface color. |
 
-## Inputs
+**DSL example:**
+```kotlin
+Tooltip(text = "Copies the invite link", position = tooltipPositionBelow()) {
+    IconButton(icon = icon("content_copy"), enabled = true)
+}
+```
 
-### DropdownListTileSchema
-**JSON type:** `"DropdownList"`
+**Triggers fired:** none. `events` declared on this tile are never fired — wire events on the wrapped tiles instead.
 
-| Field | Type | Default |
-|---|---|---|
-| `expanded` | `Boolean` | `false` (server sempre envia `false`; cliente gerencia estado) |
-| `options` | `List<SelectOption>` | required |
-| `selectedOptionId` | `String` | required — deve ser um id presente em `options` (validado no builder) |
-| `enabled` | `Boolean` | `true` |
-| `kind` | `Kind` (`FILLED`, `OUTLINED`) | `OUTLINED` |
-
-`SelectOption`: `{ id: String, label: String }`
-
-**Form tile:** `produceValueWithKey` sempre retorna `mapOf(key to selectedOptionId)`. Não há estado nullable — `selectedOptionId` é sempre válido. Para representar um estado "selecione uma opção", inclua uma opção dedicada em `options` e passe seu id como `selectedOptionId` inicial.
-
-**Updatable fields (via UpdateTiles):** `selectedOptionId`, `enabled`, `options`, `kind`, `visibility`, `style`.
-
-**Note:** `ExposedDropdownMenuBox` Material 3. O toggle e dismiss são gerenciados pelo cliente via `DropdownListTileEvents` (`OnDropdownListToggle`, `OnDropdownListDismissRequest`, `OnItemSelected`). O servidor nunca envia `expanded = true`.
-
-**Supported triggers:** `OnDropdownListItemSelected(id)`, `OnDropdownListOpen`, `OnDropdownListClose`
-
----
-
-### DatePickerTileSchema
-**JSON type:** `"DatePicker"`
-
-| Field | Type | Default |
-|---|---|---|
-| `expanded` | `Boolean` | `false` (server sempre envia `false`; cliente gerencia estado) |
-| `selectedDate` | `String?` | `null` — ISO-8601 (`"2026-07-07"`) |
-| `enabled` | `Boolean` | `true` |
-| `kind` | `Kind` (`FILLED`, `OUTLINED`) | `OUTLINED` |
-| `dialogOptions` | `DialogOptions` | required |
-
-`DialogOptions`: `{ confirmLabel: String, dismissLabel: String, isCancellable: Boolean = true, usePlatformDefaultWidth: Boolean = true }` — compartilhada com `TimePickerTileSchema`. `confirmLabel`/`dismissLabel` obrigatórios (nunca hardcoded no client).
-
-**Form tile:** `produceValueWithKey` retorna `null` quando `selectedDate` é `null`; caso contrário, `mapOf(key to selectedDate)`. Datas não selecionadas ficam de fora dos dados de formulário coletados.
-
-**Updatable fields (via UpdateTiles):** `selectedDate`, `enabled`, `kind`, `dialogOptions`, `visibility`, `style`.
-
-**Note:** `DatePickerDialog` Material 3, aberto ao tocar num `TextField`/`OutlinedTextField` somente-leitura (detecção de toque via `MutableInteractionSource` + `PressInteraction.Release`, já que não há um `ExposedDropdownMenuBox` pronto para um TextField comum). Toggle/dismiss/confirm gerenciados pelo cliente via `DatePickerTileEvents` (`OnDatePickerToggle`, `OnDatePickerDismissRequest`, `OnDateConfirmed`). O servidor nunca envia `expanded = true`.
-
-**Supported triggers:** `OnDateSelected` (data selecionada via incomingData), `OnDatePickerOpen`, `OnDatePickerClose`
-
----
-
-### TimePickerTileSchema
-**JSON type:** `"TimePicker"`
-
-| Field | Type | Default |
-|---|---|---|
-| `expanded` | `Boolean` | `false` (server sempre envia `false`; cliente gerencia estado) |
-| `selectedTime` | `String?` | `null` — `"HH:mm"` (24h) |
-| `enabled` | `Boolean` | `true` |
-| `kind` | `Kind` (`FILLED`, `OUTLINED`) | `OUTLINED` |
-| `dialogOptions` | `DialogOptions` | required |
-
-**Form tile:** `produceValueWithKey` retorna `null` quando `selectedTime` é `null`; caso contrário, `mapOf(key to selectedTime)`. Horas não selecionadas ficam de fora dos dados de formulário coletados.
-
-**Updatable fields (via UpdateTiles):** `selectedTime`, `enabled`, `kind`, `dialogOptions`, `visibility`, `style`.
-
-**Note:** `TimePickerDialog` Material 3, mesmo padrão de abertura/fechamento do `DatePickerTileSchema`. Toggle/dismiss/confirm gerenciados pelo cliente via `TimePickerTileEvents` (`OnTimePickerToggle`, `OnTimePickerDismissRequest`, `OnTimeConfirmed`). O servidor nunca envia `expanded = true`.
-
-**Supported triggers:** `OnTimeSelected` (hora selecionada via incomingData), `OnTimePickerOpen`, `OnTimePickerClose`
-
----
-
-## System
-
-### SystemBroadcastListenerTileSchema
-**JSON type:** `"SystemBroadcastListener"`
-
-Transparent container tile that renders its children directly while hosting `onSystemBroadcast` event listeners. Place anywhere in the tile tree to react to system broadcasts without introducing any visual wrapping layout.
-
-| Field | Type | Default |
-|---|---|---|
-| `tiles` | `List<TileSchema>` | required |
-
-**Updatable fields (via UpdateTiles):** `tiles`, `visibility`, `style`.
-
-**Supported triggers:** `OnSystemBroadcast(broadcastId)` — fired automatically by the renderer via `observeSystemBroadcastChannel` whenever a `BroadcastToSystem` event with a matching `broadcastId` is emitted anywhere in the app. The broadcast payload (`data`) is forwarded as `incomingData` to child events.
+**Notes:** `style`/`visibility` apply to the `TooltipBox` (the anchor), not to the tooltip surface — that's controlled by `shape`/`contentColor`/`containerColor` above. Only plain tooltips are supported, no rich variant with a title/actions.

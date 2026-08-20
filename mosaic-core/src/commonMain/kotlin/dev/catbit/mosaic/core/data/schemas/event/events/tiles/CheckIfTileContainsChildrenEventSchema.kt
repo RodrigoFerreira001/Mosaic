@@ -6,32 +6,28 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Checks whether a container tile currently holds children with all of the specified
- * [childrenIds]. The check is performed synchronously against the live tile tree.
+ * Tests whether the grouping tile identified by [groupingTileId] currently holds every child in
+ * [childrenIds], and branches on the answer.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — when every ID in [childrenIds] is found as a direct child of
- *   [groupingTileId].
- * - [OnFailureEventTrigger] — when one or more IDs in [childrenIds] are not present among the
- *   direct children of [groupingTileId].
- *
- * **Notes:**
- * - [groupingTileId] must reference an existing container tile in the current tile tree.
- * - The check evaluates only direct children, not descendants at deeper levels.
- * - An empty [childrenIds] list is considered a match and fires [OnSuccessEventTrigger].
+ * - `OnSuccessEventTrigger` — when all the listed children are present. No data is passed
+ *   downstream.
+ * - `OnFailureEventTrigger` — when at least one is missing, and also when no grouping tile carries
+ *   [groupingTileId]. No data is passed downstream, so the two cases are indistinguishable
+ *   downstream.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

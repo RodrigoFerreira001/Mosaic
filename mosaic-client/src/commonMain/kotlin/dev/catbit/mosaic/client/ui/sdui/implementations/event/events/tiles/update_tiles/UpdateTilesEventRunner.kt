@@ -13,7 +13,16 @@ object UpdateTilesEventRunner : EventRunner<UpdateTilesEventSchema> {
 
         event.updates.forEach { update ->
             val data = when (val updateData = update.updateData) {
-                is UpdateData.Incoming -> incomingData.asMapAny() ?: return@forEach
+                is UpdateData.Incoming -> incomingData.asMapAny() ?: run {
+                    anyErrorOccurred = true
+                    logError(
+                        tag = "UpdateTilesEventRunner",
+                        throwable = IllegalArgumentException(
+                            "incomingData is not a map, nothing to update on tile '${update.tileId}'"
+                        )
+                    )
+                    return@forEach
+                }
                 is UpdateData.Inline -> updateData.data
                 is UpdateData.Mapped -> runCatching {
                     updateData.patterns.mapValues { (_, pattern) ->
@@ -38,7 +47,6 @@ object UpdateTilesEventRunner : EventRunner<UpdateTilesEventSchema> {
         if (anyErrorOccurred) {
             onTrigger(EventTriggers.onFailure())
         } else {
-            onTrigger(EventTriggers.onTilesUpdated())
             onTrigger(EventTriggers.onSuccess())
         }
     }

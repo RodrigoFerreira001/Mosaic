@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnSnackbarDismissed")
+/** Fires when a snackbar shown via `DisplaySnackbar` goes away without its action button being
+ * pressed — fires later, asynchronously, well after `DisplaySnackbar`'s own `onSuccess()`. */
 object OnSnackbarDismissedEventTrigger : EventTrigger

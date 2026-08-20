@@ -3,6 +3,7 @@ package dev.catbit.mosaic.sample.server.endpoints.screen.screens.style
 import dev.catbit.mosaic.core.data.schemas.tile.style.TileModeSchema
 import dev.catbit.mosaic.sample.core.schemas.tiles.code.CodeViewerTileSchema
 import dev.catbit.mosaic.sample.server.dsl.tiles.code.CodeViewer
+import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.UnderConstructionBadge
 import dev.catbit.mosaic.sample.server.endpoints.screen.ScreenBuilder
 import dev.catbit.mosaic.server.builder.color.color
 import dev.catbit.mosaic.server.builder.color.themeColorErrorContainer
@@ -21,9 +22,8 @@ import dev.catbit.mosaic.server.builder.color.themeColorSurfaceContainerHigh
 import dev.catbit.mosaic.server.builder.color.themeColorSurfaceContainerLowest
 import dev.catbit.mosaic.server.builder.color.themeColorTertiary
 import dev.catbit.mosaic.server.builder.color.themeColorTertiaryContainer
-import dev.catbit.mosaic.server.builder.placement.alignToBottomEnd
 import dev.catbit.mosaic.server.builder.placement.alignToCenter
-import dev.catbit.mosaic.server.builder.placement.alignToTopStart
+import dev.catbit.mosaic.server.builder.placement.alignToTopEnd
 import dev.catbit.mosaic.server.builder.placement.alignVerticallyToCenter
 import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallySpacedBy
 import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
@@ -75,23 +75,23 @@ private fun TileSchemaBuilderScope.DemoLabel(text: String) {
 
 private val styleTopics = listOf(
     StyleTopic(
-        title = "Anatomia do style { }",
-        description = "Todo tile aceita um bloco style { } que descreve um StyleSchema. O cliente " +
-            "aplica as propriedades sempre nesta ordem, e a ordem importa: o clip vem antes do " +
-            "background (por isso um background já sai recortado), e o border é desenhado sobre o " +
-            "background, antes do padding interno. size é o único campo obrigatório do schema; " +
-            "dentro do builder ele tem default wrap/wrap, enquanto StyleSchema.default() usa fill/fill. " +
-            "Todas as dimensões são Int em dp.",
+        title = "Anatomy of style { }",
+        description = "Every tile accepts a style { } block that describes a StyleSchema. The client " +
+            "always applies the properties in this order, and the order matters: clip comes before " +
+            "background (which is why a background ends up already clipped), and border is drawn " +
+            "over the background, before the inner padding. size is the only required field in the " +
+            "schema; inside the builder it defaults to wrap/wrap, while StyleSchema.default() uses " +
+            "fill/fill. All dimensions are Int in dp.",
         code = """
-            // Ordem de aplicação no cliente (Modifier.styledWith):
-            // 1. windowInsets  — afasta das system bars / IME
-            // 2. margin        — espaço externo
-            // 3. size          — largura e altura
-            // 4. clip          — recorte de forma
-            // 5. background    — preenchimento (já recortado pelo clip)
-            // 6. onClick       — injetado pelo tile, não faz parte do schema
-            // 7. border        — desenhado sobre o background
-            // 8. padding       — espaço interno, dentro da borda
+            // Application order on the client (Modifier.styledWith):
+            // 1. windowInsets  — pushes away from system bars / IME
+            // 2. margin        — outer space
+            // 3. size          — width and height
+            // 4. clip          — shape clipping
+            // 5. background    — fill (already clipped by clip)
+            // 6. onClick       — injected by the tile, not part of the schema
+            // 7. border        — drawn over the background
+            // 8. padding       — inner space, inside the border
 
             style = {
                 windowInsets(windowInsetsSystemBars())
@@ -105,19 +105,19 @@ private val styleTopics = listOf(
         """.trimIndent()
     ),
     StyleTopic(
-        title = "Size — largura",
-        description = "fillHorizontally() ocupa toda a largura disponível e aceita um max opcional " +
-            "(um teto em dp, não uma largura fixa). wrapHorizontally() encolhe até o conteúdo. " +
-            "fixedHorizontally(dp) trava um valor exato. weightHorizontally(f), spanHorizontally(n) " +
-            "e flexHorizontally(...) dependem do container pai — veja os tópicos adiante.",
+        title = "Size — width",
+        description = "fillHorizontally() takes up all the available width and accepts an optional " +
+            "max (a ceiling in dp, not a fixed width). wrapHorizontally() shrinks to fit the content. " +
+            "fixedHorizontally(dp) locks in an exact value. weightHorizontally(f), spanHorizontally(n) " +
+            "and flexHorizontally(...) depend on the parent container — see the topics ahead.",
         code = """
-            size(width = fillHorizontally())            // toda a largura
-            size(width = fillHorizontally(max = 400))   // toda a largura, no máximo 400dp
-            size(width = wrapHorizontally())            // do tamanho do conteúdo
-            size(width = fixedHorizontally(200))        // exatamente 200dp
-            size(width = weightHorizontally(1f))        // só dentro de Row / FlowRow
-            size(width = spanHorizontally(2))           // só dentro de Grid
-            size(width = flexHorizontally(grow = 1f))   // só dentro de FlexBox
+            size(width = fillHorizontally())            // full width
+            size(width = fillHorizontally(max = 400))   // full width, at most 400dp
+            size(width = wrapHorizontally())            // sized to content
+            size(width = fixedHorizontally(200))        // exactly 200dp
+            size(width = weightHorizontally(1f))        // only inside Row / FlowRow
+            size(width = spanHorizontally(2))           // only inside Grid
+            size(width = flexHorizontally(grow = 1f))   // only inside FlexBox
         """.trimIndent(),
         demo = {
             DemoLabel("fillHorizontally()")
@@ -144,7 +144,7 @@ private val styleTopics = listOf(
                     background(color(themeColorTertiaryContainer()))
                 }
             ) {}
-            DemoLabel("wrapHorizontally() — encolhe até o texto")
+            DemoLabel("wrapHorizontally() — shrinks to fit the text")
             Box(
                 style = {
                     size(width = wrapHorizontally(), height = wrapVertically())
@@ -153,25 +153,25 @@ private val styleTopics = listOf(
                     padding(horizontal = 12, vertical = 6)
                 }
             ) {
-                SimpleText(text = "conteúdo", typography = typographyLabelMedium())
+                SimpleText(text = "content", typography = typographyLabelMedium())
             }
         }
     ),
     StyleTopic(
-        title = "Size — altura",
-        description = "Espelha a largura: fillVertically() (com max opcional), wrapVertically() e " +
-            "fixedVertically(dp). weightVertically(f) só funciona dentro de Column, " +
-            "spanVertically(n) dentro de Grid e fillRowHeight(fraction) dentro de FlowRow — esse " +
-            "último faz o tile ocupar uma fração da altura da linha em que caiu.",
+        title = "Size — height",
+        description = "Mirrors width: fillVertically() (with an optional max), wrapVertically() and " +
+            "fixedVertically(dp). weightVertically(f) only works inside a Column, spanVertically(n) " +
+            "inside a Grid, and fillRowHeight(fraction) inside a FlowRow — the latter makes the tile " +
+            "take up a fraction of the height of the row it landed in.",
         code = """
-            size(height = fillVertically())            // toda a altura
-            size(height = fillVertically(max = 300))   // toda a altura, no máximo 300dp
-            size(height = wrapVertically())            // do tamanho do conteúdo
-            size(height = fixedVertically(56))         // exatamente 56dp
-            size(height = weightVertically(1f))        // só dentro de Column
-            size(height = spanVertically(2))           // só dentro de Grid
-            size(height = fillRowHeight())             // 100% da altura da linha (FlowRow)
-            size(height = fillRowHeight(0.5f))         // 50% da altura da linha (FlowRow)
+            size(height = fillVertically())            // full height
+            size(height = fillVertically(max = 300))   // full height, at most 300dp
+            size(height = wrapVertically())            // sized to content
+            size(height = fixedVertically(56))         // exactly 56dp
+            size(height = weightVertically(1f))        // only inside Column
+            size(height = spanVertically(2))           // only inside Grid
+            size(height = fillRowHeight())             // 100% of the row height (FlowRow)
+            size(height = fillRowHeight(0.5f))         // 50% of the row height (FlowRow)
         """.trimIndent(),
         demo = {
             Row(
@@ -213,11 +213,11 @@ private val styleTopics = listOf(
         }
     ),
     StyleTopic(
-        title = "Size — weight dentro de Row e Column",
-        description = "weightHorizontally(f) distribui o espaço horizontal restante entre os filhos " +
-            "de um Row (ou FlowRow), proporcionalmente ao valor. weightVertically(f) faz o mesmo no " +
-            "eixo vertical dentro de um Column. Fora desses containers o valor é simplesmente " +
-            "ignorado — não é erro, apenas não tem efeito.",
+        title = "Size — weight inside Row and Column",
+        description = "weightHorizontally(f) distributes the remaining horizontal space among the " +
+            "children of a Row (or FlowRow), proportionally to the value. weightVertically(f) does " +
+            "the same on the vertical axis inside a Column. Outside these containers the value is " +
+            "simply ignored — it's not an error, it just has no effect.",
         code = """
             Row(
                 style = { size(width = fillHorizontally(), height = fixedVertically(48)) }
@@ -266,27 +266,27 @@ private val styleTopics = listOf(
         }
     ),
     StyleTopic(
-        title = "Size — span (Grid) e flex (FlexBox)",
-        description = "spanHorizontally(n)/spanVertically(n) fazem um item ocupar n células de um " +
-            "Grid. flexHorizontally(...) expõe o modelo Flexbox completo dentro de um FlexBox: grow " +
-            "(quanto cresce sobre o espaço livre), shrink (quanto encolhe na falta de espaço), basis " +
-            "(tamanho base: flexBasisAuto(), flexBasisFixed(dp) ou flexBasisFraction(0f..1f)), " +
-            "alignSelf (alinhamento no eixo cruzado) e order (ordem visual, independente da ordem " +
-            "de declaração).",
+        title = "Size — span (Grid) and flex (FlexBox)",
+        description = "spanHorizontally(n)/spanVertically(n) make an item occupy n cells of a Grid. " +
+            "flexHorizontally(...) exposes the full Flexbox model inside a FlexBox: grow (how much " +
+            "it grows into free space), shrink (how much it shrinks when space is tight), basis " +
+            "(base size: flexBasisAuto(), flexBasisFixed(dp) or flexBasisFraction(0f..1f)), " +
+            "alignSelf (alignment on the cross axis) and order (visual order, independent of " +
+            "declaration order).",
         code = """
-            // Grid — item ocupando 2 colunas
+            // Grid — item spanning 2 columns
             Grid(columns = gridFixed(3)) {
                 Box(style = { size(width = spanHorizontally(2), height = fixedVertically(80)) }) {}
                 Box(style = { size(width = wrapHorizontally(), height = fixedVertically(80)) }) {}
             }
 
-            // FlexBox — controle completo
+            // FlexBox — full control
             style = {
                 size(
                     width = flexHorizontally(
                         grow = 1f,
                         shrink = 0f,
-                        basis = flexBasisFraction(0.5f),  // ou flexBasisAuto() / flexBasisFixed(120)
+                        basis = flexBasisFraction(0.5f),  // or flexBasisAuto() / flexBasisFixed(120)
                         alignSelf = flexAlignSelfCenter(), // Auto, Start, Center, End, Stretch, Baseline
                         order = 2
                     ),
@@ -296,16 +296,16 @@ private val styleTopics = listOf(
         """.trimIndent()
     ),
     StyleTopic(
-        title = "Padding — espaço interno",
-        description = "padding() é o espaço entre a borda do tile e seu conteúdo: fica dentro do " +
-            "background e dentro do border. Existem três overloads (horizontal/vertical, " +
-            "horizontal/top/bottom e os quatro lados) — não existe overload de um argumento só: " +
-            "padding(16) não compila.",
+        title = "Padding — inner spacing",
+        description = "padding() is the space between the tile's edge and its content: it sits " +
+            "inside the background and inside the border. There are three overloads " +
+            "(horizontal/vertical, horizontal/top/bottom, and all four sides) — there's no " +
+            "single-argument overload: padding(16) doesn't compile.",
         code = """
             padding(horizontal = 16, vertical = 8)              // start/end = 16, top/bottom = 8
-            padding(horizontal = 16, top = 8, bottom = 24)      // mistura
-            padding(top = 8, end = 16, bottom = 8, start = 16)  // quatro lados explícitos
-            // padding(16)  ← NÃO EXISTE, não compila
+            padding(horizontal = 16, top = 8, bottom = 24)      // mixed
+            padding(top = 8, end = 16, bottom = 8, start = 16)  // four explicit sides
+            // padding(16)  ← DOES NOT EXIST, won't compile
         """.trimIndent(),
         demo = {
             Row(
@@ -321,7 +321,7 @@ private val styleTopics = listOf(
                     }
                 ) {
                     SimpleText(
-                        text = "sem padding",
+                        text = "no padding",
                         typography = typographyLabelMedium(),
                         color = color(themeColorOnPrimaryContainer())
                     )
@@ -344,16 +344,17 @@ private val styleTopics = listOf(
         }
     ),
     StyleTopic(
-        title = "Margin — espaço externo",
-        description = "margin() é o espaço entre o tile e seus vizinhos: fica fora do background, " +
-            "então a cor de fundo não pinta essa área. Tem exatamente os mesmos três overloads do " +
-            "padding e também não aceita um único argumento. Repare que a margem é aplicada antes " +
-            "do size, então um fillHorizontally() já desconta as margens.",
+        title = "Margin — outer spacing",
+        description = "margin() is the space between the tile and its neighbors: it sits outside " +
+            "the background, so the background color doesn't paint that area. It has exactly the " +
+            "same three overloads as padding and likewise doesn't accept a single argument. Note " +
+            "that margin is applied before size, so a fillHorizontally() already accounts for the " +
+            "margins.",
         code = """
             margin(horizontal = 24, vertical = 0)
             margin(horizontal = 24, top = 0, bottom = 8)
             margin(top = 8, end = 0, bottom = 16, start = 0)
-            // margin(16)  ← NÃO EXISTE, não compila
+            // margin(16)  ← DOES NOT EXIST, won't compile
         """.trimIndent(),
         demo = {
             Box(
@@ -382,16 +383,16 @@ private val styleTopics = listOf(
         }
     ),
     StyleTopic(
-        title = "Background — cor sólida",
-        description = "background() recebe um BackgroundSchema. O caso mais comum é a cor sólida, e " +
-            "para ela existe o atalho background(color(...)), que aceita ainda um alpha opcional " +
-            "(0f..1f) multiplicando a opacidade do preenchimento inteiro. Use color(themeColorX()) " +
-            "para seguir o tema Material 3 (light/dark automático) e color(hex = \"#RRGGBB\") ou " +
-            "color(r, g, b, alpha) quando a cor precisar ser fixa.",
+        title = "Background — solid color",
+        description = "background() takes a BackgroundSchema. The most common case is a solid " +
+            "color, and for that there's the shortcut background(color(...)), which also accepts " +
+            "an optional alpha (0f..1f) multiplying the opacity of the whole fill. Use " +
+            "color(themeColorX()) to follow the Material 3 theme (automatic light/dark) and " +
+            "color(hex = \"#RRGGBB\") or color(r, g, b, alpha) when the color needs to be fixed.",
         code = """
-            background(color(themeColorSurfaceContainer()))            // atalho para SolidColor
-            background(color(themeColorPrimary()), alpha = 0.12f)      // com transparência
-            background(solidColor(color(hex = "#FF5722"), alpha = 0.5f)) // forma explícita
+            background(color(themeColorSurfaceContainer()))            // shortcut for SolidColor
+            background(color(themeColorPrimary()), alpha = 0.12f)      // with transparency
+            background(solidColor(color(hex = "#FF5722"), alpha = 0.5f)) // explicit form
         """.trimIndent(),
         demo = {
             Row(
@@ -432,17 +433,17 @@ private val styleTopics = listOf(
         }
     ),
     StyleTopic(
-        title = "Background — gradientes",
-        description = "Além da cor sólida, background() aceita cinco gradientes que espelham as " +
-            "fábricas de Brush do Compose: verticalGradient, horizontalGradient, linearGradient " +
-            "(dois pontos quaisquer), radialGradient (circular) e sweepGradient (angular, começando " +
-            "às 3 horas e girando no sentido horário). Cada um tem dois overloads: uma lista de " +
-            "cores distribuídas igualmente, ou pares stop-to-cor com as posições explícitas.",
+        title = "Background — gradients",
+        description = "Besides solid color, background() accepts five gradients that mirror " +
+            "Compose's Brush factories: verticalGradient, horizontalGradient, linearGradient (any " +
+            "two points), radialGradient (circular) and sweepGradient (angular, starting at 3 " +
+            "o'clock and rotating clockwise). Each has two overloads: a list of evenly distributed " +
+            "colors, or stop-to-color pairs with explicit positions.",
         code = """
-            // Cores distribuídas igualmente
+            // Evenly distributed colors
             background(verticalGradient(listOf(color(themeColorPrimary()), color(themeColorTertiary()))))
 
-            // Posições explícitas (0f..1f ao longo do eixo do gradiente)
+            // Explicit positions (0f..1f along the gradient axis)
             background(
                 verticalGradient(
                     0f to color(themeColorPrimary()),
@@ -452,8 +453,8 @@ private val styleTopics = listOf(
             )
 
             background(horizontalGradient(listOf(color(...), color(...))))
-            background(linearGradient(listOf(color(...), color(...))))        // diagonal, canto a canto
-            background(radialGradient(listOf(color(...), color(...))))        // círculo centrado
+            background(linearGradient(listOf(color(...), color(...))))        // diagonal, corner to corner
+            background(radialGradient(listOf(color(...), color(...))))        // centered circle
             background(sweepGradient(listOf(color(...), color(...), color(...))))
         """.trimIndent(),
         demo = {
@@ -542,25 +543,26 @@ private val styleTopics = listOf(
         }
     ),
     StyleTopic(
-        title = "Background — geometria e tileMode",
-        description = "Toda a geometria dos gradientes é opcional e em dp. Quando omitida, vale o " +
-            "default do Compose, resolvido só na hora de desenhar: end/endX/endY viram a borda " +
-            "oposta, center vira o centro do tile e radius vira o maior raio que cabe. Isso é o que " +
-            "permite o servidor descrever o gradiente sem conhecer o tamanho do tile. Quando o " +
-            "gradiente termina antes da borda, tileMode decide o que acontece no espaço restante: " +
-            "CLAMP repete a última cor, REPEATED reinicia, MIRROR espelha e DECAL deixa transparente.",
+        title = "Background — geometry and tileMode",
+        description = "All the geometry of gradients is optional and in dp. When omitted, Compose's " +
+            "default applies, resolved only at draw time: end/endX/endY become the opposite edge, " +
+            "center becomes the tile's center and radius becomes the largest radius that fits. " +
+            "That's what lets the server describe the gradient without knowing the tile's size. " +
+            "When the gradient ends before the edge, tileMode decides what happens with the " +
+            "remaining space: CLAMP repeats the last color, REPEATED restarts it, MIRROR mirrors it " +
+            "and DECAL leaves it transparent.",
         code = """
-            // Gradiente que termina em 60dp, repetindo em faixas
+            // Gradient that ends at 60dp, repeating in bands
             background(
                 horizontalGradient(
                     listOf(color(themeColorPrimary()), color(themeColorTertiary())),
                     startX = 0,
                     endX = 60,
-                    tileMode = TileModeSchema.REPEATED   // ou CLAMP / MIRROR / DECAL
+                    tileMode = TileModeSchema.REPEATED   // or CLAMP / MIRROR / DECAL
                 )
             )
 
-            // Linear entre dois pontos arbitrários
+            // Linear between two arbitrary points
             background(
                 linearGradient(
                     listOf(color(themeColorPrimary()), color(themeColorTertiary())),
@@ -569,7 +571,7 @@ private val styleTopics = listOf(
                 )
             )
 
-            // Radial deslocado, com raio explícito
+            // Offset radial, with explicit radius
             background(
                 radialGradient(
                     listOf(color(themeColorTertiary()), color(themeColorPrimary())),
@@ -578,10 +580,10 @@ private val styleTopics = listOf(
                 )
             )
 
-            // offset() com eixo omitido = borda oposta (Offset.Infinite)
+            // offset() with an omitted axis = opposite edge (Offset.Infinite)
             background(linearGradient(listOf(color(...), color(...)), end = offset(x = 200)))
 
-            // alpha funciona igual para gradientes
+            // alpha works the same way for gradients
             background(verticalGradient(listOf(color(...), color(...)), alpha = 0.4f))
         """.trimIndent(),
         demo = {
@@ -645,9 +647,10 @@ private val styleTopics = listOf(
     ),
     StyleTopic(
         title = "Border",
-        description = "Desenha uma borda sobre o background, com cor, espessura em dp e raio " +
-            "opcional. Atenção: radius é um RadiusSchema, não um Int — use radius(topStart = ..., " +
-            "topEnd = ..., bottomStart = ..., bottomEnd = ...). Sem radius, a borda é retangular.",
+        description = "Draws a border over the background, with color, thickness in dp and an " +
+            "optional radius. Note: radius is a RadiusSchema, not an Int — use radius(topStart = " +
+            "..., topEnd = ..., bottomStart = ..., bottomEnd = ...). Without radius, the border is " +
+            "rectangular.",
         code = """
             border(color = color(themeColorOutline()), thickness = 1)
 
@@ -657,7 +660,7 @@ private val styleTopics = listOf(
                 radius = radius(topStart = 12, topEnd = 12, bottomStart = 12, bottomEnd = 12)
             )
 
-            // border(color = ..., thickness = 1, radius = 12)  ← NÃO compila: radius é RadiusSchema
+            // border(color = ..., thickness = 1, radius = 12)  ← does NOT compile: radius is a RadiusSchema
         """.trimIndent(),
         demo = {
             Row(
@@ -671,7 +674,7 @@ private val styleTopics = listOf(
                     },
                     alignment = alignToCenter()
                 ) {
-                    SimpleText(text = "1dp, reto", typography = typographyLabelSmall())
+                    SimpleText(text = "1dp, straight", typography = typographyLabelSmall())
                 }
                 Box(
                     style = {
@@ -697,18 +700,18 @@ private val styleTopics = listOf(
                     },
                     alignment = alignToCenter()
                 ) {
-                    SimpleText(text = "cantos mistos", typography = typographyLabelSmall())
+                    SimpleText(text = "mixed corners", typography = typographyLabelSmall())
                 }
             }
         }
     ),
     StyleTopic(
-        title = "Clip e Shape",
-        description = "clip() recorta o tile — e, por vir antes do background na ordem de " +
-            "aplicação, recorta também o preenchimento. São três formas: circleShape(), " +
-            "rectangleShape() e roundedCornerShape(), esta última com overload uniforme (all), por " +
-            "canto, ou recebendo um RadiusSchema pronto. Os cantos são sensíveis à direção do " +
-            "layout: topStart/topEnd invertem em RTL.",
+        title = "Clip and Shape",
+        description = "clip() clips the tile — and, since it comes before background in the " +
+            "application order, it also clips the fill. There are three shapes: circleShape(), " +
+            "rectangleShape() and roundedCornerShape(), the latter with a uniform overload (all), " +
+            "per-corner, or taking a ready-made RadiusSchema. Corners are direction-aware: " +
+            "topStart/topEnd flip in RTL.",
         code = """
             clip(circleShape())
             clip(rectangleShape())
@@ -753,13 +756,14 @@ private val styleTopics = listOf(
         }
     ),
     StyleTopic(
-        title = "Clip x radius do border",
-        description = "São coisas independentes e é comum confundir. clip() arredonda o conteúdo e " +
-            "o background; border(radius = ...) arredonda apenas o traço da borda. Para um cartão " +
-            "com fundo e borda arredondados, use os dois com o mesmo raio — só o clip deixa a borda " +
-            "reta por cima do fundo arredondado, e só o border deixa o fundo vazando nos cantos.",
+        title = "Clip vs. border radius",
+        description = "These are independent things and easy to mix up. clip() rounds the content " +
+            "and the background; border(radius = ...) rounds only the border stroke. For a card " +
+            "with both a rounded background and a rounded border, use both with the same radius — " +
+            "clip alone leaves the border straight over a rounded background, and border alone " +
+            "leaves the background bleeding at the corners.",
         code = """
-            // Cartão correto: clip + border com o mesmo raio
+            // Correct card: clip + border with the same radius
             style = {
                 clip(roundedCornerShape(all = 16))
                 background(color(themeColorSurfaceContainer()))
@@ -787,7 +791,7 @@ private val styleTopics = listOf(
                     },
                     alignment = alignToCenter()
                 ) {
-                    SimpleText(text = "só border", typography = typographyLabelSmall())
+                    SimpleText(text = "border only", typography = typographyLabelSmall())
                 }
                 Box(
                     style = {
@@ -798,7 +802,7 @@ private val styleTopics = listOf(
                     },
                     alignment = alignToCenter()
                 ) {
-                    SimpleText(text = "só clip", typography = typographyLabelSmall())
+                    SimpleText(text = "clip only", typography = typographyLabelSmall())
                 }
                 Box(
                     style = {
@@ -813,43 +817,43 @@ private val styleTopics = listOf(
                     },
                     alignment = alignToCenter()
                 ) {
-                    SimpleText(text = "os dois", typography = typographyLabelSmall())
+                    SimpleText(text = "both", typography = typographyLabelSmall())
                 }
             }
         }
     ),
     StyleTopic(
         title = "Window Insets",
-        description = "Aplica o espaçamento das áreas do sistema como padding do tile, antes de " +
-            "qualquer outra propriedade. Use na raiz da tela. Só é possível declarar um tipo de " +
-            "inset por style { } — para cobrir status bar e navigation bar de uma vez, use " +
-            "windowInsetsSystemBars(). Em telas com campo de texto, um container com " +
-            "windowInsetsIme() acompanha o teclado.",
+        description = "Applies the system areas' spacing as padding on the tile, before any other " +
+            "property. Use it at the screen root. Only one inset type can be declared per style " +
+            "{ } — to cover both the status bar and the navigation bar at once, use " +
+            "windowInsetsSystemBars(). On screens with a text field, a container with " +
+            "windowInsetsIme() tracks the keyboard.",
         code = """
             windowInsets(windowInsetsSystemBars())      // status bar + navigation bar
             windowInsets(windowInsetsStatusBar())
             windowInsets(windowInsetsNavigationBar())
-            windowInsets(windowInsetsIme())             // teclado
-            windowInsets(windowInsetsCaptionBar())      // barra de título (desktop / freeform)
-            windowInsets(windowInsetsDisplayCutout())   // notch / furo de câmera
-            windowInsets(windowInsetsWaterfall())       // bordas curvas
+            windowInsets(windowInsetsIme())             // keyboard
+            windowInsets(windowInsetsCaptionBar())      // title bar (desktop / freeform)
+            windowInsets(windowInsetsDisplayCutout())   // notch / camera cutout
+            windowInsets(windowInsetsWaterfall())       // curved edges
         """.trimIndent()
     ),
     StyleTopic(
         title = "Visibility",
-        description = "Controla se um tile é renderizado, via o parâmetro visibility (presente em " +
-            "todo builder de tile, não dentro de style { }). visible() é o padrão. invisible() " +
-            "esconde o tile mas mantém o espaço que ele ocupava no layout — equivalente ao " +
-            "visibility: hidden do CSS. gone() remove o tile do layout por completo, como se ele " +
-            "não existisse. Trocar visibility em runtime é feito via UpdateTiles.",
+        description = "Controls whether a tile is rendered, via the visibility parameter (present " +
+            "on every tile builder, not inside style { }). visible() is the default. invisible() " +
+            "hides the tile but keeps the space it occupied in the layout — equivalent to CSS's " +
+            "visibility: hidden. gone() removes the tile from the layout entirely, as if it didn't " +
+            "exist. Changing visibility at runtime is done via UpdateTiles.",
         code = """
             Box(
                 id = "banner",
-                visibility = gone(),           // ou invisible() / visible()
+                visibility = gone(),           // or invisible() / visible()
                 style = { size(width = fillHorizontally(), height = fixedVertically(48)) }
             )
 
-            // Alternando em runtime:
+            // Toggling at runtime:
             UpdateTiles(
                 trigger = EventTriggers.onClick(),
                 updates = {
@@ -896,21 +900,21 @@ private val styleTopics = listOf(
                     },
                     alignment = alignToCenter()
                 ) {
-                    SimpleText(text = "depois", typography = typographyLabelSmall())
+                    SimpleText(text = "after", typography = typographyLabelSmall())
                 }
             }
             DemoLabel(
-                "O buraco entre os dois blocos é o invisible() — ele ainda ocupa 80dp. " +
-                    "O gone() não deixa rastro."
+                "The gap between the two blocks is the invisible() one — it still takes up 80dp. " +
+                    "gone() leaves no trace."
             )
         }
     ),
     StyleTopic(
         title = "Animation Transitions",
-        description = "Definem como uma tela entra/sai da composição — usadas em defaultTransition/" +
-            "transition de Graph e entry (navegação) e em conteúdo animado. Todas retornam um " +
-            "ContentTransitionSchema e aceitam animationSpec opcional (Tween() por padrão, ou " +
-            "Spring()) para ajustar duração e curva.",
+        description = "Define how a screen enters/exits the composition — used in Graph's " +
+            "defaultTransition/transition and entry (navigation), and in animated content. All of " +
+            "them return a ContentTransitionSchema and accept an optional animationSpec (Tween() " +
+            "by default, or Spring()) to adjust duration and curve.",
         code = """
             slideInFromRightTransition()   slideInFromLeftTransition()
             slideInFromBottomTransition()  slideInFromTopTransition()
@@ -918,9 +922,9 @@ private val styleTopics = listOf(
             slideOutToBottomTransition()   slideOutToTopTransition()
             slideHorizontalTransition()    slideVerticalTransition()
             fadeTransition()               fadeAndSlideHorizontalTransition()
-            slideOverTransition()          // tela nova desliza sobre a anterior, que fica parada
+            slideOverTransition()          // new screen slides over the previous one, which stays still
 
-            // Uso em um Graph:
+            // Usage in a Graph:
             Graph(
                 startEntryId = "home",
                 defaultTransition = slideOverTransition(),
@@ -930,12 +934,13 @@ private val styleTopics = listOf(
         """.trimIndent()
     ),
     StyleTopic(
-        title = "Cores e Tipografia do Tema",
-        description = "themeColorX() e typographyX() seguem os design tokens Material 3 do app — " +
-            "trocam sozinhos entre light/dark e reagem a SetTheme em runtime. Prefira sempre esses " +
-            "tokens a color(\"#hex\") fixo, exceto quando a cor realmente precisa ser igual nos dois modos.",
+        title = "Theme Colors and Typography",
+        description = "themeColorX() and typographyX() follow the app's Material 3 design tokens " +
+            "— they switch automatically between light/dark and react to SetTheme at runtime. " +
+            "Always prefer these tokens over a fixed color(\"#hex\"), except when the color really " +
+            "needs to stay the same in both modes.",
         code = """
-            // Cores — todas as roles M3 disponíveis:
+            // Colors — all available M3 roles:
             themeColorPrimary()            themeColorOnPrimary()
             themeColorPrimaryContainer()   themeColorOnPrimaryContainer()
             themeColorSecondary()          themeColorOnSecondary()
@@ -955,11 +960,11 @@ private val styleTopics = listOf(
             themeColorSurfaceContainer()         themeColorSurfaceContainerHigh()
             themeColorSurfaceContainerHighest()
 
-            // Outras formas de cor:
-            color(hex = "#FF5722")            // 6 ou 8 chars (#AARRGGBB)
+            // Other ways to specify color:
+            color(hex = "#FF5722")            // 6 or 8 chars (#AARRGGBB)
             color(r = 1f, g = 0f, b = 0f, alpha = 1f)
 
-            // Tipografia — as 15 roles M3:
+            // Typography — the 15 M3 roles:
             typographyDisplayLarge()   typographyDisplayMedium()   typographyDisplaySmall()
             typographyHeadlineLarge()  typographyHeadlineMedium()  typographyHeadlineSmall()
             typographyTitleLarge()     typographyTitleMedium()     typographyTitleSmall()
@@ -968,13 +973,13 @@ private val styleTopics = listOf(
         """.trimIndent()
     ),
     StyleTopic(
-        title = "Tema Dinâmico (SetTheme / ResetTheme)",
-        description = "SetTheme troca as cores M3 do app inteiro em runtime, definindo um par de " +
-            "esquemas (light e dark) via colorsScheme(lightColorScheme, darkColorScheme), cada um " +
-            "montado com colorScheme(...) — uma cor hex para cada role da tabela acima. O efeito é " +
-            "global: toda tela que use themeColorX() reflete a troca imediatamente, em qualquer " +
-            "tela, não só a atual. ResetTheme desfaz e volta ao tema default do app. Veja os " +
-            "detalhes desses dois events na tela de Events.",
+        title = "Dynamic Theme (SetTheme / ResetTheme)",
+        description = "SetTheme swaps the whole app's M3 colors at runtime, defining a pair of " +
+            "schemes (light and dark) via colorsScheme(lightColorScheme, darkColorScheme), each " +
+            "built with colorScheme(...) — one hex color per role from the table above. The effect " +
+            "is global: every screen using themeColorX() reflects the change immediately, on any " +
+            "screen, not just the current one. ResetTheme undoes it and reverts to the app's " +
+            "default theme. See the details of these two events on the Events screen.",
         code = """
             SetTheme(
                 trigger = EventTriggers.onClick(),
@@ -982,7 +987,7 @@ private val styleTopics = listOf(
                     lightColorScheme = colorScheme(
                         primary = "#6750A4", onPrimary = "#FFFFFF",
                         primaryContainer = "#EADDFF", onPrimaryContainer = "#21005D",
-                        // ... uma entrada hex por role de ColorScheme
+                        // ... one hex entry per ColorScheme role
                     ),
                     darkColorScheme = colorScheme(
                         primary = "#D0BCFF", onPrimary = "#381E72",
@@ -1069,29 +1074,13 @@ object StyleScreenBuilder : ScreenBuilder {
                 }
             ) {
                 Box(
+                    alignment = alignToTopEnd(),
                     style = {
                         size(width = fillHorizontally(), height = fixedVertically(140))
                         background(color(themeColorTertiaryContainer()))
                     }
                 ) {
-                    Box(
-                        alignment = alignToTopStart(),
-                        style = {
-                            size(width = fixedHorizontally(90), height = fixedVertically(90))
-                            clip(circleShape())
-                            background(color(themeColorErrorContainer()))
-                            margin(top = 8, start = 8)
-                        }
-                    ) {}
-                    Box(
-                        alignment = alignToBottomEnd(),
-                        style = {
-                            size(width = fixedHorizontally(120), height = fixedVertically(120))
-                            clip(circleShape())
-                            background(color(themeColorPrimaryContainer()))
-                            margin(bottom = 8, end = 8)
-                        }
-                    ) {}
+                    UnderConstructionBadge()
                 }
                 Column(
                     style = {
@@ -1106,9 +1095,9 @@ object StyleScreenBuilder : ScreenBuilder {
                         color = color(themeColorInverseOnSurface())
                     )
                     SimpleText(
-                        text = "Todo tile aceita um bloco style { } com propriedades de tamanho, " +
-                            "espaçamento, aparência e insets. As seções abaixo cobrem todos os " +
-                            "campos do StyleSchema, com preview ao vivo onde faz diferença ver.",
+                        text = "Every tile accepts a style { } block with properties for size, " +
+                            "spacing, appearance and insets. The sections below cover every field " +
+                            "of StyleSchema, with a live preview wherever seeing it makes a difference.",
                         typography = typographyBodyLarge(),
                         color = color(themeColorInverseOnSurface())
                     )

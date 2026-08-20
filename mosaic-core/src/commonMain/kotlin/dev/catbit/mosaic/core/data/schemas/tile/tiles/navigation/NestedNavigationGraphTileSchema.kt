@@ -2,10 +2,9 @@ package dev.catbit.mosaic.core.data.schemas.tile.tiles.navigation
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntryChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntrySetEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
@@ -14,38 +13,31 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders an embedded Navigation 3 [NavDisplay] that hosts a full navigation back-stack of
- * [MosaicScreen] destinations. Each [Entry] declares the screen it maps to, along with its
- * initial and failure tile/event trees and optional per-screen enter/pop/predictive-pop
- * transitions. The navigator is registered in [NavigatorsHolder] under [navigatorId] so that
- * server events (e.g. NavigateEvent) can drive it by id. Entries are also registered in
- * [ScreenExtrasHolder] so their tile/event trees are available when the corresponding screen
- * is pushed onto the stack.
+ * Hosts a self-contained Navigation 3 `NavDisplay` inside a tile, so a region of a screen can
+ * have its own back stack. The stack starts at [startEntryId] and every screen it can show is
+ * declared in [entries].
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `entries: SerializableImmutableList<Entry>`, `startEntryId: String`,
- * `defaultTransition: ContentTransitionSchema?`, `defaultPopTransition: ContentTransitionSchema?`,
- * `defaultPredictivePopTransition: ContentTransitionSchema?`
+ * **Registration:** on first composition the tile registers a `NavigationController` under
+ * [navigatorId] in the app's navigator holder — that id is how navigation events address this
+ * graph — and registers each [Entry] (its initial tiles/events, failure tiles/events and
+ * transitions) in the screen-extras holder. Both registrations are undone when the tile leaves
+ * composition, so the graph and its entries only exist while the tile is on screen. Each entry
+ * gets its own saveable state holder and `ViewModelStore`, so screen state survives navigating
+ * back and forth within the graph.
+ *
+ * **Transitions:** for each navigation the per-entry [Entry.transition], [Entry.popTransition]
+ * and [Entry.predictivePopTransition] win; when an entry does not define one, the graph-level
+ * [defaultTransition] / [defaultPopTransition] / [defaultPredictivePopTransition] apply; when
+ * neither is set the navigation is instantaneous (no enter or exit animation). The system back
+ * gesture pops this graph's own stack.
  *
  * **Triggers dispatched:**
- * - `OnNavigationEntrySetEventTrigger` — fired via [LaunchedEffect] each time a new entry
- *   becomes the active destination, carrying the entry's screen id.
- * - `OnNavigationEntryChangedEventTrigger` — declared in `@Triggers` for documentation and
- *   tooling purposes; actual dispatch depends on event runner wiring.
- *
- * **Notes:** The navigator and screen extras are unregistered in a [DisposableEffect] when
- * the tile leaves the composition, preventing stale navigator references. Per-entry
- * transitions override the graph-level defaults when present. The back-stack key type is
- * [ScreenNavKey], which is serialized for saved-state restoration across process death.
- * ViewModel scope is preserved per entry via [rememberViewModelStoreNavEntryDecorator].
+ * - `OnNavigationEntrySetEventTrigger` — fired whenever an entry is displayed, carrying the
+ *   entry's `screenId`, so events can be wired per destination. It fires for the start
+ *   destination too, and again whenever navigation returns to an entry.
  */
 @Immutable
-@Triggers(
-    [
-        OnNavigationEntryChangedEventTrigger::class,
-        OnNavigationEntrySetEventTrigger::class,
-    ]
-)
+@Triggers([OnNavigationEntrySetEventTrigger::class])
 @Serializable
 @SerialName("NestedNavigationGraph")
 data class NestedNavigationGraphTileSchema(

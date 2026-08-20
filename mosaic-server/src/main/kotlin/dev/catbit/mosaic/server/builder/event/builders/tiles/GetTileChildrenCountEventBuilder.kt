@@ -21,6 +21,16 @@ internal class GetTileChildrenCountEventBuilder(
     )
 }
 
+/**
+ * Reads how many children the grouping tile identified by [groupingTileId] currently holds. Does
+ * not consume `incomingData`. Dispatches `onSuccess` (carrying the count as an `Int`); `onFailure`
+ * (no data) when no grouping tile carries [groupingTileId], or it cannot hold children.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param groupingTileId Id of the grouping tile whose child count is read.
+ */
 fun EventSchemaBuilderScope.GetTileChildrenCount(
     id: String = randomId(),
     trigger: EventTrigger,

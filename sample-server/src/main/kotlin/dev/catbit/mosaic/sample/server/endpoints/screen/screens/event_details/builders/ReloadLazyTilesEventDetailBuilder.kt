@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -39,41 +36,19 @@ object ReloadLazyTilesEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Tile Management",
-                description = "Sinaliza um LazyColumn/LazyRow para descartar o conteúdo e buscar tiles de novo, " +
-                    "resetando a paginação — o reload correto para listas preguiçosas."
+                description = "Signals a LazyColumn/LazyRow to discard its content and fetch tiles again, " +
+                    "resetting pagination — the correct reload for lazy lists. Use it after a data mutation " +
+                    "(create/delete/update) that should make a lazy list fetch everything again from the " +
+                    "start. Prefer this event over WipeTiles for LazyColumn/LazyRow lists because it lets the " +
+                    "tile itself manage its own reload cycle — including the pagination reset — instead of " +
+                    "just erasing the visible children."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use depois de uma mutação de dado (criar/apagar/atualizar) que deveria fazer uma lista " +
-                    "preguiçosa buscar tudo de novo desde o início. Prefira este evento a WipeTiles para " +
-                    "listas do tipo LazyColumn/LazyRow porque ele deixa o próprio tile gerenciar seu ciclo de " +
-                    "reload — incluindo o reset de paginação — em vez de apenas apagar os filhos visíveis."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("lazyTileId", "String", "Obrigatório. ID do tile preguiçoso (LazyColumn/LazyRow) a recarregar."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                ReloadLazyTiles(
-                    trigger = EventTriggers.onSuccess(),
-                    lazyTileId = "environment_list"
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Dispare o broadcast de reload numa lista preguiçosa") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Fire the reload broadcast on a lazy list") {
                 SimpleText(
                     id = "reload_lazy_count",
-                    text = "Nenhum reload disparado ainda",
+                    text = "No reload triggered yet",
                     typography = typographyBodyMedium()
                 )
                 LazyColumn(
@@ -81,12 +56,12 @@ object ReloadLazyTilesEventDetailBuilder : EventDetailBuilder {
                     style = { size(width = fillHorizontally(), height = fixedVertically(160)) },
                     arrangement = arrangeVerticallySpacedBy(8)
                 ) {
-                    ReloadLazyRow(label = "Item preguiçoso 1")
-                    ReloadLazyRow(label = "Item preguiçoso 2")
-                    ReloadLazyRow(label = "Item preguiçoso 3")
+                    ReloadLazyRow(label = "Lazy item 1")
+                    ReloadLazyRow(label = "Lazy item 2")
+                    ReloadLazyRow(label = "Lazy item 3")
                 }
                 Button(
-                    text = "Recarregar com ReloadLazyTiles",
+                    text = "Reload with ReloadLazyTiles",
                     buttonType = filledTonalButton(),
                     events = {
                         ReloadLazyTiles(
@@ -98,7 +73,7 @@ object ReloadLazyTilesEventDetailBuilder : EventDetailBuilder {
                                     updates = {
                                         update(
                                             tileId = "reload_lazy_count",
-                                            updateData = inlineTileUpdateData("text" to "Broadcast de reload enviado ✓ (veja a nota abaixo)")
+                                            updateData = inlineTileUpdateData("text" to "Reload broadcast sent ✓ (see the note below)")
                                         )
                                     }
                                 )
@@ -107,13 +82,24 @@ object ReloadLazyTilesEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 ShowroomNote(
-                    "Nesta demo o LazyColumn tem filhos fixos declarados pelo servidor, não uma fonte de " +
-                        "dados remota real (isso seria um LazyTiles, com seu próprio endpoint). O broadcast " +
-                        "de ReloadLazyTiles é enviado de verdade, mas como não há nada novo para buscar, o " +
-                        "efeito visível aqui é só o reset de scroll — em produção, com um LazyTiles apontando " +
-                        "para um endpoint, o conteúdo inteiro seria descartado e buscado do zero."
+                    "In this demo the LazyColumn has fixed children declared by the server, not a real " +
+                        "remote data source (that would be a LazyTiles, with its own endpoint). The " +
+                        "ReloadLazyTiles broadcast is really sent, but since there's nothing new to fetch, " +
+                        "the visible effect here is just the scroll reset — in production, with a LazyTiles " +
+                        "pointing at an endpoint, the whole content would be discarded and fetched from " +
+                        "scratch."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                ReloadLazyTiles(
+                    trigger = EventTriggers.onSuccess(),
+                    lazyTileId = "environment_list"
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("LazyTiles", "WipeTiles", "ReplaceTiles"),

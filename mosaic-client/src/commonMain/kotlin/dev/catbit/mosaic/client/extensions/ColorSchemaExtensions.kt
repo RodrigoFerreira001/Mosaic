@@ -5,6 +5,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import dev.catbit.mosaic.core.data.schemas.color.ColorSchema
 
+/**
+ * Converts a [ColorSchema] into its Compose [Color] counterpart — [ColorSchema.Hex] and
+ * [ColorSchema.Rgba] resolve directly, while [ColorSchema.Theme] reads the matching role off
+ * `MaterialTheme.colorScheme`, which is why this is `@Composable` at all (and, in turn, why it
+ * always reflects the app's current theme, including a live `SetTheme` swap).
+ */
 @Composable
 fun ColorSchema.toComposeColor(): Color = when (this) {
     is ColorSchema.Hex -> value.toColor()

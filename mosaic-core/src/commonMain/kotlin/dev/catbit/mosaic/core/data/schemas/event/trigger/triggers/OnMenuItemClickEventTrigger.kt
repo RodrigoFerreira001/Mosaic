@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnMenuItemClick")
+/** Fires on `Menu` when the item whose id equals [itemId] is tapped.
+ * @property itemId id of the tapped menu item. */
 data class OnMenuItemClickEventTrigger(
     @SerialName("itemId")
     val itemId: String

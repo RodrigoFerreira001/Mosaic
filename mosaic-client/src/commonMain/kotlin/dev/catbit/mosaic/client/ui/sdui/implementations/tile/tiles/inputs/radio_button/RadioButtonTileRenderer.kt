@@ -24,7 +24,7 @@ object RadioButtonTileRenderer : TileRenderer<RadioButtonTileSchema> {
                 selected = selected,
                 enabled = enabled,
                 onClick = {
-                    triggerEvent(EventTriggers.onSelect())
+                    if (!selected) triggerEvent(EventTriggers.onSelect())
                     dispatchGroupEvent(
                         RadioButtonTileGroupEvents.OnRadioSelected(
                             selectedTileId = id,

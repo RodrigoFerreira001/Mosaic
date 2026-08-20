@@ -57,18 +57,19 @@ internal class OpenFilePickerEventBuilder(
 }
 
 /**
- * Opens the system file picker, allowing the user to select a file.
+ * Opens the platform file picker and emits the chosen file downstream, shaped by [outputType].
+ * [fileType] restricts what can be picked; [pickMode] currently only offers a single selection.
+ * Does not consume `incomingData`. Dispatches `onSuccess` (carrying the content, shaped by
+ * [outputType]) when a file was picked and read; `onCancelled` (no data) when the user dismisses
+ * the picker without choosing a file; `onFailure` (carrying the thrown exception) when
+ * `mapObject()` decoding fails or the picker itself throws.
  *
- * **Triggers fired:**
- * - `onStart()` — file selected, contents are being read (when [outputType] requires reading)
- * - `onSuccess(...)` — incomingData shaped according to [outputType]
- * - `onFailure()` — user cancelled the picker or an exception occurred
- *
- * @param fileType The type of files to show in the picker. Use [imageFileType], [videoFileType],
- *   [imageAndVideoFileType], or [fileFileType].
- * @param pickMode Selection mode. Defaults to [singlePickMode].
- * @param outputType Shape of the data delivered as incomingData. Use [platformFile] (default),
- *   [arrayOfBytes], [flowOfBytes], or [mapObject].
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param fileType Kinds of files selectable in the picker — [imageFileType], [videoFileType], [imageAndVideoFileType] or [fileFileType].
+ * @param pickMode Selection mode — currently only [singlePickMode]. Defaults to single.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onCancelled`, `onFailure`).
+ * @param outputType Shape of the content delivered as `incomingData` — [platformFile], [arrayOfBytes], [flowOfBytes], [mapObject] or [base64]. Defaults to the platform file handle.
  */
 fun EventSchemaBuilderScope.OpenFilePicker(
     id: String = randomId(),

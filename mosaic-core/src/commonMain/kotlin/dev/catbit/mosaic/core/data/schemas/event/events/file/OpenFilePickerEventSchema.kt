@@ -1,35 +1,47 @@
 package dev.catbit.mosaic.core.data.schemas.event.events.file
 
 import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCancelledEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Opens the system file picker, allowing the user to select a file.
+ * Opens the platform file picker and emits the chosen file downstream.
+ *
+ * [fileType] restricts what can be picked: images, videos, both, or arbitrary files narrowed by a
+ * list of extensions. [pickMode] currently only offers `Single`.
+ *
+ * [outputType] decides the shape handed to the next events:
+ * - `PlatformFile` (default) — the platform file handle.
+ * - `ArrayOfBytes` — the file read into a `ByteArray`.
+ * - `FlowOfBytes` — a streaming flow of chunks, for large files.
+ * - `MapObject` — the bytes decoded as a JSON map.
+ * - `Base64` — the bytes encoded as a Base64 `String`.
+ *
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - `onStart()` — file selected, contents are being read (when [outputType] requires reading)
- * - `onSuccess(...)` — incomingData shaped according to [outputType]:
- *   - [FileOutputType.PlatformFile] — the picked `PlatformFile` reference (default); chain with
- *     `UploadFile` or `SaveFile`.
- *   - [FileOutputType.ArrayOfBytes] — the file contents as a [ByteArray].
- *   - [FileOutputType.FlowOfBytes] — a chunked `Flow<ByteArray>`, without loading the whole
- *     file into memory.
- *   - [FileOutputType.MapObject] — the file decoded as JSON into `Map<String, AnySerializable?>`.
- *   - [FileOutputType.Base64] — the file contents as a base64-encoded [String].
- * - `onFailure()` — user cancelled the picker, an exception occurred, or (when [outputType] is
- *   [FileOutputType.MapObject]) the file contents were not valid JSON
- *
- * **Updatable fields (via UpdateEvents):** `fileType`, `pickMode`.
- *
- * @property fileType Restricts which files the picker shows. See [FileType] subtypes.
- * @property pickMode Controls single vs. multi selection. Currently only [PickMode.Single] is supported.
- * @property outputType Shape of the data delivered as incomingData. Defaults to [FileOutputType.PlatformFile].
+ * - `OnSuccessEventTrigger` — when a file was picked and read; the content, in the shape chosen by
+ *   [outputType], is passed as incomingData.
+ * - `OnCancelledEventTrigger` — when the user dismisses the picker without choosing a file. No
+ *   data is passed downstream.
+ * - `OnFailureEventTrigger` — when `MapObject` decoding fails, or when the picker throws; the
+ *   `Throwable` is passed as incomingData.
  */
 @Immutable
+@Triggers(
+    [
+        OnSuccessEventTrigger::class,
+        OnFailureEventTrigger::class,
+        OnCancelledEventTrigger::class,
+    ]
+)
 @Serializable
 @SerialName("OpenFilePicker")
 data class OpenFilePickerEventSchema(
@@ -55,7 +67,6 @@ data class OpenFilePickerEventSchema(
         @SerialName("ImageAndVideo")
         data object ImageAndVideo : FileType
 
-        /** @property types MIME types or file extensions to filter (e.g. `"pdf", "png`). */
         @Serializable
         @SerialName("File")
         data class File(val types: SerializableImmutableList<String>) : FileType

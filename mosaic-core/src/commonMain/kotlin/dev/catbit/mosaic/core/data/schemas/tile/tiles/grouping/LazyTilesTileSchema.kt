@@ -4,6 +4,9 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesStartEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLoadTilesSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
@@ -13,32 +16,44 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a self-loading tile container that fetches its child tiles from a remote endpoint
- * on first composition. While loading, [placeholderTiles] are rendered. On success the
- * fetched tiles replace the placeholder. On failure, if [isFailureState] is `true`, the
- * [failureTiles] are rendered instead.
+ * Renders a `Column` whose content is fetched from the network at display time: the tile calls
+ * [url] with [method], [headers] and [body], expects a JSON array of tile schemas back, and
+ * renders them in place of its placeholder.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>?`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `isFailureState: Boolean`, `placeholderTiles`,
- * `failureTiles`, `url: String`, `method: HttpMethod`, `body: AnySerializable?`,
- * `headers: Map<String, String>?`
+ * **States:**
+ * - [tiles] non-null → the loaded tiles are rendered and no request is made.
+ * - [tiles] `null` and [isFailureState] `false` → [placeholderTiles] are rendered while the
+ *   request runs (fired once via a single-shot effect, on the IO dispatcher).
+ * - [tiles] `null` and [isFailureState] `true` → [failureTiles] are rendered and no request is
+ *   made.
+ *
+ * On success the renderer dispatches a local `LazyTilesTileEvents.OnTilesLoadedSuccessfully`
+ * and the holder builds real tile holders from the decoded schemas; on a transport error **or**
+ * a decoding error it dispatches `OnTilesLoadFailure` and the holder flips [isFailureState].
+ * A local `OnReloadTiles` event clears the loaded tiles and the failure flag, putting the tile
+ * back into its loading state.
  *
  * **Triggers dispatched:**
- * - `OnDisplayEventTrigger` — fired once when the tile enters composition.
- * - `OnLoadTilesStartEventTrigger` — fired immediately before the network request is sent.
- * - `OnLoadTilesSuccessEventTrigger` — fired after the response is successfully decoded into
- *   a list of [TileSchema].
- * - `OnLoadTilesFailureEventTrigger` — fired if the network request fails or if JSON
- *   deserialization throws. The throwable is passed as trigger data.
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id).
+ * - `OnLoadTilesStartEventTrigger` — right before the request is sent.
+ * - `OnLoadTilesSuccessEventTrigger` — after the response has been received **and** decoded, so
+ *   exactly one of this and the failure trigger fires per attempt.
+ * - `OnLoadTilesFailureEventTrigger` — on a request or decoding failure; the `Throwable` is
+ *   passed as the event's incoming data.
  *
- * **Notes:** The network call is executed exactly once per composition lifecycle via
- * `SingleEffect` (a one-shot side-effect launcher). If [tiles] is already non-null in the
- * schema (e.g. populated by UpdateTiles), the fetch is skipped and the existing tiles are
- * rendered directly. The response body is decoded as `List<TileSchema>` using the polymorphic
- * [MosaicSerializer]. The outer layout is always a [Column] with the given [style].
+ * **Notes:** the request is issued directly by the renderer, not through the event pipeline, so
+ * it is not affected by event chaining. Children are laid out in a plain `Column` with no scope
+ * CompositionLocal and no scrolling.
  */
 @Immutable
-@Triggers([OnDisplayEventTrigger::class])
+@Triggers(
+    [
+        OnDisplayEventTrigger::class,
+        OnLoadTilesStartEventTrigger::class,
+        OnLoadTilesSuccessEventTrigger::class,
+        OnLoadTilesFailureEventTrigger::class,
+    ]
+)
 @SerialName("LazyTiles")
 @Serializable
 data class LazyTilesTileSchema(

@@ -24,6 +24,19 @@ internal class CheckIfTileContainsChildrenEventBuilder(
     )
 }
 
+/**
+ * Tests whether the grouping tile identified by [groupingTileId] currently holds every child in
+ * [childrenIds], and branches on the answer. Does not consume `incomingData`. Dispatches
+ * `onSuccess` (no data) when all the listed children are present; `onFailure` (no data) when at
+ * least one is missing, and also when no grouping tile carries [groupingTileId] — the two cases
+ * are indistinguishable downstream.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param groupingTileId Id of the grouping tile whose children are checked.
+ * @param childrenIds Ids that must all currently be children of [groupingTileId].
+ */
 fun EventSchemaBuilderScope.CheckIfTileContainsChildren(
     id: String = randomId(),
     trigger: EventTrigger,

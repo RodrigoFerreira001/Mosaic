@@ -26,7 +26,7 @@ object OpenFilePickerEventRunner : EventRunner<OpenFilePickerEventSchema> {
                 )
 
                 if (pickedFile == null) {
-                    onTrigger(EventTriggers.onFailure())
+                    onTrigger(EventTriggers.onCancelled())
                     return
                 }
 

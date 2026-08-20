@@ -15,29 +15,32 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders its child tiles only when the current window size, observed via
- * [currentWindowAdaptiveInfoV2], satisfies the configured breakpoint constraints.
+ * Conditionally renders [tiles] based on the current window size class, read from
+ * `currentWindowAdaptiveInfoV2()`. The children are composed only when **both**
+ * [widthVisibility] and [heightVisibility] are satisfied; otherwise nothing is emitted at all —
+ * the children are not composed, not merely hidden.
  *
- * Each axis declares one constraint mode:
- * - [WidthVisibility.VisibleFrom] / [HeightVisibility.VisibleFrom] — visible **above** the given
- *   breakpoint (exclusive). `VisibleFrom(Compact)` means "visible from Medium onwards";
- *   `VisibleFrom(Medium)` means "visible from Expanded onwards".
- * - [WidthVisibility.VisibleUntil] / [HeightVisibility.VisibleUntil] — visible at the given
- *   breakpoint and **below** (inclusive). `VisibleUntil(Medium)` includes Compact and Medium.
+ * **Breakpoint comparison:** the current window is ranked against the Material window size class
+ * bounds (width: Compact < Medium < Expanded < Large < ExtraLarge; height: Compact < Medium <
+ * Expanded). [WidthVisibility.VisibleFrom] / [HeightVisibility.VisibleFrom] are satisfied when
+ * the current rank is **above** the given breakpoint (exclusive), so `VisibleFrom(Medium)` shows
+ * from Expanded upwards. [WidthVisibility.VisibleUntil] / [HeightVisibility.VisibleUntil] are
+ * satisfied when the current rank is at or below the given breakpoint (inclusive), so
+ * `VisibleUntil(Medium)` covers Compact and Medium.
  *
- * The children are rendered only when **both** axes are satisfied; otherwise nothing is composed.
- * The default for each axis is `VisibleUntil(ExtraLarge)` / `VisibleUntil(Expanded)`,
- * which makes the tile visible across all breakpoints on that axis.
+ * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id),
+ *   regardless of whether the breakpoints are satisfied.
+ * - `OnWidthBreakpointSatisfiedEventTrigger` / `OnWidthBreakpointNotSatisfiedEventTrigger` —
+ *   fired on first composition and on every change of the width condition.
+ * - `OnHeightBreakpointSatisfiedEventTrigger` / `OnHeightBreakpointNotSatisfiedEventTrigger` —
+ *   fired on first composition and on every change of the height condition.
  *
- * **Notes:** This is a transparent (logical) container — it does not create a layout node of
- * its own, so its children participate directly in the parent layout and the inherited [style]
- * field is not applied.
+ * The width and height triggers are independent: one may report "satisfied" while the other
+ * reports "not satisfied", and in that case the children still stay hidden.
  *
- * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
- * composition. `OnWidthBreakpointSatisfiedEventTrigger` /
- * `OnWidthBreakpointNotSatisfiedEventTrigger` and `OnHeightBreakpointSatisfiedEventTrigger` /
- * `OnHeightBreakpointNotSatisfiedEventTrigger` — fired on the first evaluation and whenever the
- * evaluation result of the corresponding axis changes.
+ * **Notes:** when both conditions hold, the children are hosted in a `Box` carrying [style] and
+ * [visibility], so they are stacked rather than emitted into the parent's scope.
  */
 @Immutable
 @Triggers(

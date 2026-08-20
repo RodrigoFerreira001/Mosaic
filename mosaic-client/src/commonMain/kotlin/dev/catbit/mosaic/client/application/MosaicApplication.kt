@@ -90,6 +90,26 @@ import org.koin.core.module.Module
 import org.koin.dsl.koinConfiguration
 import org.koin.dsl.module
 
+/**
+ * Root composable of a Mosaic client app — sets up the Koin DI graph (via `MosaicModules`),
+ * installs the app's theme, fetches the initial navigation graph, and renders either the loading
+ * splash, the failure screen, or the real navigation UI depending on
+ * [MosaicApplicationStateHolder]'s current state. Every screen, tile and event in the app ultimately
+ * renders/runs inside the Koin scope and `CompositionLocal`s this function establishes — nothing in
+ * `mosaic-client` works meaningfully outside it.
+ *
+ * @param applicationId identifies this app instance — used, among other things, as a Koin
+ * qualifier (`named("APPLICATION_ID")`).
+ * @param baseUrl base URL every relative network call (`SendNetworkRequest`, `GetScreen`, etc.)
+ * resolves against.
+ * @param themeConfig color scheme, shapes, typography and Material Symbol font config. Defaults to
+ * [mosaicThemeConfig]'s own Material defaults.
+ * @param dependencyInjectionConfig custom tile/event/trigger definitions, logger, Koin module and
+ * drawable resources. Defaults to [mosaicDependencyInjectionConfig]'s own empty defaults (no custom
+ * tiles/events, [dev.catbit.mosaic.client.logger.DefaultMosaicLogger], no drawables).
+ * @param appSplash shown while the initial navigation graph is being fetched — rendered inside a
+ * `BoxScope`, so it can be freely aligned/sized.
+ */
 @OptIn(KoinExperimentalAPI::class)
 @Composable
 fun MosaicApplication(
@@ -142,6 +162,26 @@ fun MosaicApplication(
     }
 }
 
+/**
+ * Every knob a consuming app can turn on `mosaic-client`'s DI graph — the whole surface for
+ * registering custom tiles/events/triggers, swapping the logger, adding Koin bindings of your own
+ * (including a custom [dev.catbit.mosaic.client.ui.sdui.foundation.data_processor.DataProcessor] via
+ * [additionalKoinModule]), and supplying bundled drawables.
+ *
+ * @property additionalKoinModule extra Koin bindings the app needs — the way to register a custom
+ * [dev.catbit.mosaic.client.ui.sdui.foundation.data_processor.DataProcessor] (`single { MyProcessor }
+ * bind DataProcessor::class`) or any other dependency a custom `TileRenderer`/`EventRunner` wants to
+ * `get<T>()`.
+ * @property logger replaces the app-wide [MosaicLogger] every framework log call routes through.
+ * @property tileDefinitions custom `TileDefinition`s, merged with the built-in ones.
+ * @property eventDefinitions custom `EventDefinition`s, merged with the built-in ones.
+ * @property eventTriggerDefinition custom `EventTriggerDefinition`s, merged with the built-in ones.
+ * @property additionalSerializersModule extra polymorphic serializers unrelated to tile/event schema
+ * registration (which is always automatic from the 3 definition lists above) — only needed if a
+ * field type itself needs its own serializer.
+ * @property drawableResources names an `Image` tile's `resourceName` can resolve to, backing
+ * [dev.catbit.mosaic.client.ui.sdui.foundation.resources.DrawableResourcesHolder].
+ */
 @Immutable
 data class MosaicDependencyInjectionConfig(
     val additionalKoinModule: Module,
@@ -153,6 +193,9 @@ data class MosaicDependencyInjectionConfig(
     val drawableResources: Map<String, DrawableResource>,
 )
 
+/** Builds a [MosaicDependencyInjectionConfig], every parameter defaulting to "nothing extra" — an
+ * app that doesn't extend Mosaic at all can call `MosaicApplication(...)` without passing this
+ * parameter. */
 fun mosaicDependencyInjectionConfig(
     additionalKoinModule: Module = module { },
     logger: MosaicLogger = DefaultMosaicLogger(),
@@ -171,6 +214,18 @@ fun mosaicDependencyInjectionConfig(
     drawableResources = drawableResources
 )
 
+/**
+ * The app's visual theme — colors, shapes, typography and Material Symbol font settings, applied via
+ * `MosaicTheme` inside `MosaicApplication`.
+ *
+ * @property colorScheme light/dark Material `ColorScheme` pair — the initial defaults `SetTheme`/
+ * `ResetTheme` swap between/away from at runtime.
+ * @property shapes Material `Shapes` for every built-in tile that reads from `MaterialTheme.shapes`.
+ * @property typography Material `Typography` — what `TypographySchema.toTextStyle()` resolves
+ * against.
+ * @property materialSymbolFontsConfig variable-font axis settings for every Material Symbol glyph in
+ * the app.
+ */
 @Stable
 data class MosaicThemeConfig(
     val colorScheme: MosaicColorScheme,
@@ -179,12 +234,22 @@ data class MosaicThemeConfig(
     val materialSymbolFontsConfig: MaterialSymbolFontsConfig,
 )
 
+/**
+ * A light/dark pair of Material `ColorScheme`s — the initial values `MosaicColors` starts from,
+ * before any `SetTheme`/`ResetTheme` event swaps them at runtime.
+ *
+ * @property lightColorScheme the app's light theme.
+ * @property darkColorScheme the app's dark theme.
+ */
 @Stable
 data class MosaicColorScheme(
     val lightColorScheme: ColorScheme,
     val darkColorScheme: ColorScheme,
 )
 
+/** Builds a [MosaicThemeConfig], defaulting every parameter to Material 3's own out-of-the-box
+ * defaults (`lightColorScheme()`/`darkColorScheme()`, `MaterialTheme.shapes`, [MosaicTypography], a
+ * default [MaterialSymbolFontsConfig]) when left `null`. */
 @Composable
 fun mosaicThemeConfig(
     colorScheme: MosaicColorScheme? = null,
@@ -201,6 +266,8 @@ fun mosaicThemeConfig(
     materialSymbolFontsConfig = materialSymbolFontsConfig ?: MaterialSymbolFontsConfig(),
 )
 
+/** Switches between the 3 app-level [State]s — loading splash, real navigation UI, or failure
+ * screen. */
 @Composable
 private fun MosaicApplicationContent(
     uiState: State,
@@ -221,6 +288,12 @@ private fun MosaicApplicationContent(
     }
 }
 
+/**
+ * The real app once the initial graph loaded — builds the root [NavigationController], registers it
+ * in [NavigatorsHolder] under the conventional id `"root"`, and renders `NavDisplay`, resolving each
+ * screen's transition (per-entry override, falling back to the graph's default) and rendering each
+ * `ScreenNavKey` entry via `MosaicScreen`.
+ */
 @Composable
 private fun MosaicApplicationSuccessContent(
     uiState: State.Displaying,
@@ -297,6 +370,8 @@ private fun MosaicApplicationSuccessContent(
     )
 }
 
+/** Renders [appSplash] plus the "Powered by Mosaic" footer, shown while the initial graph is
+ * loading. */
 @Composable
 private fun MosaicApplicationLoadingContent(
     appSplash: @Composable BoxScope.() -> Unit
@@ -349,6 +424,9 @@ private fun MosaicApplicationLoadingContent(
     }
 }
 
+/** App-level failure screen, shown when fetching the initial graph fails — a retry button that
+ * dispatches `Event.OnTryAgainClick`, disabled and spinning while [State.Failure.loading] is
+ * `true`. */
 @Composable
 private fun MosaicApplicationFailureContent(
     uiState: State.Failure,
@@ -447,6 +525,8 @@ private fun MosaicApplicationFailureContentPreview() {
     }
 }
 
+/** Platform-specific root wrapping (`expect`/`actual`) — e.g. installing platform-required
+ * ambient providers before the rest of [MosaicApplication] composes. */
 @Composable
 internal expect fun PlatformWrapper(
     content: @Composable () -> Unit

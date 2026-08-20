@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -27,43 +24,23 @@ object GetFileEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "File System",
-                description = "Lê um arquivo armazenado localmente no app — o formato entregue no onSuccess " +
-                    "depende do outputType escolhido."
+                description = "Reads a file stored locally in the app — the format delivered on onSuccess " +
+                    "depends on the chosen outputType. Use it to load back a file previously saved with " +
+                    "SaveFile or DownloadFileToDisk. arrayOfBytes() reads everything into memory; " +
+                    "flowOfBytes() delivers a Flow<ByteArray> in chunks, without loading the whole file; " +
+                    "platformFile() delivers only the reference without reading anything; mapObject() decodes " +
+                    "the content as JSON; base64() delivers an encoded String. A missing file or I/O error " +
+                    "fires onFailure."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra carregar de volta um arquivo salvo anteriormente com SaveFile ou DownloadFileToDisk. " +
-                    "arrayOfBytes() lê tudo pra memória; flowOfBytes() entrega um Flow<ByteArray> em chunks, " +
-                    "sem carregar o arquivo inteiro; platformFile() entrega só a referência sem ler nada; " +
-                    "mapObject() decodifica o conteúdo como JSON; base64() entrega uma String codificada. " +
-                    "Arquivo inexistente ou erro de I/O dispara onFailure."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("fileName", "String", "Obrigatório. Nome do arquivo no armazenamento privado do app."),
-                    ShowroomParam("outputType", "FileOutputType", "arrayOfBytes() (padrão), flowOfBytes(), platformFile(), mapObject() ou base64()."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                GetFile(trigger = EventTriggers.onClick(), fileName = "config.json", outputType = mapObject())
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Leia o arquivo salvo pelas demos de TakePicture/GetImageFromGallery/SaveFile") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Read the file saved by the TakePicture/GetImageFromGallery/SaveFile demos") {
                 SimpleText(
                     id = "get_file_status",
-                    text = "Toque no botão para tentar ler mosaic_demo_photo.webp."
+                    text = "Tap the button to try reading mosaic_demo_photo.webp."
                 )
                 Button(
-                    text = "Ler mosaic_demo_photo.webp",
+                    text = "Read mosaic_demo_photo.webp",
                     events = {
                         GetFile(
                             trigger = EventTriggers.onClick(),
@@ -73,7 +50,7 @@ object GetFileEventDetailBuilder : EventDetailBuilder {
                                 UpdateTiles(
                                     trigger = EventTriggers.onSuccess(),
                                     updates = {
-                                        update("get_file_status", inlineTileUpdateData("text" to "Arquivo encontrado e lido ✓"))
+                                        update("get_file_status", inlineTileUpdateData("text" to "File found and read ✓"))
                                     }
                                 )
                                 UpdateTiles(
@@ -81,7 +58,7 @@ object GetFileEventDetailBuilder : EventDetailBuilder {
                                     updates = {
                                         update(
                                             "get_file_status",
-                                            inlineTileUpdateData("text" to "Não encontrado — salve uma imagem primeiro (TakePicture, GetImageFromGallery ou SaveFile)")
+                                            inlineTileUpdateData("text" to "Not found — save an image first (TakePicture, GetImageFromGallery, or SaveFile)")
                                         )
                                     }
                                 )
@@ -90,10 +67,17 @@ object GetFileEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 ShowroomNote(
-                    "Se você ainda não salvou nada nas demos de TakePicture/GetImageFromGallery/SaveFile, o " +
-                        "onFailure aqui é o comportamento correto e esperado — não um bug."
+                    "If you haven't saved anything yet in the TakePicture/GetImageFromGallery/SaveFile demos, " +
+                        "the onFailure here is the correct, expected behavior — not a bug."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                GetFile(trigger = EventTriggers.onClick(), fileName = "config.json", outputType = mapObject())
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("SaveFile", "DeleteFile", "DownloadFileToDisk"),

@@ -12,34 +12,30 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 tab row with the style and scrollability determined by [tabType] and
- * [scrollable]. The four resulting variants are:
- * - `PRIMARY` + non-scrollable → [PrimaryTabRow]
- * - `PRIMARY` + scrollable → [PrimaryScrollableTabRow]
- * - `SECONDARY` + non-scrollable → [SecondaryTabRow]
- * - `SECONDARY` + scrollable → [SecondaryScrollableTabRow]
+ * Renders a Material 3 tab row with one `Tab` per entry in [tabItems]. [tabType] picks the
+ * emphasis — [Type.PRIMARY] uses the primary tab rows, [Type.SECONDARY] the secondary ones —
+ * and [scrollable] chooses between the fixed row (`false`) and the scrollable one (`true`).
+ * Each tab shows its [TabItem.label] and [TabItem.icon], both optional. The selected tab is the
+ * one whose [TabItem.id] equals [selectedTabId].
  *
- * Each [TabItem] can have an optional text label and an optional icon.
+ * **Badges:** when [TabItem.badgeText] is non-null the tab gets a `BadgedBox` — attached to the
+ * icon when the tab has one, otherwise to the label. An empty string renders the small dot
+ * badge; any other value renders as the badge's text. A `null` value renders no badge.
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `selectedTabId: String`, `tabItems: SerializableImmutableList<TabItem>`,
- * `tabType: Type`, `scrollable: Boolean`
+ * **Selection:** tapping a tab dispatches a local `TabsTileEvents.OnTabClicked` and the holder
+ * stores the new [selectedTabId], so the indicator moves immediately without a server round
+ * trip. The tile only tracks the selection — swapping the content shown below the tabs is up to
+ * the events wired to the tab clicks.
  *
- * **Triggers dispatched:** `OnTabItemClickEventTrigger` — fired when any tab is tapped,
- * carrying the clicked tab's [id] as the trigger parameter.
+ * **Triggers dispatched:**
+ * - `OnTabItemClickEventTrigger` — fired when a tab is tapped, carrying that tab's [TabItem.id],
+ *   so events can be wired per tab.
  *
- * **Notes:** The selected tab index passed to the Compose component is computed client-side
- * by finding the position of [selectedTabId] within [tabItems]. The selected state is
- * server-driven; the client never updates it locally. Tapping a tab triggers both the event
- * trigger and an internal `TabsTileEvents.OnTabClicked` dispatch. The [TabItem.badgeText]
- * field is defined in the schema but not yet rendered by the current renderer.
+ * **Notes:** when [selectedTabId] matches none of the [tabItems] the first tab is highlighted as
+ * a fallback. An empty [tabItems] renders nothing at all.
  */
 @Immutable
-@Triggers(
-    [
-        OnTabItemClickEventTrigger::class
-    ]
-)
+@Triggers([OnTabItemClickEventTrigger::class])
 @Serializable
 @SerialName("Tabs")
 data class TabsTileSchema(

@@ -24,6 +24,14 @@ import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.SerializersModuleCollector
 import kotlinx.serialization.serializerOrNull
 
+/**
+ * Converts a [JsonElement] tree into plain Kotlin values — `null`, `List<Any?>`, `Map<String,
+ * Any?>`, or a primitive (`String`, `Boolean`, `Int`, `Long`, `Double`, tried in that order for a
+ * numeric-looking string, falling back to the raw string content if none match). This is how a
+ * network response body or `incomingData` ends up as ordinary maps/lists an event chain can navigate
+ * with `EvaluateData`/`GetData`, rather than staying a typed [JsonElement] tree the DSL author would
+ * otherwise have to unwrap by hand.
+ */
 fun JsonElement.toAny(): Any? = when (this) {
     is JsonNull -> null
     is JsonArray -> map { it.toAny() }
@@ -41,6 +49,23 @@ fun JsonElement.toAny(): Any? = when (this) {
     }
 }
 
+/**
+ * Converts an arbitrary Kotlin value into a [JsonElement] — the inverse of [toAny], and the general
+ * mechanism behind `AnySerializable` fields (an event's `body`, `data`, etc.) getting encoded onto
+ * the wire without the schema declaring a concrete type for them. `Map`/`Iterable`/`Array`/`Pair`/
+ * `Triple` are converted structurally, primitives directly; anything else is only convertible when
+ * either [json] is supplied and its `serializersModule` has that type registered polymorphically, or
+ * the type itself has a `@Serializable`-generated serializer discoverable via `serializerOrNull()` —
+ * otherwise this throws, since there's no safe way to serialize an arbitrary object in Kotlin
+ * Multiplatform without one of those two.
+ *
+ * @param json the [Json] instance whose `serializersModule` is checked for a polymorphic mapping,
+ * when the value's own generated serializer (if any) isn't enough — typically
+ * [dev.catbit.mosaic.core.serialization.MosaicSerializer.json]. Omit when only the value's own
+ * generated serializer should be tried.
+ * @throws kotlinx.serialization.SerializationException if neither path can resolve a serializer for
+ * this value's runtime type.
+ */
 @Suppress("UNCHECKED_CAST")
 fun Any?.toJsonElement(
     json: Json? = null
@@ -105,6 +130,10 @@ fun Any?.toJsonElement(
     }
 }
 
+/** Inspects [SerializersModule]'s internal registration (via `dumpTo`) to build a reverse lookup —
+ * subclass to base class — for every polymorphic binding it holds. Used by [toJsonElement] to find
+ * which base type (if any) a value's runtime class was registered under, so it can be encoded with
+ * `PolymorphicSerializer(baseClass)` instead of needing its own type-specific serializer. */
 private fun SerializersModule.getSubclassToBaseClassMapping(): Map<KClass<*>, KClass<*>> {
     val baseToSuperMapping = mutableMapOf<KClass<*>, KClass<*>>()
 

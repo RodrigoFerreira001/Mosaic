@@ -6,29 +6,25 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Deletes a locally stored file from the device identified by [fileName].
+ * Deletes the file stored under [fileName] in the client's own file storage.
  *
- * **incomingData consumed:** Not used; [fileName] is the sole input.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — fires after the file is deleted successfully, with no
- *   incomingData payload.
- * - [OnFailureEventTrigger] — fires when the deletion fails due to any I/O exception. The
- *   [Throwable] is passed as incomingData.
- *
- * **Notes:** [fileName] identifies the target file by name within the app's private storage
- * scope.
+ * - `OnSuccessEventTrigger` — when the deletion completed. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when the deletion failed; the `Throwable` is passed as incomingData
+ *   and the error is logged.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

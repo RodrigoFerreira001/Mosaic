@@ -11,20 +11,22 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Opens [url] using the platform's external link mechanism: the default browser on Android, iOS
- * and JVM, or a new browser tab on wasmJs.
+ * Hands [url] to the platform so it opens outside the app — the system browser, or whichever app
+ * claims the scheme.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — after the link is handed off to the platform successfully.
- * - [OnFailureEventTrigger] — if opening the link throws; incomingData is the exception.
+ * - `OnSuccessEventTrigger` — after the platform accepted the request. No data is passed
+ *   downstream.
+ * - `OnFailureEventTrigger` — when opening throws, for instance because nothing on the device
+ *   handles the URL; the `Throwable` is passed as incomingData and the error is logged.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

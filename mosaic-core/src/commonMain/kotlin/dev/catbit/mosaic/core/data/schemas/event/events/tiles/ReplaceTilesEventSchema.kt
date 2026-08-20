@@ -7,38 +7,25 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Replaces the entire child list of a grouping tile with a new set of server-supplied tiles.
- * This is effectively an atomic wipe-then-add: the previous children are discarded and the
- * new [tiles] list becomes the grouping tile's complete content.
+ * Swaps the whole children list of the grouping tile identified by [groupingTileId] for [tiles].
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — when the replacement is completed successfully.
- * - [OnFailureEventTrigger] — if the target grouping tile is not found (TileNotFoundException);
- *   incomingData is the exception.
- *
- * **Failure scenarios:**
- * - If [groupingTileId] does not match any tile in the current tree, a TileNotFoundException is
- *   thrown and [OnFailureEventTrigger] fires with the exception.
- *
- * **Notes:**
- * - [groupingTileId] must reference an existing container tile currently in the tile tree.
- * - Unlike [AddTilesEventSchema], there is no [InsertionPosition] — the new tiles always
- *   fully replace the existing list rather than being merged into it.
- * - Sending an empty [tiles] list produces the same result as [WipeTilesEventSchema] for
- *   the target grouping tile.
+ * - `OnSuccessEventTrigger` — when the children were replaced. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when no grouping tile carries [groupingTileId]; the `Throwable` is
+ *   passed as incomingData and the error is logged.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable
@@ -48,5 +35,5 @@ data class ReplaceTilesEventSchema(
     @SerialName("trigger") override val trigger: EventTrigger,
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("groupingTileId") val groupingTileId: String,
-    @SerialName("tileIds") val tiles: SerializableImmutableList<TileSchema>,
+    @SerialName("tiles") val tiles: SerializableImmutableList<TileSchema>,
 ) : EventSchema

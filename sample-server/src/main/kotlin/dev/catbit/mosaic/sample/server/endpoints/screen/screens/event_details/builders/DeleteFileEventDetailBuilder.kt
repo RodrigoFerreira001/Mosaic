@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -27,42 +24,19 @@ object DeleteFileEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "File System",
-                description = "Apaga um arquivo armazenado localmente, identificado pelo nome — a contraparte " +
-                    "de limpeza de SaveFile."
+                description = "Deletes a locally stored file, identified by name — the cleanup counterpart of " +
+                    "SaveFile. Use it to clean up local files after a successful upload, or when the app's " +
+                    "cache is cleared manually. Deleting a file that doesn't exist fires onFailure."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra limpar arquivos locais depois de um upload bem-sucedido, ou quando o cache do app é " +
-                    "limpo manualmente. Apagar um arquivo inexistente dispara onFailure."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("fileName", "String", "Obrigatório. Nome do arquivo a apagar no armazenamento privado do app."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                DeleteFile(
-                    trigger = EventTriggers.onSuccess(),
-                    fileName = "avatar.jpg",
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Apague o arquivo salvo pelas demos de TakePicture/GetImageFromGallery/SaveFile") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Delete the file saved by the TakePicture/GetImageFromGallery/SaveFile demos") {
                 SimpleText(
                     id = "delete_file_status",
-                    text = "Toque no botão para tentar apagar mosaic_demo_photo.webp."
+                    text = "Tap the button to try deleting mosaic_demo_photo.webp."
                 )
                 Button(
-                    text = "Apagar mosaic_demo_photo.webp",
+                    text = "Delete mosaic_demo_photo.webp",
                     buttonType = outlinedButton(),
                     events = {
                         DeleteFile(
@@ -72,7 +46,7 @@ object DeleteFileEventDetailBuilder : EventDetailBuilder {
                                 UpdateTiles(
                                     trigger = EventTriggers.onSuccess(),
                                     updates = {
-                                        update("delete_file_status", inlineTileUpdateData("text" to "Apagado com sucesso ✓"))
+                                        update("delete_file_status", inlineTileUpdateData("text" to "Deleted successfully ✓"))
                                     }
                                 )
                                 UpdateTiles(
@@ -80,7 +54,7 @@ object DeleteFileEventDetailBuilder : EventDetailBuilder {
                                     updates = {
                                         update(
                                             "delete_file_status",
-                                            inlineTileUpdateData("text" to "Falha ao apagar — o arquivo já não existia")
+                                            inlineTileUpdateData("text" to "Failed to delete — the file didn't exist")
                                         )
                                     }
                                 )
@@ -89,10 +63,20 @@ object DeleteFileEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 ShowroomNote(
-                    "Depois de apagar, tente o evento GetFile pra confirmar: a leitura vai falhar porque o " +
-                        "arquivo não existe mais."
+                    "After deleting, try the GetFile event to confirm: the read will fail because the file no " +
+                        "longer exists."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                DeleteFile(
+                    trigger = EventTriggers.onSuccess(),
+                    fileName = "avatar.jpg",
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("SaveFile", "GetFile"),

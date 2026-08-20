@@ -1,8 +1,11 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.grouping.adaptive_visibility
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.visible
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfoV2
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.window.core.layout.WindowSizeClass
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_EXPANDED_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
@@ -11,6 +14,7 @@ import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXTRA_LARG
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_LARGE_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
+import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
@@ -49,7 +53,13 @@ object AdaptiveVisibilityTileRenderer : TileRenderer<AdaptiveVisibilityTileSchem
             }
 
             if (widthSatisfied && heightSatisfied) {
-                RenderChildren(tiles)
+                Box(
+                    modifier = Modifier
+                        .visible(isVisible())
+                        .styledWith(style)
+                ) {
+                    RenderChildren(tiles)
+                }
             }
         }
     }

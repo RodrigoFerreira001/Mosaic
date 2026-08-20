@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -27,42 +24,17 @@ object SystemBroadcastListenerTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "System",
-                description = "Container transparente que escuta broadcasts do sistema (emitidos por BroadcastToSystem de qualquer tela) e dispara onSystemBroadcast."
+                description = "A transparent container that listens for system broadcasts (emitted by " +
+                    "BroadcastToSystem from any screen) and fires onSystemBroadcast. It introduces no visual " +
+                    "wrapper — it renders its children directly. The real use case is cross-screen (one screen " +
+                    "emits, another listens), but this demo emits and listens on the same screen to show the " +
+                    "mechanism working end to end."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Não introduz nenhum wrapper visual — renderiza os filhos direto. O caso de uso real " +
-                    "é cross-screen (uma tela emite, outra ouve), mas esta demo emite e ouve na mesma " +
-                    "tela pra mostrar o mecanismo funcionando de ponta a ponta."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("tiles", "TileSchemaBuilderScope.() -> Unit", "Obrigatório. Filhos renderizados sem wrapper."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                SystemBroadcastListener(
-                    id = "session_listener",
-                    events = {
-                        Navigate(trigger = EventTriggers.onSystemBroadcast("session_expired"), destination = "login", navigatorId = "main")
-                    }
-                ) {
-                    SimpleText(text = "Conteúdo normal")
-                }
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Botão emite BroadcastToSystem; o listener reage de verdade") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "The button emits a BroadcastToSystem; the listener really reacts") {
                 Button(
-                    text = "Emitir broadcast \"ping\"",
+                    text = "Emit \"ping\" broadcast",
                     events = {
                         BroadcastToSystem(
                             trigger = EventTriggers.onClick(),
@@ -78,15 +50,29 @@ object SystemBroadcastListenerTileDetailBuilder : TileDetailBuilder {
                             updates = {
                                 update(
                                     tileId = "system_broadcast_demo_label",
-                                    updateData = mappedIncomingTileUpdateData("text" to "Recebido: <||>")
+                                    updateData = mappedIncomingTileUpdateData("text" to "Received: <||>")
                                 )
                             }
                         )
                     }
                 ) {
-                    SimpleText(id = "system_broadcast_demo_label", text = "Aguardando broadcast...")
+                    SimpleText(id = "system_broadcast_demo_label", text = "Waiting for broadcast...")
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                SystemBroadcastListener(
+                    id = "session_listener",
+                    events = {
+                        Navigate(trigger = EventTriggers.onSystemBroadcast("session_expired"), destination = "login", navigatorId = "main")
+                    }
+                ) {
+                    SimpleText(text = "Regular content")
+                }
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("SimpleText", "Column"),

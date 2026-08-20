@@ -11,27 +11,26 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 radio button whose selected state is fully server-controlled via
- * [selected]. Multiple radio buttons sharing the same [groupId] form a logical selection group.
+ * Renders a bare Material 3 `RadioButton` reflecting [selected]. [enabled] is forwarded to the
+ * composable. The tile draws only the radio circle — no label is rendered, so pair it with a
+ * `SimpleText` inside a `Row` when a caption is needed.
  *
- * **Updatable fields (via UpdateTiles):** `selected`, `enabled`, `visibility`, `style`.
+ * **Grouping:** tapping the button dispatches a `RadioButtonTileGroupEvents.OnRadioSelected`
+ * group event carrying this tile's [id] and [groupId]. Every radio holder whose [groupId]
+ * matches reacts by setting its own `selected` to `id == selectedTileId`, so mutual exclusion
+ * is handled entirely on the client — no server round trip and no `UpdateTiles` needed to
+ * clear the previously selected button. Radios with different [groupId] values are unaffected.
  *
  * **Triggers dispatched:**
- * - [OnSelectEventTrigger] — fired when the user taps this radio button. Carries no incomingData.
+ * - `OnSelectEventTrigger` — fired on the radio button that becomes selected. Tapping a radio
+ *   that is already selected fires nothing; the radios that become deselected fire nothing
+ *   either, since only the tapped tile dispatches triggers.
  *
- * **Notes:** On tap, in addition to firing [OnSelectEventTrigger], the renderer dispatches a
- * group-level [RadioButtonTileGroupEvents.OnRadioSelected] event carrying both this tile's [id]
- * and the [groupId]. This group event allows other radio buttons in the same group to deselect
- * themselves without a server round-trip. The [selected] field is server-owned — the radio
- * button is a controlled component and will not stay visually selected until the server sends
- * an UpdateTiles payload. [enabled] prevents interaction when false.
+ * **Value production:** the holder exposes the current [selected] boolean under a caller-chosen
+ * key, so `GetData` / `EvaluateData` events can read this radio button by its [id].
  */
 @Immutable
-@Triggers(
-    [
-        OnSelectEventTrigger::class,
-    ]
-)
+@Triggers([OnSelectEventTrigger::class])
 @Serializable
 @SerialName("RadioButton")
 data class RadioButtonTileSchema(

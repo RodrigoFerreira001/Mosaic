@@ -8,4 +8,5 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnDropdownListOpen")
+/** Fires on `DropdownList` when its anchor is tapped while the menu is closed. */
 data object OnDropdownListOpenEventTrigger : EventTrigger

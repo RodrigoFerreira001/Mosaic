@@ -1,4 +1,5 @@
 install-skill:
+	rm -rf ~/.claude/skills/mosaic ~/.claude/skills/mosaic-server ~/.claude/skills/mosaic-client
 	cp -r skill/. ~/.claude/skills/
 
 publish-local:

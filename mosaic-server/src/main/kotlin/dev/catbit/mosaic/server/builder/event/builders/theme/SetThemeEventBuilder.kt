@@ -23,6 +23,18 @@ internal class SetThemeEventBuilder(
     )
 }
 
+/**
+ * Overrides the app's Material color schemes at runtime with [colorsScheme], which carries a
+ * full light and a full dark scheme — every Material 3 role, from `primary` through the surface
+ * container and fixed-accent families. Both are applied at once, so the app keeps following the
+ * system's light/dark setting. Does not consume `incomingData`. Dispatches `onSuccess` (no data)
+ * always, after the schemes are applied.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its trigger (`onSuccess`).
+ * @param colorsScheme Light and dark color schemes to install, built with [colorsScheme] and [colorScheme].
+ */
 fun EventSchemaBuilderScope.SetTheme(
     id: String = randomId(),
     trigger: EventTrigger,
@@ -39,6 +51,10 @@ fun EventSchemaBuilderScope.SetTheme(
     )
 }
 
+/**
+ * Pairs a [lightColorScheme] and [darkColorScheme] for a `SetTheme` event — both are applied at
+ * once, so the app keeps following the system's light/dark setting.
+ */
 fun colorsScheme(
     lightColorScheme: ColorScheme,
     darkColorScheme: ColorScheme,
@@ -47,6 +63,11 @@ fun colorsScheme(
     darkColorScheme = darkColorScheme
 )
 
+/**
+ * One full Material 3 color scheme — every role from `primary` through the surface container and
+ * fixed-accent families — as hex color strings, for use as the light or dark half of a
+ * `colorsScheme`.
+ */
 fun colorScheme(
     primary: String,
     onPrimary: String,

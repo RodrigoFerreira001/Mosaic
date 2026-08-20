@@ -68,6 +68,8 @@ object ButtonTileRenderer : TileRenderer<ButtonTileSchema> {
 
             val onClick = { triggerEvent(EventTriggers.onClick()) }
 
+            val isEnabled = enabled && !loading
+
             val shape = when (shape) {
                 ButtonTileSchema.Shape.SQUARE -> MaterialTheme.shapes.medium
                 ButtonTileSchema.Shape.ROUNDED -> CircleShape
@@ -78,7 +80,7 @@ object ButtonTileRenderer : TileRenderer<ButtonTileSchema> {
                     Button(
                         modifier = modifier,
                         onClick = onClick,
-                        enabled = enabled,
+                        enabled = isEnabled,
                         shape = shape,
                         content = content
                     )
@@ -87,7 +89,7 @@ object ButtonTileRenderer : TileRenderer<ButtonTileSchema> {
                     ElevatedButton(
                         modifier = modifier,
                         onClick = onClick,
-                        enabled = enabled,
+                        enabled = isEnabled,
                         shape = shape,
                         content = content
                     )
@@ -96,7 +98,7 @@ object ButtonTileRenderer : TileRenderer<ButtonTileSchema> {
                     FilledTonalButton(
                         modifier = modifier,
                         onClick = onClick,
-                        enabled = enabled,
+                        enabled = isEnabled,
                         shape = shape,
                         content = content
                     )
@@ -105,7 +107,7 @@ object ButtonTileRenderer : TileRenderer<ButtonTileSchema> {
                     OutlinedButton(
                         modifier = modifier,
                         onClick = onClick,
-                        enabled = enabled,
+                        enabled = isEnabled,
                         shape = shape,
                         content = content
                     )
@@ -114,7 +116,7 @@ object ButtonTileRenderer : TileRenderer<ButtonTileSchema> {
                     TextButton(
                         modifier = modifier,
                         onClick = onClick,
-                        enabled = enabled,
+                        enabled = isEnabled,
                         shape = shape,
                         content = content
                     )

@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnDownloadFinish")
+/** Fires alongside `onSuccess()` when `DownloadFile`/`DownloadFileToDisk`/`DownloadFileToMemory`
+ * finishes writing successfully. */
 object OnDownloadFinishEventTrigger : EventTrigger

@@ -11,19 +11,22 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Renders a Material3 `TooltipBox` wrapping the anchor content ([tiles]). The tooltip itself is a
- * `PlainTooltip` showing [text]. `TooltipBox` handles gesture detection (hover on desktop/web,
- * long-press on touch) and dismissal internally — there is no server-driven expanded state and no
- * dismiss event, unlike [dev.catbit.mosaic.core.data.schemas.tile.tiles.popup.PopupTileSchema] or
- * [dev.catbit.mosaic.core.data.schemas.tile.tiles.menu.MenuTileSchema].
+ * Wraps [tiles] in a Material 3 `TooltipBox` that shows a `PlainTooltip` with [text]. The
+ * tooltip is driven entirely by the platform's own gestures (long press on touch, hover on
+ * pointer devices) through a remembered tooltip state — the server neither opens nor observes
+ * it.
  *
- * [position] controls where the tooltip is placed relative to the anchor; [spacing] is the gap
- * between them in dp — `null` falls back to Compose Material3's own default spacing.
- * [showCaret] toggles `TooltipDefaults.caretShape()` (the caret is a dedicated triangular shape
- * combined with [shape] by `PlainTooltip` — it can't be represented by [ShapeSchema], which only
- * models plain container shapes). [maxWidth], [shape], [contentColor] and [containerColor] mirror
- * `PlainTooltip`'s remaining appearance parameters; a `null` value falls back to the Material3
- * default for that parameter.
+ * **Appearance:** [position] maps onto the Compose `TooltipAnchorPosition` of the same name and
+ * [spacing] (dp) sets the gap from the anchor, defaulting to Material's own spacing when `null`.
+ * [showCaret] toggles the little pointer arrow, and [maxWidth], [shape], [contentColor] and
+ * [containerColor] each override the corresponding `TooltipDefaults` value when non-null.
+ *
+ * **Triggers dispatched:** none. The tile emits no trigger of its own, so any `events` declared
+ * on it are never fired — wire events on the wrapped tiles instead.
+ *
+ * **Notes:** [style] and [visibility] apply to the `TooltipBox` itself — that is, to the anchor
+ * — not to the tooltip surface, whose look is controlled by the fields above. Only plain
+ * tooltips are supported; there is no rich tooltip variant with a title and actions.
  */
 @Immutable
 @Serializable

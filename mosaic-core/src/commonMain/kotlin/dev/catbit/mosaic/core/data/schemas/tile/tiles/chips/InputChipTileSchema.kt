@@ -14,29 +14,24 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 [InputChip] displaying a discrete piece of information entered or chosen
- * by the user, such as a tag, a contact, or a filter value. Input chips appear in sets and are
- * typically horizontally scrollable or wrapped with [FlowRow].
+ * Renders a Material 3 `InputChip` with a toggleable [selected] state, [text] as its label and
+ * optional [leadingIcon] / [trailingIcon]. [enabled] is forwarded to the underlying composable.
+ * This tile has no variants — it always maps to the flat `InputChip`.
  *
- * The chip supports a toggleable [selected] state and an optional [trailingIcon] (typically a
- * close/remove icon). The [leadingIcon] is shown at the start of the chip label.
+ * **Selection:** tapping the chip flips [selected]. The renderer dispatches a local
+ * `InputChipTileEvents.OnCheckChanged` that the holder applies to its own state, so the new
+ * value survives without a round trip to the server.
  *
- * **Note:** The [trailingIcon] is purely visual — it is rendered inside the chip's single
- * clickable area. There is no separate trailing-icon click callback in the [InputChip] composable;
- * the chip's `onClick` covers the entire surface. Use the check/uncheck triggers to react to
- * taps and update state server-side (e.g. removing the chip via [UpdateTiles]).
+ * **Triggers dispatched (in this order, on every tap):**
+ * - `OnCheckEventTrigger` — when the chip becomes selected.
+ * - `OnUncheckEventTrigger` — when the chip becomes unselected.
+ * - `OnCheckChangedEventTrigger` — always, right after one of the two above.
  *
- * **Note:** The Material 3 [InputChip] composable does not have an elevated variant, so no
- * `variant` field is provided for this chip type.
+ * **Value production:** the holder exposes the current [selected] boolean under a caller-chosen
+ * key, so `GetData` / `EvaluateData` events can read this chip by its [id].
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `text: String`, `selected: Boolean`,
- * `leadingIcon: IconSchema?`, `trailingIcon: IconSchema?`, `enabled: Boolean`
- *
- * **Triggers dispatched:**
- * - `OnCheckEventTrigger` — fired when the chip transitions to selected (`selected = true`).
- * - `OnUncheckEventTrigger` — fired when the chip transitions to unselected (`selected = false`).
- * - `OnCheckChangedEventTrigger` — fired on every selection state change.
+ * **Notes:** the trailing icon is decorative — it does not fire a separate dismiss trigger;
+ * tapping anywhere on the chip toggles it.
  */
 @Immutable
 @Triggers(

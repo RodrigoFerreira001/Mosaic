@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -25,25 +22,38 @@ object NavigationBarTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Navigation",
-                description = "NavigationBar Material 3 com um conjunto fixo de destinos — navegação inferior com 2 a 5 itens (é o que monta a navegação principal deste sample)."
+                description = "A Material 3 NavigationBar with a fixed set of destinations — bottom navigation " +
+                    "with 2 to 5 items (it's what powers this sample's main navigation). selectedItemId is " +
+                    "fully server-controlled — icon fill (filled vs. outlined) is decided by comparing each " +
+                    "item's id to selectedItemId."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "selectedItemId é totalmente controlado pelo servidor — o preenchimento do ícone " +
-                    "(filled vs outlined) é decidido comparando o id de cada item com selectedItemId."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("selectedItemId", "String", "Obrigatório. Controlado pelo servidor."),
-                    ShowroomParam("items", "NavigationBarItemSchemaBuilderScope.() -> Unit", "Obrigatório. Use item(id, icon, label)."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Switch items — selectedItemId actually changes") {
+                NavigationBar(
+                    id = "nav_bar_demo",
+                    selectedItemId = "home",
+                    items = {
+                        item(id = "home", icon = icon("home"), label = "Home")
+                        item(id = "search", icon = icon("search"), label = "Search")
+                        item(id = "profile", icon = icon("person"), label = "Profile")
+                    },
+                    events = {
+                        listOf("home", "search", "profile").forEach { id ->
+                            UpdateTiles(
+                                trigger = EventTriggers.onNavigationBarItemClick(itemId = id),
+                                updates = {
+                                    update(tileId = "nav_bar_demo", updateData = inlineTileUpdateData("selectedItemId" to id))
+                                    update(tileId = "nav_bar_demo_label", updateData = inlineTileUpdateData("text" to "Active: $id"))
+                                }
+                            )
+                        }
+                    }
                 )
-            )
+                SimpleText(id = "nav_bar_demo_label", text = "Active: home")
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 NavigationBar(
@@ -51,8 +61,8 @@ object NavigationBarTileDetailBuilder : TileDetailBuilder {
                     selectedItemId = "home",
                     items = {
                         item(id = "home", icon = icon("home"), label = "Home")
-                        item(id = "search", icon = icon("search"), label = "Busca")
-                        item(id = "profile", icon = icon("person"), label = "Perfil")
+                        item(id = "search", icon = icon("search"), label = "Search")
+                        item(id = "profile", icon = icon("person"), label = "Profile")
                     },
                     events = {
                         Navigate(trigger = EventTriggers.onNavigationBarItemClick(itemId = "home"), destination = "home")
@@ -61,31 +71,6 @@ object NavigationBarTileDetailBuilder : TileDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Troque de item — selectedItemId muda de verdade") {
-                NavigationBar(
-                    id = "nav_bar_demo",
-                    selectedItemId = "home",
-                    items = {
-                        item(id = "home", icon = icon("home"), label = "Home")
-                        item(id = "search", icon = icon("search"), label = "Busca")
-                        item(id = "profile", icon = icon("person"), label = "Perfil")
-                    },
-                    events = {
-                        listOf("home", "search", "profile").forEach { id ->
-                            UpdateTiles(
-                                trigger = EventTriggers.onNavigationBarItemClick(itemId = id),
-                                updates = {
-                                    update(tileId = "nav_bar_demo", updateData = inlineTileUpdateData("selectedItemId" to id))
-                                    update(tileId = "nav_bar_demo_label", updateData = inlineTileUpdateData("text" to "Ativo: $id"))
-                                }
-                            )
-                        }
-                    }
-                )
-                SimpleText(id = "nav_bar_demo_label", text = "Ativo: home")
-            }
 
             ShowroomRelated(
                 names = listOf("NavigationRail", "Tabs", "BottomAppBar"),

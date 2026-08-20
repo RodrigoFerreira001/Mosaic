@@ -13,36 +13,41 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Renders a Material 3 `TextField`-like input that opens a `TimePickerDialog` when tapped, in
- * either a filled or outlined visual style controlled by [kind].
+ * Renders a read-only text field that opens a Material 3 `TimePickerDialog` when tapped.
+ * [kind] picks the field composable: [Kind.FILLED] → `TextField`, [Kind.OUTLINED] →
+ * `OutlinedTextField`. The field always shows an `alarm` leading icon, displays [selectedTime]
+ * (empty when `null`), forwards [enabled] and [supportingText], and switches to Material's error
+ * styling when [state] is [State.ERROR]. Typing is impossible — the field is `readOnly` and its
+ * `onValueChange` is a no-op.
  *
- * **Form tile:** [produceValueWithKey] returns `mapOf(key to selectedTime)`. [selectedTime] is
- * nullable — `null` represents "no time selected".
+ * **Times are ISO strings.** [selectedTime] is an ISO time (`HH:mm`); the renderer converts it
+ * to/from hour + minute for the Compose `TimePickerState`. The dialog is always 24-hour and uses
+ * the vertical layout; when [selectedTime] is `null` it opens at `00:00`.
  *
- * **Server contract:** the server always sends [expanded] as `false`; the client owns the
- * open/closed dialog state. [selectedTime] is a `"HH:mm"` string (24h format).
- *
- * **Updatable fields (via UpdateTiles):** `selectedTime`, `enabled`, `kind`, `dialogOptions`,
- * `supportingText`, `state`, `visibility`, `style`.
+ * **Open state:** [expanded] drives the dialog. Pressing the field dispatches a local
+ * `TimePickerTileEvents.OnTimePickerToggle` (holder flips [expanded]); confirming dispatches
+ * `OnTimeConfirmed` (holder stores the time and closes); cancelling or dismissing dispatches
+ * `OnTimePickerDismissRequest` (holder closes). All of this is handled client-side, without a
+ * round trip to the server. The dialog's buttons are labelled with [confirmLabel] and
+ * [cancelLabel].
  *
  * **Triggers dispatched:**
- * - [OnTimeSelectedEventTrigger] — fired when the user confirms a time in the dialog; carries
- *   the selected time as incomingData (`"HH:mm"` string).
- * - [OnTimePickerOpenEventTrigger] — fired when the dialog opens.
- * - [OnTimePickerCloseEventTrigger] — fired when the dialog closes (confirm, dismiss button, or
- *   outside-dismiss).
+ * - `OnTimePickerOpenEventTrigger` — when the field is pressed while closed.
+ * - `OnTimeSelectedEventTrigger` — when the confirm button is pressed; the ISO time string is
+ *   passed as the event's incoming data.
+ * - `OnTimePickerCloseEventTrigger` — when the field is pressed while open, when the dialog is
+ *   dismissed, when cancel is pressed, and also right after a confirm.
  *
- * **Client state management:**
- * - `OnTimePickerToggle` TileEvent — toggles [expanded].
- * - `OnTimePickerDismissRequest` TileEvent — collapses [expanded] to `false`.
- * - `OnTimeConfirmed` TileEvent — updates [selectedTime] and collapses [expanded] to `false`.
+ * **Value production:** the holder exposes [selectedTime] under a caller-chosen key so
+ * `GetData` / `EvaluateData` events can read this picker by its [id]. When no time is selected
+ * it produces no entry at all.
  */
 @Immutable
 @Triggers(
     [
-        OnTimeSelectedEventTrigger::class,
         OnTimePickerOpenEventTrigger::class,
         OnTimePickerCloseEventTrigger::class,
+        OnTimeSelectedEventTrigger::class,
     ]
 )
 @Serializable

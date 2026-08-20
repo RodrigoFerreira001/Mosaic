@@ -40,9 +40,7 @@ object DownloadFileEventRunner : EventRunner<DownloadFileEventSchema> {
                     },
                     onDownloadFailure = { failure ->
                         if (failure is DownloadCancelledException) {
-                            // Same convention as OpenFilePickerEventRunner: user cancellation
-                            // fires onFailure() with no data, not a real error.
-                            onTrigger(eventTrigger = EventTriggers.onFailure())
+                            onTrigger(eventTrigger = EventTriggers.onCancelled())
                             return@Params
                         }
 

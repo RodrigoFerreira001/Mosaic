@@ -4,38 +4,27 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Imperatively scrolls a RowTile to a specified position. At runtime the runner converts the
- * [where] discriminator into a [RowTileBroadcastData] message that is broadcast to the RowTile
- * identified by [tileId]. The target tile listens for that broadcast and performs the scroll on
- * its internal scroll state.
+ * Scrolls the `Row` or `LazyRow` tile identified by [tileId], by broadcasting a scroll command on
+ * the screen channel. [smoothly] chooses between an animated and an immediate jump.
  *
- * **incomingData consumed:** Not used.
+ * [Where] selects the target: `Start`, `End`, or `To` with an explicit position — which the
+ * receiving tile reads as a pixel offset in a `Row` and as a child index in a `LazyRow`.
+ *
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnScrolledEventTrigger] — declared via `@Triggers` but not fired by this runner; it is
- *   dispatched by the RowTile renderer when the user physically scrolls.
- *
- * **Failure scenarios:** If no RowTile with the given [tileId] is currently rendered the
- * broadcast is silently ignored — no error or fallback trigger is fired.
- *
- * **Notes:** [Where.Start] scrolls to the first item, [Where.End] to the last item, and
- * [Where.To] scrolls to the given 0-based [index]. [smoothly] controls animation vs. instant
- * jump. Out-of-bounds index values are clamped by the underlying Compose scroll API.
+ * - `OnSuccessEventTrigger` — always, right after the command was broadcast. The broadcast is
+ *   fire-and-forget, so this fires even when no tile carries [tileId]. No data is passed
+ *   downstream.
  */
 @Immutable
-@Triggers(
-    [
-        OnScrolledEventTrigger::class,
-        OnSuccessEventTrigger::class
-    ]
-)
+@Triggers([OnSuccessEventTrigger::class])
 @Serializable
 @SerialName("ScrollRow")
 data class ScrollRowTileEventSchema(

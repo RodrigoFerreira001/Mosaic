@@ -13,31 +13,27 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 switch (toggle) whose on/off state is fully server-controlled via
- * [checked].
+ * Renders a bare Material 3 `Switch` reflecting [checked]. [enabled] is forwarded to the
+ * composable. The tile draws only the switch — no label or thumb icon is rendered, so pair it
+ * with a `SimpleText` inside a `Row` when a caption is needed.
  *
- * **Updatable fields (via UpdateTiles):** `checked`, `enabled`, `visibility`, `style`.
+ * **Selection:** toggling the switch dispatches a local `SwitchTileEvents.OnCheckChanged` that
+ * the holder applies to its own state, so the new value survives without a round trip to the
+ * server.
  *
- * **Triggers dispatched:**
- * - [OnCheckEventTrigger] — fired when the user toggles the switch to the on position (`true`).
- *   Fired before [OnCheckChangedEventTrigger].
- * - [OnUncheckEventTrigger] — fired when the user toggles the switch to the off position
- *   (`false`). Fired before [OnCheckChangedEventTrigger].
- * - [OnCheckChangedEventTrigger] — fired on every toggle, regardless of direction, immediately
- *   after the directional trigger. A local [SwitchTileEvents.OnCheckChanged] is also dispatched
- *   so other tiles on the screen can observe the state change.
+ * **Triggers dispatched (in this order, on every toggle):**
+ * - `OnCheckEventTrigger` — when the switch turns on.
+ * - `OnUncheckEventTrigger` — when the switch turns off.
+ * - `OnCheckChangedEventTrigger` — always, right after one of the two above.
  *
- * **Notes:** Identical trigger semantics to [CheckboxTileSchema] — [checked] is server-owned
- * and the switch is a controlled component. After interaction, the visual state snaps back to
- * the server-provided [checked] value until an UpdateTiles payload arrives. [enabled] prevents
- * interaction when false. The renderer is structurally identical to [CheckboxTileRenderer]
- * with the composable replaced by [Switch].
+ * **Value production:** the holder exposes the current [checked] boolean under a caller-chosen
+ * key, so `GetData` / `EvaluateData` events can read this switch by its [id].
  */
 @Immutable
 @Triggers(
     [
-        OnUncheckEventTrigger::class,
         OnCheckEventTrigger::class,
+        OnUncheckEventTrigger::class,
         OnCheckChangedEventTrigger::class,
     ]
 )

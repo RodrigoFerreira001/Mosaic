@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -27,52 +24,18 @@ object BroadcastToSystemEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "System",
-                description = "Emite um broadcast nomeado (broadcastId + payload) via SystemBroadcastChannel, notificando qualquer assinante do app — em qualquer tela — sem acoplamento direto à cadeia de eventos."
+                description = "Emits a named broadcast (broadcastId + payload) over the SystemBroadcastChannel, " +
+                    "notifying any subscriber in the app — on any screen — with no direct coupling to the event " +
+                    "chain that raised it. The real-world use case is cross-screen: one screen emits, other " +
+                    "screen(s) listen with onSystemBroadcast(\"id\") or the SystemBroadcastListener tile. This " +
+                    "demo emits and listens on the same screen just to prove the mechanism end to end — " +
+                    "behavior across different screens is identical."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "O caso de uso real é cross-screen: uma tela emite, outra(s) escutam com " +
-                    "onSystemBroadcast(\"id\") ou com a tile SystemBroadcastListener. Esta demo " +
-                    "emite e escuta na mesma tela só pra provar o mecanismo de ponta a ponta — " +
-                    "o comportamento entre telas diferentes é idêntico."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("broadcastId", "String", "Obrigatório. Identificador do canal nomeado."),
-                    ShowroomParam(
-                        "data",
-                        "BroadcastData",
-                        "Obrigatório. inlineBroadcastData(valor) para um payload estático, ou incomingBroadcastData() para repassar o incomingData atual."
-                    ),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                // Emissor (qualquer tela)
-                BroadcastToSystem(
-                    trigger = EventTriggers.onClick(),
-                    broadcastId = "ENVIRONMENT_CHANGE",
-                    data = inlineBroadcastData(environment.id)
-                )
-
-                // Receptor (qualquer tela/tile)
-                UpdateTiles(
-                    trigger = EventTriggers.onSystemBroadcast("ENVIRONMENT_CHANGE"),
-                    updates = { /* ... */ }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Botão emite BroadcastToSystem; o listener nesta mesma página reage de verdade") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Button emits BroadcastToSystem; the listener on this same page reacts for real") {
                 Button(
-                    text = "Emitir broadcast \"event_showroom_ping\"",
+                    text = "Emit \"event_showroom_ping\" broadcast",
                     events = {
                         BroadcastToSystem(
                             trigger = EventTriggers.onClick(),
@@ -88,15 +51,33 @@ object BroadcastToSystemEventDetailBuilder : EventDetailBuilder {
                             updates = {
                                 update(
                                     tileId = "broadcast_to_system_demo_label",
-                                    updateData = mappedIncomingTileUpdateData("text" to "Recebido: <||>")
+                                    updateData = mappedIncomingTileUpdateData("text" to "Received: <||>")
                                 )
                             }
                         )
                     }
                 ) {
-                    SimpleText(id = "broadcast_to_system_demo_label", text = "Aguardando broadcast...")
+                    SimpleText(id = "broadcast_to_system_demo_label", text = "Waiting for broadcast...")
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                // Sender (any screen)
+                BroadcastToSystem(
+                    trigger = EventTriggers.onClick(),
+                    broadcastId = "ENVIRONMENT_CHANGE",
+                    data = inlineBroadcastData(environment.id)
+                )
+
+                // Receiver (any screen/tile)
+                UpdateTiles(
+                    trigger = EventTriggers.onSystemBroadcast("ENVIRONMENT_CHANGE"),
+                    updates = { /* ... */ }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("CheckIfHasInternetConnection", "OpenExternalLink"),

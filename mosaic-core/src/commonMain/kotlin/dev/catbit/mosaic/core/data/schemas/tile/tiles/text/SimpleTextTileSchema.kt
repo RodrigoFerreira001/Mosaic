@@ -18,23 +18,21 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a non-interactive text label using Compose's [Text] composable.
+ * Renders a Compose `Text` showing [text].
  *
- * **Updatable fields (via UpdateTiles):** `text`, `color`, `typography`, `autoSize`, `fontSize`,
- * `fontStyle`, `fontWeight`, `fontFamily`, `letterSpacing`, `textDecoration`, `textAlign`,
- * `lineHeight`, `overflow`, `softWrap`, `maxLines`, `minLines`, `visibility`, `style`.
+ * **Text style:** [typography] provides the base `TextStyle`, falling back to the ambient
+ * `LocalTextStyle` when `null`. Every other field overrides one property on top of that base and
+ * is ignored when `null`: [color], [autoSize], [fontSize] (sp), [fontStyle], [fontWeight],
+ * [fontFamily], [letterSpacing] (sp), [textDecoration], [textAlign] and [lineHeight] (sp).
  *
- * **Triggers dispatched:** None — this tile has no `@Triggers` annotation and fires no events
- * in response to user interaction.
+ * **Layout:** [overflow] defaults to clipping, [softWrap] to `true`, [maxLines] to unbounded and
+ * [minLines] to `1`.
  *
- * **Notes:** [color] accepts a nullable [ColorSchema]; when null the renderer falls back to
- * [LocalTextStyle]'s inherited color (`Color.Unspecified`). [typography] maps to a Compose
- * [TextStyle] via `toTextStyle()`; when null the ambient [LocalTextStyle] is used unchanged.
- * Individual text properties ([fontSize], [fontWeight], etc.) override the corresponding
- * values from [typography] when both are set. Float fields for [fontSize], [letterSpacing],
- * and [lineHeight] are interpreted as **sp** units. The tile respects [visibility] via the
- * `visible()` modifier — the composable is still laid out but hidden when invisible,
- * preserving its space in the parent layout.
+ * **Triggers dispatched:** none. The tile emits no trigger and is not clickable, so any `events`
+ * declared on it are never fired — wrap it in a `Box` or `Card` when you need tap handling.
+ *
+ * **Notes:** the tile renders plain text only — no inline annotations, links or markdown. Wrap
+ * it in a `SelectionContainer` to make the text selectable.
  */
 @Serializable
 @SerialName("Text")

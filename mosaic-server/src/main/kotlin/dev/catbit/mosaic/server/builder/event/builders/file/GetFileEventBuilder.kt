@@ -24,6 +24,19 @@ internal class GetFileEventBuilder(
     )
 }
 
+/**
+ * Reads the file stored under [fileName] from the client's own file storage and emits its
+ * content downstream, shaped by [outputType]. Does not consume `incomingData`. Dispatches
+ * `onSuccess` (carrying the content, shaped by [outputType]) when the file was read; `onFailure`
+ * (carrying the `Throwable`, logged) when the read failed, no file exists under [fileName], or
+ * `mapObject()` decoding fails.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param fileName Name of the file to read.
+ * @param outputType Shape of the content delivered as `incomingData` — [arrayOfBytes], [flowOfBytes], [platformFile], [mapObject] or [base64]. Defaults to raw bytes.
+ */
 fun EventSchemaBuilderScope.GetFile(
     id: String = randomId(),
     trigger: EventTrigger,

@@ -10,30 +10,19 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Overrides the app's Material3 [ColorScheme] at runtime, for both light and dark mode, via
- * [colorsScheme]. At runtime the runner builds two full Compose `ColorScheme` instances (one per
- * [ColorsScheme.lightColorScheme]/[ColorsScheme.darkColorScheme]) from the hex strings and applies
- * them globally, overriding the theme currently in effect regardless of which screen is on
- * display.
+ * Overrides the app's Material color schemes at runtime with [colorsScheme], which carries a full
+ * light and a full dark scheme — every Material 3 role, from `primary` through the surface
+ * container and fixed-accent families. Both are applied at once, so the app keeps following the
+ * system's light/dark setting.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — always, once the new color schemes have been applied.
- *
- * **Notes:** Every field in [ColorScheme] is a hex color string (e.g. `"#FF5722"` or `"FF5722"`),
- * parsed via `String.toColor()` — not a `ColorSchema`/`color(...)` builder value. The override
- * persists until [ResetThemeEventSchema] is dispatched or the app restarts; it is not tied to
- * screen navigation. Use the `colorsScheme(...)`/`colorScheme(...)` DSL helper functions
- * (`mosaic-server`) to build [ColorsScheme]/[ColorScheme] instances instead of constructing them
- * directly.
+ * - `OnSuccessEventTrigger` — always, after the schemes were applied. No data is passed
+ *   downstream.
  */
 @Immutable
-@Triggers(
-    [
-        OnSuccessEventTrigger::class
-    ]
-)
+@Triggers([OnSuccessEventTrigger::class])
 @Serializable
 @SerialName("SetTheme")
 data class SetThemeEventSchema(
@@ -43,18 +32,12 @@ data class SetThemeEventSchema(
     @SerialName("colorsScheme") val colorsScheme: ColorsScheme
 ) : EventSchema {
 
-    /** Pair of full Material3 color schemes applied by [SetThemeEventSchema]. */
     @Serializable
     data class ColorsScheme(
         @SerialName("lightColorScheme") val lightColorScheme: ColorScheme,
         @SerialName("darkColorScheme") val darkColorScheme: ColorScheme,
     )
 
-    /**
-     * Mirrors every field of Compose Material3's `ColorScheme`, one hex color string per role
-     * (e.g. `primary`, `onPrimary`, `surfaceContainerHighest`). Applied via `String.toColor()`
-     * on the client.
-     */
     @Serializable
     data class ColorScheme(
         @SerialName("primary") val primary: String,

@@ -8,6 +8,7 @@ import androidx.compose.material3.ModalWideNavigationRail
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.catbit.mosaic.client.extensions.textOrNull
@@ -37,21 +38,23 @@ object NavigationRailTileRenderer : TileRenderer<NavigationRailTileSchema> {
                 }
             ) {
                 items.forEach { navigationRailItem ->
-                    with(navigationRailItem) {
-                        NavigationRailItem(
-                            selected = selectedItemId == id,
-                            onClick = {
-                                triggerEvent(EventTriggers.onNavigationRailItemClick(id))
-                                dispatchEvent(NavigationRailTileEvents.OnItemClicked(id))
-                            },
-                            icon = {
-                                Icon(
-                                    schema = icon,
-                                    filled = selectedItemId == id
-                                )
-                            },
-                            label = label.textOrNull(centered = true)
-                        )
+                    key(navigationRailItem.id) {
+                        with(navigationRailItem) {
+                            NavigationRailItem(
+                                selected = selectedItemId == id,
+                                onClick = {
+                                    triggerEvent(EventTriggers.onNavigationRailItemClick(id))
+                                    dispatchEvent(NavigationRailTileEvents.OnItemClicked(id))
+                                },
+                                icon = {
+                                    Icon(
+                                        schema = icon,
+                                        filled = selectedItemId == id
+                                    )
+                                },
+                                label = label.textOrNull(centered = true)
+                            )
+                        }
                     }
                 }
 

@@ -7,6 +7,17 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+/**
+ * The app-facing screen payload — [dev.catbit.mosaic.core.data.responses.screen.ScreenResponse]
+ * with [dev.catbit.mosaic.core.data.responses.screen.ScreenResponse.id]/`ttl` already consumed by the
+ * repository layer and dropped. This is what `GetScreen`'s `onSuccess` carries as `incomingData`,
+ * and what `ChangeScreenState`'s `Success` state installs onto a screen.
+ *
+ * @property tiles the screen's tile tree.
+ * @property navigationDrawerTiles content rendered inside the screen's `ModalNavigationDrawer`, if
+ * any.
+ * @property events screen-level events.
+ */
 @Serializable
 data class ScreenModel(
     @SerialName("tiles")
@@ -18,6 +29,8 @@ data class ScreenModel(
 ) {
 
     companion object {
+        /** Converts a [ScreenResponse] into a [ScreenModel], dropping [ScreenResponse.id]/`ttl`
+         * (both already consumed by the repository layer by this point). */
         fun fromScreenResponse(
             screenResponse: ScreenResponse
         ) = ScreenModel(

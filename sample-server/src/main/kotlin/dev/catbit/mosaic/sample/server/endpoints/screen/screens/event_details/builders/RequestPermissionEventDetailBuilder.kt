@@ -5,9 +5,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -26,30 +23,61 @@ object RequestPermissionEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Security",
-                description = "Pede uma ou mais permissões de runtime usando o mecanismo nativo de cada plataforma (ActivityResultRegistry no Android, AVFoundation/CoreLocation no iOS, Permissions API na web)."
+                description = "Requests one or more runtime permissions using each platform's native " +
+                    "mechanism (ActivityResultRegistry on Android, AVFoundation/CoreLocation on iOS, the " +
+                    "Permissions API on the web). Use it before accessing the camera, microphone, location, " +
+                    "notifications, contacts, or gallery/storage. The consuming app must declare the " +
+                    "permission in AndroidManifest.xml (Android) and in the usage description keys of " +
+                    "Info.plist (iOS) — a missing key on iOS crashes the app at runtime."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use antes de acessar câmera, microfone, localização, notificações, contatos ou " +
-                    "galeria/armazenamento. O app consumidor precisa declarar a permissão no " +
-                    "AndroidManifest.xml (Android) e nas usage description keys do Info.plist (iOS) — " +
-                    "a ausência de uma key no iOS derruba o app em runtime."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam(
-                        "permissions",
-                        "List<Permissions>",
-                        "Obrigatório. CAMERA, GALLERY, STORAGE, MICROPHONE, LOCATION, NOTIFICATION, CONTACTS."
-                    ),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Request the real notification permission") {
+                SimpleText(
+                    id = "request_permission_status",
+                    text = "Status: waiting"
                 )
-            )
+                Button(
+                    text = "Request NOTIFICATION permission",
+                    events = {
+                        RequestPermission(
+                            trigger = EventTriggers.onClick(),
+                            permissions = listOf(Permissions.NOTIFICATION),
+                            events = {
+                                UpdateTiles(
+                                    trigger = EventTriggers.onPermissionsAcquired(),
+                                    updates = {
+                                        update(
+                                            tileId = "request_permission_status",
+                                            updateData = inlineTileUpdateData("text" to "Status: granted ✅")
+                                        )
+                                    }
+                                )
+                                UpdateTiles(
+                                    trigger = EventTriggers.onPermissionRationale(),
+                                    updates = {
+                                        update(
+                                            tileId = "request_permission_status",
+                                            updateData = inlineTileUpdateData("text" to "Status: show a rationale and ask again")
+                                        )
+                                    }
+                                )
+                                UpdateTiles(
+                                    trigger = EventTriggers.onPermissionsDenied(),
+                                    updates = {
+                                        update(
+                                            tileId = "request_permission_status",
+                                            updateData = inlineTileUpdateData("text" to "Status: denied ❌")
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 RequestPermission(
@@ -68,52 +96,6 @@ object RequestPermissionEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Pede a permissão de notificação de verdade") {
-                SimpleText(
-                    id = "request_permission_status",
-                    text = "Status: aguardando"
-                )
-                Button(
-                    text = "Pedir permissão NOTIFICATION",
-                    events = {
-                        RequestPermission(
-                            trigger = EventTriggers.onClick(),
-                            permissions = listOf(Permissions.NOTIFICATION),
-                            events = {
-                                UpdateTiles(
-                                    trigger = EventTriggers.onPermissionsAcquired(),
-                                    updates = {
-                                        update(
-                                            tileId = "request_permission_status",
-                                            updateData = inlineTileUpdateData("text" to "Status: concedida ✅")
-                                        )
-                                    }
-                                )
-                                UpdateTiles(
-                                    trigger = EventTriggers.onPermissionRationale(),
-                                    updates = {
-                                        update(
-                                            tileId = "request_permission_status",
-                                            updateData = inlineTileUpdateData("text" to "Status: mostre uma explicação e peça de novo")
-                                        )
-                                    }
-                                )
-                                UpdateTiles(
-                                    trigger = EventTriggers.onPermissionsDenied(),
-                                    updates = {
-                                        update(
-                                            tileId = "request_permission_status",
-                                            updateData = inlineTileUpdateData("text" to "Status: negada ❌")
-                                        )
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("TakePicture", "GetImageFromGallery", "OpenExternalLink"),

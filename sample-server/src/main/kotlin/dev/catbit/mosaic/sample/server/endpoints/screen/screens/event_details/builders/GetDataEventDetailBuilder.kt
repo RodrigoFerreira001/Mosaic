@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -37,56 +34,16 @@ object GetDataEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Data",
-                description = "Lê um ou mais dados de fontes como tile, DataHolder (memória da tela) ou " +
-                    "banco persistente, e encaminha o resultado agregado como incomingData."
+                description = "Reads one or more values from sources like a tile, a DataHolder (screen memory), " +
+                    "or persistent storage, and forwards the aggregated result as incomingData. Use it whenever " +
+                    "an event chain needs to read stored state before acting — for example, reading form fields " +
+                    "before sending a request, or checking a session token before attaching a header. Multiple " +
+                    "readings within the same GetData are merged into a single map; on key collision, the later " +
+                    "reading wins."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use sempre que uma cadeia de eventos precisar ler estado guardado antes de agir — por " +
-                    "exemplo, ler campos de formulário antes de enviar uma requisição, ou checar um token " +
-                    "de sessão antes de anexar um header. Múltiplas readings dentro do mesmo GetData são " +
-                    "mescladas num único mapa; em caso de colisão de chave, a leitura posterior vence."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("readings", "GetDataReadingBuilderScope", "Obrigatório. Uma ou mais chamadas reading(dataSource, accessMode)."),
-                    ShowroomParam("dataSource", "DataSource", "screenPlainData(), screenSegmentedData(seg), tile(id, key), plainDataBase(), segmentedDataBase(seg), broadcastData()..."),
-                    ShowroomParam("accessMode", "AccessMode", "fullAccessMode(), singleAccessMode(key) ou batchAccessMode(listOf(...))."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                GetData(
-                    trigger = EventTriggers.onClick(),
-                    readings = {
-                        reading(
-                            dataSource = screenPlainData(),
-                            accessMode = singleAccessMode("showroom_value")
-                        )
-                    },
-                    events = {
-                        UpdateTiles(trigger = EventTriggers.onSuccess(), updates = {
-                            update("result_label", incomingTileUpdateData())
-                        })
-                        DisplaySnackbar(trigger = EventTriggers.onFailure(), message = "Nada guardado ainda")
-                    }
-                )
-                """
-            )
-
-            ShowroomNote(
-                "singleAccessMode() dispara onFailure() (DataNotFoundException) se a chave não existir. " +
-                    "Use fullAccessMode() quando não tiver certeza se o valor já foi escrito."
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Digite, salve no DataHolder e leia de volta com GetData") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Type something, save it to the DataHolder, and read it back with GetData") {
                 Column(
                     style = { size(width = fillHorizontally(), height = wrapVertically()) },
                     arrangement = arrangeVerticallySpacedBy(12)
@@ -94,8 +51,8 @@ object GetDataEventDetailBuilder : EventDetailBuilder {
                     TextField(
                         id = "gd_value",
                         kind = outlinedTextField(),
-                        label = "Valor",
-                        placeholder = "Digite algo...",
+                        label = "Value",
+                        placeholder = "Type something...",
                         style = { size(width = fillHorizontally(), height = wrapVertically()) },
                         events = {
                             UpdateData(
@@ -111,7 +68,7 @@ object GetDataEventDetailBuilder : EventDetailBuilder {
                     )
                     Row(arrangement = arrangeHorizontallySpacedBy(8)) {
                         Button(
-                            text = "Ler",
+                            text = "Read",
                             events = {
                                 GetData(
                                     trigger = EventTriggers.onClick(),
@@ -127,7 +84,7 @@ object GetDataEventDetailBuilder : EventDetailBuilder {
                                             updates = {
                                                 update(
                                                     tileId = "gd_status",
-                                                    updateData = mappedIncomingTileUpdateData("text" to "Lido do DataHolder: <//>")
+                                                    updateData = mappedIncomingTileUpdateData("text" to "Read from DataHolder: <//>")
                                                 )
                                             }
                                         )
@@ -136,7 +93,7 @@ object GetDataEventDetailBuilder : EventDetailBuilder {
                                             updates = {
                                                 update(
                                                     tileId = "gd_status",
-                                                    updateData = inlineTileUpdateData("text" to "Nada guardado ainda nessa chave.")
+                                                    updateData = inlineTileUpdateData("text" to "Nothing stored under that key yet.")
                                                 )
                                             }
                                         )
@@ -145,9 +102,35 @@ object GetDataEventDetailBuilder : EventDetailBuilder {
                             }
                         )
                     }
-                    SimpleText(id = "gd_status", text = "Digite algo e clique em \"Ler\".")
+                    SimpleText(id = "gd_status", text = "Type something and click \"Read\".")
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                GetData(
+                    trigger = EventTriggers.onClick(),
+                    readings = {
+                        reading(
+                            dataSource = screenPlainData(),
+                            accessMode = singleAccessMode("showroom_value")
+                        )
+                    },
+                    events = {
+                        UpdateTiles(trigger = EventTriggers.onSuccess(), updates = {
+                            update("result_label", incomingTileUpdateData())
+                        })
+                        DisplaySnackbar(trigger = EventTriggers.onFailure(), message = "Nothing stored yet")
+                    }
+                )
+                """
+            )
+
+            ShowroomNote(
+                "singleAccessMode() fires onFailure() (DataNotFoundException) if the key doesn't exist. Use " +
+                    "fullAccessMode() when you're not sure whether the value has already been written."
+            )
 
             ShowroomRelated(
                 names = listOf("UpdateData", "RemoveData", "EvaluateData"),

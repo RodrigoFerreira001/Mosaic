@@ -10,20 +10,20 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Cancels the running cancellable context identified by [cancellableEventId], previously started
- * by a [RunCancellableEventsEventSchema]. A no-op if no context with that id is currently running.
+ * Cancels the coroutine job registered in the client's `CancellableEventsHolder` under
+ * [cancellableEventId], stopping whatever `RunCancellableEvents` started with that id.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — after the cancellation request has been dispatched.
+ * - `OnSuccessEventTrigger` — when a running job was found under [cancellableEventId] and
+ *   cancelled. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when nothing is registered under [cancellableEventId], either
+ *   because it never ran or because its job already finished; a `NoSuchElementException` is
+ *   passed as incomingData and the error is logged.
  */
 @Immutable
-@Triggers(
-    [
-        OnSuccessEventTrigger::class
-    ]
-)
+@Triggers([OnSuccessEventTrigger::class])
 @Serializable
 @SerialName("CancelEvents")
 data class CancelEventsEventSchema(

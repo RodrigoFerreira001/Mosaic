@@ -62,13 +62,14 @@ object LazyTilesTileRenderer : TileRenderer<LazyTilesTileSchema> {
                                 )
                                     .onSuccess { response ->
                                         try {
+                                            val loadedTiles = mosaicSerializer.decodeFromJsonElement(
+                                                deserializer = ListSerializer(PolymorphicSerializer(TileSchema::class)),
+                                                element = response.body()
+                                            )
                                             triggerEvent(EventTriggers.onLoadTilesSuccess())
                                             dispatchEvent(
                                                 tileEvent = LazyTilesTileEvents.OnTilesLoadedSuccessfully(
-                                                    tiles = mosaicSerializer.decodeFromJsonElement(
-                                                        deserializer = ListSerializer(PolymorphicSerializer(TileSchema::class)),
-                                                        element = response.body()
-                                                    )
+                                                    tiles = loadedTiles
                                                 )
                                             )
                                         } catch (e: Throwable) {

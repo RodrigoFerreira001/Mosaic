@@ -6,9 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -30,50 +27,22 @@ object SetIncomingDataToNetworkParamsHolderHeadersEventDetailBuilder : EventDeta
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Networking",
-                description = "Guarda o incomingData (deve ser Map<String, String>) como headers da próxima " +
-                    "requisição de rede da cadeia."
+                description = "Stores the incomingData (must be Map<String, String>) as the headers of the " +
+                    "chain's next network request. Typically used to inject authentication headers — a " +
+                    "session cookie, a Bearer token — fetched via GetData for the following request. A cast " +
+                    "failure (incomingData isn't a Map<String, String>) fires onFailure. Headers stored here " +
+                    "are merged with SendNetworkRequest's schema headers; on a key collision, the schema " +
+                    "wins: finalHeaders = holder + schema."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use tipicamente pra injetar headers de autenticação — cookie de sessão, Bearer token — " +
-                    "buscados via GetData no request seguinte. Falha de cast (incomingData não é " +
-                    "Map<String, String>) dispara onFailure. Os headers guardados aqui são mesclados com os " +
-                    "do schema do SendNetworkRequest; em colisão de chave, o schema vence: " +
-                    "finalHeaders = holder + schema."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("—", "—", "Nenhum além de trigger/events — o valor guardado é sempre o incomingData atual."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                GetData(trigger = EventTriggers.onStart(), readings = {
-                    reading(segmentedDataBase("auth"), singleAccessMode("sessionCookie"))
-                }, events = {
-                    TransformData(trigger = EventTriggers.onSuccess(), template = mapOf("Cookie" to "<||>"), events = {
-                        SetIncomingDataToNetworkParamsHolderHeaders(trigger = EventTriggers.onSuccess(), events = {
-                            SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/protected", method = HttpMethod.GET)
-                        })
-                    })
-                })
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Envie um header custom e veja-o ecoado de volta pela API") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Send a custom header and see it echoed back by the API") {
                 SimpleText(
                     id = "set_headers_status",
-                    text = "Toque no botão para disparar o GET com o header custom."
+                    text = "Tap the button to fire the GET with the custom header."
                 )
                 Button(
-                    text = "Enviar X-Mosaic-Demo: showroom para httpbin.org/headers",
+                    text = "Send X-Mosaic-Demo: showroom to httpbin.org/headers",
                     events = {
                         TransformData(
                             trigger = EventTriggers.onClick(),
@@ -89,7 +58,7 @@ object SetIncomingDataToNetworkParamsHolderHeadersEventDetailBuilder : EventDeta
                                             events = {
                                                 TransformData(
                                                     trigger = EventTriggers.onSuccess(),
-                                                    template = mapOf("text" to "Header ecoado: <|headers.X-Mosaic-Demo|>"),
+                                                    template = mapOf("text" to "Header echoed: <|headers.X-Mosaic-Demo|>"),
                                                     events = {
                                                         UpdateTiles(
                                                             trigger = EventTriggers.onSuccess(),
@@ -104,7 +73,7 @@ object SetIncomingDataToNetworkParamsHolderHeadersEventDetailBuilder : EventDeta
                                                     updates = {
                                                         update(
                                                             "set_headers_status",
-                                                            inlineTileUpdateData("text" to "Falha na requisição")
+                                                            inlineTileUpdateData("text" to "Request failed")
                                                         )
                                                     }
                                                 )
@@ -117,11 +86,26 @@ object SetIncomingDataToNetworkParamsHolderHeadersEventDetailBuilder : EventDeta
                     }
                 )
                 ShowroomNote(
-                    "httpbin.org/headers devolve exatamente os headers que recebeu, como JSON — é uma forma " +
-                        "confiável de provar que o header X-Mosaic-Demo realmente saiu do holder e chegou na " +
-                        "requisição, sem precisar de um backend próprio pra inspecionar isso."
+                    "httpbin.org/headers returns exactly the headers it received, as JSON — a reliable way " +
+                        "to prove the X-Mosaic-Demo header really left the holder and reached the request, " +
+                        "without needing your own backend to inspect it."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                GetData(trigger = EventTriggers.onStart(), readings = {
+                    reading(segmentedDataBase("auth"), singleAccessMode("sessionCookie"))
+                }, events = {
+                    TransformData(trigger = EventTriggers.onSuccess(), template = mapOf("Cookie" to "<||>"), events = {
+                        SetIncomingDataToNetworkParamsHolderHeaders(trigger = EventTriggers.onSuccess(), events = {
+                            SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/protected", method = HttpMethod.GET)
+                        })
+                    })
+                })
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("SendNetworkRequest", "SetIncomingDataToNetworkParamsHolderBody", "GetData"),

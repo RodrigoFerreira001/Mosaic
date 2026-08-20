@@ -13,30 +13,27 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 checkbox whose checked state is fully server-controlled via [checked].
+ * Renders a bare Material 3 `Checkbox` reflecting [checked]. [enabled] is forwarded to the
+ * composable. The tile draws only the box — no label is rendered, so pair it with a
+ * `SimpleText` inside a `Row` when a caption is needed.
  *
- * **Updatable fields (via UpdateTiles):** `checked`, `enabled`, `visibility`, `style`.
+ * **Selection:** toggling the checkbox dispatches a local `CheckboxTileEvents.OnCheckChanged`
+ * that the holder applies to its own state, so the new value survives without a round trip
+ * to the server.
  *
- * **Triggers dispatched:**
- * - [OnCheckEventTrigger] — fired when the user taps the checkbox and the new state is checked
- *   (`true`). Fired before [OnCheckChangedEventTrigger].
- * - [OnUncheckEventTrigger] — fired when the user taps the checkbox and the new state is
- *   unchecked (`false`). Fired before [OnCheckChangedEventTrigger].
- * - [OnCheckChangedEventTrigger] — fired on every toggle, regardless of direction, immediately
- *   after the directional trigger. A local [CheckboxTileEvents.OnCheckChanged] is also
- *   dispatched so other tiles on the screen can observe the state change.
+ * **Triggers dispatched (in this order, on every toggle):**
+ * - `OnCheckEventTrigger` — when the box becomes checked.
+ * - `OnUncheckEventTrigger` — when the box becomes unchecked.
+ * - `OnCheckChangedEventTrigger` — always, right after one of the two above.
  *
- * **Notes:** The [checked] field is the source of truth for the visual state — the checkbox
- * does not maintain its own internal toggle state. After the user interacts, the three triggers
- * fire in rapid succession but the checkbox will visually snap back to the server-provided
- * [checked] value until the server pushes an UpdateTiles payload with the new value. This means
- * the tile is always controlled, not uncontrolled. [enabled] prevents interaction when false.
+ * **Value production:** the holder exposes the current [checked] boolean under a caller-chosen
+ * key, so `GetData` / `EvaluateData` events can read this checkbox by its [id].
  */
 @Immutable
 @Triggers(
     [
-        OnUncheckEventTrigger::class,
         OnCheckEventTrigger::class,
+        OnUncheckEventTrigger::class,
         OnCheckChangedEventTrigger::class,
     ]
 )

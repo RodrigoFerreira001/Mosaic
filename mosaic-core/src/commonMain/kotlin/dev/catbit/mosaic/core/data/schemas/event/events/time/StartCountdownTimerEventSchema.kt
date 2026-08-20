@@ -5,35 +5,34 @@ import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCountdownTimerTickEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimeFinishEventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Starts a client-side countdown timer that counts down from [TimerData.initial] to zero in
- * decrements of [TimerData.step]. Build [timerData] with the `milliseconds(initial, step)` /
- * `seconds(initial, step)` DSL helpers (`dev.catbit.mosaic.server.builder.event.builders.time`),
- * which validate that `step` is non-negative and smaller than `initial`.
- * The runner is currently a placeholder — the countdown and trigger-firing logic has not yet
- * been implemented.
+ * Starts a countdown in a coroutine launched from the running event's context, ticking down from
+ * [TimerData] `initial` to its `step` in `step`-sized decrements, waiting one step between ticks.
+ * [TimerData] chooses the unit: `Milliseconds` or `Seconds`.
  *
- * **incomingData consumed:** Not used.
+ * The event returns as soon as the countdown is launched, so the chain continues while the timer
+ * keeps running in the background. It stops on its own when the countdown ends; to stop it
+ * early, launch it from inside a `RunCancellableEvents` and cancel that id with `CancelEvents`.
  *
- * **Triggers fired (intended, not yet implemented):**
- * - [OnCountdownTimerTickEventTrigger] (`EventTriggers.onTimeTick()`) — intended to fire on every
- *   elapsed [TimerData.step], with the remaining time as incomingData.
- * - [OnTimeFinishEventTrigger] (`EventTriggers.onTimeFinish()`) — intended to fire once when the
- *   timer reaches zero.
+ * **incomingData consumed:** not used.
  *
- * **Failure scenarios:** Not applicable — the runner is a no-op placeholder.
+ * **Triggers fired:**
+ * - `OnCountdownTimerTickEventTrigger` — once per tick, with the remaining amount passed as
+ *   incomingData.
+ * - `OnTimeFinishEventTrigger` — once, after the last tick. No data is passed downstream.
+ *
+ * Neither success nor failure is reported.
  */
 @Immutable
 @Triggers(
     [
+        OnCountdownTimerTickEventTrigger::class,
         OnTimeFinishEventTrigger::class,
-        OnCountdownTimerTickEventTrigger::class
     ]
 )
 @Serializable

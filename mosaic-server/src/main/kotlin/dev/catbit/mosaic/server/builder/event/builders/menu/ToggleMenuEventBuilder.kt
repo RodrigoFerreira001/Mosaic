@@ -21,6 +21,18 @@ internal class ToggleMenuEventBuilder(
     )
 }
 
+/**
+ * Flips the open/closed state of the `Menu` tile identified by [menuId] — since the tile itself
+ * only closes on dismissal, this is how a menu is opened from the server side, and, wired onto a
+ * menu item's click, how it is closed after acting on the selection. Does not consume
+ * `incomingData`. Dispatches `onSuccess` (no data) when the signal reached the tile; `onFailure`
+ * (carrying the thrown exception, logged) when no tile with [menuId] is currently mounted.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param menuId Id of the `Menu` tile to toggle.
+ */
 fun EventSchemaBuilderScope.ToggleMenu(
     id: String = randomId(),
     trigger: EventTrigger,

@@ -4,38 +4,29 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTimeLoopEventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Starts a client-side, unbounded loop that repeats every [TimeData.delay] — unlike
- * [StartCountdownTimerEventSchema], there is no end condition; stop it externally (e.g. via
- * [dev.catbit.mosaic.core.data.schemas.event.events.event.CancelEventsEventSchema] once wired
- * through a cancellable context). Build [timeData] with the `milliseconds(delay)` /
- * `seconds(delay)` DSL helpers (`dev.catbit.mosaic.server.builder.event.builders.time`), which
- * validate that `delay` is positive.
- * The runner is currently a placeholder — the loop and trigger-firing logic has not yet been
- * implemented.
+ * Starts an endless loop in a coroutine launched from the running event's context, firing once
+ * per period. [TimeData] sets the period and its unit: `Milliseconds` or `Seconds`. The first fire
+ * happens after the first delay, not immediately.
  *
- * **incomingData consumed:** Not used.
+ * The event returns as soon as the loop is launched, so the chain continues while it keeps
+ * running. The loop runs forever by design: to be able to stop it, launch it from inside a
+ * `RunCancellableEvents` and cancel that id with `CancelEvents`.
  *
- * **Triggers fired (intended, not yet implemented):**
- * - [OnTimeLoopEventTrigger] (`EventTriggers.onTimeLoop()`) — intended to fire on every elapsed
- *   [TimeData.delay].
- * - [OnSuccessEventTrigger] — intended to fire once when the loop starts.
+ * **incomingData consumed:** not used.
  *
- * **Failure scenarios:** Not applicable — the runner is a no-op placeholder.
+ * **Triggers fired:**
+ * - `OnTimeLoopEventTrigger` — once per period, indefinitely. No data is passed downstream.
+ *
+ * Neither success nor failure is reported.
  */
 @Immutable
-@Triggers(
-    [
-        OnTimeLoopEventTrigger::class,
-        OnSuccessEventTrigger::class
-    ]
-)
+@Triggers([OnTimeLoopEventTrigger::class])
 @Serializable
 @SerialName("StartTimeLoop")
 data class StartTimeLoopEventSchema(

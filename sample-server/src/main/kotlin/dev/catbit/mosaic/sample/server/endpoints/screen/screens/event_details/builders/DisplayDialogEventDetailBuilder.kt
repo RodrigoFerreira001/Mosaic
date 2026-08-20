@@ -6,8 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -50,57 +48,17 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Overlays",
-                description = "Exibe um dialog modal com uma árvore de tiles definida pelo servidor. Aparece " +
-                    "imediatamente — sem chamada de rede envolvida."
+                description = "Displays a modal dialog with a server-defined tile tree. It appears immediately " +
+                    "— no network call involved. Use it for confirmations, custom alerts, or small forms that " +
+                    "need to interrupt the current flow. The dialog's content is a full tile tree: any tile and " +
+                    "any event can live inside it, including a DismissDialog to close it from an internal button."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para confirmações, alertas customizados ou pequenos formulários que precisam " +
-                    "interromper o fluxo atual. O conteúdo do dialog é uma árvore de tiles completa: " +
-                    "qualquer tile e qualquer evento pode viver dentro dele, incluindo um DismissDialog " +
-                    "para fechá-lo a partir de um botão interno."
-            )
+            ShowroomSectionTitle("Interactive demo")
 
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("tiles", "TileSchemaBuilderScope.() -> Unit", "Obrigatório. Conteúdo do dialog."),
-                    ShowroomParam("dialogId", "String", "Padrão randomId(). Identifica este dialog para que um DismissDialog o feche especificamente."),
-                    ShowroomParam("isCancellable", "Boolean", "Padrão true. Toque fora ou botão voltar fecham o dialog quando true."),
-                    ShowroomParam("usePlatformDefaultWidth", "Boolean", "Padrão false. Quando false, a árvore de tiles controla a largura."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                DisplayDialog(
-                    trigger = EventTriggers.onClick(),
-                    dialogId = "delete_confirmation",
-                    isCancellable = true,
-                    usePlatformDefaultWidth = false,
-                    tiles = {
-                        Column(id = "dialog_root") {
-                            SimpleText(id = "msg", text = "Excluir este item?")
-                            Button(id = "confirm_btn", text = "Excluir") {
-                                DismissDialog(
-                                    trigger = EventTriggers.onClick(),
-                                    dialogId = "delete_confirmation"
-                                )
-                            }
-                        }
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-
-            ShowroomDemoCard(title = "1. Confirmação — dialog padrão, cancelável") {
+            ShowroomDemoCard(title = "1. Confirmation — default, cancellable dialog") {
                 Button(
-                    text = "Excluir item",
+                    text = "Delete item",
                     buttonType = filledButton(),
                     events = {
                         DisplayDialog(
@@ -109,10 +67,10 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             usePlatformDefaultWidth = false,
                             tiles = {
-                                DialogBody(title = "Excluir este item?") {
-                                    Paragraph("Toque fora ou use o back para cancelar — isCancellable = true.")
+                                DialogBody(title = "Delete this item?") {
+                                    Paragraph("Tap outside or use back to cancel — isCancellable = true.")
                                     Button(
-                                        text = "Excluir",
+                                        text = "Delete",
                                         buttonType = filledButton(),
                                         events = {
                                             DismissDialog(
@@ -121,13 +79,13 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                                             )
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Item excluído",
+                                                message = "Item deleted",
                                                 duration = snackbarLongDuration(),
-                                                actionLabel = "Desfazer"
+                                                actionLabel = "Undo"
                                             )
                                         }
                                     )
-                                    CloseDialogButton(CONFIRM_DIALOG_ID, text = "Cancelar")
+                                    CloseDialogButton(CONFIRM_DIALOG_ID, text = "Cancel")
                                 }
                             }
                         )
@@ -135,12 +93,12 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "2. isCancellable = false — decisão obrigatória") {
+            ShowroomDemoCard(title = "2. isCancellable = false — a decision is required") {
                 ShowroomParagraph(
-                    "Toque fora e back press ficam inertes. O dialog só sai por um DismissDialog interno."
+                    "Tap outside and back press do nothing. The dialog only leaves via an internal DismissDialog."
                 )
                 Button(
-                    text = "Abrir dialog bloqueante",
+                    text = "Open blocking dialog",
                     buttonType = filledTonalButton(),
                     events = {
                         DisplayDialog(
@@ -149,13 +107,13 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                             isCancellable = false,
                             usePlatformDefaultWidth = false,
                             tiles = {
-                                DialogBody(title = "Sessão expirada") {
+                                DialogBody(title = "Session expired") {
                                     Paragraph(
-                                        "Tente tocar fora ou apertar voltar — o dialog não fecha. " +
-                                            "Escolha uma das opções."
+                                        "Try tapping outside or pressing back — the dialog doesn't close. Pick " +
+                                            "one of the options."
                                     )
                                     Button(
-                                        text = "Entrar novamente",
+                                        text = "Sign in again",
                                         buttonType = filledButton(),
                                         events = {
                                             DismissDialog(
@@ -164,12 +122,12 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                                             )
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Redirecionando para o login...",
+                                                message = "Redirecting to login...",
                                                 duration = snackbarShortDuration()
                                             )
                                         }
                                     )
-                                    CloseDialogButton(BLOCKING_DIALOG_ID, text = "Sair")
+                                    CloseDialogButton(BLOCKING_DIALOG_ID, text = "Log out")
                                 }
                             }
                         )
@@ -177,10 +135,10 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "3. usePlatformDefaultWidth — largura da plataforma vs. do conteúdo") {
+            ShowroomDemoCard(title = "3. usePlatformDefaultWidth — platform width vs. content width") {
                 ShowroomParagraph(
-                    "Abra os dois em sequência e compare: com true, a plataforma decide a largura e o " +
-                        "conteúdo se adapta; com false, a árvore de tiles manda."
+                    "Open both in sequence and compare: with true, the platform decides the width and the " +
+                        "content adapts; with false, the tile tree drives it."
                 )
                 Button(
                     text = "usePlatformDefaultWidth = true",
@@ -192,10 +150,10 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             usePlatformDefaultWidth = true,
                             tiles = {
-                                DialogBody(title = "Largura da plataforma") {
+                                DialogBody(title = "Platform width") {
                                     Paragraph(
-                                        "A largura deste dialog veio do sistema. Textos longos quebram " +
-                                            "dentro do limite imposto por ele, e o conteúdo não consegue esticar."
+                                        "This dialog's width came from the system. Long text wraps within the " +
+                                            "limit it imposes, and the content can't stretch."
                                     )
                                     CloseDialogButton(PLATFORM_WIDTH_DIALOG_ID)
                                 }
@@ -213,10 +171,10 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             usePlatformDefaultWidth = false,
                             tiles = {
-                                DialogBody(title = "Largura do conteúdo") {
+                                DialogBody(title = "Content width") {
                                     Paragraph(
-                                        "Aqui a árvore de tiles controla a largura — o Surface do dialog " +
-                                            "acompanha o que o conteúdo pedir."
+                                        "Here the tile tree controls the width — the dialog's Surface follows " +
+                                            "whatever the content asks for."
                                     )
                                     CloseDialogButton(WIDE_DIALOG_ID)
                                 }
@@ -226,13 +184,13 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "4. Snackbar por cima do dialog") {
+            ShowroomDemoCard(title = "4. Snackbar on top of the dialog") {
                 ShowroomParagraph(
-                    "O dialog abre uma janela própria; o snackbar precisa vir num layer criado depois " +
-                        "dele para aparecer por cima."
+                    "The dialog opens its own window; the snackbar needs to come from a layer created after " +
+                        "it in order to appear on top."
                 )
                 Button(
-                    text = "Abrir dialog e disparar snackbars de dentro",
+                    text = "Open dialog and fire snackbars from inside",
                     buttonType = outlinedButton(),
                     events = {
                         DisplayDialog(
@@ -241,37 +199,37 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             usePlatformDefaultWidth = false,
                             tiles = {
-                                DialogBody(title = "Teste de z-order") {
+                                DialogBody(title = "Z-order test") {
                                     Button(
-                                        text = "Snackbar curto",
+                                        text = "Short snackbar",
                                         buttonType = outlinedButton(),
                                         events = {
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Snackbar disparado de dentro do dialog",
+                                                message = "Snackbar fired from inside the dialog",
                                                 duration = snackbarShortDuration()
                                             )
                                         }
                                     )
                                     Button(
-                                        text = "Snackbar longo com ação",
+                                        text = "Long snackbar with action",
                                         buttonType = outlinedButton(),
                                         events = {
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Toque na ação com o dialog ainda aberto",
+                                                message = "Tap the action while the dialog is still open",
                                                 duration = snackbarLongDuration(),
                                                 actionLabel = "OK"
                                             )
                                         }
                                     )
                                     Button(
-                                        text = "Snackbar e fechar o dialog junto",
+                                        text = "Snackbar and close the dialog together",
                                         buttonType = outlinedButton(),
                                         events = {
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "O dialog sumiu, o snackbar continua",
+                                                message = "The dialog is gone, the snackbar remains",
                                                 duration = snackbarLongDuration()
                                             )
                                             DismissDialog(
@@ -288,13 +246,13 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "5. Empilhamento — três dialogs e um sheet") {
+            ShowroomDemoCard(title = "5. Stacking — three dialogs and a sheet") {
                 ShowroomParagraph(
-                    "Cada camada tem id próprio, então dá para fechar a do meio sem tocar nas outras. " +
-                        "A camada 3 abre um bottom sheet por cima de tudo."
+                    "Each layer has its own id, so the middle one can be closed without touching the others. " +
+                        "Layer 3 opens a bottom sheet on top of everything."
                 )
                 Button(
-                    text = "Abrir pilha de dialogs",
+                    text = "Open dialog stack",
                     buttonType = filledButton(),
                     events = {
                         DisplayDialog(
@@ -303,10 +261,10 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             usePlatformDefaultWidth = false,
                             tiles = {
-                                DialogBody(title = "Camada 1") {
+                                DialogBody(title = "Layer 1") {
                                     Paragraph("id: $STACK_DIALOG_1_ID")
                                     Button(
-                                        text = "Abrir camada 2",
+                                        text = "Open layer 2",
                                         buttonType = filledTonalButton(),
                                         events = {
                                             DisplayDialog(
@@ -315,10 +273,10 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                                                 isCancellable = true,
                                                 usePlatformDefaultWidth = false,
                                                 tiles = {
-                                                    DialogBody(title = "Camada 2") {
+                                                    DialogBody(title = "Layer 2") {
                                                         Paragraph("id: $STACK_DIALOG_2_ID")
                                                         Button(
-                                                            text = "Abrir camada 3",
+                                                            text = "Open layer 3",
                                                             buttonType = filledTonalButton(),
                                                             events = {
                                                                 DisplayDialog(
@@ -327,13 +285,13 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                                                                     isCancellable = true,
                                                                     usePlatformDefaultWidth = false,
                                                                     tiles = {
-                                                                        DialogBody(title = "Camada 3") {
+                                                                        DialogBody(title = "Layer 3") {
                                                                             Paragraph(
-                                                                                "Três dialogs empilhados. " +
-                                                                                    "Feche o do meio e veja os outros dois seguirem vivos."
+                                                                                "Three stacked dialogs. Close " +
+                                                                                    "the middle one and watch the other two stay alive."
                                                                             )
                                                                             Button(
-                                                                                text = "Abrir bottom sheet sobre os três",
+                                                                                text = "Open a bottom sheet over all three",
                                                                                 buttonType = filledTonalButton(),
                                                                                 events = {
                                                                                     DisplayModalBottomSheet(
@@ -347,26 +305,26 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                                                                                                 arrangement = arrangeVerticallySpacedBy(16)
                                                                                             ) {
                                                                                                 SimpleText(
-                                                                                                    text = "Sheet sobre três dialogs",
+                                                                                                    text = "Sheet over three dialogs",
                                                                                                     typography = typographyTitleLarge()
                                                                                                 )
                                                                                                 Paragraph(
-                                                                                                    "Quatro overlays simultâneos. O snackbar abaixo " +
-                                                                                                        "precisa aparecer sobre todos eles."
+                                                                                                    "Four simultaneous overlays. The snackbar below " +
+                                                                                                        "needs to appear above all of them."
                                                                                                 )
                                                                                                 Button(
-                                                                                                    text = "Disparar snackbar",
+                                                                                                    text = "Fire snackbar",
                                                                                                     buttonType = outlinedButton(),
                                                                                                     events = {
                                                                                                         DisplaySnackbar(
                                                                                                             trigger = EventTriggers.onClick(),
-                                                                                                            message = "Snackbar sobre 3 dialogs + 1 sheet",
+                                                                                                            message = "Snackbar over 3 dialogs + 1 sheet",
                                                                                                             duration = snackbarLongDuration()
                                                                                                         )
                                                                                                     }
                                                                                                 )
                                                                                                 Button(
-                                                                                                    text = "Fechar este sheet",
+                                                                                                    text = "Close this sheet",
                                                                                                     buttonType = textButton(),
                                                                                                     events = {
                                                                                                         DismissModalBottomSheet(
@@ -381,7 +339,7 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                                                                                 }
                                                                             )
                                                                             Button(
-                                                                                text = "Fechar a camada 2 (a do meio)",
+                                                                                text = "Close layer 2 (the middle one)",
                                                                                 buttonType = outlinedButton(),
                                                                                 events = {
                                                                                     DismissDialog(
@@ -390,19 +348,19 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                                                                                     )
                                                                                 }
                                                                             )
-                                                                            CloseDialogButton(STACK_DIALOG_3_ID, text = "Fechar esta camada")
+                                                                            CloseDialogButton(STACK_DIALOG_3_ID, text = "Close this layer")
                                                                         }
                                                                     }
                                                                 )
                                                             }
                                                         )
-                                                        CloseDialogButton(STACK_DIALOG_2_ID, text = "Fechar esta camada")
+                                                        CloseDialogButton(STACK_DIALOG_2_ID, text = "Close this layer")
                                                     }
                                                 }
                                             )
                                         }
                                     )
-                                    CloseDialogButton(STACK_DIALOG_1_ID, text = "Fechar esta camada")
+                                    CloseDialogButton(STACK_DIALOG_1_ID, text = "Close this layer")
                                 }
                             }
                         )
@@ -410,9 +368,32 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                DisplayDialog(
+                    trigger = EventTriggers.onClick(),
+                    dialogId = "delete_confirmation",
+                    isCancellable = true,
+                    usePlatformDefaultWidth = false,
+                    tiles = {
+                        Column(id = "dialog_root") {
+                            SimpleText(id = "msg", text = "Delete this item?")
+                            Button(id = "confirm_btn", text = "Delete") {
+                                DismissDialog(
+                                    trigger = EventTriggers.onClick(),
+                                    dialogId = "delete_confirmation"
+                                )
+                            }
+                        }
+                    }
+                )
+                """
+            )
+
             ShowroomNote(
-                "O par ação/reação DisplayDialog → DismissDialog é o padrão mais comum: o próprio " +
-                    "conteúdo do dialog carrega o botão que o fecha."
+                "The DisplayDialog → DismissDialog action/reaction pair is the most common pattern: the " +
+                    "dialog's own content carries the button that closes it."
             )
 
             ShowroomRelated(
@@ -422,7 +403,7 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
         }
     }
 
-    /** Corpo padrão dos dialogs desta página: título + conteúdo espaçado. */
+    /** Standard body for this page's dialogs: title + spaced content. */
     private fun TileSchemaBuilderScope.DialogBody(
         title: String,
         content: TileSchemaBuilderScope.() -> Unit
@@ -445,7 +426,7 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
 
     private fun TileSchemaBuilderScope.CloseDialogButton(
         dialogId: String,
-        text: String = "Fechar"
+        text: String = "Close"
     ) {
         Button(
             text = text,

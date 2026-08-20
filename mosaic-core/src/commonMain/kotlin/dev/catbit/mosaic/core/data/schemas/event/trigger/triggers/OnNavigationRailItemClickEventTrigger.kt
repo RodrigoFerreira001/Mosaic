@@ -8,6 +8,8 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnNavigationRailItemClick")
+/** Fires on `NavigationRail` when the item whose id equals [itemId] is tapped.
+ * @property itemId id of the tapped item. */
 data class OnNavigationRailItemClickEventTrigger(
     @SerialName("itemId")
     val itemId: String

@@ -6,14 +6,11 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder
 import dev.catbit.mosaic.server.builder.event.builders.data.TransformData
-import dev.catbit.mosaic.server.builder.event.builders.navigation.Navigate
 import dev.catbit.mosaic.server.builder.event.builders.navigation.NavigateClearingStack
 import dev.catbit.mosaic.server.builder.event.builders.networking.SetIncomingDataToNetworkParamsHolderQueryParameters
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
@@ -27,68 +24,40 @@ object NavigateClearingStackEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Navigation",
-                description = "Navega para um destino limpando toda a pilha de navegação atual — o destino " +
-                    "vira a única entrada da back stack, sem histórico anterior."
+                description = "Navigates to a destination while clearing the entire current navigation stack " +
+                    "— the destination becomes the only entry on the back stack, with no prior history. Use it " +
+                    "when the destination shouldn't stack on top of the previous navigation — switching a top-" +
+                    "level tab in an app with top-level navigation (this is exactly how this sample app itself " +
+                    "switches between About/Style/Tiles/Events/Get started/Extend/Mechanisms in the side rail), " +
+                    "or finishing a flow (checkout, onboarding) without leaving the intermediate screens on the " +
+                    "back stack. launchSingleTop = true (default) avoids stacking the same destination twice if " +
+                    "it's already the current one."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use quando o destino não deve empilhar sobre a navegação anterior — trocar de aba principal " +
-                    "num app com navegação de nível superior (é exatamente assim que este próprio app de " +
-                    "amostra troca entre About/Style/Tiles/Events/Get started/Extend/Mechanisms na rail " +
-                    "lateral), ou finalizar um fluxo (checkout, onboarding) sem deixar as telas intermediárias " +
-                    "no back stack. launchSingleTop = true (padrão) evita empilhar o mesmo destino duas vezes " +
-                    "se ele já for o atual."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("destination", "String", "Obrigatório. Id da rota/tela de destino."),
-                    ShowroomParam("navigatorId", "String", "Obrigatório. Id do navigator registrado que deve navegar."),
-                    ShowroomParam("launchSingleTop", "Boolean", "true (padrão). Evita empilhar o destino de novo se ele já for o topo da pilha."),
-                    ShowroomParam("data", "Map<String, Any>?", "Opcional. Mesclado com incomingData; vira navigationData da tela de destino."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                // Uso real deste app de amostra: HomeScreenBuilder.kt troca de aba assim,
-                // uma vez por item do rail lateral (About, Style, Tiles, Events...)
-                HomeEntries.entries.forEach { homeEntry ->
-                    NavigateClearingStack(
-                        trigger = EventTriggers.onAdaptiveNavigationItemClick(homeEntry.id),
-                        navigatorId = "home",
-                        destination = homeEntry.id
-                    )
-                }
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Navegue de verdade, limpando a pilha, para outro evento") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Navigate for real, clearing the stack, to a tile's detail page") {
                 ShowroomParagraph(
-                    "O botão abaixo dispara um NavigateClearingStack real para esta mesma tela " +
-                        "\"eventDetails\", trocando o evento documentado — como o destino é o mesmo tipo de " +
-                        "tela, o efeito de \"limpar a pilha\" fica mais visível ao notar que voltar não retorna " +
-                        "para GetScreen, e sim para a tela de onde você veio antes dele."
+                    "The button below fires a real NavigateClearingStack to the \"tileDetails\" screen, " +
+                        "documenting the Button tile — going back afterwards doesn't return to this " +
+                        "\"eventDetails\" page, since its entry was cleared from the stack, but to wherever you " +
+                        "were before it (e.g. the Events catalog). Like Navigate, the destination has to differ " +
+                        "from this screen's own id: navigateClearingStack() also hardcodes launchSingleTop = " +
+                        "true, so a same-id destination is a silent no-op — the stack wouldn't even clear."
                 )
                 Button(
-                    text = "Ver evento GetScreen (limpando a pilha)",
+                    text = "View the Button tile (clearing the stack)",
                     buttonType = outlinedButton(),
                     events = {
                         TransformData(
                             trigger = EventTriggers.onClick(),
-                            template = mapOf("event" to "GetScreen"),
+                            template = mapOf("event" to "Button"),
                             events = {
                                 SetIncomingDataToNetworkParamsHolderQueryParameters(
                                     trigger = EventTriggers.onSuccess(),
                                     events = {
                                         NavigateClearingStack(
                                             trigger = EventTriggers.onSuccess(),
-                                            destination = "eventDetails",
+                                            destination = "tileDetails",
                                             navigatorId = "root"
                                         )
                                     }
@@ -99,10 +68,25 @@ object NavigateClearingStackEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                // Real usage in this sample app: HomeScreenBuilder.kt switches tabs this way,
+                // once per side-rail item (About, Style, Tiles, Events...)
+                HomeEntries.entries.forEach { homeEntry ->
+                    NavigateClearingStack(
+                        trigger = EventTriggers.onAdaptiveNavigationItemClick(homeEntry.id),
+                        navigatorId = "home",
+                        destination = homeEntry.id
+                    )
+                }
+                """
+            )
+
             ShowroomNote(
-                "Diferença para Navigate: Navigate empilha (opcionalmente com popUpTo parcial); " +
-                    "NavigateClearingStack sempre remove TODA a pilha do navigator antes de empurrar o novo " +
-                    "destino — não há popUpTo parcial aqui porque não sobra nada da pilha anterior."
+                "Difference from Navigate: Navigate stacks (optionally with a partial popUpTo); " +
+                    "NavigateClearingStack always removes the navigator's ENTIRE stack before pushing the new " +
+                    "destination — there's no partial popUpTo here because nothing of the previous stack remains."
             )
 
             ShowroomRelated(

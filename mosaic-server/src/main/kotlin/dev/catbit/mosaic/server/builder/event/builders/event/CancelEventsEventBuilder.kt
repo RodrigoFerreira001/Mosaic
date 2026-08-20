@@ -21,6 +21,18 @@ internal class CancelEventsEventBuilder(
     )
 }
 
+/**
+ * Cancels the coroutine job registered under [cancellableEventId], stopping whatever
+ * `RunCancellableEvents` started with that id. Does not consume `incomingData`. Dispatches
+ * `onSuccess` (no data) when a running job was found and cancelled; `onFailure` (carrying a
+ * `NoSuchElementException`, logged) when nothing is registered under [cancellableEventId] —
+ * either it never ran or its job already finished.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param cancellableEventId Id matching the `cancellableEventId` a `RunCancellableEvents` started with.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ */
 fun EventSchemaBuilderScope.CancelEvents(
     id: String = randomId(),
     trigger: EventTrigger,

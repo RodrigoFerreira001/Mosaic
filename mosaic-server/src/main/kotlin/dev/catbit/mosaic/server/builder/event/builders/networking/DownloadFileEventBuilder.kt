@@ -33,6 +33,26 @@ internal class DownloadFileEventBuilder(
     )
 }
 
+/**
+ * Downloads [url] and hands the result to the platform's own download destination — the user's
+ * Downloads folder or equivalent — under [targetFileName], with [mimeType] describing the
+ * content. [method], [headers] and [body] shape the request. Does not consume `incomingData`.
+ * Dispatches `onStart` before the download begins; `onDownloadProgress` repeatedly while
+ * downloading (carrying the progress); `onDownloadFinish` then `onSuccess` (both carrying
+ * [targetFileName]) when the download completed; `onDownloadFailure` then `onFailure` (both
+ * carrying the `Throwable`, logged) when it failed; `onCancelled` (no data) when the user cancels
+ * the download — in that case neither download-failure nor failure fires.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onStart`, `onDownloadProgress`, `onDownloadFinish`, `onDownloadFailure`, `onSuccess`, `onFailure`, `onCancelled`).
+ * @param url URL to download.
+ * @param method HTTP method used for the request.
+ * @param body Request body. Defaults to none.
+ * @param headers Request headers. Defaults to none.
+ * @param targetFileName Name the downloaded file is saved under, in the platform's download destination.
+ * @param mimeType MIME type describing the downloaded content. Defaults to none.
+ */
 fun EventSchemaBuilderScope.DownloadFile(
     id: String = randomId(),
     trigger: EventTrigger,

@@ -3,7 +3,9 @@ package dev.catbit.mosaic.core.data.schemas.tile.tiles.search
 import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTextChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnQueryClearedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSearchEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
 import kotlinx.serialization.SerialName
@@ -11,34 +13,37 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a custom search bar built on [BasicTextField] with a Material 3 surface styling.
- * The bar displays a search input field with an optional placeholder, an optional leading
- * icon tile, and a built-in animated clear button that appears when [query] is non-empty.
- * The [trailingIcon] field defined on the schema is not rendered by the current renderer
- * (the clear button is hardcoded instead).
+ * Renders a search field: a Material `Surface` (extra-large shape, high surface
+ * container color) wrapping a single-line text field showing [query], with [placeholder] when
+ * empty. The keyboard's IME action is always "Search".
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `query: String`, `placeholder: String?`,
- * `leadingIcon: TileSchema?`
+ * **Icons:** [leadingIcon] is an arbitrary tile rendered in the leading slot. The trailing slot
+ * is shared: while [query] is empty it shows [trailingIcon] (if any); as soon as [query] has
+ * text it cross-fades to a built-in `clear` icon button, so a custom trailing icon is never
+ * visible at the same time as the clear button.
+ *
+ * **Query state:** typing dispatches a local `SearchBarTileEvents.OnQueryChanged` and pressing
+ * clear dispatches `OnQueryCleared`; the holder applies both to its own state, so the text
+ * survives without a round trip to the server.
  *
  * **Triggers dispatched:**
- * - `OnTextChangedEventTrigger` (aliased as `onQueryChanged`) — fired on every keystroke,
- *   with the new query string passed as trigger data. Also dispatches the internal
- *   `SearchBarTileEvents.OnQueryChanged` with the new value.
- * - `onQueryCleared` — fired when the user taps the clear button. Also dispatches the
- *   internal `SearchBarTileEvents.OnQueryCleared`.
- * - `onSearch` — fired when the user submits the search via the IME search action, with the
- *   current [query] as trigger data.
+ * - `OnQueryChangedEventTrigger` — on every keystroke, with the new text as the event's incoming
+ *   data. Pressing clear also fires it, with an empty string.
+ * - `OnQueryClearedEventTrigger` — when the clear button is pressed, right before the
+ *   query-changed trigger above.
+ * - `OnSearchEventTrigger` — when the IME "Search" action is pressed, with the current [query]
+ *   as the event's incoming data.
  *
- * **Notes:** The search bar is rendered at a fixed height of 56 dp. The IME action is set
- * to `ImeAction.Search`. Because the query value is server-driven, the server must update
- * [query] via UpdateTiles on each `onQueryChanged` trigger to keep the displayed text in
- * sync with user input.
+ * **Notes:** this is only the input field — it has no expanded state and shows no suggestion
+ * list. Render results yourself, e.g. by pairing it with a `LazyColumn` whose
+ * `filterChildrenByTerm` is driven by the query.
  */
 @Immutable
 @Triggers(
     [
-        OnTextChangedEventTrigger::class
+        OnQueryChangedEventTrigger::class,
+        OnQueryClearedEventTrigger::class,
+        OnSearchEventTrigger::class,
     ]
 )
 @Serializable

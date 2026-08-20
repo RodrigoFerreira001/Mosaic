@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.room3)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.dokka)
 }
 
 mavenPublishing {
@@ -167,6 +168,8 @@ kotlin {
             implementation(libs.androidx.sqlite.bundled)
             // Webcam Capture
             implementation(libs.webcam.capture)
+            // OS dark-mode detection (Windows/macOS/Linux)
+            implementation(libs.jsystemthemedetector)
         }
 
         commonTest.dependencies {

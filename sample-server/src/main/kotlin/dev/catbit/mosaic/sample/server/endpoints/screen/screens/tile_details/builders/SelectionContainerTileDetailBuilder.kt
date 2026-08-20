@@ -3,9 +3,6 @@ package dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.bu
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -27,25 +24,27 @@ object SelectionContainerTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Containers",
-                description = "Envolve tiles filhos no SelectionContainer do Compose, permitindo selecionar e copiar texto entre múltiplos tiles como uma seleção contígua."
+                description = "Wraps child tiles in Compose's SelectionContainer, letting text be selected and " +
+                    "copied across multiple tiles as one contiguous selection. It has no arrangement/alignment " +
+                    "or layout of its own — it's a transparent wrapper. It doesn't fire onClick/onLongPress/" +
+                    "onDisplay: long-press is left free for Compose's own text-selection gesture."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Não tem arrangement/alignment nem layout próprio — é um wrapper transparente. " +
-                    "Não dispara onClick/onLongPress/onDisplay: o long-press fica livre pro gesto de " +
-                    "seleção de texto do próprio Compose."
-            )
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Press and drag to select text across the two SimpleText below") {
+                SelectionContainer {
+                    Column(arrangement = arrangeVerticallySpacedBy(4)) {
+                        SimpleText(text = "Mosaic SDUI Framework", typography = typographyTitleMedium())
+                        SimpleText(
+                            text = "showroom@mosaic.dev — copy this text along with the title above",
+                            typography = typographyLabelLarge(),
+                            color = color(themeColorOnSurfaceVariant())
+                        )
+                    }
+                }
+            }
 
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("tiles", "TileSchemaBuilderScope.() -> Unit", "Os tiles cujo texto fica selecionável em conjunto."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 SelectionContainer(id = "profile_details") {
@@ -54,20 +53,6 @@ object SelectionContainerTileDetailBuilder : TileDetailBuilder {
                 }
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Segure e arraste pra selecionar texto entre os dois SimpleText abaixo") {
-                SelectionContainer {
-                    Column(arrangement = arrangeVerticallySpacedBy(4)) {
-                        SimpleText(text = "Mosaic SDUI Framework", typography = typographyTitleMedium())
-                        SimpleText(
-                            text = "showroom@mosaic.dev — copie este texto junto com o título acima",
-                            typography = typographyLabelLarge(),
-                            color = color(themeColorOnSurfaceVariant())
-                        )
-                    }
-                }
-            }
 
             ShowroomRelated(
                 names = listOf("Column", "SimpleText"),

@@ -8,4 +8,7 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnSnackbarAction")
+/** Fires when a snackbar shown via `DisplaySnackbar` has its action button pressed — fires later,
+ * asynchronously, well after `DisplaySnackbar`'s own `onSuccess()` (which only confirms the show
+ * broadcast was sent). */
 object OnSnackbarActionEventTrigger : EventTrigger

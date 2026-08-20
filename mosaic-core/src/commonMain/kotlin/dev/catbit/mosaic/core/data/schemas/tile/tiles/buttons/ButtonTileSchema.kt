@@ -4,7 +4,6 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
@@ -13,31 +12,28 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 button in one of five visual styles controlled by [buttonType].
+ * Renders a Material 3 button. The concrete composable is picked by [buttonType]:
+ * [Type.FILLED] → `Button`, [Type.ELEVATED] → `ElevatedButton`, [Type.FILLED_TONAL] →
+ * `FilledTonalButton`, [Type.OUTLINED] → `OutlinedButton`, [Type.TEXT] → `TextButton`.
  *
- * **Updatable fields (via UpdateTiles):** `text`, `icon`, `buttonType`, `shape`, `loading`,
- * `enabled`, `visibility`, `style`.
+ * **Content:** when [loading] is `true` the button shows a 24dp `CircularProgressIndicator`
+ * (2dp stroke, round cap, tinted with `LocalContentColor`) instead of its normal content.
+ * Otherwise it renders [text] together with the optional [icon], ordered by [iconPosition]
+ * ([IconPosition.START] → icon, 8dp spacer, text; [IconPosition.END] → text, 8dp spacer, icon).
+ *
+ * **Shape:** [Shape.SQUARE] maps to `MaterialTheme.shapes.medium`, [Shape.ROUNDED] to
+ * `CircleShape`.
+ *
+ * **Enabled state:** the button is interactive only when [enabled] is `true` **and** [loading]
+ * is `false` — the two are combined into the single `enabled` the Material button receives, so
+ * a loading button is disabled for real: it takes Material's disabled colors and is reported as
+ * disabled to accessibility services. A slow action therefore cannot be submitted twice.
  *
  * **Triggers dispatched:**
- * - [OnClickEventTrigger] — fired when the user taps the button (only when [loading] is false,
- *   because the content slot shows a spinner and the user cannot distinguish a click target).
- * - [OnLongPressEventTrigger] — declared via `@Triggers` but not explicitly wired in the
- *   current renderer; available for future use or custom gesture handling.
- *
- * **Notes:** When [loading] is `true` the text and icon are replaced by a [CircularProgressIndicator];
- * the button itself remains pressable (the `enabled` flag is the sole interactivity gate).
- * [icon] position relative to [text] is controlled by [iconPosition]: `START` renders the icon
- * before the text, `END` renders it after. [shape] maps `SQUARE` to [MaterialTheme.shapes.medium]
- * and `ROUNDED` to [CircleShape]. The renderer always fires [OnClickEventTrigger] via
- * `triggerEvent(EventTriggers.onClick())` regardless of the [buttonType] variant.
+ * - `OnClickEventTrigger` — fired when the button is tapped while interactive.
  */
 @Immutable
-@Triggers(
-    [
-        OnClickEventTrigger::class,
-        OnLongPressEventTrigger::class
-    ]
-)
+@Triggers([OnClickEventTrigger::class])
 @Serializable
 @SerialName("Button")
 data class ButtonTileSchema(

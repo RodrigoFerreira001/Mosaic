@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -33,44 +30,19 @@ object ChangeScreenStateEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Screen",
-                description = "Transiciona a tela imediatamente para Success, Failure ou Initial, sem fazer " +
-                    "nenhuma chamada de rede."
+                description = "Transitions the screen immediately to Success, Failure, or Initial, without " +
+                    "making any network call. Use it to manually drive the screen's state transitions: apply a " +
+                    "ScreenModel already received from a previous GetScreen, go back to showing the loading " +
+                    "state (initialState()), or force the error screen (failureState()) — the \"Try again\" " +
+                    "button on this app's own failure screen uses initialState() to restart the loading cycle."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para dirigir manualmente as transições de estado da tela: aplicar um ScreenModel já " +
-                    "recebido de um GetScreen anterior, voltar a mostrar o loading (initialState()), ou " +
-                    "forçar a tela de erro (failureState()) — o botão \"Tentar novamente\" da tela de falha " +
-                    "deste próprio app usa initialState() para reiniciar o ciclo de carregamento."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("state", "State", "Obrigatório. successState(data?), failureState() ou initialState()."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                ChangeScreenState(trigger = EventTriggers.onClick(), state = initialState(), events = {
-                    GetScreen(trigger = EventTriggers.onSuccess(), events = {
-                        ChangeScreenState(trigger = EventTriggers.onSuccess(), state = successState())
-                        ChangeScreenState(trigger = EventTriggers.onFailure(), state = failureState())
-                    })
-                })
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Force cada estado de tela manualmente") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Force each screen state manually") {
                 SimpleText(
-                    text = "Esta tela em si não vai mudar de estado (o eventDetails não tem tratamento " +
-                        "visual de Failure/Initial próprio) — em vez disso, veja o resultado no console/log " +
-                        "de eventos do cliente ao clicar em cada botão.",
+                    text = "This screen itself won't change state (eventDetails has no dedicated visual handling " +
+                        "for Failure/Initial) — instead, watch the result in the client's event console/log " +
+                        "when clicking each button.",
                     typography = typographyBodyMedium(),
                     color = color(themeColorOnSurfaceVariant())
                 )
@@ -101,13 +73,25 @@ object ChangeScreenStateEventDetailBuilder : EventDetailBuilder {
                     )
                 }
                 ShowroomNote(
-                    "successState(data = null) tenta usar o incomingData atual (aqui, null vindo de " +
-                        "onClick()) como o novo ScreenModel da tela — por isso o botão successState() não " +
-                        "muda nada visível: não há um ScreenModel de verdade para aplicar nesta demo. Em " +
-                        "produção, successState() normalmente vem encadeado depois de um GetScreen(onSuccess()), " +
-                        "cujo incomingData É o ScreenModel esperado."
+                    "successState(data = null) tries to use the current incomingData (here, null coming from " +
+                        "onClick()) as the screen's new ScreenModel — that's why the successState() button " +
+                        "doesn't change anything visible: there's no real ScreenModel to apply in this demo. In " +
+                        "production, successState() is normally chained after a GetScreen(onSuccess()), whose " +
+                        "incomingData IS the expected ScreenModel."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                ChangeScreenState(trigger = EventTriggers.onClick(), state = initialState(), events = {
+                    GetScreen(trigger = EventTriggers.onSuccess(), events = {
+                        ChangeScreenState(trigger = EventTriggers.onSuccess(), state = successState())
+                        ChangeScreenState(trigger = EventTriggers.onFailure(), state = failureState())
+                    })
+                })
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("GetScreen", "RefreshScreen"),

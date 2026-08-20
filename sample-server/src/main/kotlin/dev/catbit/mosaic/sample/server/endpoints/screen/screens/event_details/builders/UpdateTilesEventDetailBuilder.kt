@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -31,43 +28,15 @@ object UpdateTilesEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Tile Management",
-                description = "Aplica patches de dados em tiles já existentes, sem alterar a estrutura da árvore " +
-                    "— muda texto, cor, visibilidade, etc. sem substituir o tile."
+                description = "Applies data patches to already-existing tiles, without changing the tree's " +
+                    "structure — changes text, color, visibility, and so on, without replacing the tile. It's " +
+                    "the most-used event for reacting to interactions: changing a label's text, a TextField's " +
+                    "state, a button's visibility. It accepts several updates in a single call, each targeting " +
+                    "a tileId."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "É o event mais usado para reagir a interações: mudar o texto de um label, o estado de um " +
-                    "TextField, a visibilidade de um botão. Aceita várias atualizações em uma única chamada, cada " +
-                    "uma mirando um tileId."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("updates", "UpdateTilesUpdateBuilderScope.() -> Unit", "Obrigatório. Um update(tileId, updateData) por tile alvo."),
-                    ShowroomParam("updateData", "—", "inlineTileUpdateData(\"key\" to value) para valores estáticos, ou incomingTileUpdateData() para usar o incomingData do evento pai."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                UpdateTiles(
-                    trigger = EventTriggers.onSuccess(),
-                    updates = {
-                        update(
-                            tileId = "result_count",
-                            updateData = inlineTileUpdateData("text" to "${'$'}count results")
-                        )
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Clique no card para atualizar seu texto e cor") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Click the card to update its text and color") {
                 Card(
                     id = "update_tiles_card",
                     style = {
@@ -82,14 +51,14 @@ object UpdateTilesEventDetailBuilder : EventDetailBuilder {
                                 update(
                                     tileId = "update_tiles_label",
                                     updateData = inlineTileUpdateData(
-                                        "text" to "Atualizado via UpdateTiles!",
+                                        "text" to "Updated via UpdateTiles!",
                                         "color" to color(themeColorOnPrimaryContainer())
                                     )
                                 )
                                 update(
                                     tileId = "update_tiles_sublabel",
                                     updateData = inlineTileUpdateData(
-                                        "text" to "O tile foi só corrigido, não recriado."
+                                        "text" to "The tile was only patched, not recreated."
                                     )
                                 )
                             }
@@ -99,18 +68,33 @@ object UpdateTilesEventDetailBuilder : EventDetailBuilder {
                     Column(arrangement = arrangeVerticallySpacedBy(4)) {
                         SimpleText(
                             id = "update_tiles_label",
-                            text = "Clique neste card",
+                            text = "Click this card",
                             typography = typographyTitleMedium()
                         )
                         SimpleText(
                             id = "update_tiles_sublabel",
-                            text = "UpdateTiles muda texto e cor sem recriar o tile",
+                            text = "UpdateTiles changes text and color without recreating the tile",
                             typography = typographyBodyMedium(),
                             color = color(themeColorOnSurfaceVariant())
                         )
                     }
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                UpdateTiles(
+                    trigger = EventTriggers.onSuccess(),
+                    updates = {
+                        update(
+                            tileId = "result_count",
+                            updateData = inlineTileUpdateData("text" to "${'$'}count results")
+                        )
+                    }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("AddTiles", "ReplaceTiles", "UpdateEvents"),

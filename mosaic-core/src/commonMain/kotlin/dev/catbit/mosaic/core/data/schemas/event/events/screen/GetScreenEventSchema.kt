@@ -10,54 +10,37 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTr
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Fetches a screen definition from the server using the current screen's ID and propagates
- * the result through child events. The screen ID is not encoded in this schema; it is resolved
- * at runtime from `EventRunningScope.screenId` (the ID of the screen that owns this event).
+ * Fetches the payload of the screen this event lives in and emits it downstream, without
+ * applying it. Pair it with `ChangeScreenState` to decide when and how the fetched content is
+ * installed — that split is what makes custom loading and error flows possible.
  *
- * **incomingData consumed:** Not consumed directly. To pass data as request body or headers,
- * use [SetIncomingDataToNetworkParamsHolderBodyEventSchema] or
- * [SetIncomingDataToNetworkParamsHolderHeadersEventSchema] before this event.
+ * The request targets the screen's own id; [method] (default `GET`), [body], [headers] and
+ * [timeoutMillis] shape it.
  *
- * **Request body/headers resolution:** Same mechanism as [SendNetworkRequestEventSchema]:
- * - Body: schema [body] ?? holder.body
- * - Headers: holder.headers + schema.headers (schema takes precedence on collision)
- * The holder is always consumed on execution.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [onStart()] – fired immediately before the network request is issued.
- * - [onSuccess()] – server returned a valid `ScreenModel`; incomingData becomes the `ScreenModel`.
- * - [onFailure()] – fired on failure when no child event declares a matching [onNetworkFailure(httpCode)]
- *   trigger; incomingData becomes the `Throwable`. Logged via `logError`. Always fired for
- *   network/IO exceptions or deserialization errors regardless of child triggers.
- * - [onNetworkFailure(httpCode)] – fired **instead of** [onFailure()] when the server responded
- *   with a non-2xx HTTP status AND a child event declares a matching `onNetworkFailure(httpCode)`
- *   trigger for that status code; incomingData becomes the `NetworkResponseException`.
- *
- * **Failure scenarios:**
- * - Non-2xx HTTP response with matching child trigger: fires ONLY [onNetworkFailure(httpCode)].
- * - Non-2xx HTTP response without matching child trigger: fires ONLY [onFailure()].
- * - Network/IO exception or deserialization error: fires ONLY [onFailure()].
- *
- * **Timeout:** [timeoutMillis], when non-null, overrides the client's default request timeout
- * for this request only. When `null`, the client's globally configured `HttpTimeout` applies.
- *
- * **Notes:**
- * - Unlike [RefreshScreenEventSchema], this event does NOT automatically apply the fetched
- *   `ScreenModel` to the screen state. Chain a [ChangeScreenStateEventSchema] on [onSuccess()]
- *   to apply the result.
+ * - `OnStartEventTrigger` — before the request is sent.
+ * - `OnSuccessEventTrigger` — when the screen was fetched; the `ScreenModel` is passed as
+ *   incomingData, ready to be handed to `ChangeScreenState`.
+ * - `OnNetworkFailureEventTrigger` — when the request failed with an HTTP status **and** this
+ *   event declares an event wired to that exact status; the failure is passed as incomingData.
+ * - `OnFailureEventTrigger` — every other failure, and also HTTP failures with no status-specific
+ *   event declared; the `Throwable` is passed as incomingData. Only one of this and the trigger
+ *   above fires per failure. Failures are logged.
  */
 @Immutable
 @Triggers(
     [
         OnStartEventTrigger::class,
         OnSuccessEventTrigger::class,
+        OnNetworkFailureEventTrigger::class,
         OnFailureEventTrigger::class,
-        OnNetworkFailureEventTrigger::class
     ]
 )
 @Serializable

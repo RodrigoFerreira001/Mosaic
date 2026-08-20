@@ -6,30 +6,25 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Returns the current number of direct children of a container tile identified by
- * [groupingTileId]. The count is read synchronously from the live tile tree.
+ * Reads how many children the grouping tile identified by [groupingTileId] currently holds.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — when [groupingTileId] is found; incomingData is the child count
- *   as an [Int].
- * - [OnFailureEventTrigger] — when [groupingTileId] does not match any tile in the current tree.
- *
- * **Notes:**
- * - The count reflects only direct children; nested descendants are not included.
- * - A container tile with no children fires [OnSuccessEventTrigger] with incomingData = `0`.
+ * - `OnSuccessEventTrigger` — with the count passed as incomingData (an `Int`).
+ * - `OnFailureEventTrigger` — when no grouping tile carries [groupingTileId], or the tile cannot
+ *   hold children; no data is passed downstream.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

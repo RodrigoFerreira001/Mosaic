@@ -8,4 +8,5 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnTimeLoop")
+/** Fires repeatedly on `StartTimeLoop`, once per tick. */
 data object OnTimeLoopEventTrigger : EventTrigger

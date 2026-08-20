@@ -21,6 +21,20 @@ internal class ReloadLazyTilesEventBuilder(
     )
 }
 
+/**
+ * Resets the `LazyTiles` tile identified by [lazyTileId] back to its loading state — it drops
+ * the tiles it had loaded, clears its failure flag, and fires its request again, the way to
+ * retry after a failed load. Does not consume `incomingData`. Dispatches `onSuccess` (no data)
+ * when the signal reached the tile — note this reports the reset, not the reload that follows;
+ * the load's own outcome arrives through the tile's own load-success/load-failure triggers.
+ * `onFailure` (carrying the thrown exception) fires when no tile with [lazyTileId] is currently
+ * mounted.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param lazyTileId Id of the `LazyTiles` tile to reset and reload.
+ */
 fun EventSchemaBuilderScope.ReloadLazyTiles(
     id: String = randomId(),
     trigger: EventTrigger,

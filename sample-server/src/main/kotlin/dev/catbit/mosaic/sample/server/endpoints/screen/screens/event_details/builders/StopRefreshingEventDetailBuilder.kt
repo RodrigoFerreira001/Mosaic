@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -32,40 +29,14 @@ object StopRefreshingEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Pull to Refresh",
-                description = "Sinaliza um PullToRefresh pra parar o indicador de carregamento e voltar ao " +
-                    "estado ocioso — sempre encadeado depois de um RefreshScreen ou requisição disparada por onPull."
+                description = "Signals a PullToRefresh to stop its loading indicator and return to the idle " +
+                    "state — always chained after a RefreshScreen or a request fired by onPull. Always chain " +
+                    "this event after RefreshScreen (or any network call fired by onPull), on both onSuccess " +
+                    "and onFailure — forgetting to call it leaves the loading indicator spinning indefinitely."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Sempre encadeie este evento depois de RefreshScreen (ou qualquer chamada de rede disparada " +
-                    "por onPull), tanto no onSuccess quanto no onFailure — esquecer de chamá-lo deixa o " +
-                    "indicador de carregamento girando indefinidamente."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("tileId", "String", "Obrigatório. ID do PullToRefresh a parar."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                RefreshScreen(
-                    trigger = EventTriggers.onPull(),
-                    events = {
-                        StopRefreshing(trigger = EventTriggers.onSuccess(), tileId = "ptr_container")
-                        StopRefreshing(trigger = EventTriggers.onFailure(), tileId = "ptr_container")
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Puxe para atualizar e veja o indicador parar sozinho") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Pull to refresh and watch the indicator stop by itself") {
                 PullToRefresh(
                     id = "stop_refreshing_demo",
                     isRefreshing = false,
@@ -93,7 +64,7 @@ object StopRefreshingEventDetailBuilder : EventDetailBuilder {
                             arrangement = arrangeVerticallySpacedBy(4)
                         ) {
                             SimpleText(
-                                text = "Puxe para baixo aqui dentro",
+                                text = "Pull down here",
                                 typography = typographyBodyMedium(),
                                 color = color(themeColorOnSurfaceVariant())
                             )
@@ -101,12 +72,25 @@ object StopRefreshingEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 ShowroomNote(
-                    "Nesta demo, StopRefreshing dispara no mesmo trigger onPull() que inicia o indicador — " +
-                        "só pra provar visualmente que o spinner some. Em produção, StopRefreshing vai " +
-                        "encadeado depois do RefreshScreen/SendNetworkRequest de verdade terminar (onSuccess/" +
-                        "onFailure), não junto do onPull()."
+                    "In this demo, StopRefreshing fires on the same onPull() trigger that starts the " +
+                        "indicator — just to visually prove the spinner goes away. In production, " +
+                        "StopRefreshing is chained after the real RefreshScreen/SendNetworkRequest finishes " +
+                        "(onSuccess/onFailure), not alongside onPull()."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                RefreshScreen(
+                    trigger = EventTriggers.onPull(),
+                    events = {
+                        StopRefreshing(trigger = EventTriggers.onSuccess(), tileId = "ptr_container")
+                        StopRefreshing(trigger = EventTriggers.onFailure(), tileId = "ptr_container")
+                    }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("RefreshScreen", "PullToRefresh"),

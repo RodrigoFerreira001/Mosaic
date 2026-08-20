@@ -6,40 +6,30 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesUpdatedEventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Patches the incomingData map of one or more already-registered event holders without
- * triggering a full server round-trip. For each entry in [updates] the runner calls
- * [tilesEventDispatcher.updateEventHolder], merging the provided [Update.data] map into the
- * target event's holder keyed by [Update.eventId].
+ * Patches events that are already registered on the screen. Each [Update] targets an event by
+ * [Update.eventId] and merges [Update.data] into it, the same way `UpdateTiles` patches a tile, so
+ * a chain can rewrite another event's parameters before it runs.
  *
- * **incomingData consumed:** Not used by this event itself. The [Update.data] maps carried
- * inside [updates] become the new incomingData for the targeted event holders.
+ * All updates are attempted; a failure in one does not stop the others.
+ *
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — fired when all updates have been applied without error.
- * - [OnFailureEventTrigger] — fired when an error occurs during the update process
- *   (errorHappened flag is set); incomingData is the exception or null.
- *
- * **Failure scenarios:** If an [Update.eventId] does not match any registered holder the
- * update for that entry is silently skipped. No rollback occurs for already-applied updates
- * within the same [updates] list.
- *
- * **Notes:** This event is commonly used to pre-populate form fields or pass contextual data
- * into events before they fire — for example, loading a selected item's ID into a delete-event
- * holder. Updates are applied eagerly and synchronously in list order.
+ * - `OnSuccessEventTrigger` — when every update was applied. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when at least one update failed, typically because no event carries
+ *   that id. Fired once at the end, after all updates were attempted, with no data attached.
  */
 @Immutable
 @Triggers(
     [
-        OnTilesUpdatedEventTrigger::class,
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

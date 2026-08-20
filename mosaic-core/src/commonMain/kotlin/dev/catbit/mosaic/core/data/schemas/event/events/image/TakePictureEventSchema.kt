@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnCancelledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
@@ -11,24 +12,32 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Opens the device camera, allowing the user to take a picture.
+ * Opens the camera through the client's `CameraManager` and emits the captured photo downstream.
+ * Runs on the IO dispatcher.
+ *
+ * When [compression] is set the bytes are re-encoded through the client's `ImageCompressor` (the
+ * capture is treated as `image/png`), with [resize] applied as part of the same pass (default
+ * resize options are used when [resize] is `null`). When [compression] is `null` the original
+ * bytes are emitted untouched and [resize] has no effect.
+ *
+ * [outputType] decides the shape handed to the next events: `ArrayOfBytes` or a Base64 `String`.
+ *
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — picture captured; captured image available as `incomingData`,
- *   shaped according to [outputType].
- * - [OnFailureEventTrigger] — user cancelled the capture or an exception occurred.
- *
- * @property compression When null, the raw captured image bytes are returned as-is (original
- *   format). When set, the image is re-encoded as **WebP** using this compression strategy.
- * @property resize Only applies when [compression] is non-null. Null uses the compression
- *   library's own default.
- * @property outputType Controls the shape of the captured image delivered as `incomingData`.
+ * - `OnSuccessEventTrigger` — when a picture was taken and processed; the image, in the shape
+ *   chosen by [outputType], is passed as incomingData.
+ * - `OnCancelledEventTrigger` — when the camera returns nothing, such as the user backing out of
+ *   the capture. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when capturing or compressing throws; the `Throwable` is passed as
+ *   incomingData.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
+        OnCancelledEventTrigger::class,
     ]
 )
 @Serializable
@@ -42,14 +51,11 @@ data class TakePictureEventSchema(
     @SerialName("outputType") val outputType: OutputType
 ) : EventSchema {
 
-    /** Controls the shape of the data delivered as incomingData by [TakePictureEventSchema]. */
     @Serializable
     enum class OutputType {
-        /** Delivers the captured image as a [ByteArray]. */
         @SerialName("ArrayOfBytes")
         ArrayOfBytes,
 
-        /** Delivers the captured image as a base64-encoded [String]. */
         @SerialName("Base64")
         Base64,
     }

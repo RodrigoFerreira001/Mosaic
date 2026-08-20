@@ -9,55 +9,36 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkFailu
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Reloads the current screen by resetting it to `Initial` state, fetching its definition from
- * the server, and applying the result to the screen state automatically.
- * Unlike [GetScreenEventSchema], this event is fully self-contained and manages screen state.
+ * Refetches the screen this event lives in and applies the result to it. The screen is moved to
+ * its initial (loading) state, then to success with the new content or to its failure state —
+ * unlike `GetScreen`, no extra event is needed to install what came back.
  *
- * **incomingData consumed:** Not consumed directly. To pass data as request body or headers,
- * use [SetIncomingDataToNetworkParamsHolderBodyEventSchema] or
- * [SetIncomingDataToNetworkParamsHolderHeadersEventSchema] before this event.
+ * The request targets the screen's own id; [method] (default `GET`), [body], [headers] and
+ * [timeoutMillis] shape it.
  *
- * **Request body/headers resolution:** Same mechanism as [SendNetworkRequestEventSchema]:
- * - Body: schema [body] ?? holder.body
- * - Headers: holder.headers + schema.headers (schema takes precedence on collision)
- * The holder is always consumed on execution.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [onSuccess()] – server returned a valid `ScreenModel` and it has been applied to the screen
- *   state (`Success`); incomingData becomes the `ScreenModel`.
- * - [onFailure()] – fired on failure when no child event declares a matching [onNetworkFailure(httpCode)]
- *   trigger; screen state is set to `Failure`; incomingData becomes the `Throwable`. Logged via `logError`.
- *   Always fired for network/IO exceptions or deserialization errors regardless of child triggers.
- * - [onNetworkFailure(httpCode)] – fired **instead of** [onFailure()] when the server responded
- *   with a non-2xx HTTP status AND a child event declares a matching `onNetworkFailure(httpCode)`
- *   trigger for that status code; screen state is still set to `Failure`; incomingData becomes
- *   the `NetworkResponseException`.
- *
- * **Failure scenarios:**
- * - Non-2xx HTTP response with matching child trigger: fires ONLY [onNetworkFailure(httpCode)]; screen state → `Failure`.
- * - Non-2xx HTTP response without matching child trigger: fires ONLY [onFailure()]; screen state → `Failure`.
- * - Network/IO exception or deserialization error: fires ONLY [onFailure()]; screen state → `Failure`.
- *
- * **Timeout:** [timeoutMillis], when non-null, overrides the client's default request timeout
- * for this request only. When `null`, the client's globally configured `HttpTimeout` applies.
- *
- * **Notes:**
- * - The screen is unconditionally reset to `Initial` state before the request begins — implicit
- *   loading signal without an explicit [onStart()].
- * - Screen ID is resolved at runtime from `EventRunningScope.screenId`.
- * - A chained [ChangeScreenStateEventSchema] is NOT needed; state is applied internally.
+ * - `OnSuccessEventTrigger` — when the screen was fetched and applied; the `ScreenModel` is passed
+ *   as incomingData.
+ * - `OnNetworkFailureEventTrigger` — when the request failed with an HTTP status **and** this
+ *   event declares an event wired to that exact status; the failure is passed as incomingData.
+ * - `OnFailureEventTrigger` — every other failure, and also HTTP failures with no status-specific
+ *   event declared; the `Throwable` is passed as incomingData. Only one of this and the trigger
+ *   above fires per failure. Failures are logged, and the screen is left in its failure state
+ *   either way.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
+        OnNetworkFailureEventTrigger::class,
         OnFailureEventTrigger::class,
-        OnNetworkFailureEventTrigger::class
     ]
 )
 @Serializable

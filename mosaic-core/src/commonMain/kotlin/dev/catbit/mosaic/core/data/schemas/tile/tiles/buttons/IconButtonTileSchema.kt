@@ -12,27 +12,24 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 icon button in one of four visual styles controlled by [buttonType].
- * The button displays a single [icon] with no label.
+ * Renders a Material 3 icon button. The concrete composable is picked by [buttonType]:
+ * [Type.DEFAULT] → `IconButton`, [Type.FILLED] → `FilledIconButton`, [Type.FILLED_TONAL] →
+ * `FilledTonalIconButton`, [Type.OUTLINED] → `OutlinedIconButton`.
  *
- * **Updatable fields (via UpdateTiles):** `icon`, `buttonType`, `loading`, `enabled`, `visibility`, `style`.
+ * **Content:** when [loading] is `true` the button shows a 24dp `CircularProgressIndicator`
+ * (2dp stroke, round cap, tinted with `LocalContentColor`); otherwise it renders [icon] with
+ * its color, size and style applied.
+ *
+ * **Enabled state:** the button is interactive only when [enabled] is `true` **and** [loading]
+ * is `false` — the two are combined into the single `enabled` the Material composable receives,
+ * so a loading button is disabled for real: it takes Material's disabled colors and is reported
+ * as disabled to accessibility services. A slow action therefore cannot be submitted twice.
  *
  * **Triggers dispatched:**
- * - [OnClickEventTrigger] — fired when the user taps the icon button.
- *
- * **Notes:** The [icon] field is required (non-nullable). [buttonType] maps to [IconButton]
- * (DEFAULT), [FilledIconButton] (FILLED), [FilledTonalIconButton] (FILLED_TONAL), or
- * [OutlinedIconButton] (OUTLINED). When [loading] is `true` the icon is replaced by a
- * [CircularProgressIndicator], same behavior as [ButtonTileSchema.loading]. The [enabled] flag
- * controls whether the button is interactive; a disabled button receives no touch events and
- * the icon is rendered with reduced opacity by the Material theme.
+ * - `OnClickEventTrigger` — fired when the button is tapped while interactive.
  */
 @Immutable
-@Triggers(
-    [
-        OnClickEventTrigger::class
-    ]
-)
+@Triggers([OnClickEventTrigger::class])
 @Serializable
 @SerialName("IconButton")
 data class IconButtonTileSchema(

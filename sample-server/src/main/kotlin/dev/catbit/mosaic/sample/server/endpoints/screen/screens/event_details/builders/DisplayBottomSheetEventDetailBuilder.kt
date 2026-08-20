@@ -6,8 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -45,58 +43,24 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Overlays",
-                description = "Exibe um bottom sheet não-modal com uma árvore de tiles definida pelo " +
-                    "servidor. Sem scrim: a tela por trás continua visível e interativa."
+                description = "Displays a non-modal bottom sheet with a server-defined tile tree. No scrim: the " +
+                    "screen behind it stays visible and interactive. The difference from DisplayModalBottomSheet " +
+                    "isn't visual, it's about intent. The modal opens in its own window and interrupts: while " +
+                    "it's open, the user can only interact with it. The non-modal renders inside the screen's " +
+                    "layout and coexists with it — it's meant for persistent panels like a media player, live " +
+                    "filters, or a summary that follows navigation. If the user needs to resolve the sheet " +
+                    "before continuing, use the modal instead."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "A diferença para o DisplayModalBottomSheet não é visual, é de intenção. O modal abre " +
-                    "numa janela própria e interrompe: enquanto ele estiver aberto, o usuário só " +
-                    "interage com ele. O não-modal é renderizado dentro do layout da tela e convive " +
-                    "com ela — serve para painéis persistentes como player de mídia, filtros ao vivo " +
-                    "ou um resumo que acompanha a navegação. Se o usuário precisa resolver o sheet " +
-                    "antes de continuar, use o modal."
-            )
+            ShowroomSectionTitle("Interactive demo")
 
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("tiles", "TileSchemaBuilderScope.() -> Unit", "Obrigatório. Conteúdo do sheet."),
-                    ShowroomParam("bottomSheetId", "String", "Padrão randomId(). Identifica este sheet para que um DismissBottomSheet o feche especificamente."),
-                    ShowroomParam("isCancellable", "Boolean", "Padrão true. Arrastar para baixo ou back fecham quando true. Não há scrim para tocar."),
-                    ShowroomParam("fill", "Boolean", "Padrão false. Com true o sheet vai até o topo da tela; com false ele tem a altura do próprio conteúdo."),
-                    ShowroomParam("allowsPartialExpansion", "Boolean", "Padrão false. Com true o sheet ganha um repouso na metade da tela e abre nele. Ignorado se o conteúdo for menor que meia tela."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                DisplayBottomSheet(
-                    trigger = EventTriggers.onClick(),
-                    bottomSheetId = "now_playing",
-                    isCancellable = true,
-                    fill = false,
-                    tiles = {
-                        Column(id = "player_root") {
-                            SimpleText(text = "Tocando agora")
-                        }
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-
-            ShowroomDemoCard(title = "1. Player — sheet com a altura do conteúdo") {
+            ShowroomDemoCard(title = "1. Player — sheet sized to its content") {
                 ShowroomParagraph(
-                    "Abra o sheet e continue rolando esta página por trás dele: sem scrim, nada fica " +
-                        "bloqueado. É esse o comportamento que distingue o não-modal."
+                    "Open the sheet and keep scrolling this page behind it: with no scrim, nothing is blocked. " +
+                        "That's the behavior that sets the non-modal apart."
                 )
                 Button(
-                    text = "Abrir player",
+                    text = "Open player",
                     buttonType = filledButton(),
                     events = {
                         DisplayBottomSheet(
@@ -105,18 +69,18 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             fill = false,
                             tiles = {
-                                SheetBody(title = "Tocando agora") {
+                                SheetBody(title = "Now playing") {
                                     Paragraph(
-                                        "Role a página por trás deste sheet — ela continua respondendo, " +
-                                            "e os botões da tela seguem clicáveis."
+                                        "Scroll the page behind this sheet — it keeps responding, and the " +
+                                            "screen's buttons stay clickable."
                                     )
                                     Button(
-                                        text = "Snackbar de dentro do sheet",
+                                        text = "Snackbar from inside the sheet",
                                         buttonType = outlinedButton(),
                                         events = {
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Snackbar sobre o bottom sheet não-modal",
+                                                message = "Snackbar over the non-modal bottom sheet",
                                                 duration = snackbarShortDuration()
                                             )
                                         }
@@ -129,13 +93,13 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "2. fill + allowsPartialExpansion — abre pela metade") {
+            ShowroomDemoCard(title = "2. fill + allowsPartialExpansion — opens halfway") {
                 ShowroomParagraph(
-                    "Mesma mecânica de altura do modal: fill leva o sheet ao topo, e " +
-                        "allowsPartialExpansion cria o repouso na metade, onde ele abre."
+                    "Same height mechanics as the modal: fill sends the sheet to the top, and " +
+                        "allowsPartialExpansion creates the half-screen resting point where it opens."
                 )
                 Button(
-                    text = "Abrir lista em meia tela",
+                    text = "Open half-screen list",
                     buttonType = filledTonalButton(),
                     events = {
                         DisplayBottomSheet(
@@ -145,10 +109,10 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                             fill = true,
                             allowsPartialExpansion = true,
                             tiles = {
-                                SheetBody(title = "Faixas do álbum") {
+                                SheetBody(title = "Album tracks") {
                                     (1..20).forEach { index ->
                                         SimpleText(
-                                            text = "$index. Faixa de exemplo",
+                                            text = "$index. Sample track",
                                             typography = typographyBodyMedium()
                                         )
                                     }
@@ -160,14 +124,14 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "3. isCancellable = false — só sai pelo botão") {
+            ShowroomDemoCard(title = "3. isCancellable = false — only the button gets you out") {
                 ShowroomParagraph(
-                    "Sem arrastar para baixo e sem back press. Como o não-modal não tem scrim, essas " +
-                        "eram as únicas saídas por gesto — resta o DismissBottomSheet. Note que a " +
-                        "página atrás continua rolando normalmente: travar o sheet não trava a tela."
+                    "No swipe-down and no back press. Since the non-modal has no scrim, those were the only " +
+                        "gesture-based exits — only DismissBottomSheet is left. Note that the page behind it " +
+                        "keeps scrolling normally: locking the sheet doesn't lock the screen."
                 )
                 Button(
-                    text = "Abrir sheet travado",
+                    text = "Open locked sheet",
                     buttonType = filledTonalButton(),
                     events = {
                         DisplayBottomSheet(
@@ -176,13 +140,13 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                             isCancellable = false,
                             fill = false,
                             tiles = {
-                                SheetBody(title = "Upload em andamento") {
+                                SheetBody(title = "Upload in progress") {
                                     Paragraph(
-                                        "Tente arrastar este sheet para baixo ou apertar voltar — ele " +
-                                            "não se move. Só o botão abaixo o fecha."
+                                        "Try swiping this sheet down or pressing back — it doesn't budge. Only " +
+                                            "the button below closes it."
                                     )
                                     Button(
-                                        text = "Cancelar upload",
+                                        text = "Cancel upload",
                                         buttonType = filledTonalButton(),
                                         events = {
                                             DismissBottomSheet(
@@ -191,7 +155,7 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                                             )
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Upload cancelado",
+                                                message = "Upload cancelled",
                                                 duration = snackbarShortDuration()
                                             )
                                         }
@@ -203,14 +167,14 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "4. Convivendo com um modal") {
+            ShowroomDemoCard(title = "4. Coexisting with a modal") {
                 ShowroomParagraph(
-                    "Abra o não-modal e, com ele aberto, abra um modal por cima. O modal ganha a " +
-                        "janela e o scrim; o não-modal continua na pilha, embaixo, e reaparece " +
-                        "intacto quando o modal fecha."
+                    "Open the non-modal, and with it open, open a modal on top. The modal takes the window and " +
+                        "the scrim; the non-modal stays on the stack underneath, and reappears intact once the " +
+                        "modal closes."
                 )
                 Button(
-                    text = "Abrir não-modal",
+                    text = "Open non-modal",
                     buttonType = filledButton(),
                     events = {
                         DisplayBottomSheet(
@@ -219,10 +183,10 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             fill = false,
                             tiles = {
-                                SheetBody(title = "Camada não-modal") {
+                                SheetBody(title = "Non-modal layer") {
                                     Paragraph("id: $STACK_SHEET_ID")
                                     Button(
-                                        text = "Abrir um modal por cima",
+                                        text = "Open a modal on top",
                                         buttonType = filledTonalButton(),
                                         events = {
                                             DisplayModalBottomSheet(
@@ -231,13 +195,13 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                                                 isCancellable = true,
                                                 fill = false,
                                                 tiles = {
-                                                    SheetBody(title = "Camada modal") {
+                                                    SheetBody(title = "Modal layer") {
                                                         Paragraph(
-                                                            "Este tem scrim e janela própria. Feche-o e " +
-                                                                "o não-modal continua onde estava."
+                                                            "This one has a scrim and its own window. Close it " +
+                                                                "and the non-modal is right where it was."
                                                         )
                                                         Button(
-                                                            text = "Fechar este modal",
+                                                            text = "Close this modal",
                                                             buttonType = textButton(),
                                                             events = {
                                                                 DismissModalBottomSheet(
@@ -251,7 +215,7 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                                             )
                                         }
                                     )
-                                    CloseSheetButton(STACK_SHEET_ID, text = "Fechar este sheet")
+                                    CloseSheetButton(STACK_SHEET_ID, text = "Close this sheet")
                                 }
                             }
                         )
@@ -259,10 +223,27 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                DisplayBottomSheet(
+                    trigger = EventTriggers.onClick(),
+                    bottomSheetId = "now_playing",
+                    isCancellable = true,
+                    fill = false,
+                    tiles = {
+                        Column(id = "player_root") {
+                            SimpleText(text = "Now playing")
+                        }
+                    }
+                )
+                """
+            )
+
             ShowroomNote(
-                "Sem scrim, o sheet não-modal não intercepta toques fora dele — inclusive os do " +
-                    "próprio conteúdo da tela, que pode disparar eventos enquanto o sheet está aberto. " +
-                    "Leve isso em conta ao decidir entre os dois."
+                "With no scrim, the non-modal sheet doesn't intercept taps outside it — including the " +
+                    "screen's own content, which can fire events while the sheet is open. Keep that in mind " +
+                    "when choosing between the two."
             )
 
             ShowroomRelated(
@@ -296,7 +277,7 @@ object DisplayBottomSheetEventDetailBuilder : EventDetailBuilder {
 
     private fun TileSchemaBuilderScope.CloseSheetButton(
         sheetId: String,
-        text: String = "Fechar"
+        text: String = "Close"
     ) {
         Button(
             text = text,

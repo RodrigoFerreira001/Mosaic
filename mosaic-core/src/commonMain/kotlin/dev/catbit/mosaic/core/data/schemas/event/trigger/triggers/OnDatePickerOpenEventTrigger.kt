@@ -8,4 +8,5 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnDatePickerOpen")
+/** Fires on `DatePicker` when the field is pressed while the dialog is closed. */
 data object OnDatePickerOpenEventTrigger : EventTrigger

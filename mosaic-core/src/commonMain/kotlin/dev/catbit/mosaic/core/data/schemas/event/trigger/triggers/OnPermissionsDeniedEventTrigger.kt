@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnPermissionsDenied")
+/** Fires alongside `onFailure()` on `RequestPermission` when at least one requested permission was
+ * denied. */
 object OnPermissionsDeniedEventTrigger : EventTrigger

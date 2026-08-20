@@ -6,9 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -34,50 +31,27 @@ object SetIncomingDataToNetworkParamsHolderBodyEventDetailBuilder : EventDetailB
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Networking",
-                description = "Guarda o incomingData como body da próxima requisição de rede da cadeia, no " +
-                    "NetworkParametersHolder."
+                description = "Stores the incomingData as the body of the chain's next network request, in " +
+                    "the NetworkParametersHolder. Use it when you need to pass the output of a previous " +
+                    "event (form data read with GetData, for example) as the body of the following " +
+                    "SendNetworkRequest, without rebuilding the map manually. A null incomingData fires " +
+                    "onFailure and nothing is stored; SendNetworkRequest's schema body, if present, always " +
+                    "wins over the value stored here."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use quando você precisa passar a saída de um evento anterior (dados de um formulário lidos " +
-                    "com GetData, por exemplo) como body do SendNetworkRequest seguinte, sem construir o mapa " +
-                    "manualmente de novo. Um incomingData nulo dispara onFailure e nada é guardado; o body do " +
-                    "schema do SendNetworkRequest, se presente, sempre vence sobre o valor guardado aqui."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("—", "—", "Nenhum além de trigger/events — o valor guardado é sempre o incomingData atual."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                GetData(trigger = EventTriggers.onClick(), readings = { reading(screenSegmentedData("form"), fullAccessMode()) }, events = {
-                    SetIncomingDataToNetworkParamsHolderBody(trigger = EventTriggers.onSuccess(), events = {
-                        SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/create", method = HttpMethod.POST)
-                    })
-                })
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Digite um título e envie-o como body de um POST real") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Type a title and send it as the body of a real POST") {
                 TextField(
                     id = "set_body_title_input",
-                    placeholder = "Título do post",
+                    placeholder = "Post title",
                     style = { size(width = fillHorizontally(), height = wrapVertically()) }
                 )
                 SimpleText(
                     id = "set_body_status",
-                    text = "Toque no botão para disparar o POST."
+                    text = "Tap the button to fire the POST."
                 )
                 Button(
-                    text = "Enviar como body para jsonplaceholder.typicode.com/posts",
+                    text = "Send as body to jsonplaceholder.typicode.com/posts",
                     events = {
                         GetData(
                             trigger = EventTriggers.onClick(),
@@ -98,7 +72,7 @@ object SetIncomingDataToNetworkParamsHolderBodyEventDetailBuilder : EventDetailB
                                             events = {
                                                 TransformData(
                                                     trigger = EventTriggers.onSuccess(),
-                                                    template = mapOf("text" to "Criado com id <|id|> — body enviado: <|title|>"),
+                                                    template = mapOf("text" to "Created with id <|id|> — body sent: <|title|>"),
                                                     events = {
                                                         UpdateTiles(
                                                             trigger = EventTriggers.onSuccess(),
@@ -113,7 +87,7 @@ object SetIncomingDataToNetworkParamsHolderBodyEventDetailBuilder : EventDetailB
                                                     updates = {
                                                         update(
                                                             "set_body_status",
-                                                            inlineTileUpdateData("text" to "Falha na requisição")
+                                                            inlineTileUpdateData("text" to "Request failed")
                                                         )
                                                     }
                                                 )
@@ -127,13 +101,23 @@ object SetIncomingDataToNetworkParamsHolderBodyEventDetailBuilder : EventDetailB
                 )
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                GetData(trigger = EventTriggers.onClick(), readings = { reading(screenSegmentedData("form"), fullAccessMode()) }, events = {
+                    SetIncomingDataToNetworkParamsHolderBody(trigger = EventTriggers.onSuccess(), events = {
+                        SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/create", method = HttpMethod.POST)
+                    })
+                })
+                """
+            )
             ShowroomNote(
-                "GetData lê o texto do TextField como {\"title\": \"...\"}; " +
-                    "SetIncomingDataToNetworkParamsHolderBody guarda esse mapa como body no holder; e o " +
-                    "SendNetworkRequest seguinte, sem informar seu próprio body, usa o valor guardado. A API " +
-                    "jsonplaceholder.typicode.com é fake (não persiste nada de verdade), mas sempre ecoa o body " +
-                    "enviado de volta com um novo id — por isso o texto final mostra tanto o id quanto o " +
-                    "título que você digitou."
+                "GetData reads the TextField's text as {\"title\": \"...\"}; " +
+                    "SetIncomingDataToNetworkParamsHolderBody stores that map as the body on the holder; " +
+                    "and the following SendNetworkRequest, without providing its own body, uses the " +
+                    "stored value. The jsonplaceholder.typicode.com API is fake (it doesn't persist " +
+                    "anything for real), but it always echoes the body it received back with a new id " +
+                    "— which is why the final text shows both the id and the title you typed."
             )
 
             ShowroomRelated(

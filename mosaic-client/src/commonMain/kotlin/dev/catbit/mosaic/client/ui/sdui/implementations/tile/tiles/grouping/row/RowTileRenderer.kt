@@ -9,8 +9,10 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
+import dev.catbit.mosaic.client.extensions.filteredBy
 import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.extensions.onClick
+import dev.catbit.mosaic.client.extensions.onLongPress
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.extensions.toArrangement
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
@@ -57,12 +59,15 @@ object RowTileRenderer : TileRenderer<RowTileSchema> {
                 onScrollBackward = { triggerEvent(EventTriggers.onScrolled(ScrollDirection.Start)) }
             )
 
+            val displayedTiles = tiles.filteredBy(filterChildrenByTerm)
+
             Row(
                 modifier = Modifier
                     .visible(isVisible())
                     .styledWith(
                         style = style,
-                        onClick = onClick(events)
+                        onClick = onClick(events),
+                        onLongClick = onLongPress(events)
                     )
                     .thenIf(scrollable) {
                         horizontalScroll(scrollState)
@@ -75,7 +80,7 @@ object RowTileRenderer : TileRenderer<RowTileSchema> {
                     LocalLazyItemScope provides null,
                     LocalFlowRowScope provides null
                 ) {
-                    RenderChildren(tiles)
+                    RenderChildren(displayedTiles)
                 }
             }
         }

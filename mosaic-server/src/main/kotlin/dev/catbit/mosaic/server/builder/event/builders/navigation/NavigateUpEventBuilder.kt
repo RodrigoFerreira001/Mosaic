@@ -21,6 +21,17 @@ internal class NavigateUpEventBuilder(
     )
 }
 
+/**
+ * Pops the back stack of the graph registered under [navigatorId], going back one entry. Does
+ * not consume `incomingData`. Dispatches `onSuccess` (no data) when an entry was popped;
+ * `onFailure` (no data, logged) when no navigator is registered under [navigatorId] or there was
+ * nothing to pop.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param navigatorId Id of the graph (`Graph`/`NestedNavigationGraph`) to pop.
+ */
 fun EventSchemaBuilderScope.NavigateUp(
     id: String = randomId(),
     trigger: EventTrigger,

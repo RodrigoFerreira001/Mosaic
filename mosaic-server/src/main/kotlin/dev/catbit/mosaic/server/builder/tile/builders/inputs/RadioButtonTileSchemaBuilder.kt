@@ -8,6 +8,7 @@ import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.visible
 
 internal class RadioButtonTileSchemaBuilder(
     private val id: String,
@@ -32,6 +33,26 @@ internal class RadioButtonTileSchemaBuilder(
     )
 }
 
+/**
+ * Renders a bare Material 3 radio button reflecting [selected]. Draws only the radio circle — no
+ * label — so pair it with a `SimpleText` inside a `Row` when a caption is needed. Tapping the
+ * button applies mutual exclusion entirely on the client: every radio tile sharing the same
+ * [groupId] sets its own selected state to whether its id matches the tapped tile's id, with no
+ * server round trip and no `UpdateTiles` needed to clear the previously selected button; radios
+ * with a different [groupId] are unaffected. Dispatches `onSelect` only on the radio button that
+ * becomes selected — tapping an already-selected radio fires nothing, and radios that become
+ * deselected fire nothing either. The current [selected] value can be read from this tile by its
+ * [id] via `GetData`.
+ *
+ * @param id Unique identifier of the tile. Defaults to a random id.
+ * @param events Events owned by this tile, wired to its triggers (e.g. `onSelect`).
+ * @param style Layout/appearance modifiers (size, padding, background, etc). Defaults to wrapping its content.
+ * @param visibility Whether the tile is shown, hidden but occupies space, or removed from layout. Defaults to visible.
+ * @param searchableTerms Terms used by an ancestor's search/filter to decide whether this tile matches. Defaults to none.
+ * @param selected Whether the radio button starts selected. Defaults to false.
+ * @param enabled Whether the radio button is interactive. Defaults to true.
+ * @param groupId Identifier shared by every radio button that mutually excludes each other.
+ */
 fun TileSchemaBuilderScope.RadioButton(
     id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
@@ -41,7 +62,7 @@ fun TileSchemaBuilderScope.RadioButton(
             height = wrapVertically()
         )
     },
-    visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    visibility: TileSchema.Visibility = visible(),
     searchableTerms: List<String>? = null,
     selected: Boolean = false,
     enabled: Boolean = true,

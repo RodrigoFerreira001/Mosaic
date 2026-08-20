@@ -6,8 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -28,30 +26,57 @@ object NavigateUpEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Navigation",
-                description = "Remove o destino atual da pilha de um navigator — equivalente ao botão de " +
-                    "voltar do sistema, restrito ao escopo daquele navigator."
+                description = "Pops the current destination off a navigator's stack — equivalent to the " +
+                    "system back button, scoped to that navigator. Use it to close screens navigated to as a " +
+                    "destination (full-screen dialogs, sub-flows) or to implement a custom back button in a " +
+                    "top bar — this is exactly the pattern the \"eventDetails\" screen itself uses: the " +
+                    "TopAppBar's back icon calls NavigateUp on the \"root\" navigator."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para fechar telas navegadas como destino (dialogs de tela cheia, sub-fluxos) ou para " +
-                    "implementar um botão de voltar customizado numa top bar — é exatamente esse padrão que a " +
-                    "própria tela \"eventDetails\" usa: o ícone de voltar da TopAppBar chama NavigateUp no " +
-                    "navigator \"root\"."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("navigatorId", "String", "Obrigatório. Id do navigator registrado que deve voltar."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Navigate to a tile's page, then come back with NavigateUp") {
+                ShowroomParagraph(
+                    "First navigate to the Button tile's page; this very page's TopAppBar uses NavigateUp " +
+                        "on its back button — the same event being documented here."
                 )
-            )
+                Button(
+                    text = "View the Button tile",
+                    buttonType = filledButton(),
+                    events = {
+                        TransformData(
+                            trigger = EventTriggers.onClick(),
+                            template = mapOf("event" to "Button"),
+                            events = {
+                                SetIncomingDataToNetworkParamsHolderQueryParameters(
+                                    trigger = EventTriggers.onSuccess(),
+                                    events = {
+                                        Navigate(
+                                            trigger = EventTriggers.onSuccess(),
+                                            destination = "tileDetails",
+                                            navigatorId = "root"
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+                Button(
+                    text = "Go back directly with NavigateUp",
+                    buttonType = outlinedButton(),
+                    events = {
+                        NavigateUp(
+                            trigger = EventTriggers.onClick(),
+                            navigatorId = "root"
+                        )
+                    }
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
-                // Uso real deste app: EventDetailsScreenBuilder.kt, botão de voltar da TopAppBar
+                // Real usage in this app: EventDetailsScreenBuilder.kt, the TopAppBar's back button
                 IconButton(
                     icon = icon("arrow_back"),
                     events = {
@@ -64,49 +89,9 @@ object NavigateUpEventDetailBuilder : EventDetailBuilder {
                 """
             )
 
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Navegue para outra página e volte com NavigateUp") {
-                ShowroomParagraph(
-                    "Primeiro navegue para o evento ChangeScreenState; a própria TopAppBar dessa página " +
-                        "usa NavigateUp no botão de voltar — o mesmo evento sendo documentado aqui."
-                )
-                Button(
-                    text = "Ver evento ChangeScreenState",
-                    buttonType = filledButton(),
-                    events = {
-                        TransformData(
-                            trigger = EventTriggers.onClick(),
-                            template = mapOf("event" to "ChangeScreenState"),
-                            events = {
-                                SetIncomingDataToNetworkParamsHolderQueryParameters(
-                                    trigger = EventTriggers.onSuccess(),
-                                    events = {
-                                        Navigate(
-                                            trigger = EventTriggers.onSuccess(),
-                                            destination = "eventDetails",
-                                            navigatorId = "root"
-                                        )
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-                Button(
-                    text = "Voltar direto com NavigateUp",
-                    buttonType = outlinedButton(),
-                    events = {
-                        NavigateUp(
-                            trigger = EventTriggers.onClick(),
-                            navigatorId = "root"
-                        )
-                    }
-                )
-            }
-
             ShowroomNote(
-                "NavigateUp falha silenciosamente (onFailure) se o navigator \"root\" não tiver mais " +
-                    "nenhuma entrada anterior na pilha para voltar."
+                "NavigateUp fails silently (onFailure) if the \"root\" navigator has no earlier entry left " +
+                    "on its stack to go back to."
             )
 
             ShowroomRelated(

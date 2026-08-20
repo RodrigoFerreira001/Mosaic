@@ -6,37 +6,35 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Reads the contents of a locally stored file identified by [fileName].
+ * Reads the file stored under [fileName] from the client's own file storage and emits its
+ * content downstream.
  *
- * **incomingData consumed:** Not used; [fileName] is the sole input.
+ * [outputType] decides the shape handed to the next events:
+ * - `ArrayOfBytes` (default) — the raw `ByteArray`.
+ * - `FlowOfBytes` — a streaming flow of chunks, for large files.
+ * - `PlatformFile` — the platform file handle.
+ * - `MapObject` — the bytes decoded as a JSON map.
+ * - `Base64` — the bytes encoded as a Base64 `String`.
+ *
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — fires after the file is read successfully, with incomingData
- *   shaped according to [outputType]:
- *   - [FileOutputType.ArrayOfBytes] — raw file contents as a [ByteArray] (default).
- *   - [FileOutputType.FlowOfBytes] — a chunked `Flow<ByteArray>`, without loading the whole
- *     file into memory.
- *   - [FileOutputType.PlatformFile] — a reference to the file (`PlatformFile`), without
- *     reading its contents.
- *   - [FileOutputType.MapObject] — the file decoded as JSON into `Map<String, AnySerializable?>`.
- *   - [FileOutputType.Base64] — the file contents as a base64-encoded [String].
- * - [OnFailureEventTrigger] — fires when the file cannot be read (file not found, I/O error,
- *   or invalid JSON when [outputType] is [FileOutputType.MapObject]). The [Throwable] is
- *   passed as incomingData.
- *
- * **Notes:** [fileName] identifies the target file by name within the app's private storage
- * scope.
+ * - `OnSuccessEventTrigger` — when the file was read; the content, in the shape chosen by
+ *   [outputType], is passed as incomingData.
+ * - `OnFailureEventTrigger` — when the read failed, when no file exists under [fileName] (a
+ *   `NoSuchElementException` is passed), or when `MapObject` decoding failed. The `Throwable` is
+ *   passed as incomingData and the error is logged.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

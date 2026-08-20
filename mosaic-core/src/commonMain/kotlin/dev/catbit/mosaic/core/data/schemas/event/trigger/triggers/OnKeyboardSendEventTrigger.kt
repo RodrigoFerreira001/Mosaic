@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnKeyboardSend")
+/** Fires on `TextField` when the IME action button is pressed and `keyboardOptions.imeAction` is
+ * `Send`. */
 data object OnKeyboardSendEventTrigger : EventTrigger

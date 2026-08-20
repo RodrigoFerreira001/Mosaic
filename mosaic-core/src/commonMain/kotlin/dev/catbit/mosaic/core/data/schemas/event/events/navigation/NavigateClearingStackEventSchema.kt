@@ -7,39 +7,33 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Instructs the navigator identified by [navigatorId] to clear its entire back stack and push
- * [destination] as the sole entry, carrying data to the new destination.
+ * Navigates the graph registered under [navigatorId] to [destination], clearing the whole back
+ * stack so the destination becomes the only entry — the usual move after login or logout.
  *
- * **incomingData consumed:** incomingData is cast to `Map<String, Any>` and merged with [data]
- * (schema-defined data takes precedence on key conflicts) to form the navigation data map passed
- * to the new destination. If incomingData is not a map, it is treated as an empty map.
+ * **Navigation data:** the destination receives the event's incomingData merged with [data], with
+ * [data] winning on key collision. Only map-shaped incomingData contributes, and `null` values are
+ * dropped from both — navigation arguments are never null.
+ *
+ * [launchSingleTop] (default `true`) avoids stacking a second copy when the destination is already
+ * the current entry.
+ *
+ * **incomingData consumed:** merged into the destination's navigation data when it is a map.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — when the navigator successfully navigates to [destination].
- * - [OnFailureEventTrigger] — if no navigator is registered under [navigatorId]; incomingData
- *   is null or the relevant exception.
- *
- * **Failure scenarios:**
- * - If no navigator is registered under [navigatorId], [OnFailureEventTrigger] fires.
- *
- * **Notes:**
- * - Unlike [NavigateEventSchema], there is no `popUpTo` option: the back stack is always cleared
- *   entirely before [destination] is pushed.
- * - When [launchSingleTop] is `true` (the default) and [destination] is already the top of the
- *   back stack, navigation is a no-op — the stack is left untouched.
- * - The merged navigation data map (`incomingData + schema data`) is what the destination screen
- *   receives as its initial `navigationData`.
+ * - `OnSuccessEventTrigger` — when the navigation was performed. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when no navigator is registered under [navigatorId], or the
+ *   navigator refused the navigation; no data is passed and the error is logged.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

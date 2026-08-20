@@ -8,4 +8,5 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnTimeFinish")
+/** Fires on `StartCountdownTimer` when the countdown reaches zero. */
 data object OnTimeFinishEventTrigger : EventTrigger

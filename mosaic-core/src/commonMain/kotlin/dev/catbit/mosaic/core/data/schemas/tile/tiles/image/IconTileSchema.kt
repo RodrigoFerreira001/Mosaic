@@ -10,18 +10,13 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a single icon using the shared Mosaic [Icon] composable, which resolves the icon
- * from the provided [IconSchema] (Material Symbols or other supported icon sources).
+ * Renders a single Material Symbol described by [icon], honouring its name, color, size and
+ * style. This is the standalone icon tile — [style] is applied to the icon's own layout node.
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `icon: IconSchema`
- *
- * **Triggers dispatched:** None. This tile does not dispatch any event triggers.
- *
- * **Notes:** The icon is always rendered without a filled/outlined toggle (the `filled`
- * parameter defaults to `false` in the renderer). To render a filled variant of a Material
- * Symbol icon, the [IconSchema] itself must specify the filled form. If the icon should be
- * interactive, wrap it in a tile that supports click triggers (e.g. [ButtonTileSchema]).
+ * **Triggers dispatched:** none. The tile emits no trigger of its own — not even
+ * `OnDisplayEventTrigger` — and is not clickable, so any `events` declared on it are never
+ * fired. Use `IconButton` when you need a tappable icon, or wrap this tile in a clickable
+ * container.
  */
 @Immutable
 @Serializable

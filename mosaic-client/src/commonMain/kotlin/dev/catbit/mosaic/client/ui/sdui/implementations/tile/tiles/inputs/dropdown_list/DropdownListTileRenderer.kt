@@ -33,7 +33,10 @@ object DropdownListTileRenderer : TileRenderer<DropdownListTileSchema> {
                 .visible(isVisible())
                 .styledWith(style)
 
-            val selectedOption = options.first { it.id == selectedOptionId }
+            val selectedOptionLabel = options
+                .firstOrNull { it.id == selectedOptionId }
+                ?.label
+                .orEmpty()
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
@@ -49,7 +52,7 @@ object DropdownListTileRenderer : TileRenderer<DropdownListTileSchema> {
                                 type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
                                 enabled = enabled
                             ),
-                            value = selectedOption.label,
+                            value = selectedOptionLabel,
                             colors = ExposedDropdownMenuDefaults.textFieldColors(),
                             onValueChange = {},
                             readOnly = true,
@@ -66,7 +69,7 @@ object DropdownListTileRenderer : TileRenderer<DropdownListTileSchema> {
                                 type = ExposedDropdownMenuAnchorType.PrimaryNotEditable,
                                 enabled = enabled
                             ),
-                            value = selectedOption.label,
+                            value = selectedOptionLabel,
                             colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                             onValueChange = {},
                             readOnly = true,
@@ -91,6 +94,7 @@ object DropdownListTileRenderer : TileRenderer<DropdownListTileSchema> {
                             onClick = {
                                 dispatchEvent(DropdownListTileEvents.OnItemSelected(option.id))
                                 triggerEvent(EventTriggers.onDropdownListItemSelected(option.id))
+                                triggerEvent(EventTriggers.onDropdownListClose())
                             },
                             modifier = Modifier.fillMaxWidth()
                         )

@@ -12,29 +12,28 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 pull-to-refresh container ([PullToRefreshBox]) that wraps its child
- * tiles. When the user pulls down past the threshold, a refresh indicator appears and a
- * refresh event is dispatched. The spinning indicator remains visible while [isRefreshing]
- * is `true`.
+ * Renders a Material 3 `PullToRefreshBox` wrapping [tiles], showing the refresh indicator while
+ * [isRefreshing] is `true`.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `isRefreshing: Boolean`
+ * **Refresh lifecycle:** pulling dispatches a local `PullToRefreshTileEvents.OnRefreshStart`,
+ * and the holder immediately sets [isRefreshing] to `true` so the spinner appears without a
+ * server round trip. Stopping it is the server's job: chain a `StopRefreshingEventSchema`
+ * pointing at this tile's [id] onto the end of the refresh flow — on both the success and the
+ * failure branch — otherwise the indicator keeps spinning.
  *
- * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
- * composition. `OnPullEventTrigger` — fired via the internal
- * `PullToRefreshTileEvents.OnRefreshStart` dispatch when the user completes the pull gesture.
+ * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id).
+ * - `OnPullEventTrigger` — fired when the user completes a pull gesture; hook the refresh work
+ *   to this trigger.
  *
- * **Notes:** The server must toggle [isRefreshing] to `false` via UpdateTiles once the
- * refresh operation completes, otherwise the loading indicator will remain visible
- * indefinitely. This tile does not apply a style or visibility modifier itself; those
- * properties are inherited by the schema but not forwarded to [PullToRefreshBox] in the
- * current renderer.
+ * **Notes:** children are laid out with `Box` semantics and no scope CompositionLocal; put a
+ * scrollable tile inside for the gesture to feel natural.
  */
 @Immutable
 @Triggers(
     [
         OnDisplayEventTrigger::class,
-        OnPullEventTrigger::class
+        OnPullEventTrigger::class,
     ]
 )
 @Serializable
@@ -46,5 +45,5 @@ data class PullToRefreshTileSchema(
     @SerialName("style") override val style: StyleSchema,
     @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
-    @SerialName("isRefreshing") val isRefreshing: Boolean,
+    @SerialName("isRefreshing") val isRefreshing: Boolean = false,
 ) : TileSchema

@@ -6,44 +6,28 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Stores `incomingData` as the request headers in the [NetworkParametersHolder], making them
- * available to the next network event ([SendNetworkRequestEventSchema], [GetScreenEventSchema],
- * [DownloadFileEventSchema]) that executes in the same event chain.
+ * Stores the event's incomingData as the request headers in the client's
+ * `NetworkParametersHolder`, so a later request in the chain picks them up instead of carrying the
+ * headers on its own schema.
  *
- * The holder is consumed (and reset to `null`) on the next network call. Headers from the holder
- * are **merged with** explicit `headers` in the network schema — the schema's headers take
- * precedence on key collision: `finalHeaders = holder.headers + schema.headers`.
- *
- * **incomingData consumed:** Must be castable to `Map<String, String>`. If cast fails (e.g.
- * incomingData is `null` or not a string-keyed map), [onFailure()] is fired and nothing is stored.
+ * **incomingData consumed:** required, and must be a map holding at least one `String` value.
+ * Entries whose value is not a `String` are dropped.
  *
  * **Triggers fired:**
- * - [onSuccess()] – headers stored successfully; incomingData is forwarded unchanged.
- * - [onFailure()] – incomingData cannot be cast to `Map<String, String>`.
- *
- * **Typical usage:**
- * ```kotlin
- * GetData(trigger = EventTriggers.onClick(), readings = {
- *     reading(segmentedDataBase("auth"), singleAccessMode("token"))
- * }, events = {
- *     // incomingData = {"token": "Bearer xyz"} after GetData
- *     SetIncomingDataToNetworkParamsHolderHeaders(trigger = EventTriggers.onSuccess(), events = {
- *         SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/protected", method = HttpMethod.GET)
- *         // request goes out with Authorization header from holder
- *     })
- * })
- * ```
+ * - `OnSuccessEventTrigger` — when the headers were stored. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when incomingData is missing, is not a map, or holds no `String`
+ *   value at all; no data is passed downstream and the error is logged.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

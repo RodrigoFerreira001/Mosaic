@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -35,43 +32,17 @@ object DismissModalBottomSheetEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Overlays",
-                description = "Fecha programaticamente um bottom sheet aberto — o lado \"reação\" " +
-                    "do par DisplayModalBottomSheet / DismissModalBottomSheet."
+                description = "Programmatically closes an open modal bottom sheet — the \"reaction\" side of " +
+                    "the DisplayModalBottomSheet / DismissModalBottomSheet pair. Use it on any button/row inside " +
+                    "the sheet that represents a selection or cancellation, or as a child of onSuccess for an " +
+                    "async event fired from within it. Pass the same modalBottomSheetId used in the " +
+                    "DisplayModalBottomSheet that opened the sheet."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use em qualquer botão/linha dentro do sheet que representa uma seleção ou cancelamento, " +
-                    "ou como filho de onSuccess de um evento assíncrono disparado a partir dele. Informe o " +
-                    "mesmo modalBottomSheetId usado no DisplayModalBottomSheet que abriu o sheet."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("modalBottomSheetId", "String", "Obrigatório. O mesmo id informado no DisplayModalBottomSheet que abriu o sheet."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                Row(events = {
-                    DismissModalBottomSheet(
-                        trigger = EventTriggers.onClick(),
-                        modalBottomSheetId = "share_sheet"
-                    )
-                }) {
-                    SimpleText(text = "Cancelar")
-                }
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Abra o sheet e feche-o com DismissModalBottomSheet") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Open the sheet and close it with DismissModalBottomSheet") {
                 Button(
-                    text = "Abrir bottom sheet",
+                    text = "Open bottom sheet",
                     buttonType = filledButton(),
                     events = {
                         DisplayModalBottomSheet(
@@ -85,16 +56,16 @@ object DismissModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                     arrangement = arrangeVerticallySpacedBy(16)
                                 ) {
                                     SimpleText(
-                                        text = "Bottom sheet de exemplo",
+                                        text = "Example bottom sheet",
                                         typography = typographyTitleLarge()
                                     )
                                     SimpleText(
-                                        text = "O botão abaixo é o próprio DismissModalBottomSheet sendo demonstrado.",
+                                        text = "The button below is the DismissModalBottomSheet event itself being demonstrated.",
                                         typography = typographyBodyMedium(),
                                         color = color(themeColorOnSurfaceVariant())
                                     )
                                     Button(
-                                        text = "Fechar com DismissModalBottomSheet",
+                                        text = "Close with DismissModalBottomSheet",
                                         buttonType = filledTonalButton(),
                                         events = {
                                             DismissModalBottomSheet(
@@ -110,10 +81,24 @@ object DismissModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                Row(events = {
+                    DismissModalBottomSheet(
+                        trigger = EventTriggers.onClick(),
+                        modalBottomSheetId = "share_sheet"
+                    )
+                }) {
+                    SimpleText(text = "Cancel")
+                }
+                """
+            )
+
             ShowroomNote(
-                "DismissModalBottomSheet dispara onSuccess() assim que marca o sheet para fechar, e " +
-                    "onFailure() se nenhum sheet com aquele id estiver na pilha — o que também cobre " +
-                    "o caso de fechar o mesmo sheet duas vezes."
+                "DismissModalBottomSheet fires onSuccess() as soon as it marks the sheet to close, and " +
+                    "onFailure() if no sheet with that id is on the stack — which also covers the case of " +
+                    "closing the same sheet twice."
             )
 
             ShowroomRelated(

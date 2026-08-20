@@ -9,17 +9,16 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Wraps its child tiles in Compose's [SelectionContainer], letting the user select and copy
- * text rendered by any descendant `SimpleText` (or other selectable content) as a single
- * contiguous selection spanning multiple children.
+ * Wraps [tiles] in a Compose `SelectionContainer`, making the text rendered by its descendants
+ * selectable and copyable with the platform's selection handles and context menu.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`
+ * **Triggers dispatched:** none. This tile emits no trigger of its own — not even
+ * `OnDisplayEventTrigger` — so any `events` declared on it are never fired; wire events on the
+ * children instead.
  *
- * **Notes:** Purely a selection boundary — it does not lay out its children (no arrangement or
- * alignment), unlike [ColumnTileSchema]/[RowTileSchema]/[BoxTileSchema]. Does not dispatch any
- * triggers — no click/long-press/display support, so the long-press gesture is left free for
- * initiating text selection.
+ * **Notes:** children are rendered without a scope CompositionLocal, so `SelectionContainer`
+ * behaves like a `Box` for layout purposes — put a `Column` or `Row` inside when you need a
+ * specific arrangement.
  */
 @Immutable
 @Serializable

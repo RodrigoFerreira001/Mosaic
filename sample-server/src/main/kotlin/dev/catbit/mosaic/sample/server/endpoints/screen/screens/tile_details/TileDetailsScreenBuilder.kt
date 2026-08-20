@@ -21,7 +21,7 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.bui
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.FlexBoxTileDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.FloatingActionButtonTileDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.FlowRowTileDetailBuilder
-//import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.GridTileDetailBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.GridTileDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.IconButtonTileDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.IconTileDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.ImageTileDetailBuilder
@@ -51,13 +51,16 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.bui
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.TimePickerTileDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.TooltipTileDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders.TopAppBarTileDetailBuilder
+import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.dokkaTileDocsUrl
 import dev.catbit.mosaic.server.builder.event.builders.navigation.NavigateUp
+import dev.catbit.mosaic.server.builder.event.builders.system.OpenExternalLink
 import dev.catbit.mosaic.server.builder.icon.icon
 import dev.catbit.mosaic.server.builder.screen.Screen
 import dev.catbit.mosaic.server.builder.tile.builders.app_bars.TopAppBar
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.IconButton
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
+import dev.catbit.mosaic.server.builder.tile.builders.tooltip.Tooltip
 import io.ktor.server.routing.RoutingCall
 
 /**
@@ -87,7 +90,7 @@ private val tileDetailBuilderManager = TileDetailBuilderManager(
                 FlexBoxTileDetailBuilder,
                 FloatingActionButtonTileDetailBuilder,
                 FlowRowTileDetailBuilder,
-//                GridTileDetailBuilder,
+                GridTileDetailBuilder,
                 IconButtonTileDetailBuilder,
                 IconTileDetailBuilder,
                 ImageTileDetailBuilder,
@@ -155,6 +158,19 @@ object TileDetailsScreenBuilder : ScreenBuilder {
                         SimpleText(
                             text = tileName
                         )
+                    },
+                    actions = {
+                        Tooltip(text = "Open code reference") {
+                            IconButton(
+                                icon = icon("code"),
+                                events = {
+                                    OpenExternalLink(
+                                        trigger = EventTriggers.onClick(),
+                                        url = dokkaTileDocsUrl(tileName)
+                                    )
+                                }
+                            )
+                        }
                     }
                 )
 

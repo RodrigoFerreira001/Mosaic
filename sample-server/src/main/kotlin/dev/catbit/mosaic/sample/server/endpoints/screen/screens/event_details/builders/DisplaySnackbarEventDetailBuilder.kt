@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -31,29 +28,67 @@ object DisplaySnackbarEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Overlays",
-                description = "Exibe um snackbar Material 3 com mensagem, ação opcional e duração " +
-                    "configurável — feedback breve pra confirmações, erros e avisos de undo."
+                description = "Displays a Material 3 snackbar with a message, an optional action, and a " +
+                    "configurable duration — brief feedback for confirmations, errors, and undo prompts. Use it " +
+                    "for short feedback messages: success confirmation, error warning, \"undo\" prompt. With " +
+                    "actionLabel set, the snackbar gets an action button that fires onSnackbarAction() when " +
+                    "tapped; without an action, it only fires onSnackbarDismissed() when it disappears (by " +
+                    "timeout, swipe, or programmatic dismissal)."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra mensagens curtas de feedback: confirmação de sucesso, aviso de erro, prompt de " +
-                    "\"desfazer\". Com actionLabel definido, o snackbar ganha um botão de ação que dispara " +
-                    "onSnackbarAction() quando tocado; sem action, ele só dispara onSnackbarDismissed() ao " +
-                    "sumir (por timeout, swipe, ou dismiss programático)."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("message", "String", "Obrigatório. Texto do snackbar."),
-                    ShowroomParam("duration", "SnackbarDuration", "snackbarShortDuration() (padrão). Também snackbarLongDuration() e snackbarIndefiniteDuration()."),
-                    ShowroomParam("actionLabel", "String?", "null (padrão). Se definido, mostra um botão de ação."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Fire snackbars with and without an action") {
+                SimpleText(
+                    id = "display_snackbar_feedback",
+                    text = "(no action recorded yet)"
                 )
-            )
+                Row(
+                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
+                    arrangement = arrangeHorizontallySpacedBy(8)
+                ) {
+                    Button(
+                        text = "Simple snackbar",
+                        buttonType = outlinedButton(),
+                        events = {
+                            DisplaySnackbar(
+                                trigger = EventTriggers.onClick(),
+                                message = "Action completed successfully",
+                                duration = snackbarShortDuration()
+                            )
+                        }
+                    )
+                    Button(
+                        text = "Snackbar with \"Undo\" action",
+                        buttonType = outlinedButton(),
+                        events = {
+                            DisplaySnackbar(
+                                trigger = EventTriggers.onClick(),
+                                message = "Item removed",
+                                duration = snackbarLongDuration(),
+                                actionLabel = "Undo",
+                                events = {
+                                    UpdateTiles(
+                                        trigger = EventTriggers.onSnackbarAction(),
+                                        updates = {
+                                            update(
+                                                "display_snackbar_feedback",
+                                                inlineTileUpdateData("text" to "onSnackbarAction() fired — \"Undo\" was tapped ✓")
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+                ShowroomNote(
+                    "Tap \"Undo\" inside the snackbar itself (not the button that opened it) to see the text " +
+                        "above change — only onSnackbarAction() updates the tile; letting the snackbar disappear " +
+                        "on its own fires onSnackbarDismissed(), which this example doesn't handle."
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 DisplaySnackbar(
@@ -67,58 +102,6 @@ object DisplaySnackbarEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Dispare snackbars com e sem ação") {
-                SimpleText(
-                    id = "display_snackbar_feedback",
-                    text = "(nenhuma ação registrada ainda)"
-                )
-                Row(
-                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
-                    arrangement = arrangeHorizontallySpacedBy(8)
-                ) {
-                    Button(
-                        text = "Snackbar simples",
-                        buttonType = outlinedButton(),
-                        events = {
-                            DisplaySnackbar(
-                                trigger = EventTriggers.onClick(),
-                                message = "Ação concluída com sucesso",
-                                duration = snackbarShortDuration()
-                            )
-                        }
-                    )
-                    Button(
-                        text = "Snackbar com ação \"Desfazer\"",
-                        buttonType = outlinedButton(),
-                        events = {
-                            DisplaySnackbar(
-                                trigger = EventTriggers.onClick(),
-                                message = "Item removido",
-                                duration = snackbarLongDuration(),
-                                actionLabel = "Desfazer",
-                                events = {
-                                    UpdateTiles(
-                                        trigger = EventTriggers.onSnackbarAction(),
-                                        updates = {
-                                            update(
-                                                "display_snackbar_feedback",
-                                                inlineTileUpdateData("text" to "onSnackbarAction() disparado — \"Desfazer\" foi tocado ✓")
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    )
-                }
-                ShowroomNote(
-                    "Toque em \"Desfazer\" dentro do próprio snackbar (não no botão que o abriu) pra ver o " +
-                        "texto acima mudar — só onSnackbarAction() atualiza o tile; deixar o snackbar sumir " +
-                        "sozinho dispara onSnackbarDismissed(), que este exemplo não trata."
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("DismissSnackbar", "DisplayDialog", "DisplayModalBottomSheet"),

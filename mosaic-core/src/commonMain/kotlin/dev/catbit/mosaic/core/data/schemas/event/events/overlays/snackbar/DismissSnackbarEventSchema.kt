@@ -5,31 +5,22 @@ import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Programmatically dismisses the currently displayed snackbar by broadcasting a dismiss
- * signal to the active screen. No tile data is altered.
+ * Hides the snackbar currently showing on the screen, by broadcasting a dismiss command on the
+ * screen channel.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
- * **Triggers fired:** None. This event fires no lifecycle triggers.
- *
- * **Failure scenarios:** None defined. The runner unconditionally broadcasts the dismiss
- * signal regardless of whether a snackbar is currently visible.
- *
- * **Notes:** If no snackbar is currently shown, the broadcast is a no-op on the UI side.
- * Dismissing via this event does NOT fire [OnSnackbarDismissedEventTrigger] — that trigger
- * is only fired by the snackbar's own dismiss callback (see [DisplaySnackbarEventSchema]).
+ * **Triggers fired:**
+ * - `OnSuccessEventTrigger` — always, right after the command was broadcast. The broadcast is
+ *   fire-and-forget, so this fires even when no snackbar is showing. No data is passed downstream.
  */
 @Immutable
-@Triggers(
-    [
-        OnSuccessEventTrigger::class
-    ]
-)
+@Triggers([OnSuccessEventTrigger::class])
 @Serializable
 @SerialName("DismissSnackbar")
 data class DismissSnackbarEventSchema(

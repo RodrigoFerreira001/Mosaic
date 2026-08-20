@@ -2,6 +2,7 @@ package dev.catbit.mosaic.sample.server.endpoints.screen.screens.about
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.text.TextAlignSchema
+import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.UnderConstructionBadge
 import dev.catbit.mosaic.sample.server.endpoints.screen.ScreenBuilder
 import dev.catbit.mosaic.server.builder.color.color
 import dev.catbit.mosaic.server.builder.color.themeColorErrorContainer
@@ -13,16 +14,19 @@ import dev.catbit.mosaic.server.builder.color.themeColorOnSecondaryContainer
 import dev.catbit.mosaic.server.builder.color.themeColorOnSurface
 import dev.catbit.mosaic.server.builder.color.themeColorOnSurfaceVariant
 import dev.catbit.mosaic.server.builder.color.themeColorOnTertiaryContainer
+import dev.catbit.mosaic.server.builder.color.themeColorOnPrimary
+import dev.catbit.mosaic.server.builder.color.themeColorPrimary
 import dev.catbit.mosaic.server.builder.color.themeColorPrimaryContainer
 import dev.catbit.mosaic.server.builder.color.themeColorSecondaryContainer
 import dev.catbit.mosaic.server.builder.color.themeColorSurfaceContainer
 import dev.catbit.mosaic.server.builder.color.themeColorSurfaceContainerLowest
 import dev.catbit.mosaic.server.builder.color.themeColorTertiaryContainer
-import dev.catbit.mosaic.server.builder.event.builders.navigation.Navigate
+import dev.catbit.mosaic.server.builder.event.builders.navigation.NavigateClearingStack
+import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
+import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
 import dev.catbit.mosaic.server.builder.icon.icon
-import dev.catbit.mosaic.server.builder.placement.alignToBottomEnd
 import dev.catbit.mosaic.server.builder.placement.alignToCenter
-import dev.catbit.mosaic.server.builder.placement.alignToTopStart
+import dev.catbit.mosaic.server.builder.placement.alignToTopEnd
 import dev.catbit.mosaic.server.builder.placement.alignVerticallyToCenter
 import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallySpacedBy
 import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
@@ -40,6 +44,7 @@ import dev.catbit.mosaic.server.builder.typography.typographyBodyMedium
 import dev.catbit.mosaic.server.builder.typography.typographyBodySmall
 import dev.catbit.mosaic.server.builder.typography.typographyDisplayMedium
 import dev.catbit.mosaic.server.builder.typography.typographyHeadlineSmall
+import dev.catbit.mosaic.server.builder.typography.typographyLabelLarge
 import dev.catbit.mosaic.server.builder.typography.typographyTitleMedium
 import io.ktor.server.routing.RoutingCall
 
@@ -60,38 +65,38 @@ private val highlights = listOf(
     Highlight(
         icon = "devices",
         title = "Kotlin Multiplatform",
-        description = "Um único código-fonte de cliente roda em Android, iOS, Desktop e Web renderizando " +
-            "com Compose Multiplatform, sem reescrever a UI para cada plataforma."
+        description = "A single client codebase runs on Android, iOS, Desktop, and Web, rendering " +
+            "with Compose Multiplatform without rewriting the UI for every platform."
     ),
     Highlight(
         icon = "data_object",
-        title = "DSL tipada no servidor",
-        description = "Telas, tiles e events são descritos como uma árvore de data classes Kotlin, com " +
-            "autocomplete e checagem de tipos em tempo de compilação — não JSON escrito à mão."
+        title = "Typed server-side DSL",
+        description = "Screens, tiles, and events are described as a tree of Kotlin data classes, with " +
+            "autocomplete and compile-time type checking — not hand-written JSON."
     ),
     Highlight(
         icon = "block",
-        title = "Zero lógica no cliente",
-        description = "O app apenas desserializa o schema e renderiza. Toda regra de negócio, validação e " +
-            "decisão de navegação vive e é versionada no servidor."
+        title = "Zero client-side logic",
+        description = "The app only deserializes the schema and renders it. All business rules, " +
+            "validation, and navigation decisions live and are versioned on the server."
     ),
     Highlight(
         icon = "bolt",
-        title = "Atualiza sem release",
-        description = "Como a UI é descrita pelo servidor a cada requisição, mudar um fluxo, corrigir um " +
-            "texto ou reordenar uma tela não exige nova versão nas lojas de aplicativo."
+        title = "Updates without a release",
+        description = "Since the UI is described by the server on every request, changing a flow, " +
+            "fixing a string, or reordering a screen doesn't require a new app store release."
     ),
     Highlight(
         icon = "link",
-        title = "Encadeamento de events",
-        description = "Events se aninham em cadeias — ler dado, transformar, chamar rede, atualizar tiles — " +
-            "com o incomingData fluindo de pai para filho a cada passo."
+        title = "Event chaining",
+        description = "Events nest into chains — read data, transform it, call the network, update tiles — " +
+            "with incomingData flowing from parent to child at each step."
     ),
     Highlight(
         icon = "extension",
-        title = "Extensível",
-        description = "Novos tiles e events entram no framework seguindo um padrão simples de schema + " +
-            "builder + renderer, sem tocar no que já existe."
+        title = "Extensible",
+        description = "New tiles and events join the framework by following a simple schema + " +
+            "builder + renderer pattern, without touching what already exists."
     ),
 )
 
@@ -130,37 +135,13 @@ object AboutScreenBuilder : ScreenBuilder {
                 }
             ) {
                 Box(
+                    alignment = alignToTopEnd(),
                     style = {
                         size(width = fillHorizontally(), height = fixedVertically(180))
                         background(color(themeColorPrimaryContainer()))
                     }
                 ) {
-                    Box(
-                        alignment = alignToTopStart(),
-                        style = {
-                            size(width = fixedHorizontally(100), height = fixedVertically(100))
-                            clip(circleShape())
-                            background(color(themeColorTertiaryContainer()))
-                            margin(top = 8, start = 8)
-                        }
-                    ) {}
-                    Box(
-                        alignment = alignToBottomEnd(),
-                        style = {
-                            size(width = fixedHorizontally(130), height = fixedVertically(130))
-                            clip(circleShape())
-                            background(color(themeColorSecondaryContainer()))
-                            margin(bottom = 8, end = 8)
-                        }
-                    ) {}
-                    Box(
-                        alignment = alignToCenter(),
-                        style = {
-                            size(width = fixedHorizontally(88), height = fixedVertically(88))
-                            clip(circleShape())
-                            background(color(themeColorErrorContainer()))
-                        }
-                    ) {}
+                    UnderConstructionBadge()
                 }
                 Column(
                     style = {
@@ -175,15 +156,35 @@ object AboutScreenBuilder : ScreenBuilder {
                         color = color(themeColorInverseOnSurface())
                     )
                     SimpleText(
-                        text = "Um framework de Server-Driven UI (SDUI) para Kotlin Multiplatform. O servidor " +
-                            "descreve cada tela como uma árvore tipada de tiles e events em Kotlin; o cliente " +
-                            "apenas desserializa esse schema e renderiza com Compose Multiplatform — sem lógica " +
-                            "de negócio embarcada no app.",
+                        text = "A Server-Driven UI (SDUI) framework for Kotlin Multiplatform. The server " +
+                            "describes each screen as a typed tree of tiles and events in Kotlin; the client " +
+                            "simply deserializes that schema and renders it with Compose Multiplatform — with " +
+                            "no business logic embedded in the app.",
                         typography = typographyBodyLarge(),
                         color = color(themeColorInverseOnSurface()),
                         textAlign = TextAlignSchema.START
                     )
                 }
+            }
+
+            // Loud, standalone claim: every screen in this showroom — including this very About
+            // page — is itself a real Mosaic-rendered screen, not a mockup describing the framework.
+            Row(
+                style = {
+                    size(width = wrapHorizontally(), height = wrapVertically())
+                    clip(roundedCornerShape(all = 50))
+                    background(color(themeColorPrimary()))
+                    padding(horizontal = 16, vertical = 10)
+                },
+                arrangement = arrangeHorizontallySpacedBy(8),
+                alignment = alignVerticallyToCenter()
+            ) {
+                Icon(icon = icon(name = "verified", size = 18, color = color(themeColorOnPrimary())))
+                SimpleText(
+                    text = "This entire showroom is running live on real Mosaic",
+                    typography = typographyLabelLarge(),
+                    color = color(themeColorOnPrimary())
+                )
             }
 
             // Explanatory section, same role as "What's Material?" on m3.material.io: a real
@@ -195,7 +196,7 @@ object AboutScreenBuilder : ScreenBuilder {
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
                 SimpleText(
-                    text = "Como funciona",
+                    text = "How it works",
                     typography = typographyHeadlineSmall(),
                     style = {
                         size(width = fillHorizontally(), height = wrapVertically())
@@ -203,11 +204,12 @@ object AboutScreenBuilder : ScreenBuilder {
                     }
                 )
                 SimpleText(
-                    text = "A cada navegação, o cliente pede ao servidor a definição da tela pelo seu id. O " +
-                        "servidor monta a árvore de tiles (o que aparece na tela) e de events (o que acontece " +
-                        "quando o usuário interage) usando a DSL Kotlin, serializa tudo em JSON e devolve. O " +
-                        "cliente desserializa esse schema e delega cada tile ao seu renderer Compose " +
-                        "correspondente — Button vira um Button real, Column vira um Column real.",
+                    text = "On every navigation, the client asks the server for the screen definition by " +
+                        "its id. The server assembles the tree of tiles (what appears on screen) and events " +
+                        "(what happens when the user interacts) using the Kotlin DSL, serializes it all to " +
+                        "JSON, and returns it. The client deserializes that schema and delegates each tile " +
+                        "to its matching Compose renderer — Button becomes a real Button, Column becomes a " +
+                        "real Column.",
                     typography = typographyBodyMedium(),
                     color = color(themeColorOnSurfaceVariant()),
                     style = {
@@ -216,10 +218,10 @@ object AboutScreenBuilder : ScreenBuilder {
                     }
                 )
                 SimpleText(
-                    text = "Interações — um clique, uma resposta de rede, um valor digitado — disparam events " +
-                        "encadeados: ler dado, transformar, chamar uma API, atualizar outros tiles ou navegar. " +
-                        "Essa cadeia inteira é descrita no servidor, então mudar um fluxo é editar Kotlin no " +
-                        "backend, não publicar uma nova versão do app.",
+                    text = "Interactions — a click, a network response, a typed value — trigger chained " +
+                        "events: read data, transform it, call an API, update other tiles, or navigate. That " +
+                        "entire chain is described on the server, so changing a flow means editing Kotlin on " +
+                        "the backend, not shipping a new app version.",
                     typography = typographyBodyMedium(),
                     color = color(themeColorOnSurfaceVariant()),
                     style = {
@@ -231,7 +233,7 @@ object AboutScreenBuilder : ScreenBuilder {
 
             // Section label, same role as m3.material.io's category titles ("Buttons", "Navigation").
             SimpleText(
-                text = "Por que Mosaic",
+                text = "Why Mosaic",
                 typography = typographyHeadlineSmall(),
                 style = {
                     size(width = fillHorizontally(), height = wrapVertically())
@@ -312,7 +314,7 @@ object AboutScreenBuilder : ScreenBuilder {
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
                 SimpleText(
-                    text = "Explore o catálogo",
+                    text = "Explore the catalog",
                     typography = typographyHeadlineSmall(),
                     style = {
                         size(width = fillHorizontally(), height = wrapVertically())
@@ -333,10 +335,23 @@ object AboutScreenBuilder : ScreenBuilder {
                             background(color(themeColorSurfaceContainer()))
                         },
                         events = {
-                            Navigate(
+                            // Switches Home's own AdaptiveNavigation tab (navigatorId = "home", the
+                            // nested graph this entry lives in) instead of pushing a redundant screen
+                            // onto "root", and syncs the shell's selected tab via UpdateTiles since this
+                            // switch isn't a real click on the shell's own nav item.
+                            NavigateClearingStack(
                                 trigger = EventTriggers.onClick(),
-                                navigatorId = "root",
+                                navigatorId = "home",
                                 destination = "tiles"
+                            )
+                            UpdateTiles(
+                                trigger = EventTriggers.onClick(),
+                                updates = {
+                                    update(
+                                        tileId = "home_adaptive_navigation",
+                                        updateData = inlineTileUpdateData("selectedEntryId" to "tiles")
+                                    )
+                                }
                             )
                         }
                     ) {
@@ -355,7 +370,7 @@ object AboutScreenBuilder : ScreenBuilder {
                                 SimpleText(text = "Tiles", typography = typographyTitleMedium())
                             }
                             SimpleText(
-                                text = "Catálogo com os 46 tiles disponíveis, agrupados por categoria.",
+                                text = "The catalog of all 46 available tiles, grouped by category.",
                                 typography = typographyBodySmall(),
                                 color = color(themeColorOnSurfaceVariant())
                             )
@@ -369,10 +384,19 @@ object AboutScreenBuilder : ScreenBuilder {
                             background(color(themeColorSurfaceContainer()))
                         },
                         events = {
-                            Navigate(
+                            NavigateClearingStack(
                                 trigger = EventTriggers.onClick(),
-                                navigatorId = "root",
+                                navigatorId = "home",
                                 destination = "events"
+                            )
+                            UpdateTiles(
+                                trigger = EventTriggers.onClick(),
+                                updates = {
+                                    update(
+                                        tileId = "home_adaptive_navigation",
+                                        updateData = inlineTileUpdateData("selectedEntryId" to "events")
+                                    )
+                                }
                             )
                         }
                     ) {
@@ -391,7 +415,7 @@ object AboutScreenBuilder : ScreenBuilder {
                                 SimpleText(text = "Events", typography = typographyTitleMedium())
                             }
                             SimpleText(
-                                text = "Catálogo com os 63 events disponíveis para compor cadeias de lógica.",
+                                text = "The catalog of all 63 available events for composing logic chains.",
                                 typography = typographyBodySmall(),
                                 color = color(themeColorOnSurfaceVariant())
                             )

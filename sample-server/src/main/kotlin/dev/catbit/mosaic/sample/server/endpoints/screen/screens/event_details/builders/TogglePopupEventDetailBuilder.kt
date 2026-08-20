@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -33,58 +30,22 @@ object TogglePopupEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Popup",
-                description = "Alterna (abre/fecha) o estado de um PopupTile identificado por popupId — ideal para tooltips ricos, mini formulários flutuantes e menus customizados."
+                description = "Toggles (opens/closes) the state of a PopupTile identified by popupId — " +
+                    "ideal for rich tooltips, small floating forms, and custom menus. PopupTile renders two " +
+                    "groups of tiles: tiles (the anchor, always visible) and popupTiles (the floating " +
+                    "content, shown when expanded = true). TogglePopup flips that state. Unlike Menu, the " +
+                    "Popup's content is 100% free-form — any tile tree."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "PopupTile renderiza dois grupos de tiles: tiles (a âncora, sempre visível) e popupTiles " +
-                    "(o conteúdo flutuante, mostrado quando expanded = true). TogglePopup inverte esse estado. " +
-                    "Diferente do Menu, o conteúdo do Popup é 100% livre — qualquer árvore de tiles."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("popupId", "String", "Obrigatório. id do PopupTile a alternar."),
-                    ShowroomParam("trigger", "EventTrigger", "Obrigatório. Ex.: onClick() no botão âncora."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                Popup(
-                    id = "info_popup",
-                    alignment = alignToBottomCenter(),
-                    dismissOnClickOutside = true,
-                    tiles = {
-                        IconButton(
-                            icon = icon("info"),
-                            events = {
-                                TogglePopup(trigger = EventTriggers.onClick(), popupId = "info_popup")
-                            }
-                        )
-                    },
-                    popupTiles = {
-                        Column(style = { padding(horizontal = 12, vertical = 8) }) {
-                            SimpleText(text = "Conteúdo flutuante livre aqui")
-                        }
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Clique no botão para abrir/fechar o popup") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Click the button to open/close the popup") {
                 Popup(
                     id = "toggle_popup_demo",
                     alignment = alignToBottomCenter(),
                     dismissOnClickOutside = true,
                     tiles = {
                         Button(
-                            text = "Alternar popup",
+                            text = "Toggle popup",
                             icon = icon("info"),
                             events = {
                                 TogglePopup(
@@ -105,11 +66,11 @@ object TogglePopupEventDetailBuilder : EventDetailBuilder {
                             arrangement = arrangeVerticallySpacedBy(4)
                         ) {
                             SimpleText(
-                                text = "Popup aberto!",
+                                text = "Popup open!",
                                 typography = typographyBodySmall()
                             )
                             SimpleText(
-                                text = "Clique fora ou no botão de novo para fechar.",
+                                text = "Click outside or the button again to close.",
                                 typography = typographyBodySmall(),
                                 color = color(themeColorOnSurfaceVariant())
                             )
@@ -118,9 +79,32 @@ object TogglePopupEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                Popup(
+                    id = "info_popup",
+                    alignment = alignToBottomCenter(),
+                    dismissOnClickOutside = true,
+                    tiles = {
+                        IconButton(
+                            icon = icon("info"),
+                            events = {
+                                TogglePopup(trigger = EventTriggers.onClick(), popupId = "info_popup")
+                            }
+                        )
+                    },
+                    popupTiles = {
+                        Column(style = { padding(horizontal = 12, vertical = 8) }) {
+                            SimpleText(text = "Free-form floating content here")
+                        }
+                    }
+                )
+                """
+            )
             ShowroomNote(
-                "dismissOnClickOutside = true (padrão) fecha o popup automaticamente ao tocar fora dele — " +
-                    "sem precisar de outro TogglePopup para isso."
+                "dismissOnClickOutside = true (default) automatically closes the popup when tapping " +
+                    "outside it — no need for another TogglePopup for that."
             )
 
             ShowroomRelated(

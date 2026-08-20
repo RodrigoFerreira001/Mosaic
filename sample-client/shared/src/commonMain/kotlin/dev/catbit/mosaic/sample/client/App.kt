@@ -23,7 +23,11 @@ import org.jetbrains.compose.resources.vectorResource
 fun App() {
     MosaicApplication(
         applicationId = "MosaicSample",
-        baseUrl = "http://192.168.3.105:9090",
+        // Public sample-server, hosted via Firebase Hosting -> Cloud Run (see /firebase.json).
+        // For local development against a machine on your LAN, temporarily swap this back to
+        // something like "http://192.168.x.x:9090" — the sample-server itself always listens on
+        // 9090 locally (see sample-server/.../Application.kt).
+        baseUrl = "https://mosaicsampleserver.web.app",
         dependencyInjectionConfig = mosaicDependencyInjectionConfig(
             tileDefinitions = listOf(
                 AdaptiveNavigationTileDefinition,
@@ -31,6 +35,9 @@ fun App() {
             ),
             eventTriggerDefinition = listOf(
                 OnAdaptiveNavigationItemClickEventTriggerDefinition
+            ),
+            drawableResources = mapOf(
+                "mosaic_logo" to Res.drawable.ic_mosaic_logo
             )
         ),
         themeConfig = mosaicThemeConfig(

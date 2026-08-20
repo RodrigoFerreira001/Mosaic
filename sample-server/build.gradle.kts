@@ -8,6 +8,10 @@ application {
     mainClass = "dev.catbit.mosaic.sample.server.ApplicationKt"
 }
 
+kotlin {
+    jvmToolchain(11)
+}
+
 dependencies {
     implementation(projects.sampleCore)
     implementation(projects.mosaicCore)

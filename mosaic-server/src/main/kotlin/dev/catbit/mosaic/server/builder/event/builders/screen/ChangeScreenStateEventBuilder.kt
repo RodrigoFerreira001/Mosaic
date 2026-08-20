@@ -23,6 +23,20 @@ internal class ChangeScreenStateEventBuilder(
     )
 }
 
+/**
+ * Moves the screen this event lives in to another [state] — [initialState] (its loading state),
+ * [failureState] (its failure state), or [successState] with the content to display. For success,
+ * the content comes from the data passed to [successState] when set, otherwise from
+ * `incomingData`, which must then be a `ScreenModel` — typically the one produced by a preceding
+ * `GetScreen`. Dispatches `onSuccess` (no data) when the state was applied; `onFailure` (no data,
+ * logged) when applying it throws, including a success state with no declared data and no
+ * `ScreenModel` in `incomingData`.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param state Target screen state, built with [initialState], [failureState] or [successState].
+ */
 fun EventSchemaBuilderScope.ChangeScreenState(
     id: String = randomId(),
     trigger: EventTrigger,
@@ -39,8 +53,13 @@ fun EventSchemaBuilderScope.ChangeScreenState(
     )
 }
 
+/** Screen's loading state — its `initialTiles`/`initialEvents` are shown. */
 fun initialState() = State.Initial
+
+/** Screen's failure state — its `failureTiles`/`failureEvents` are shown. */
 fun failureState() = State.Failure
+
+/** Screen's success state, showing [data]'s content — or, when `null`, `incomingData` as the `ScreenModel` instead. */
 fun successState(
     data: ScreenData? = null
 ) = State.Success(data)

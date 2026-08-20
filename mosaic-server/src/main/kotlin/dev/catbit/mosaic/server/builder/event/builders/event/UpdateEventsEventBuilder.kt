@@ -25,6 +25,19 @@ internal class UpdateEventsEventBuilder(
     )
 }
 
+/**
+ * Patches events already registered on the screen. Each [updates] entry (built with `update`)
+ * targets an event by id and merges a data map into it, the same way `UpdateTiles` patches a
+ * tile, so a chain can rewrite another event's parameters before it runs. All updates are
+ * attempted even if one fails. Does not consume `incomingData`. Dispatches `onSuccess` (no data)
+ * when every update was applied; `onFailure` (no data), once at the end, when at least one failed
+ * — typically because no event carries that id.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param updates Target-event patches, declared with `update`.
+ */
 fun EventSchemaBuilderScope.UpdateEvents(
     id: String = randomId(),
     trigger: EventTrigger,
@@ -54,6 +67,12 @@ class UpdateEventsUpdateBuilder(
 
 class UpdateEventsUpdateBuilderScope : GenericBuilderScope<Update, UpdateEventsUpdateBuilder>() {
 
+    /**
+     * Declares one patch inside an `UpdateEvents` event.
+     *
+     * @param eventId Id of the target event to patch.
+     * @param data Key-value pairs merged into the target event's own parameters.
+     */
     fun update(
         eventId: String,
         data: Map<String, AnySerializable?>

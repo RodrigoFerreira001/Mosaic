@@ -1,7 +1,9 @@
 package dev.catbit.mosaic.core.data.schemas.tile.tiles.menu
 
 import androidx.compose.runtime.Immutable
+import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnMenuItemClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
@@ -10,26 +12,28 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a [Box] that overlays a [DropdownMenu] on top of its [tiles] children. The [tiles]
- * are the anchor content (e.g. an icon button that triggers the menu). The dropdown is shown
- * or hidden based on [expanded]. Each [MenuItem] in [items] is rendered as a
- * [DropdownMenuItem] with a text label and optional leading/trailing icons.
+ * Renders an anchor — [tiles], laid out with `Box` semantics and carrying [style] and
+ * [visibility] — with a Material 3 `DropdownMenu` attached to it. The menu lists one
+ * `DropdownMenuItem` per entry in [items], each showing its
+ * [MenuItem.label] plus the optional [MenuItem.leadingIcon] and [MenuItem.trailingIcon]. The
+ * menu uses the large theme shape, respects the system bars and is capped at 400dp tall
+ * (scrolling beyond that).
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `tiles: SerializableImmutableList<TileSchema>`, `items: SerializableImmutableList<MenuItem>`,
- * `expanded: Boolean`
+ * **Open state:** [expanded] drives the menu. Dismissing it (tapping outside or pressing back)
+ * dispatches a local `MenuTileEvents.OnToggleMenu` and the holder flips [expanded], so closing
+ * by gesture needs no server round trip. Opening and closing from the server side is done with
+ * `ToggleMenuEventSchema` pointing at this tile's [id] — typically wired to the anchor's click
+ * to open, and to an item's click chain to close after acting on the selection.
  *
- * **Triggers dispatched:** `OnMenuItemClickEventTrigger` — fired when any menu item is
- * tapped, carrying the clicked item's [id] as the trigger parameter.
+ * **Triggers dispatched:**
+ * - `OnMenuItemClickEventTrigger` — fired when an item is tapped, carrying that item's
+ *   [MenuItem.id], so events can be wired per item.
  *
- * **Notes:** The open/closed state of the dropdown is server-driven via [expanded]. When the
- * user dismisses the menu by tapping outside it, the renderer dispatches the internal
- * `MenuTileEvents.OnToggleMenu` event, which the client-side tile holder uses to request a
- * server update. The server must then respond with an UpdateTiles setting [expanded] to
- * `false`. The [MenuItem.leadingIcon] and [MenuItem.trailingIcon] are rendered using the
- * icon name string directly.
+ * **Notes:** [style] and [visibility] apply to the anchor only — the dropdown itself is
+ * positioned by Material and is not affected by them.
  */
 @Immutable
+@Triggers([OnMenuItemClickEventTrigger::class])
 @Serializable
 @SerialName("Menu")
 data class MenuTileSchema(

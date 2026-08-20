@@ -3,6 +3,8 @@ package dev.catbit.mosaic.client.extensions
 import androidx.compose.ui.text.font.FontWeight
 import dev.catbit.mosaic.core.data.schemas.text.FontWeightSchema
 
+/** Converts the wire-format [FontWeightSchema] into its Compose [FontWeight] counterpart — used
+ * wherever `SimpleText`/`TextField` resolve `fontWeight`. */
 fun FontWeightSchema.toFontWeight(): FontWeight = when (this) {
     FontWeightSchema.THIN -> FontWeight.Thin
     FontWeightSchema.EXTRA_LIGHT -> FontWeight.ExtraLight

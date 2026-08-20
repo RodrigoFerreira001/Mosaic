@@ -8,4 +8,5 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnUploadProgress")
+/** Fires repeatedly on `UploadFile` as the upload progresses, carrying progress as incoming data. */
 object OnUploadProgressEventTrigger : EventTrigger

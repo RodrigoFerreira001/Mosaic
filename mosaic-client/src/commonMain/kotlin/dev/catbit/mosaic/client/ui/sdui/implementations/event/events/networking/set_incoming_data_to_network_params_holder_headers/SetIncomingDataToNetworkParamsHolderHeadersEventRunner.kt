@@ -11,7 +11,7 @@ object SetIncomingDataToNetworkParamsHolderHeadersEventRunner :
 
     @Suppress("UNCHECKED_CAST")
     override suspend fun EventRunningScope.runEvent(event: SetIncomingDataToNetworkParamsHolderHeadersEventSchema) {
-        incomingData?.asMapString()?.let {
+        incomingData?.asMapString()?.takeIf { it.isNotEmpty() }?.let {
             get<NetworkParametersHolder>().setHeaders(it)
             onTrigger(EventTriggers.onSuccess())
         } ?: run {

@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnTimeSelected")
+/** Fires on `TimePicker` when the confirm button is pressed, carrying the picked ISO time string
+ * (`HH:mm`) as incoming data. */
 data object OnTimeSelectedEventTrigger : EventTrigger

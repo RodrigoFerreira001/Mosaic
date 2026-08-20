@@ -8,4 +8,7 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnDownloadFailure")
+/** Fires alongside `onFailure()` when `DownloadFile`/`DownloadFileToDisk`/`DownloadFileToMemory`
+ * fails (not user cancellation — see `onCancelled()`), carrying the causing `Throwable` as incoming
+ * data. */
 object OnDownloadFailureEventTrigger : EventTrigger

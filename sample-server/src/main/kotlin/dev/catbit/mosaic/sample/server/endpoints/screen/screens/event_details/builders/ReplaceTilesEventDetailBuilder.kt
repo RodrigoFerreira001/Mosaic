@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -36,27 +33,56 @@ object ReplaceTilesEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Tile Management",
-                description = "Substitui atomicamente toda a lista de filhos de um container por um novo conjunto " +
-                    "— um wipe-then-add em uma única operação."
+                description = "Atomically replaces an entire container's list of children with a new set " +
+                    "— a wipe-then-add in a single operation. Use it when a container's whole content needs " +
+                    "to change at once — swapping a tab's content, reloading a list with fresh data from the " +
+                    "server. Unlike AddTiles, there's no position: the new tiles always fully replace the " +
+                    "previous list."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use quando o conteúdo inteiro de um container precisa mudar de uma vez — trocar o conteúdo de " +
-                    "uma aba, recarregar uma lista com dados novos vindos do servidor. Diferente de AddTiles, não " +
-                    "existe posição: os novos tiles sempre substituem completamente a lista anterior."
-            )
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Swap the entire content of the container below") {
+                Row(arrangement = arrangeHorizontallySpacedBy(8)) {
+                    Button(
+                        text = "Set A",
+                        buttonType = outlinedButton(),
+                        events = {
+                            ReplaceTiles(
+                                trigger = EventTriggers.onClick(),
+                                groupingTileId = "replace_tiles_container",
+                                tiles = {
+                                    ReplaceTilesRow(icon = "looks_one", label = "Content A — item 1")
+                                    ReplaceTilesRow(icon = "looks_two", label = "Content A — item 2")
+                                }
+                            )
+                        }
+                    )
+                    Button(
+                        text = "Set B",
+                        buttonType = outlinedButton(),
+                        events = {
+                            ReplaceTiles(
+                                trigger = EventTriggers.onClick(),
+                                groupingTileId = "replace_tiles_container",
+                                tiles = {
+                                    ReplaceTilesRow(icon = "star", label = "Content B — single highlight")
+                                }
+                            )
+                        }
+                    )
+                }
+                Column(
+                    id = "replace_tiles_container",
+                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
+                    arrangement = arrangeVerticallySpacedBy(8)
+                ) {
+                    ReplaceTilesRow(icon = "looks_one", label = "Content A — item 1")
+                    ReplaceTilesRow(icon = "looks_two", label = "Content A — item 2")
+                }
+                ShowroomNote("Each click replaces 100% of replace_tiles_container's children — there's no position to configure, unlike AddTiles.")
+            }
 
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("groupingTileId", "String", "Obrigatório. ID do container alvo."),
-                    ShowroomParam("tiles", "TileSchemaBuilderScope.() -> Unit", "Obrigatório. Nova lista de tiles; lista vazia = esvaziar."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 ReplaceTiles(
@@ -70,48 +96,6 @@ object ReplaceTilesEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Troque o conteúdo inteiro do container abaixo") {
-                Row(arrangement = arrangeHorizontallySpacedBy(8)) {
-                    Button(
-                        text = "Conjunto A",
-                        buttonType = outlinedButton(),
-                        events = {
-                            ReplaceTiles(
-                                trigger = EventTriggers.onClick(),
-                                groupingTileId = "replace_tiles_container",
-                                tiles = {
-                                    ReplaceTilesRow(icon = "looks_one", label = "Conteúdo A — item 1")
-                                    ReplaceTilesRow(icon = "looks_two", label = "Conteúdo A — item 2")
-                                }
-                            )
-                        }
-                    )
-                    Button(
-                        text = "Conjunto B",
-                        buttonType = outlinedButton(),
-                        events = {
-                            ReplaceTiles(
-                                trigger = EventTriggers.onClick(),
-                                groupingTileId = "replace_tiles_container",
-                                tiles = {
-                                    ReplaceTilesRow(icon = "star", label = "Conteúdo B — destaque único")
-                                }
-                            )
-                        }
-                    )
-                }
-                Column(
-                    id = "replace_tiles_container",
-                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
-                    arrangement = arrangeVerticallySpacedBy(8)
-                ) {
-                    ReplaceTilesRow(icon = "looks_one", label = "Conteúdo A — item 1")
-                    ReplaceTilesRow(icon = "looks_two", label = "Conteúdo A — item 2")
-                }
-                ShowroomNote("Cada clique substitui 100% dos filhos de replace_tiles_container — não há posição a configurar, como haveria em AddTiles.")
-            }
 
             ShowroomRelated(
                 names = listOf("AddTiles", "WipeTiles", "ReloadLazyTiles"),

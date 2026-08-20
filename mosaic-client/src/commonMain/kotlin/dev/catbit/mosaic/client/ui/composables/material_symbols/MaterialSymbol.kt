@@ -14,6 +14,23 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import dev.catbit.mosaic.client.ui.modifiers.thenIfNotNull
 
+/**
+ * Renders one Google Material Symbol glyph as a single-character [Text], using the variable font
+ * loaded via [LocalMaterialSymbolFonts] ([MaterialSymbolFonts.loadMaterialSymbolFonts] must have run
+ * and provided that `CompositionLocal` — `MosaicApplication`/`MosaicTheme` does this automatically).
+ * The bottom-level primitive behind `Icon` — reach for that instead unless working with an
+ * `IconSchema`-independent icon name directly.
+ *
+ * @param iconName Material Symbol name (Google's icon font naming, e.g. `"settings"`).
+ * @param modifier applied to the rendered glyph.
+ * @param filled whether to use the filled font variant, vs. the outline weight.
+ * @param style which of the 3 font families (outlined/rounded/sharp) to draw from. Outlined when
+ * `null`.
+ * @param size glyph size. Falls back to the ambient `LocalTextStyle`'s font size when `null`.
+ * @param tint glyph color. Falls back to `LocalContentColor` when `null`.
+ * @param contentDescription accessibility description; when non-null, marks this glyph with the
+ * `Role.Image` semantics role.
+ */
 @Composable
 fun MaterialSymbol(
     iconName: String,
@@ -60,6 +77,8 @@ fun MaterialSymbol(
     )
 }
 
+/** Which of the 3 bundled Material Symbols font families a glyph draws from — matches
+ * [IconSchema.Style] one-to-one (see `IconSchema.Style.toMaterialSymbolStyle()`). */
 enum class MaterialSymbolStyle {
     OUTLINED, ROUNDED, SHARP
 }

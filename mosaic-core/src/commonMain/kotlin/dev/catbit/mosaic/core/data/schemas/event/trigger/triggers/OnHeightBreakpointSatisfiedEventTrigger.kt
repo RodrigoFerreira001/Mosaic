@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnHeightBreakpointSatisfied")
+/** Fires on `AdaptiveVisibility` on first composition and every height change, when its
+ * `heightVisibility` condition is satisfied. */
 object OnHeightBreakpointSatisfiedEventTrigger : EventTrigger

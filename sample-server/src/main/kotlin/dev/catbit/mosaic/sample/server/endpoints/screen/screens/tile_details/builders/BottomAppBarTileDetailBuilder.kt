@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -25,26 +22,36 @@ object BottomAppBarTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "App Bars",
-                description = "Barra de fundo Material 3 com ações à esquerda e um FAB opcional ancorado à direita."
+                description = "A Material 3 bottom bar with actions on the left and an optional FAB anchored " +
+                    "on the right. actions runs inside a RowScope — children can use weight modifiers via " +
+                    "LocalRowScope. floatingActionButton stays anchored on the right, separate from the " +
+                    "normal actions flow."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "actions roda dentro de um RowScope — os filhos podem usar modifiers de peso (weight) " +
-                    "via LocalRowScope. floatingActionButton fica ancorado à direita, separado do fluxo " +
-                    "normal de actions."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("actions", "TileSchemaBuilderScope.() -> Unit", "Padrão {}. Tiles de ação à esquerda."),
-                    ShowroomParam("floatingActionButton", "( -> Unit)?", "FAB ancorado à direita."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "2 actions + FAB, all firing real events") {
+                BottomAppBar(
+                    style = { size(width = fillHorizontally()) },
+                    actions = {
+                        IconButton(
+                            icon = icon("delete"),
+                            events = { DisplaySnackbar(trigger = EventTriggers.onClick(), message = "Delete clicked") }
+                        )
+                        IconButton(
+                            icon = icon("share"),
+                            events = { DisplaySnackbar(trigger = EventTriggers.onClick(), message = "Share clicked") }
+                        )
+                    },
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            icon = icon("add"),
+                            events = { DisplaySnackbar(trigger = EventTriggers.onClick(), message = "FAB clicked") }
+                        )
+                    }
                 )
-            )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 BottomAppBar(
@@ -59,29 +66,6 @@ object BottomAppBarTileDetailBuilder : TileDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "2 ações + FAB, todos disparando eventos reais") {
-                BottomAppBar(
-                    style = { size(width = fillHorizontally()) },
-                    actions = {
-                        IconButton(
-                            icon = icon("delete"),
-                            events = { DisplaySnackbar(trigger = EventTriggers.onClick(), message = "Excluir clicado") }
-                        )
-                        IconButton(
-                            icon = icon("share"),
-                            events = { DisplaySnackbar(trigger = EventTriggers.onClick(), message = "Compartilhar clicado") }
-                        )
-                    },
-                    floatingActionButton = {
-                        FloatingActionButton(
-                            icon = icon("add"),
-                            events = { DisplaySnackbar(trigger = EventTriggers.onClick(), message = "FAB clicado") }
-                        )
-                    }
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("TopAppBar", "FloatingActionButton", "IconButton"),

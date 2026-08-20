@@ -21,6 +21,17 @@ internal class OpenExternalLinkEventBuilder(
     )
 }
 
+/**
+ * Hands [url] to the platform so it opens outside the app — the system browser, or whichever app
+ * claims the scheme. Does not consume `incomingData`. Dispatches `onSuccess` (no data) after the
+ * platform accepted the request; `onFailure` (carrying the thrown exception, logged) when opening
+ * throws, e.g. because nothing on the device handles the URL.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param url URL to open outside the app.
+ */
 fun EventSchemaBuilderScope.OpenExternalLink(
     id: String = randomId(),
     trigger: EventTrigger,

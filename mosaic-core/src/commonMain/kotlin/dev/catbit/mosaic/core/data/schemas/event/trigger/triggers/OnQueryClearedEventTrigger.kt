@@ -8,4 +8,5 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnQueryCleared")
+/** Fires on `SearchBar` when the query is cleared. */
 object OnQueryClearedEventTrigger : EventTrigger

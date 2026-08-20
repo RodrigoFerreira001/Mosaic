@@ -9,18 +9,15 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 [Badge] — a small colored dot or pill typically used to indicate a
- * notification count or status. When [content] is non-null, the text is displayed inside the
- * badge pill. When [content] is `null`, only a plain dot badge is rendered.
+ * Renders a Material 3 `Badge`. When [content] is non-null it is rendered as the badge's text
+ * label and the badge takes its larger, pill-shaped form; when `null` the badge is the small
+ * empty dot.
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `content: String?`
+ * **Triggers dispatched:** none. The badge emits no trigger and is not clickable, so any
+ * `events` declared on it are never fired.
  *
- * **Triggers dispatched:** None. This tile does not dispatch any event triggers.
- *
- * **Notes:** The badge is typically used as a child inside a [BadgedBox] composable provided
- * by the parent tile. It is not interactive by itself. To remove the badge, either hide it
- * via `visibility` or clear [content] and rely on a parent container to control its placement.
+ * **Notes:** this tile is a standalone badge, not a `BadgedBox` — it does not attach itself to a
+ * sibling. Position it yourself, e.g. inside a `Box` aligned over the tile it decorates.
  */
 @Immutable
 @Serializable

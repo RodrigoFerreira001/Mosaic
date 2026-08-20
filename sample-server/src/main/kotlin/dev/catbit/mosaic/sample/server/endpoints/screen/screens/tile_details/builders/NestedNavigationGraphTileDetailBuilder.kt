@@ -1,16 +1,32 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders
 
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
+import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.TileDetailBuilder
+import dev.catbit.mosaic.server.builder.color.color
+import dev.catbit.mosaic.server.builder.color.themeColorOnSurfaceVariant
+import dev.catbit.mosaic.server.builder.event.builders.navigation.Navigate
+import dev.catbit.mosaic.server.builder.event.builders.navigation.NavigateUp
+import dev.catbit.mosaic.server.builder.icon.icon
+import dev.catbit.mosaic.server.builder.placement.alignVerticallyToCenter
+import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallySpacedBy
+import dev.catbit.mosaic.server.builder.placement.arrangeSpaceBetween
+import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.IconButton
+import dev.catbit.mosaic.server.builder.tile.builders.chips.AssistChip
+import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
+import dev.catbit.mosaic.server.builder.tile.builders.grouping.Row
+import dev.catbit.mosaic.server.builder.tile.builders.navigation.NestedNavigationGraph
+import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
+import dev.catbit.mosaic.server.builder.typography.typographyBodyMedium
+import dev.catbit.mosaic.server.builder.typography.typographyTitleMedium
 
 object NestedNavigationGraphTileDetailBuilder : TileDetailBuilder {
 
@@ -19,28 +35,101 @@ object NestedNavigationGraphTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Navigation",
-                description = "Embute um NavDisplay completo do Navigation 3 dentro de uma tela — uma pilha de navegação própria, aninhada dentro da tela pai."
+                description = "Embeds a complete Navigation 3 NavDisplay inside a screen — its own navigation " +
+                    "stack, nested within the parent screen. Use it for master-detail layouts or a section with " +
+                    "its own back stack (e.g. a wizard inside a larger screen). The navigator is registered in " +
+                    "NavigatorsHolder under navigatorId and automatically unregistered when the tile leaves " +
+                    "composition. The system back gesture pops this graph's own stack, not the outer screen's."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra layouts master-detail ou uma seção com back stack próprio (ex: um wizard " +
-                    "dentro de uma tela maior). O navigator é registrado em NavigatorsHolder sob " +
-                    "navigatorId e desregistrado automaticamente quando o tile sai de composição."
-            )
+            ShowroomSectionTitle("Interactive demo — a real 2-entry nested stack")
+            ShowroomDemoCard(title = "Tap an item — navigates inside this box only, the outer showroom doesn't move") {
+                Column(
+                    style = {
+                        size(width = fillHorizontally(), height = fixedVertically(260))
+                        clip(roundedCornerShape(all = 12))
+                    }
+                ) {
+                    NestedNavigationGraph(
+                        style = { size(width = fillHorizontally(), height = fillVertically()) },
+                        navigatorId = "nested_nav_demo",
+                        startEntryId = "nested_demo_list",
+                        entries = {
+                            entry(
+                                screenId = "nested_demo_list",
+                                initialEvents = { /* static content — no GetScreen round trip */ },
+                                initialTiles = {
+                                    Column(
+                                        style = {
+                                            size(width = fillHorizontally(), height = fillVertically())
+                                            padding(horizontal = 20, vertical = 20)
+                                        },
+                                        arrangement = arrangeVerticallySpacedBy(12)
+                                    ) {
+                                        SimpleText(text = "Trails", typography = typographyTitleMedium())
+                                        listOf("Mountain trail", "Coastal walk", "Forest loop").forEach { trail ->
+                                            Row(
+                                                style = { size(width = fillHorizontally(), height = wrapVertically()) },
+                                                arrangement = arrangeSpaceBetween(),
+                                                alignment = alignVerticallyToCenter(),
+                                                events = {
+                                                    Navigate(
+                                                        trigger = EventTriggers.onClick(),
+                                                        navigatorId = "nested_nav_demo",
+                                                        destination = "nested_demo_detail"
+                                                    )
+                                                }
+                                            ) {
+                                                SimpleText(text = trail, typography = typographyBodyMedium())
+                                                IconButton(icon = icon("chevron_right"))
+                                            }
+                                        }
+                                    }
+                                }
+                            )
+                            entry(
+                                screenId = "nested_demo_detail",
+                                initialEvents = { /* static content — no GetScreen round trip */ },
+                                initialTiles = {
+                                    Column(
+                                        style = {
+                                            size(width = fillHorizontally(), height = fillVertically())
+                                            padding(horizontal = 20, vertical = 20)
+                                        },
+                                        arrangement = arrangeVerticallySpacedBy(12)
+                                    ) {
+                                        Row(
+                                            arrangement = arrangeHorizontallySpacedBy(8),
+                                            alignment = alignVerticallyToCenter()
+                                        ) {
+                                            IconButton(
+                                                icon = icon("arrow_back"),
+                                                events = {
+                                                    NavigateUp(trigger = EventTriggers.onClick(), navigatorId = "nested_nav_demo")
+                                                }
+                                            )
+                                            SimpleText(text = "Back", typography = typographyBodyMedium())
+                                        }
+                                        SimpleText(text = "Trail detail", typography = typographyTitleMedium())
+                                        SimpleText(
+                                            text = "This is entry #2 of the nested graph's own back stack — the " +
+                                                "outer showroom screen never moved.",
+                                            typography = typographyBodyMedium(),
+                                            color = color(themeColorOnSurfaceVariant())
+                                        )
+                                        AssistChip(
+                                            text = "NavigateUp targets navigatorId = \"nested_nav_demo\"",
+                                            events = {}
+                                        )
+                                    }
+                                }
+                            )
+                        }
+                    )
+                }
+            }
 
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("navigatorId", "String", "Obrigatório. Chave de registro em NavigatorsHolder."),
-                    ShowroomParam("startEntryId", "String", "Obrigatório. screenId da entrada inicial."),
-                    ShowroomParam("defaultTransition / defaultPopTransition / defaultPredictivePopTransition", "ContentTransitionSchema?", "Transições padrão do grafo, sobrescrevíveis por entry."),
-                    ShowroomParam("entries", "NestedNavigationGraphEntryBuilderScope.() -> Unit", "Obrigatório. Use entry(screenId, initialTiles, initialEvents, failureTiles, failureEvents)."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 NestedNavigationGraph(
@@ -56,7 +145,7 @@ object NestedNavigationGraphTileDetailBuilder : TileDetailBuilder {
                         entry(
                             screenId = "detail",
                             initialTiles = { DetailScreen() },
-                            failureTiles = { SimpleText(text = "Erro ao carregar detalhe") }
+                            failureTiles = { SimpleText(text = "Failed to load detail") }
                         )
                     }
                 )
@@ -64,12 +153,12 @@ object NestedNavigationGraphTileDetailBuilder : TileDetailBuilder {
             )
 
             ShowroomNote(
-                "É o tile mais estrutural do Mosaic — embutir um NestedNavigationGraph dentro de uma " +
-                    "tela de detalhe isolada, aqui neste showroom, exigiria montar um sub-grafo completo " +
-                    "com duas telas reais. Prefira consultar o próprio HomeScreenBuilder.kt do sample-server " +
-                    "(ele usa AdaptiveNavigation, o mecanismo de nível mais alto que compõe navegação " +
-                    "adaptável em cima do mesmo conceito de navigators registrados) como referência viva " +
-                    "deste padrão em produção."
+                text = "The demo above overrides initialEvents to an empty block per entry, so its content " +
+                    "is purely static (no GetScreen round trip, no server route needed for \"nested_demo_list\"/" +
+                    "\"nested_demo_detail\"). In production you'd usually leave initialEvents at its default — " +
+                    "a GetScreen against a real screenId — so each entry fetches its own screen the same way " +
+                    "the outer app does. See HomeScreenBuilder.kt (AdaptiveNavigation) for that fuller, " +
+                    "network-backed pattern in this same sample-server."
             )
 
             ShowroomRelated(

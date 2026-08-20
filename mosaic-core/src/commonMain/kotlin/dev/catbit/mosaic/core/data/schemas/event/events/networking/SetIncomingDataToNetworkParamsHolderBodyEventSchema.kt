@@ -6,41 +6,26 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Stores `incomingData` as the request body in the [NetworkParametersHolder], making it available
- * to the next network event ([SendNetworkRequestEventSchema], [GetScreenEventSchema],
- * [DownloadFileEventSchema]) that executes in the same event chain.
+ * Stores the event's incomingData as the request body in the client's `NetworkParametersHolder`,
+ * so a later request in the chain picks it up instead of carrying the body on its own schema.
  *
- * The holder is consumed (and reset to `null`) on the next network call, regardless of whether
- * this event set anything. Body and headers set via the holder are overridden by explicit
- * `body`/`headers` values in the network schema if both are present — the schema takes precedence.
- *
- * **incomingData consumed:** Any non-null value is stored as the body. `null` incomingData fires
- * [onFailure()] and nothing is stored.
+ * **incomingData consumed:** required; any non-null value is accepted as-is.
  *
  * **Triggers fired:**
- * - [onSuccess()] – body stored successfully; incomingData is forwarded unchanged.
- * - [onFailure()] – incomingData is `null`; nothing is stored.
- *
- * **Typical usage:**
- * ```kotlin
- * GetData(trigger = EventTriggers.onClick(), readings = { ... }, events = {
- *     SetIncomingDataToNetworkParamsHolderBody(trigger = EventTriggers.onSuccess(), events = {
- *         SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/...", method = HttpMethod.POST)
- *         // SendNetworkRequest picks up the body from the holder automatically
- *     })
- * })
- * ```
+ * - `OnSuccessEventTrigger` — when the body was stored. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when incomingData is `null`; no data is passed downstream and the
+ *   error is logged.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

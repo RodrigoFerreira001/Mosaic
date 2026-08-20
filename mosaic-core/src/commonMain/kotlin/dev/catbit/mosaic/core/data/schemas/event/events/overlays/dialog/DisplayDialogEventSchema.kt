@@ -12,29 +12,25 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Displays a dialog overlay populated with a server-defined tile tree. The dialog is shown
- * immediately when this event runs; no network call is made.
+ * Shows a dialog built from [tiles], registered under [dialogId] so a later `DismissDialog` can
+ * close it.
  *
- * **incomingData consumed:** Not used.
+ * [isCancellable] decides whether the user can dismiss it with the back gesture or a scrim tap,
+ * and [usePlatformDefaultWidth] whether the dialog keeps the platform's default width or is free
+ * to size itself from its content.
  *
- * **Triggers fired:** None. This event fires no lifecycle triggers; it only pushes the
- * overlay state to the screen via [ScreenTileBroadcastData.OnDisplayDialogRequested].
+ * **incomingData consumed:** not used.
  *
- * **Failure scenarios:** None defined. The runner does not perform any fallible operation.
- *
- * **Notes:**
- * - [tiles] is loaded into the overlay editor before the broadcast is sent, so the dialog
- *   content is ready before the screen reacts to the broadcast.
- * - [isCancellable] controls whether the user can dismiss the dialog by tapping outside or
- *   pressing back; non-cancellable dialogs can only be closed via [DismissDialogEventSchema].
- * - [usePlatformDefaultWidth] defers the dialog width to the platform default when `true`;
- *   set to `false` to let the tile tree control its own width.
+ * **Triggers fired:**
+ * - `OnSuccessEventTrigger` — when the dialog was added. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when it could not be added, typically because [dialogId] is already
+ *   in use; the `Throwable` is passed as incomingData.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

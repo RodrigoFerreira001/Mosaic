@@ -6,9 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -36,27 +33,88 @@ object CancelEventsEventDetailBuilder : EventDetailBuilder {
 
         ShowroomScaffold {
             ShowroomHero(
-                category = "Events / Meta",
-                description = "Interrompe a execução de uma cadeia de eventos cancelável, identificada pelo " +
-                    "mesmo cancellableEventId usado ao iniciá-la com RunCancellableEvents."
+                description = "Stops a cancellable event chain, identified by the same cancellableEventId used " +
+                    "when starting it with RunCancellableEvents. Use it to stop a long-running process before it " +
+                    "finishes on its own — for example, a StartTimeLoop running inside a RunCancellableEvents, " +
+                    "cancelled when the user leaves the screen or taps \"stop\". CancelEvents always fires " +
+                    "onSuccess() immediately, whether or not a chain with that id is currently running."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra parar um processo de longa duração antes que ele termine sozinho — por exemplo, um " +
-                    "StartTimeLoop rodando dentro de um RunCancellableEvents, cancelado quando o usuário sai " +
-                    "da tela ou toca em \"parar\". CancelEvents sempre dispara onSuccess() imediatamente, " +
-                    "independente de haver ou não uma cadeia com aquele id rodando no momento."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("cancellableEventId", "String", "Obrigatório. Mesmo id passado ao RunCancellableEvents que iniciou a cadeia a cancelar."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Start a cancellable loop and interrupt it") {
+                SimpleText(
+                    id = "cancel_events_status",
+                    text = "Stopped",
+                    typography = typographyBodyMedium()
                 )
-            )
+                Row(
+                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
+                    arrangement = arrangeHorizontallySpacedBy(8)
+                ) {
+                    Button(
+                        text = "Start cancellable loop",
+                        events = {
+                            RunCancellableEvents(
+                                trigger = EventTriggers.onClick(),
+                                cancellableEventId = cancellableId,
+                                events = {
+                                    UpdateTiles(
+                                        trigger = EventTriggers.inline(),
+                                        updates = {
+                                            update(
+                                                "cancel_events_status",
+                                                inlineTileUpdateData("text" to "Running...")
+                                            )
+                                        }
+                                    )
+                                    StartTimeLoop(
+                                        trigger = EventTriggers.inline(),
+                                        timeData = seconds(1),
+                                        events = {
+                                            UpdateTiles(
+                                                trigger = EventTriggers.onTimeLoop(),
+                                                updates = {
+                                                    update(
+                                                        "cancel_events_status",
+                                                        inlineTileUpdateData("text" to "Tick received — still running")
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                    Button(
+                        text = "Cancel with CancelEvents",
+                        buttonType = outlinedButton(),
+                        events = {
+                            CancelEvents(
+                                trigger = EventTriggers.onClick(),
+                                cancellableEventId = cancellableId,
+                                events = {
+                                    UpdateTiles(
+                                        trigger = EventTriggers.onSuccess(),
+                                        updates = {
+                                            update(
+                                                "cancel_events_status",
+                                                inlineTileUpdateData("text" to "Cancelled ✓")
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+                ShowroomNote(
+                    "After cancelling, the text stops changing even after a second passes — the StartTimeLoop " +
+                        "inside the RunCancellableEvents was really interrupted, not just \"visually paused\"."
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 val loopId = randomId()
@@ -74,81 +132,6 @@ object CancelEventsEventDetailBuilder : EventDetailBuilder {
                 CancelEvents(trigger = EventTriggers.onClick(), cancellableEventId = loopId)
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Inicie um loop cancelável e interrompa-o") {
-                SimpleText(
-                    id = "cancel_events_status",
-                    text = "Parado",
-                    typography = typographyBodyMedium()
-                )
-                Row(
-                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
-                    arrangement = arrangeHorizontallySpacedBy(8)
-                ) {
-                    Button(
-                        text = "Iniciar loop cancelável",
-                        events = {
-                            RunCancellableEvents(
-                                trigger = EventTriggers.onClick(),
-                                cancellableEventId = cancellableId,
-                                events = {
-                                    UpdateTiles(
-                                        trigger = EventTriggers.inline(),
-                                        updates = {
-                                            update(
-                                                "cancel_events_status",
-                                                inlineTileUpdateData("text" to "Rodando...")
-                                            )
-                                        }
-                                    )
-                                    StartTimeLoop(
-                                        trigger = EventTriggers.inline(),
-                                        timeData = seconds(1),
-                                        events = {
-                                            UpdateTiles(
-                                                trigger = EventTriggers.onTimeLoop(),
-                                                updates = {
-                                                    update(
-                                                        "cancel_events_status",
-                                                        inlineTileUpdateData("text" to "Tique recebido — ainda rodando")
-                                                    )
-                                                }
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    )
-                    Button(
-                        text = "Cancelar com CancelEvents",
-                        buttonType = outlinedButton(),
-                        events = {
-                            CancelEvents(
-                                trigger = EventTriggers.onClick(),
-                                cancellableEventId = cancellableId,
-                                events = {
-                                    UpdateTiles(
-                                        trigger = EventTriggers.onSuccess(),
-                                        updates = {
-                                            update(
-                                                "cancel_events_status",
-                                                inlineTileUpdateData("text" to "Cancelado ✓")
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    )
-                }
-                ShowroomNote(
-                    "Depois de cancelar, o texto para de mudar mesmo que um segundo se passe — o " +
-                        "StartTimeLoop de dentro do RunCancellableEvents foi interrompido de verdade, não só " +
-                        "\"pausado visualmente\"."
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("RunCancellableEvents", "StartTimeLoop", "TriggerEvent"),

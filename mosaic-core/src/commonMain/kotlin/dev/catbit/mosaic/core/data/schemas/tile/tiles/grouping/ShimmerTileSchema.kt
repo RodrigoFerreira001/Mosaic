@@ -11,21 +11,16 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a shimmer loading effect over its child tiles using the
- * [compose-shimmer](https://github.com/valentinilk/compose-shimmer) library. The shimmer
- * animation is applied as a modifier on a [Box] that wraps all children, producing an
- * animated highlight sweep across the entire subtree simultaneously.
+ * Renders a `Box` hosting [tiles] with a continuously animated shimmer applied over its whole
+ * subtree (via the `compose-shimmer` library), the usual way to build a skeleton/loading
+ * placeholder out of plain tiles.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`
+ * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id).
  *
- * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
- * composition.
- *
- * **Notes:** The shimmer effect is always active while the tile is visible; there is no
- * on/off flag. To stop the shimmer, the server should replace or hide this tile via
- * UpdateTiles. Children are rendered normally inside the shimmer container, so placeholder
- * shapes should be provided as child tiles to produce a meaningful skeleton UI.
+ * **Notes:** the shimmer is purely visual — children stay interactive, so build the placeholder
+ * out of non-clickable tiles. The tile is never clickable itself, and children are laid out with
+ * `Box` semantics (stacked, no scope CompositionLocal).
  */
 @Immutable
 @Triggers([OnDisplayEventTrigger::class])

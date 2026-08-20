@@ -35,31 +35,26 @@ object PagerTileRenderer : TileRenderer<PagerTileSchema> {
                 snapshotFlow { pagerState.currentPage }
                     .drop(1)
                     .collect { page ->
-                        triggerEvent(EventTriggers.onPageChanged(Direction.Any))
-                        if (page == 0) triggerEvent(EventTriggers.onPageChanged(Direction.Start))
-                        if (page == pagerState.pageCount - 1) triggerEvent(EventTriggers.onPageChanged(Direction.End))
-                        triggerEvent(EventTriggers.onPageChanged(Direction.Index(page)))
+                        triggerEvent(EventTriggers.onPageChanged(Direction.Any), data = page)
+                        if (page == 0) triggerEvent(EventTriggers.onPageChanged(Direction.Start), data = page)
+                        if (page == pagerState.pageCount - 1) triggerEvent(EventTriggers.onPageChanged(Direction.End), data = page)
+                        triggerEvent(EventTriggers.onPageChanged(Direction.Index(page)), data = page)
                     }
             }
 
             observeScreenTileBroadcastChannel<PagerTileScreenTilesBroadcastData> { data ->
-                when (data) {
-                    is PagerTileScreenTilesBroadcastData.ScrollToBegin -> if (data.smoothly)
-                        pagerState.animateScrollToPage(0)
-                    else pagerState.scrollToPage(0)
 
-                    is PagerTileScreenTilesBroadcastData.ScrollToEnd -> if (data.smoothly)
-                        pagerState.animateScrollToPage(pagerState.pageCount)
-                    else pagerState.scrollToPage(pagerState.pageCount)
+                val lastPage = (pagerState.pageCount - 1).coerceAtLeast(0)
 
-                    is PagerTileScreenTilesBroadcastData.ScrollToNextPage -> if (data.smoothly)
-                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                    else pagerState.scrollToPage(pagerState.currentPage + 1)
+                val targetPage = when (data) {
+                    is PagerTileScreenTilesBroadcastData.ScrollToBegin -> 0
+                    is PagerTileScreenTilesBroadcastData.ScrollToEnd -> lastPage
+                    is PagerTileScreenTilesBroadcastData.ScrollToNextPage -> pagerState.currentPage + 1
+                    is PagerTileScreenTilesBroadcastData.ScrollToPreviousPage -> pagerState.currentPage - 1
+                }.coerceIn(0, lastPage)
 
-                    is PagerTileScreenTilesBroadcastData.ScrollToPreviousPage -> if (data.smoothly)
-                        pagerState.animateScrollToPage(pagerState.currentPage - 1)
-                    else pagerState.scrollToPage(pagerState.currentPage - 1)
-                }
+                if (data.smoothly) pagerState.animateScrollToPage(targetPage)
+                else pagerState.scrollToPage(targetPage)
             }
 
             HorizontalPager(

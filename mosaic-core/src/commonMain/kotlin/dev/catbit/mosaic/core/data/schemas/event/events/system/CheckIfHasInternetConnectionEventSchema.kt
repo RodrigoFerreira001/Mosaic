@@ -5,33 +5,29 @@ import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Checks whether the device currently has an active internet connection by issuing a lightweight
- * HTTP GET request to a captive-portal-style probe endpoint.
+ * Asks the client's network layer whether the device currently has an internet connection, and
+ * branches on the answer. Runs on the IO dispatcher.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — fires when the probe request succeeds, with no incomingData payload.
- * - [OnFailureEventTrigger] — fires when the probe request fails (no connection, timeout, or
- *   non-success response), with no incomingData payload.
- *
- * **Failure scenarios:** Any exception raised by the underlying HTTP client (no connection, DNS
- * failure, timeout) is caught and treated as "no internet connection" rather than propagated.
- *
- * **Notes:** This event carries no extra fields beyond the base [EventSchema] contract. The
- * check is a reachability probe, not a guarantee that any particular host is reachable.
+ * - `OnStartEventTrigger` — before the check is performed.
+ * - `OnSuccessEventTrigger` — when there is a connection. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when there is none. No data is passed downstream.
  */
 @Immutable
 @Triggers(
     [
+        OnStartEventTrigger::class,
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

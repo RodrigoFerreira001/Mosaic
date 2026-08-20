@@ -14,6 +14,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * Owns the app-level loading state — `MosaicApplication`'s own `ViewModel`, fetching the initial
+ * navigation graph before any screen can render. This is where [CheckCacheVersionUseCase] runs
+ * *before* [GetInitialGraphUseCase] (see [getInitialGraph]), so a stale local cache never serves an
+ * outdated graph on cold start. Each entry's `initialTiles`/`initialEvents`/`failureTiles`/
+ * `failureEvents`/transitions are staged into [ScreenExtrasHolder] as soon as the graph is known, via
+ * [setupScreenExtras], ready for whenever each individual screen actually opens.
+ */
 internal class MosaicApplicationStateHolder(
     private val logger: MosaicLogger,
     private val getInitialGraphUseCase: GetInitialGraphUseCase,
@@ -33,6 +41,8 @@ internal class MosaicApplicationStateHolder(
         getInitialGraph()
     }
 
+    /** Kicks off the cold-start sequence: a fixed 1-second delay (letting the splash screen show
+     * briefly rather than flashing instantly), then [checkCacheVersionUseCase], then [getGraph]. */
     private fun getInitialGraph() {
         stateHolderScope.launch {
             delay(1.seconds)
@@ -41,6 +51,9 @@ internal class MosaicApplicationStateHolder(
         }
     }
 
+    /** Fetches the initial graph and moves [internalUIState] to [State.Displaying] on success (after
+     * staging every entry's extras via [setupScreenExtras]), or to [State.Failure] on failure, logging
+     * the cause. */
     private suspend fun getGraph() {
         getInitialGraphUseCase()
             .onSuccess { graphModel ->
@@ -74,6 +87,8 @@ internal class MosaicApplicationStateHolder(
             }
     }
 
+    /** Retries the initial-graph fetch — bound to `Event.OnTryAgainClick`, fired by the retry button
+     * on the app-level failure screen. */
     private fun tryAgain() {
         internalUIState.update {
             State.Failure(loading = true)
@@ -84,6 +99,9 @@ internal class MosaicApplicationStateHolder(
     }
 
 
+    /** Registers every graph entry's `initialTiles`/`initialEvents`/`failureTiles`/`failureEvents`/
+     * transitions in [screenExtrasHolder], keyed by `screenId` — decoupling "the graph loaded" from
+     * "this specific screen was opened," since a screen may go unvisited for a while after this runs. */
     private fun setupScreenExtras(graphModel: GraphModel) {
         graphModel.entries.forEach { entry ->
             with(entry) {

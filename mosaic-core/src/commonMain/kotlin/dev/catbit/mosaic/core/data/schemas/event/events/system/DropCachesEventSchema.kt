@@ -6,32 +6,28 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Drops locally persisted Mosaic caches, selectively controlled by [dropScreensCache],
- * [dropInitialGraphCache] and [dropVersionCache].
+ * Clears the client's local caches. Each flag selects one store: [dropScreensCache] the cached
+ * screen payloads, [dropInitialGraphCache] the cached initial navigation graph, and
+ * [dropVersionCache] the cached version marker used to decide whether the cached content is still
+ * valid.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — when the requested caches are dropped successfully.
- * - [OnFailureEventTrigger] — if dropping any of the requested caches throws; incomingData is
- *   the exception.
- *
- * **Notes:**
- * - The screens cache holds every cached [dev.catbit.mosaic.core.data.responses.screen.ScreenResponse],
- *   regardless of screen ID or request differentiators.
- * - Dropping the initial graph or version cache forces the next app start (or version check) to
- *   re-fetch them from the backend.
+ * - `OnSuccessEventTrigger` — when the selected caches were dropped. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when dropping failed; the `Throwable` is passed as incomingData and
+ *   the error is logged.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

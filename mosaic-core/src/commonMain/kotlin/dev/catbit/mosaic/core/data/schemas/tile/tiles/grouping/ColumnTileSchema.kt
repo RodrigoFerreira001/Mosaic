@@ -16,29 +16,32 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a vertical column that stacks its child tiles from top to bottom using Compose's
- * [Column] layout. When [scrollable] is `true`, a vertical scroll state is attached and the
- * column can be programmatically scrolled via a [ColumnTileBroadcastData] channel
- * (ScrollToTop, ScrollTo, ScrollToBottom).
+ * Renders a Compose `Column` stacking its [tiles] vertically, spaced by [arrangement] and
+ * aligned horizontally by [alignment]. When [scrollable] is `true` the column gets a
+ * `verticalScroll` modifier — every child is composed eagerly, so prefer [LazyColumnTileSchema]
+ * for long lists.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `arrangement: ArrangementSchema.Vertical`,
- * `alignment: AlignmentSchema.Horizontal`, `scrollable: Boolean`,
- * `searchableTerms: SerializableImmutableList<String>?`, `filterChildrenByTerm: String?`
+ * **Child scope:** the column publishes its `ColumnScope` as a CompositionLocal (and clears the
+ * lazy-item scope), so children can use column scope modifiers such as `weight`.
  *
- * **Filtering:** When [filterChildrenByTerm] is non-null, only child tiles whose
- * [TileSchema.searchableTerms] list contains the term (case-insensitive) are rendered.
- * Children with a `null` [TileSchema.searchableTerms] are always shown regardless of the active term.
+ * **Filtering:** when [filterChildrenByTerm] is non-null and non-empty, only children whose
+ * `searchableTerms` contain that term (case-insensitive, substring match) are rendered.
+ * Children without `searchableTerms` are filtered out. An empty or `null` term renders
+ * everything.
  *
- * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
- * composition. `OnScrolledEventTrigger` — fired continuously while the user
- * scrolls, carrying `ScrollDirection.Bottom` (forward) or `ScrollDirection.Top` (backward).
- * `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when the column itself is tapped
- * or long-pressed (requires events to be wired on the schema).
+ * **Scroll control:** the tile listens to the screen broadcast channel and reacts to
+ * scroll-to-top, scroll-to-bottom and scroll-to-offset commands addressed to its [id], each
+ * optionally animated. The scroll-to variant takes a pixel offset.
  *
- * **Notes:** The column exposes a [LocalColumnScope] CompositionLocal so that direct children
- * that need a [ColumnScope] modifier (e.g. `weight`) can access it. Scroll broadcast commands
- * are received on the same channel type used by [LazyColumnTileSchema].
+ * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id).
+ * - `OnClickEventTrigger` — fired when the column is tapped, but **only if** an `OnClick` event
+ *   is declared on this tile.
+ * - `OnLongPressEventTrigger` — fired when the column is long-pressed, but **only if** an
+ *   `OnLongPress` event is declared on this tile.
+ * - `OnScrolledEventTrigger` — fired when the scroll direction changes, carrying
+ *   `ScrollDirection.Bottom` when scrolling forward and `ScrollDirection.Top` when scrolling
+ *   backward. Only meaningful when [scrollable] is `true`.
  */
 @Immutable
 @Triggers(
@@ -46,7 +49,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
         OnDisplayEventTrigger::class,
         OnClickEventTrigger::class,
         OnLongPressEventTrigger::class,
-        OnScrolledEventTrigger::class
+        OnScrolledEventTrigger::class,
     ]
 )
 @Serializable

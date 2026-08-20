@@ -29,14 +29,23 @@ internal class NavigateEventBuilder(
     )
 }
 
-fun poppingUpTo(
-    destination: String,
-    inclusive: Boolean
-) = PopUpTo(
-    destination = destination,
-    inclusive = inclusive
-)
-
+/**
+ * Navigates the graph registered under [navigatorId] to [destination], pushing it onto the back
+ * stack. The destination receives `incomingData` merged with [data] (with [data] winning on key
+ * collision) as its navigation data — only map-shaped `incomingData` contributes, and `null`
+ * values are dropped from both, since navigation arguments are never null. When [popUpTo] is set
+ * (built with [poppingUpTo]), entries are popped up to that destination before the new one is
+ * pushed. Dispatches `onSuccess` (no data) when the navigation was performed; `onFailure` (no
+ * data, logged) when no navigator is registered under [navigatorId] or it refused the navigation.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param destination Screen id to navigate to.
+ * @param navigatorId Id of the graph (`Graph`/`NestedNavigationGraph`) to navigate.
+ * @param popUpTo Back-stack entries to pop before pushing [destination], built with [poppingUpTo]. Defaults to none.
+ * @param data Extra navigation data merged with `incomingData`, winning on key collision. Defaults to none.
+ */
 fun EventSchemaBuilderScope.Navigate(
     id: String = randomId(),
     trigger: EventTrigger,
@@ -58,3 +67,18 @@ fun EventSchemaBuilderScope.Navigate(
         )
     )
 }
+
+/**
+ * Pops back-stack entries up to [destination] before the new one is pushed, feeding a `Navigate`
+ * event's `popUpTo`.
+ *
+ * @param destination Screen id to pop back to.
+ * @param inclusive Whether [destination] itself is also popped.
+ */
+fun poppingUpTo(
+    destination: String,
+    inclusive: Boolean
+) = PopUpTo(
+    destination = destination,
+    inclusive = inclusive
+)

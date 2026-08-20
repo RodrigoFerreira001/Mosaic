@@ -5,32 +5,21 @@ import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Closes the screen's navigation drawer by broadcasting a dismiss signal to the active screen.
- * No tile data is altered.
+ * Closes the screen's navigation drawer, by broadcasting a close command on the screen channel.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — fired as soon as the dismiss signal is broadcast, **not** after the
- *   closing animation ends.
- *
- * **Failure scenarios:** None defined. The runner unconditionally broadcasts the dismiss signal
- * regardless of whether the drawer is currently open.
- *
- * **Notes:** If the drawer is already closed — or if the screen defines no `navigationDrawerTiles`
- * at all — the broadcast is a no-op on the UI side and still reports success.
+ * - `OnSuccessEventTrigger` — always, right after the command was broadcast. The broadcast is
+ *   fire-and-forget, so this fires even when no drawer is open. No data is passed downstream.
  */
 @Immutable
-@Triggers(
-    [
-        OnSuccessEventTrigger::class
-    ]
-)
+@Triggers([OnSuccessEventTrigger::class])
 @Serializable
 @SerialName("DismissNavigationDrawer")
 data class DismissNavigationDrawerEventSchema(

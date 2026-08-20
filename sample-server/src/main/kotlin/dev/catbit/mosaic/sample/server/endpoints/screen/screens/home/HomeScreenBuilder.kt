@@ -35,6 +35,7 @@ object HomeScreenBuilder : ScreenBuilder {
 
     override suspend fun RoutingCall.build() = Screen(id = "home") {
         AdaptiveNavigation(
+            id = "home_adaptive_navigation",
             navigatorId = "home",
             startEntryId = "about",
             topBar = {
@@ -121,7 +122,7 @@ object HomeScreenBuilder : ScreenBuilder {
                                     )
                                 )
                                 SimpleText(
-                                    text = "Algo deu errado",
+                                    text = "Something went wrong",
                                     style = {
                                         size(
                                             width = wrapHorizontally(),
@@ -132,7 +133,7 @@ object HomeScreenBuilder : ScreenBuilder {
                                     typography = typographyHeadlineSmall()
                                 )
                                 SimpleText(
-                                    text = "Não foi possível carregar as informações. Verifique sua conexão e tente novamente.",
+                                    text = "Couldn't load this content. Check your connection and try again.",
                                     style = {
                                         size(
                                             width = wrapHorizontally(),
@@ -143,7 +144,7 @@ object HomeScreenBuilder : ScreenBuilder {
                                     typography = typographyBodyMedium()
                                 )
                                 Button(
-                                    text = "Tentar novamente",
+                                    text = "Try again",
                                     style = {
                                         size(
                                             width = fillHorizontally(max = 400),

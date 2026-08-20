@@ -11,6 +11,7 @@ import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.visible
 
 internal class NavigationRailTileSchemaBuilder(
     private val id: String,
@@ -37,11 +38,34 @@ internal class NavigationRailTileSchemaBuilder(
     )
 }
 
+/**
+ * Renders a Material 3 navigation rail — the side-rail counterpart of `NavigationBar` — with one
+ * entry per item declared via [items] (built with `addItem`). An item is selected when its id
+ * equals [selectedItemId]; the selected item's icon is drawn in its filled variant, the others
+ * outlined, and its label is centered under the icon (or omitted when not given). [header] is
+ * rendered above the items and [footer] at the very bottom (pushed down by a weighted spacer so
+ * it hugs the bottom edge); both are optional, arbitrary tiles. Tapping an item flips
+ * [selectedItemId] locally on the client (no server round trip needed for the highlight to move)
+ * — tapping the already-selected item still fires everything again. The rail itself is not
+ * clickable and fires no display trigger; it only tracks the selected item, so performing the
+ * actual navigation is up to the events wired to the item clicks. Dispatches
+ * `onNavigationRailItemClick(itemId)` when an item is tapped, so events can be wired per item.
+ *
+ * @param id Unique identifier of the tile. Defaults to a random id.
+ * @param events Events owned by this tile, wired to its triggers (e.g. `onNavigationRailItemClick`).
+ * @param style Layout/appearance modifiers (size, padding, background, etc).
+ * @param visibility Whether the tile is shown, hidden but occupies space, or removed from layout. Defaults to visible.
+ * @param searchableTerms Terms used by an ancestor's search/filter to decide whether this tile matches. Defaults to none.
+ * @param selectedItemId Id of the currently selected item.
+ * @param header Tile rendered in the rail's header slot, above the items. Defaults to none.
+ * @param footer Tile rendered at the bottom of the rail. Defaults to none.
+ * @param items Rail entries, declared with `addItem`.
+ */
 fun TileSchemaBuilderScope.NavigationRail(
     id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
     style: StyleSchemaBuilderScope.() -> Unit = {},
-    visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    visibility: TileSchema.Visibility = visible(),
     searchableTerms: List<String>? = null,
     selectedItemId: String,
     header: (TileSchemaBuilderScope.() -> Unit)? = null,
@@ -79,6 +103,13 @@ class NavigationRailItemSchemaBuilder(
 class NavigationRailItemSchemaBuilderScope :
     GenericBuilderScope<NavigationRailTileSchema.NavigationRailItem, NavigationRailItemSchemaBuilder>() {
 
+    /**
+     * Declares one entry of a `NavigationRail`.
+     *
+     * @param id Identifier matched against `selectedItemId` and carried by `onNavigationRailItemClick` when this item is tapped.
+     * @param icon Icon shown for this item, drawn filled when selected and outlined otherwise.
+     * @param label Text shown centered under the icon. Defaults to none (icon only).
+     */
     fun addItem(
         id: String,
         icon: IconSchema,

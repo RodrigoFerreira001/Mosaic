@@ -6,40 +6,30 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Sends a reload signal to a specific lazy tile (e.g., LazyColumn, LazyRow) identified by
- * [lazyTileId], causing it to discard its current content and re-fetch or re-render tiles
- * from scratch. The signal is dispatched via [tilesEventDispatcher] using the
- * [LazyTilesTileEvents.OnReloadTiles] event.
+ * Resets the `LazyTiles` tile identified by [lazyTileId] back to its loading state, by
+ * dispatching a `LazyTilesTileEvents.OnReloadTiles` to it. The tile drops the tiles it had loaded
+ * and clears its failure flag, which makes it fire its request again — the way to retry after a
+ * failed load.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — when the reload signal is dispatched successfully.
- * - [OnFailureEventTrigger] — if the target lazy tile is not found (TileNotFoundException);
- *   incomingData is the exception.
- *
- * **Failure scenarios:**
- * - If [lazyTileId] does not match any tile currently registered with the dispatcher, a
- *   TileNotFoundException is thrown and [OnFailureEventTrigger] fires with the exception.
- *
- * **Notes:**
- * - This event operates through the internal tile event bus, not through the overlay or
- *   broadcast system used by other events. The target tile must be rendered and active for
- *   the reload to take effect.
- * - This is the correct way to programmatically reset a lazy list after a data change; it
- *   is preferable to [WipeTilesEventSchema] for lazy tiles because it allows the tile to
- *   handle its own reload lifecycle (pagination reset, scroll position, etc.).
+ * - `OnSuccessEventTrigger` — when the signal reached the tile. Note this reports the reset, not
+ *   the reload that follows: the load's own outcome arrives through the tile's
+ *   `OnLoadTilesSuccess` / `OnLoadTilesFailure` triggers. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when no tile with [lazyTileId] is currently mounted; the `Throwable`
+ *   is passed as incomingData.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

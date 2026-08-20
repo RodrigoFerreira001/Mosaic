@@ -10,22 +10,17 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a static image from a bundled drawable resource identified by [resourceName]. The
- * resource is resolved at runtime via [DrawableResourcesHolder], which maps string names to
- * Compose [DrawableResource] references registered by the host application. If the resource
- * name is not found in the holder, nothing is rendered.
+ * Renders a Compose `Image` from a drawable bundled with the client application. [resourceName]
+ * is looked up in the app's `DrawableResourcesHolder`; when no resource is registered under that
+ * name **nothing is rendered at all** — there is no fallback and no error trigger.
+ * [contentScale] maps onto the Compose `ContentScale` of the same name, and
+ * [contentDescription], [alpha] and [alignment] are forwarded as-is.
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `resourceName: String`, `contentDescription: String?`,
- * `contentScale: ContentScale`, `alpha: Float`, `alignment: AlignmentSchema.TwoDimensional`
+ * **Triggers dispatched:** none. The tile emits no trigger of its own and is not clickable, so
+ * any `events` declared on it are never fired.
  *
- * **Triggers dispatched:** None. This tile does not dispatch any event triggers.
- *
- * **Notes:** Unlike [AsyncImageTileSchema], this tile renders only images that are bundled
- * with the client application and registered in [DrawableResourcesHolder]. The server can
- * only reference resources that the client has previously registered; requesting an unknown
- * [resourceName] silently renders nothing. Content scale options are CROP, FIT, FILL_HEIGHT,
- * FILL_WIDTH, INSIDE, and FILL_BOUNDS.
+ * **Notes:** use [AsyncImageTileSchema] for images that come from the network or from raw bytes;
+ * this tile can only show assets that ship with the client.
  */
 @Immutable
 @Serializable

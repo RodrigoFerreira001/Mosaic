@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -42,27 +39,79 @@ object GetTileChildrenCountEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Tile Management",
-                description = "Retorna o número atual de filhos diretos de um container como Int, entregue " +
-                    "via incomingData no onSuccess."
+                description = "Returns the current number of direct children of a container as an Int, " +
+                    "delivered via incomingData on onSuccess. Use it when an event's logic depends on knowing " +
+                    "how many items exist in a list — for example, disabling a \"checkout\" button when the " +
+                    "cart is empty, or showing \"3 items selected\" above a multi-select list. An empty " +
+                    "container fires onSuccess(0) normally — that's not a failure."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use quando a lógica de um evento depende de saber quantos itens existem numa lista — por " +
-                    "exemplo, desabilitar um botão de \"finalizar\" quando o carrinho está vazio, ou mostrar " +
-                    "\"3 itens selecionados\" acima de uma lista de seleção múltipla. Um container vazio " +
-                    "dispara onSuccess(0) normalmente, não é uma falha."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("groupingTileId", "String", "Obrigatório. ID do container a contar."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Add items and count how many exist now") {
+                Column(
+                    id = "children_count_list",
+                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
+                    arrangement = arrangeVerticallySpacedBy(8)
+                ) {
+                    ChildrenCountRow("Initial item 1")
+                    ChildrenCountRow("Initial item 2")
+                }
+                SimpleText(
+                    id = "children_count_label",
+                    text = "?",
+                    typography = typographyTitleMedium()
                 )
-            )
+                Row(
+                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
+                    arrangement = arrangeHorizontallySpacedBy(8)
+                ) {
+                    Button(
+                        text = "Add item",
+                        events = {
+                            AddTiles(
+                                trigger = EventTriggers.onClick(),
+                                groupingTileId = "children_count_list",
+                                position = insertAtEnd(),
+                                tiles = { ChildrenCountRow("New item") }
+                            )
+                        }
+                    )
+                    Button(
+                        text = "Count with GetTileChildrenCount",
+                        buttonType = filledTonalButton(),
+                        events = {
+                            GetTileChildrenCount(
+                                trigger = EventTriggers.onClick(),
+                                groupingTileId = "children_count_list",
+                                events = {
+                                    TransformData(
+                                        trigger = EventTriggers.onSuccess(),
+                                        template = "<||> items in the list",
+                                        events = {
+                                            UpdateTiles(
+                                                trigger = EventTriggers.onSuccess(),
+                                                updates = {
+                                                    update(
+                                                        tileId = "children_count_label",
+                                                        updateData = incomingTileUpdateData()
+                                                    )
+                                                }
+                                            )
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    )
+                }
+                ShowroomNote(
+                    "The TransformData above uses the template \"<||> items in the list\" — since the " +
+                        "<||> placeholder isn't alone in the string, the Int returned by GetTileChildrenCount " +
+                        "is coerced to text before becoming the tile's new value."
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 GetTileChildrenCount(
@@ -82,71 +131,6 @@ object GetTileChildrenCountEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Adicione itens e conte quantos existem agora") {
-                Column(
-                    id = "children_count_list",
-                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
-                    arrangement = arrangeVerticallySpacedBy(8)
-                ) {
-                    ChildrenCountRow("Item inicial 1")
-                    ChildrenCountRow("Item inicial 2")
-                }
-                SimpleText(
-                    id = "children_count_label",
-                    text = "?",
-                    typography = typographyTitleMedium()
-                )
-                Row(
-                    style = { size(width = fillHorizontally(), height = wrapVertically()) },
-                    arrangement = arrangeHorizontallySpacedBy(8)
-                ) {
-                    Button(
-                        text = "Adicionar item",
-                        events = {
-                            AddTiles(
-                                trigger = EventTriggers.onClick(),
-                                groupingTileId = "children_count_list",
-                                position = insertAtEnd(),
-                                tiles = { ChildrenCountRow("Item novo") }
-                            )
-                        }
-                    )
-                    Button(
-                        text = "Contar com GetTileChildrenCount",
-                        buttonType = filledTonalButton(),
-                        events = {
-                            GetTileChildrenCount(
-                                trigger = EventTriggers.onClick(),
-                                groupingTileId = "children_count_list",
-                                events = {
-                                    TransformData(
-                                        trigger = EventTriggers.onSuccess(),
-                                        template = "<||> itens na lista",
-                                        events = {
-                                            UpdateTiles(
-                                                trigger = EventTriggers.onSuccess(),
-                                                updates = {
-                                                    update(
-                                                        tileId = "children_count_label",
-                                                        updateData = incomingTileUpdateData()
-                                                    )
-                                                }
-                                            )
-                                        }
-                                    )
-                                }
-                            )
-                        }
-                    )
-                }
-                ShowroomNote(
-                    "O TransformData acima usa o template \"<||> itens na lista\" — como o placeholder " +
-                        "<||> não está sozinho na string, o Int retornado por GetTileChildrenCount é " +
-                        "coagido para texto antes de virar o novo valor do tile."
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("CheckIfTileContainsChildren", "AddTiles", "TransformData"),

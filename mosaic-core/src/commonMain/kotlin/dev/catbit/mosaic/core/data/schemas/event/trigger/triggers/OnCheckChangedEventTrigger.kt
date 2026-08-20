@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnCheckChanged")
+/** Fires on `Checkbox`/`Switch`/`FilterChip`/`InputChip` on every toggle, always — after
+ * `onCheck()`/`onUncheck()`, whichever applies. */
 object OnCheckChangedEventTrigger : EventTrigger

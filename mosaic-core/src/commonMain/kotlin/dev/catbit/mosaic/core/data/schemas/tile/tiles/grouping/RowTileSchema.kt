@@ -16,24 +16,31 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a horizontal row that places its child tiles side by side using Compose's [Row]
- * layout. When [scrollable] is `true`, a horizontal scroll state is attached and the row can
- * be programmatically scrolled via a [RowTileBroadcastData] channel
- * (ScrollToStart, ScrollTo, ScrollToEnd).
+ * Renders a Compose `Row` laying its [tiles] out horizontally, spaced by [arrangement] and
+ * aligned vertically by [alignment]. When [scrollable] is `true` the row gets a
+ * `horizontalScroll` modifier — every child is composed eagerly, so prefer [LazyRowTileSchema]
+ * for long lists.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `arrangement: ArrangementSchema.Horizontal`,
- * `alignment: AlignmentSchema.Vertical`, `scrollable: Boolean`
+ * **Child scope:** the row publishes its `RowScope` as a CompositionLocal (and clears the lazy
+ * item and flow-row scopes), so children can use row scope modifiers such as `weight`.
  *
- * **Triggers dispatched:** `OnDisplayEventTrigger` — fired once when the tile enters
- * composition. `OnScrolledEventTrigger` — fired continuously while the user
- * scrolls, carrying `ScrollDirection.End` (forward) or `ScrollDirection.Start` (backward).
- * `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when the row itself is tapped
- * or long-pressed.
+ * **Scroll control:** the tile listens to the screen broadcast channel and reacts to
+ * scroll-to-start, scroll-to-end and scroll-to-offset commands addressed to its [id], each
+ * optionally animated. The scroll-to variant takes a pixel offset.
  *
- * **Notes:** The row exposes a [LocalRowScope] CompositionLocal so that direct children that
- * need a [RowScope] modifier (e.g. `weight`) can access it. Scroll broadcast commands are
- * received on the same channel type used by [LazyRowTileSchema].
+ * **Filtering:** when [filterChildrenByTerm] is non-null and non-empty, only children whose
+ * `searchableTerms` contain that term (case-insensitive, substring match) are rendered.
+ * Children without `searchableTerms` are filtered out.
+ *
+ * **Triggers dispatched:**
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id).
+ * - `OnClickEventTrigger` — fired when the row is tapped, but **only if** an `OnClick` event is
+ *   declared on this tile.
+ * - `OnLongPressEventTrigger` — fired when the row is long-pressed, but **only if** an
+ *   `OnLongPress` event is declared on this tile.
+ * - `OnScrolledEventTrigger` — fired when the scroll direction changes, carrying
+ *   `ScrollDirection.End` when scrolling forward and `ScrollDirection.Start` when scrolling
+ *   backward. Only meaningful when [scrollable] is `true`.
  */
 @Immutable
 @Triggers(
@@ -41,7 +48,7 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
         OnDisplayEventTrigger::class,
         OnClickEventTrigger::class,
         OnLongPressEventTrigger::class,
-        OnScrolledEventTrigger::class
+        OnScrolledEventTrigger::class,
     ]
 )
 @Serializable
@@ -52,6 +59,7 @@ data class RowTileSchema(
     @SerialName("events") override val events: SerializableImmutableList<EventSchema>?,
     @SerialName("style") override val style: StyleSchema,
     @SerialName("searchableTerms") override val searchableTerms: SerializableImmutableList<String>?,
+    @SerialName("filterChildrenByTerm") val filterChildrenByTerm: String?,
     @SerialName("visibility") override val visibility: TileSchema.Visibility,
     @SerialName("arrangement") val arrangement: ArrangementSchema.Horizontal,
     @SerialName("alignment") val alignment: AlignmentSchema.Vertical,

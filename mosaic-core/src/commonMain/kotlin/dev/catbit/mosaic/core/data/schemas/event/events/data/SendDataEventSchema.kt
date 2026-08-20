@@ -7,38 +7,29 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Posts a value into the [DataMailer] in-process message bus under a named [dataKey], making it
- * available for retrieval by [CheckForReceivedDataEventSchema] elsewhere in the event graph.
- * This is the "send" half of a lightweight inter-screen data-passing mechanism.
+ * Posts a value into the client's `DataMailer` under [dataKey], where a later
+ * `CheckForReceivedData` can pick it up. The mailer is a one-shot channel, so this is the way to
+ * hand a value to another screen.
  *
- * **incomingData consumed:** Used as the payload when [data] is `null`. The runner applies the
- * rule `(data ?: incomingData)` — the inline [data] field takes precedence over `incomingData`.
- * If both are null, nothing is sent and the event fires [OnFailureEventTrigger].
+ * The value sent is [data] when it is non-null, otherwise the event's incomingData.
+ *
+ * **incomingData consumed:** used as the value to send whenever [data] is `null`.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — when data is posted successfully to [DataMailer].
- * - [OnFailureEventTrigger] — when both [data] and `incomingData` are null; nothing is posted.
- *
- * **Failure scenarios:**
- * - If both [data] and `incomingData` are null, [OnFailureEventTrigger] fires and nothing is
- *   stored in [DataMailer].
- *
- * **Notes:**
- * - [DataMailer] operates in-process; it is not a network call or persistent store.
- * - The payload is keyed by [dataKey] and overwrites any previously sent value under the same key.
- * - Pair this event with [CheckForReceivedDataEventSchema] (using the same [dataKey]) on the
- *   receiving side to retrieve the value.
+ * - `OnSuccessEventTrigger` — after the value was posted. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when both [data] and incomingData are `null`, so there is nothing to
+ *   send; the error is logged and no data is passed.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

@@ -4,10 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -35,41 +31,15 @@ object ScrollColumnTileEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Scroll",
-                description = "Rola imperativamente um Column ou LazyColumn até uma posição via broadcast — " +
-                    "sem depender de estado de scroll gerenciado manualmente."
+                description = "Imperatively scrolls a Column or LazyColumn to a position via broadcast — " +
+                    "without relying on manually managed scroll state. Use it to scroll a list back to the " +
+                    "top after reloading data, or to a specific item programmatically. If tileId doesn't " +
+                    "match any Column/LazyColumn in the tree, the broadcast is silently ignored — there's no " +
+                    "failure trigger."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra rolar uma lista até o topo depois de recarregar dados, ou até um item específico " +
-                    "programaticamente. Se o tileId não corresponder a nenhum Column/LazyColumn na árvore, o " +
-                    "broadcast é silenciosamente ignorado — não há trigger de falha."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("tileId", "String", "Obrigatório. ID do Column/LazyColumn a rolar."),
-                    ShowroomParam("where", "Where", "Obrigatório. scrollColumnToTop(), scrollColumnTo(index) ou scrollColumnToBottom()."),
-                    ShowroomParam("smoothly", "Boolean", "true (padrão). Rolagem animada vs instantânea."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                ScrollColumn(
-                    trigger = EventTriggers.onSuccess(),
-                    tileId = "result_list",
-                    where = scrollColumnToTop(),
-                    smoothly = true
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Role uma lista longa até o topo e até o fim") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Scroll a long list to the top and to the bottom") {
                 Column(
                     id = "scroll_column_demo_list",
                     style = { size(width = fillHorizontally(), height = fixedVertically(180)) },
@@ -98,7 +68,7 @@ object ScrollColumnTileEventDetailBuilder : EventDetailBuilder {
                     arrangement = arrangeHorizontallySpacedBy(8)
                 ) {
                     Button(
-                        text = "Rolar ao topo",
+                        text = "Scroll to top",
                         buttonType = outlinedButton(),
                         events = {
                             ScrollColumn(
@@ -110,7 +80,7 @@ object ScrollColumnTileEventDetailBuilder : EventDetailBuilder {
                         }
                     )
                     Button(
-                        text = "Rolar ao fim",
+                        text = "Scroll to bottom",
                         buttonType = outlinedButton(),
                         events = {
                             ScrollColumn(
@@ -123,6 +93,18 @@ object ScrollColumnTileEventDetailBuilder : EventDetailBuilder {
                     )
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                ScrollColumn(
+                    trigger = EventTriggers.onSuccess(),
+                    tileId = "result_list",
+                    where = scrollColumnToTop(),
+                    smoothly = true
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("ScrollRowTile", "ScrollPagerTile"),

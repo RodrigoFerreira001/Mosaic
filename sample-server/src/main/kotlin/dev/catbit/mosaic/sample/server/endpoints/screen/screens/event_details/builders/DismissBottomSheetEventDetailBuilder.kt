@@ -6,8 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -39,45 +37,18 @@ object DismissBottomSheetEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Overlays",
-                description = "Fecha um bottom sheet não-modal aberto — o lado \"reação\" do par " +
-                    "DisplayBottomSheet / DismissBottomSheet."
+                description = "Programmatically closes an open non-modal bottom sheet — the \"reaction\" side " +
+                    "of the DisplayBottomSheet / DismissBottomSheet pair. Use it from inside the sheet's own " +
+                    "content (a \"Close\" button) or from anywhere else on the screen — since the non-modal " +
+                    "sheet doesn't block what's behind it, it's common for the button that closes it to live " +
+                    "outside the sheet. Pass the same bottomSheetId used in the DisplayBottomSheet that opened it."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use dentro do próprio conteúdo do sheet (botão \"Fechar\") ou a partir de qualquer " +
-                    "ponto da tela — como o sheet não-modal não bloqueia o que está atrás, é comum o " +
-                    "botão que o fecha viver fora dele. Informe o mesmo bottomSheetId usado no " +
-                    "DisplayBottomSheet que o abriu."
-            )
+            ShowroomSectionTitle("Interactive demo")
 
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("bottomSheetId", "String", "Obrigatório. O mesmo id informado no DisplayBottomSheet que abriu o sheet."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                Button(id = "close_btn", text = "Fechar") {
-                    events = {
-                        DismissBottomSheet(
-                            trigger = EventTriggers.onClick(),
-                            bottomSheetId = "now_playing"
-                        )
-                    }
-                }
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-
-            ShowroomDemoCard(title = "1. Fechando de dentro do sheet") {
+            ShowroomDemoCard(title = "1. Closing from inside the sheet") {
                 Button(
-                    text = "Abrir sheet",
+                    text = "Open sheet",
                     buttonType = filledButton(),
                     events = {
                         DisplayBottomSheet(
@@ -86,10 +57,10 @@ object DismissBottomSheetEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             fill = false,
                             tiles = {
-                                SheetBody(title = "Sheet de exemplo") {
-                                    Paragraph("O botão abaixo é o próprio DismissBottomSheet sendo demonstrado.")
+                                SheetBody(title = "Example sheet") {
+                                    Paragraph("The button below is the DismissBottomSheet event itself being demonstrated.")
                                     Button(
-                                        text = "Fechar com DismissBottomSheet",
+                                        text = "Close with DismissBottomSheet",
                                         buttonType = filledTonalButton(),
                                         events = {
                                             DismissBottomSheet(
@@ -98,7 +69,7 @@ object DismissBottomSheetEventDetailBuilder : EventDetailBuilder {
                                             )
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Sheet fechado programaticamente",
+                                                message = "Sheet closed programmatically",
                                                 duration = snackbarShortDuration()
                                             )
                                         }
@@ -110,14 +81,14 @@ object DismissBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "2. Fechando de fora do sheet") {
+            ShowroomDemoCard(title = "2. Closing from outside the sheet") {
                 ShowroomParagraph(
-                    "Abra o sheet e feche-o pelo botão desta página, sem tocar no sheet. Isso só é " +
-                        "possível porque o não-modal não bloqueia a tela por trás — com um modal, " +
-                        "este botão estaria inacessível."
+                    "Open the sheet and close it from this page's button, without touching the sheet itself. " +
+                        "This is only possible because the non-modal sheet doesn't block the screen behind it — " +
+                        "with a modal, this button would be unreachable."
                 )
                 Button(
-                    text = "Abrir sheet",
+                    text = "Open sheet",
                     buttonType = filledButton(),
                     events = {
                         DisplayBottomSheet(
@@ -126,10 +97,10 @@ object DismissBottomSheetEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             fill = false,
                             tiles = {
-                                SheetBody(title = "Feche-me daqui de fora") {
+                                SheetBody(title = "Close me from out here") {
                                     Paragraph(
-                                        "Não há botão de fechar aqui dentro. Use o botão da página, " +
-                                            "logo abaixo deste sheet."
+                                        "There's no close button in here. Use the page's button, right below " +
+                                            "this sheet."
                                     )
                                 }
                             }
@@ -137,7 +108,7 @@ object DismissBottomSheetEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 Button(
-                    text = "Fechar o sheet aberto",
+                    text = "Close the open sheet",
                     buttonType = outlinedButton(),
                     events = {
                         DismissBottomSheet(
@@ -148,9 +119,23 @@ object DismissBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                Button(id = "close_btn", text = "Close") {
+                    events = {
+                        DismissBottomSheet(
+                            trigger = EventTriggers.onClick(),
+                            bottomSheetId = "now_playing"
+                        )
+                    }
+                }
+                """
+            )
+
             ShowroomNote(
-                "Fechar um id que não está na pilha dispara onFailure() em vez de ser ignorado — o " +
-                    "que também cobre o caso de fechar o mesmo sheet duas vezes."
+                "Closing an id that isn't on the stack fires onFailure() instead of being ignored — which " +
+                    "also covers the case of closing the same sheet twice."
             )
 
             ShowroomRelated(

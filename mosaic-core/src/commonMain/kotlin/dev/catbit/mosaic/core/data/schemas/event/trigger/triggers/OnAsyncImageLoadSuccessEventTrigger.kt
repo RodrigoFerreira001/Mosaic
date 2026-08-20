@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnAsyncImageLoadSuccess")
+/** Fires on `AsyncImage` when the image is decoded and drawn — can fire more than once over the
+ * tile's lifetime, including on every reload triggered by `model` changing. */
 object OnAsyncImageLoadSuccessEventTrigger : EventTrigger

@@ -9,6 +9,7 @@ import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.visible
 
 internal class FloatingActionButtonTileSchemaBuilder(
     private val id: String,
@@ -17,9 +18,7 @@ internal class FloatingActionButtonTileSchemaBuilder(
     private val searchableTerms: List<String>?,
     private val visibility: TileSchema.Visibility,
     private val icon: IconSchema,
-    private val size: FloatingActionButtonTileSchema.Size,
-    private val loading: Boolean,
-    private val enabled: Boolean
+    private val size: FloatingActionButtonTileSchema.Size
 ) : TileSchemaBuilder<FloatingActionButtonTileSchema>() {
 
     override fun build() = FloatingActionButtonTileSchema(
@@ -33,12 +32,27 @@ internal class FloatingActionButtonTileSchemaBuilder(
             FloatingActionButtonTileSchema.Size.MEDIUM -> icon.copy(size = 28)
             FloatingActionButtonTileSchema.Size.LARGE -> icon.copy(size = 36)
         },
-        size = size,
-        loading = loading,
-        enabled = enabled
+        size = size
     )
 }
 
+/**
+ * Renders a Material 3 floating action button. Its size is picked by [size] (default/small,
+ * medium or large), which also scales [icon] accordingly (24dp, 28dp or 36dp). Dispatches
+ * `onClick` when tapped.
+ *
+ * There's no `enabled`/`loading` here — Material 3 FABs don't take an `enabled` parameter by
+ * design, since a disabled FAB fights the emphasis it's meant to carry. Hide the FAB via
+ * [visibility] instead when its action isn't currently available.
+ *
+ * @param id Unique identifier of the tile. Defaults to a random id.
+ * @param events Events owned by this tile, wired to its triggers (e.g. `onClick`).
+ * @param style Layout/appearance modifiers (size, padding, background, etc). Defaults to wrapping its content.
+ * @param visibility Whether the tile is shown, hidden but occupies space, or removed from layout. Defaults to visible.
+ * @param searchableTerms Terms used by an ancestor's search/filter to decide whether this tile matches. Defaults to none.
+ * @param icon Icon rendered inside the FAB; its size is overridden based on [size].
+ * @param size Size of the FAB — [defaultFloatingActionButon] (small), [mediumFloatingActionButon] or [largeFloatingActionButon]. Defaults to default.
+ */
 fun TileSchemaBuilderScope.FloatingActionButton(
     id: String = randomId(),
     events: EventSchemaBuilderScope.() -> Unit = {},
@@ -48,12 +62,10 @@ fun TileSchemaBuilderScope.FloatingActionButton(
             height = wrapVertically()
         )
     },
-    visibility: TileSchema.Visibility = TileSchema.Visibility.VISIBLE,
+    visibility: TileSchema.Visibility = visible(),
     searchableTerms: List<String>? = null,
     icon: IconSchema,
-    size: FloatingActionButtonTileSchema.Size = FloatingActionButtonTileSchema.Size.DEFAULT,
-    loading: Boolean = false,
-    enabled: Boolean = true
+    size: FloatingActionButtonTileSchema.Size = defaultFloatingActionButon()
 ) {
     addBuilder(
         FloatingActionButtonTileSchemaBuilder(
@@ -63,13 +75,16 @@ fun TileSchemaBuilderScope.FloatingActionButton(
             searchableTerms = searchableTerms,
             visibility = visibility,
             icon = icon,
-            size = size,
-            loading = loading,
-            enabled = enabled
+            size = size
         )
     )
 }
 
+/** Default (small) FAB size — icon scaled to 24dp. */
 fun defaultFloatingActionButon() = FloatingActionButtonTileSchema.Size.DEFAULT
+
+/** Medium FAB size — icon scaled to 28dp. */
 fun mediumFloatingActionButon() = FloatingActionButtonTileSchema.Size.MEDIUM
+
+/** Large FAB size — icon scaled to 36dp. */
 fun largeFloatingActionButon() = FloatingActionButtonTileSchema.Size.LARGE

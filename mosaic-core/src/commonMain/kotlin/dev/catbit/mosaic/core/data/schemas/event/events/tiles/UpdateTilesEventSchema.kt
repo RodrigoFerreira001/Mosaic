@@ -6,53 +6,38 @@ import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTilesUpdatedEventTrigger
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
-
-
 
 /**
- * Applies a list of data-only updates to existing tiles without altering the tile tree
- * structure. Each [Update] entry targets a single tile by its ID and supplies an [Update.UpdateData]
- * describing which key-value properties to overwrite — either the current `incomingData`
- * ([Update.UpdateData.Incoming]) or a static inline map ([Update.UpdateData.Inline]). All updates
- * in [updates] are applied sequentially before the trigger fires.
+ * Patches tiles in place, the primary way to change what is on screen without refetching it.
  *
- * **incomingData consumed:** Used when [Update.UpdateData] is [Update.UpdateData.Incoming]. The
- * runner coerces `incomingData` into `Map<String, Any>` before applying the update. If
- * `incomingData` cannot be coerced to a map, that entry is silently skipped. Also used when
- * [Update.UpdateData] is [Update.UpdateData.Mapped] — each pattern is resolved against
- * `incomingData` via the same `<|path.to.value|>` extraction mechanism as `TransformData`.
+ * Each [Update] targets a tile by [Update.tileId] and merges a map of field names into it —
+ * only the listed fields change, and `style` is merged rather than replaced. The map comes from
+ * [Update.updateData]:
+ * - `Incoming` — the event's incomingData, used as-is when it is a map. An update whose
+ *   incomingData is not a map is skipped and counts as a failure.
+ * - `Inline` — a literal map declared on the event.
+ * - `Mapped` — one template per field, each applied to incomingData through the client's
+ *   `TemplateProcessor`, so a payload can be reshaped per field on the way in.
+ *
+ * All updates are attempted; a failure in one does not stop the others.
+ *
+ * **incomingData consumed:** used by `Incoming` and `Mapped` updates.
  *
  * **Triggers fired:**
- * - [OnTilesUpdatedEventTrigger] — fired after all updates have been applied; incomingData is
- *   not modified by this event.
- * - [OnSuccessEventTrigger] — fired after [OnTilesUpdatedEventTrigger], unconditionally.
- * - [OnFailureEventTrigger] — if a tile targeted by an [Update] is not found
- *   (TileNotFoundException); incomingData is the exception.
- *
- * **Failure scenarios:**
- * - If an [Update.tileId] does not match any tile in the current tree, a TileNotFoundException
- *   is thrown and [OnFailureEventTrigger] fires with the exception.
- *
- * **Notes:**
- * - Unlike [ReplaceTilesEventSchema], this event does not change tile types or the tree
- *   structure — it only patches mutable properties on tiles that already exist.
- * - [Update.UpdateData.Inline.data] is a `Map<String, AnySerializable?>` allowing arbitrary
- *   JSON-typed values. Keys that do not correspond to known tile properties are ignored by the
- *   renderer.
- * - Updates are applied in the order they appear in [updates]; if the same tile is listed
- *   twice, the second update overwrites keys set by the first.
+ * - `OnSuccessEventTrigger` — when every update was applied. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when at least one update failed: no tile carries that id, a
+ *   `Mapped` template threw, or an `Incoming` update got non-map incomingData. Fired once at the
+ *   end, after all updates were attempted, with no data attached; each failure is logged.
  */
 @Immutable
 @Triggers(
     [
-        OnTilesUpdatedEventTrigger::class,
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable
@@ -81,11 +66,6 @@ data class UpdateTilesEventSchema(
                 @SerialName("data") val data: Map<String, AnySerializable?>
             ) : UpdateData
 
-            /**
-             * Each entry maps an update key to a string pattern (e.g. `"<|user.name|>"`),
-             * resolved independently against `incomingData` using the same `<|path|>`
-             * extraction mechanism as `TransformDataEventSchema.template`.
-             */
             @Serializable
             @SerialName("Mapped")
             data class Mapped(

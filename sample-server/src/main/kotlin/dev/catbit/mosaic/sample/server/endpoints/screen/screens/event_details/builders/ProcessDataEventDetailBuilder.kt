@@ -1,13 +1,8 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders
 
-import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -25,28 +20,16 @@ object ProcessDataEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Data",
-                description = "Delega o incomingData a um DataProcessor registrado no cliente, identificado " +
-                    "por processWith — abre a porta pra lógica nativa que não cabe na DSL."
+                description = "Hands incomingData off to a DataProcessor registered on the client, identified " +
+                    "by processWith — opens the door to native logic that doesn't fit the DSL. Use it when the " +
+                    "server needs to request processing that only exists on the client and can't be expressed " +
+                    "by the event DSL — encrypting a value before persisting it locally, applying a platform-" +
+                    "specific transform, or triggering a native capability registered under an id " +
+                    "(processWith). The event itself does nothing on its own: it just delivers incomingData for " +
+                    "the right processor to find and react to."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use quando o servidor precisa pedir um processamento que só existe no cliente e não pode " +
-                    "ser expresso pela DSL de eventos — criptografar um valor antes de persistir localmente, " +
-                    "aplicar uma transformação específica da plataforma, ou acionar uma capacidade nativa " +
-                    "registrada sob um id (processWith). O evento em si não faz nada por conta própria: ele " +
-                    "só entrega o incomingData para o processador certo encontrar e reagir."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("processWith", "String", "Obrigatório. ID do DataProcessor registrado no cliente que deve tratar o dado."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 ProcessData(
@@ -56,22 +39,22 @@ object ProcessDataEventDetailBuilder : EventDetailBuilder {
                 """
             )
 
-            ShowroomSectionTitle("Por que não há demo interativa aqui")
             SimpleText(
-                text = "ProcessData depende de um DataProcessor com o id passado em processWith estar " +
-                    "registrado no cliente em tempo de execução — isso é configuração de app, feita no bootstrap " +
-                    "do cliente Compose Multiplatform, não algo que este sample-server (que só descreve schemas) " +
-                    "consiga demonstrar isoladamente. Sem um processador registrado sob o id usado, o evento é " +
-                    "um no-op silencioso: nenhum onSuccess/onFailure dispara.",
+                text = "Why there's no interactive demo here: ProcessData depends on a DataProcessor with the " +
+                    "id passed in processWith being registered on the client at runtime — that's app " +
+                    "configuration, done in the Compose Multiplatform client's bootstrap, not something this " +
+                    "sample-server (which only describes schemas) can demonstrate in isolation. Without a " +
+                    "processor registered under the id used, the event is a silent no-op: no onSuccess/onFailure " +
+                    "fires.",
                 typography = typographyBodyMedium(),
                 color = color(themeColorOnSurfaceVariant())
             )
 
             ShowroomNote(
-                "incomingData nulo também resulta em no-op completo — nenhum trigger dispara. Se você " +
-                    "registrar seu próprio DataProcessor no app cliente, o callback onSuccess dele não " +
-                    "repassa dado algum: use UpdateData/SendData como canal lateral pra expor o resultado do " +
-                    "processamento a outros eventos."
+                "A null incomingData also results in a complete no-op — no trigger fires. If you register " +
+                    "your own DataProcessor in the client app, its onSuccess callback doesn't pass any data " +
+                    "back: use UpdateData/SendData as a side channel to expose the processing result to other " +
+                    "events."
             )
 
             ShowroomRelated(

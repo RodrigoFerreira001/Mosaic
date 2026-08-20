@@ -21,6 +21,16 @@ internal class DismissDialogEventBuilder(
     )
 }
 
+/**
+ * Closes the dialog registered under [dialogId]. Does not consume `incomingData`. Dispatches
+ * `onSuccess` (no data) when the dialog was dismissed; `onFailure` (carrying the thrown
+ * exception) when no dialog is showing under [dialogId].
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param dialogId Id of the `DisplayDialog` dialog to close.
+ */
 fun EventSchemaBuilderScope.DismissDialog(
     id: String = randomId(),
     trigger: EventTrigger,

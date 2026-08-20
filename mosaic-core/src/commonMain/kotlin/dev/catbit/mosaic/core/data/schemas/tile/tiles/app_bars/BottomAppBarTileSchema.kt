@@ -9,21 +9,12 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 [BottomAppBar] that contains a row of [actions] tiles on the left
- * side and an optional [floatingActionButton] tile anchored to the right. The FAB slot
- * accepts any tile, but is typically used with a FAB tile schema.
+ * Renders a Material 3 `BottomAppBar` with [actions] laid out in a `RowScope` on the leading
+ * side and an optional [floatingActionButton] docked at the trailing edge (any tile, typically
+ * a `FloatingActionButton`).
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `actions: SerializableImmutableList<TileSchema>`,
- * `floatingActionButton: TileSchema?`
- *
- * **Triggers dispatched:** None directly. Interaction triggers are dispatched by child tiles
- * placed in [actions] or [floatingActionButton].
- *
- * **Notes:** The [actions] tiles are rendered inside a [RowScope] provided by [BottomAppBar],
- * so children that need row-scoped modifiers (e.g. `weight`) will need the [LocalRowScope]
- * CompositionLocal. The [floatingActionButton] tile is rendered as an independent composable
- * lambda; if `null`, no FAB slot is shown.
+ * **Triggers dispatched:** none. The bar itself emits no trigger and is not clickable, so any
+ * `events` declared on it are never fired — wire events on the action tiles instead.
  */
 @Immutable
 @Serializable

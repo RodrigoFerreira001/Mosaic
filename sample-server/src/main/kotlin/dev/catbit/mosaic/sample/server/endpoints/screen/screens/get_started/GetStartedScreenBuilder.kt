@@ -5,6 +5,7 @@ import dev.catbit.mosaic.sample.core.schemas.tiles.code.CodeViewerTileSchema
 import dev.catbit.mosaic.sample.server.dsl.tiles.code.CodeViewer
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
+import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.UnderConstructionBadge
 import dev.catbit.mosaic.sample.server.endpoints.screen.ScreenBuilder
 import dev.catbit.mosaic.server.builder.color.color
 import dev.catbit.mosaic.server.builder.color.themeColorErrorContainer
@@ -21,11 +22,12 @@ import dev.catbit.mosaic.server.builder.color.themeColorSecondaryContainer
 import dev.catbit.mosaic.server.builder.color.themeColorSurfaceContainer
 import dev.catbit.mosaic.server.builder.color.themeColorSurfaceContainerLowest
 import dev.catbit.mosaic.server.builder.color.themeColorTertiaryContainer
-import dev.catbit.mosaic.server.builder.event.builders.navigation.Navigate
+import dev.catbit.mosaic.server.builder.event.builders.navigation.NavigateClearingStack
+import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
+import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
 import dev.catbit.mosaic.server.builder.icon.icon
-import dev.catbit.mosaic.server.builder.placement.alignToBottomEnd
 import dev.catbit.mosaic.server.builder.placement.alignToCenter
-import dev.catbit.mosaic.server.builder.placement.alignToTopStart
+import dev.catbit.mosaic.server.builder.placement.alignToTopEnd
 import dev.catbit.mosaic.server.builder.placement.alignVerticallyToCenter
 import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallySpacedBy
 import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
@@ -58,9 +60,9 @@ private data class PrerequisiteItem(
 )
 
 private val prerequisites = listOf(
-    PrerequisiteItem("terminal", "JDK 17+", "Necessário para rodar o Gradle wrapper e compilar os módulos JVM/Android."),
-    PrerequisiteItem("code", "IntelliJ IDEA ou Android Studio", "Com o plugin Kotlin Multiplatform habilitado."),
-    PrerequisiteItem("smartphone", "Emulador Android (opcional)", "Só necessário se for rodar o cliente de amostra no Android em vez do Desktop."),
+    PrerequisiteItem("terminal", "JDK 17+", "Required to run the Gradle wrapper and compile the JVM/Android modules."),
+    PrerequisiteItem("code", "IntelliJ IDEA or Android Studio", "With the Kotlin Multiplatform plugin enabled."),
+    PrerequisiteItem("smartphone", "Android emulator (optional)", "Only needed if you're running the sample client on Android instead of Desktop."),
 )
 
 private data class ModuleItem(
@@ -70,11 +72,11 @@ private data class ModuleItem(
 )
 
 private val modules = listOf(
-    ModuleItem("hub", "mosaic-core", "Schemas compartilhados (@Serializable) e o MosaicSerializer polimórfico — a fonte da verdade entre servidor e cliente."),
-    ModuleItem("dns", "mosaic-server", "A DSL Kotlin type-safe usada para descrever telas, tiles e events — o que um dev de backend escreve."),
-    ModuleItem("devices", "mosaic-client", "Desserializa o schema e renderiza com Compose Multiplatform, além de executar a lógica dos events."),
-    ModuleItem("dns", "sample-server", "Backend Ktor de referência — este app que você está navegando agora."),
-    ModuleItem("smartphone", "sample-client", "Cliente Android/Desktop de referência que consome o sample-server."),
+    ModuleItem("hub", "mosaic-core", "Shared schemas (@Serializable) and the polymorphic MosaicSerializer — the source of truth between server and client."),
+    ModuleItem("dns", "mosaic-server", "The type-safe Kotlin DSL used to describe screens, tiles and events — what a backend dev writes."),
+    ModuleItem("devices", "mosaic-client", "Deserializes the schema and renders it with Compose Multiplatform, and runs the events' logic."),
+    ModuleItem("dns", "sample-server", "The reference Ktor backend — this very app you're browsing right now."),
+    ModuleItem("smartphone", "sample-client", "The reference Android/Desktop client that consumes the sample-server."),
 )
 
 // Cycled per card thumbnail — same role as the varied blob/illustration colors on m3.material.io cards.
@@ -112,29 +114,13 @@ object GetStartedScreenBuilder : ScreenBuilder {
                 }
             ) {
                 Box(
+                    alignment = alignToTopEnd(),
                     style = {
                         size(width = fillHorizontally(), height = fixedVertically(140))
                         background(color(themeColorErrorContainer()))
                     }
                 ) {
-                    Box(
-                        alignment = alignToTopStart(),
-                        style = {
-                            size(width = fixedHorizontally(90), height = fixedVertically(90))
-                            clip(circleShape())
-                            background(color(themeColorPrimaryContainer()))
-                            margin(top = 8, start = 8)
-                        }
-                    ) {}
-                    Box(
-                        alignment = alignToBottomEnd(),
-                        style = {
-                            size(width = fixedHorizontally(120), height = fixedVertically(120))
-                            clip(circleShape())
-                            background(color(themeColorTertiaryContainer()))
-                            margin(bottom = 8, end = 8)
-                        }
-                    ) {}
+                    UnderConstructionBadge()
                 }
                 Column(
                     style = {
@@ -149,21 +135,21 @@ object GetStartedScreenBuilder : ScreenBuilder {
                         color = color(themeColorInverseOnSurface())
                     )
                     SimpleText(
-                        text = "Clone o repositório, rode o servidor de amostra e um cliente, e comece a " +
-                            "editar telas em Kotlin sem tocar em código de cliente.",
+                        text = "Clone the repository, run the sample server and a client, and start " +
+                            "editing screens in Kotlin without touching any client code.",
                         typography = typographyBodyLarge(),
                         color = color(themeColorInverseOnSurface())
                     )
                 }
             }
 
-            // Pré-requisitos
+            // Prerequisites
             Column(
                 style = { size(width = fillHorizontally(), height = wrapVertically()) },
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
                 SimpleText(
-                    text = "Pré-requisitos",
+                    text = "Prerequisites",
                     typography = typographyHeadlineSmall(),
                     style = { padding(start = 4) }
                 )
@@ -196,40 +182,40 @@ object GetStartedScreenBuilder : ScreenBuilder {
                 }
             }
 
-            // Adicionando o Mosaic a um projeto próprio (fora deste monorepo de amostra)
+            // Adding Mosaic to your own project (outside this sample monorepo)
             Column(
                 style = { size(width = fillHorizontally(), height = wrapVertically()) },
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
                 SimpleText(
-                    text = "Adicionando o Mosaic ao seu projeto",
+                    text = "Adding Mosaic to your project",
                     typography = typographyHeadlineSmall(),
                     style = { padding(start = 4) }
                 )
                 ShowroomParagraph(
-                    "As três bibliotecas são publicadas no Maven Central sob dev.catbit. mosaic-core " +
-                        "guarda os schemas compartilhados que a DSL do servidor e o renderer do cliente usam " +
-                        "— declare-o explicitamente (é implementation, não api) junto com o módulo que você " +
-                        "estiver consumindo."
+                    "All three libraries are published on Maven Central under dev.catbit. mosaic-core " +
+                        "holds the shared schemas that both the server DSL and the client renderer use " +
+                        "— declare it explicitly (it's an implementation, not an api, dependency) alongside " +
+                        "whichever module you're consuming."
                 )
             }
 
-            // Server setup — trecho real do README
+            // Server setup — real excerpt from the README
             Column(
                 style = { size(width = fillHorizontally(), height = wrapVertically()) },
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
                 ShowroomSectionTitle("Backend (mosaic-server)")
                 ShowroomParagraph(
-                    "É toda a pegada no backend: mosaic-server é uma lib JVM comum, não exige nenhum " +
-                        "servidor HTTP por conta própria — o sample-server só usa Ktor pra expor a DSL pela " +
-                        "rede, por escolha própria deste projeto de amostra."
+                    "That's the entire backend footprint: mosaic-server is a plain JVM library, it doesn't " +
+                        "require any HTTP server on its own — sample-server only uses Ktor to expose the DSL " +
+                        "over the network, as this sample project's own choice."
                 )
                 CodeViewer(
                     code = """
                         // gradle/libs.versions.toml
                         [versions]
-                        mosaic = "1.0.0"
+                        mosaic = "1.1.0"
 
                         [libraries]
                         mosaic-core = { module = "dev.catbit:mosaic-core", version.ref = "mosaic" }
@@ -241,10 +227,10 @@ object GetStartedScreenBuilder : ScreenBuilder {
                             implementation(libs.mosaic.server)
                         }
 
-                        // Ou com coordenadas diretas:
+                        // Or with direct coordinates:
                         dependencies {
-                            implementation("dev.catbit:mosaic-core:1.0.0")
-                            implementation("dev.catbit:mosaic-server:1.0.0")
+                            implementation("dev.catbit:mosaic-core:1.1.0")
+                            implementation("dev.catbit:mosaic-server:1.1.0")
                         }
                     """.trimIndent(),
                     language = CodeViewerTileSchema.Language.KOTLIN,
@@ -253,30 +239,30 @@ object GetStartedScreenBuilder : ScreenBuilder {
                 )
             }
 
-            // Client setup — trecho real do README
+            // Client setup — real excerpt from the README
             Column(
                 style = { size(width = fillHorizontally(), height = wrapVertically()) },
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
-                ShowroomSectionTitle("Cliente (mosaic-client)")
+                ShowroomSectionTitle("Client (mosaic-client)")
                 ShowroomParagraph(
-                    "mosaic-client compila para Android, iOS (iosArm64/iosSimulatorArm64), Desktop (jvm) e " +
-                        "Web (wasmJs) — escolha os alvos que o seu módulo Compose Multiplatform já usa, nada " +
-                        "extra pra configurar por plataforma. mavenCentral() precisa estar no bloco " +
-                        "dependencyResolutionManagement/repositories, como qualquer outra dependência do " +
-                        "Central."
+                    "mosaic-client compiles for Android, iOS (iosArm64/iosSimulatorArm64), Desktop (jvm) " +
+                        "and Web (wasmJs) — pick whichever targets your Compose Multiplatform module already " +
+                        "uses, nothing extra to configure per platform. mavenCentral() needs to be in the " +
+                        "dependencyResolutionManagement/repositories block, like any other Central " +
+                        "dependency."
                 )
                 CodeViewer(
                     code = """
                         // gradle/libs.versions.toml
                         [versions]
-                        mosaic = "1.0.0"
+                        mosaic = "1.1.0"
 
                         [libraries]
                         mosaic-core = { module = "dev.catbit:mosaic-core", version.ref = "mosaic" }
                         mosaic-client = { module = "dev.catbit:mosaic-client", version.ref = "mosaic" }
 
-                        // build.gradle.kts (dentro do commonMain do módulo Compose Multiplatform)
+                        // build.gradle.kts (inside the Compose Multiplatform module's commonMain)
                         kotlin {
                             sourceSets {
                                 commonMain.dependencies {
@@ -286,10 +272,10 @@ object GetStartedScreenBuilder : ScreenBuilder {
                             }
                         }
 
-                        // Ou com coordenadas diretas:
+                        // Or with direct coordinates:
                         commonMain.dependencies {
-                            implementation("dev.catbit:mosaic-core:1.0.0")
-                            implementation("dev.catbit:mosaic-client:1.0.0")
+                            implementation("dev.catbit:mosaic-core:1.1.0")
+                            implementation("dev.catbit:mosaic-client:1.1.0")
                         }
                     """.trimIndent(),
                     language = CodeViewerTileSchema.Language.KOTLIN,
@@ -297,7 +283,7 @@ object GetStartedScreenBuilder : ScreenBuilder {
                     style = { size(width = fillHorizontally(), height = wrapVertically()) }
                 )
                 ShowroomParagraph(
-                    "Com a dependência adicionada, inicializar o cliente é um único composable de entrada:"
+                    "With the dependency added, initializing the client is a single entry-point composable:"
                 )
                 CodeViewer(
                     code = """
@@ -313,22 +299,23 @@ object GetStartedScreenBuilder : ScreenBuilder {
                 )
             }
 
-            // Transição: dependências (projeto próprio) → rodando este monorepo de amostra
+            // Transition: dependencies (your own project) → running this sample monorepo
             SimpleText(
-                text = "Rodando este repositório de amostra",
+                text = "Running this sample repository",
                 typography = typographyHeadlineSmall(),
                 style = { size(width = fillHorizontally(), height = wrapVertically()); padding(start = 4) }
             )
 
-            // Passo 1
+            // Step 1
             Column(
                 style = { size(width = fillHorizontally(), height = wrapVertically()) },
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
-                ShowroomSectionTitle("1. Rode o servidor de amostra")
+                ShowroomSectionTitle("1. Run the sample server")
                 ShowroomParagraph(
-                    "O sample-server é um backend Ktor comum — mosaic-server não exige um servidor HTTP por " +
-                        "si só, o sample-server só usa Ktor pra expor a DSL pela rede. Ele sobe na porta 9090."
+                    "sample-server is a plain Ktor backend — mosaic-server doesn't require an HTTP server " +
+                        "on its own, sample-server only uses Ktor to expose the DSL over the network. It " +
+                        "starts on port 9090."
                 )
                 CodeViewer(
                     code = "./gradlew sample-server:run",
@@ -338,17 +325,17 @@ object GetStartedScreenBuilder : ScreenBuilder {
                 )
             }
 
-            // Passo 2
+            // Step 2
             Column(
                 style = { size(width = fillHorizontally(), height = wrapVertically()) },
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
-                ShowroomSectionTitle("2. Rode um cliente")
+                ShowroomSectionTitle("2. Run a client")
                 ShowroomParagraph(
-                    "Com o servidor no ar, rode o cliente de amostra Desktop, que já vem configurado pra " +
-                        "apontar para localhost:9090. mosaic-client também compila para Android, iOS " +
-                        "(iosArm64/iosSimulatorArm64) e Web (wasmJs) — o sample-client deste repositório roda " +
-                        "em Android e Desktop."
+                    "With the server up, run the Desktop sample client, which already comes configured to " +
+                        "point at localhost:9090. mosaic-client also compiles for Android, iOS " +
+                        "(iosArm64/iosSimulatorArm64) and Web (wasmJs) — this repository's sample-client runs " +
+                        "on Android and Desktop."
                 )
                 CodeViewer(
                     code = "./gradlew sample-client:run",
@@ -358,13 +345,13 @@ object GetStartedScreenBuilder : ScreenBuilder {
                 )
             }
 
-            // Estrutura do projeto
+            // Project structure
             Column(
                 style = { size(width = fillHorizontally(), height = wrapVertically()) },
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
                 SimpleText(
-                    text = "Estrutura do projeto",
+                    text = "Project structure",
                     typography = typographyHeadlineSmall(),
                     style = { padding(start = 4) }
                 )
@@ -413,18 +400,18 @@ object GetStartedScreenBuilder : ScreenBuilder {
                 }
             }
 
-            // Um screen na DSL — trecho real do README
+            // A screen, in the DSL — real excerpt from the README
             Column(
                 style = { size(width = fillHorizontally(), height = wrapVertically()) },
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
-                ShowroomSectionTitle("Uma tela, na DSL")
+                ShowroomSectionTitle("A screen, in the DSL")
                 ShowroomParagraph(
-                    "Nada nesta árvore referencia código de plataforma. O cliente que renderiza não sabe " +
-                        "que \"login\" existe de antemão — ele sabe renderizar um Column, um TextField, um " +
-                        "Button, e executar SendNetworkRequest → UpdateData → Navigate/DisplaySnackbar como " +
-                        "um grafo de eventos encadeados, porque isso faz parte do vocabulário fixo do " +
-                        "mosaic-core/mosaic-client."
+                    "Nothing in this tree references platform code. The client that renders it doesn't " +
+                        "know that \"login\" exists ahead of time — it knows how to render a Column, a " +
+                        "TextField, a Button, and run SendNetworkRequest → UpdateData → " +
+                        "Navigate/DisplaySnackbar as a graph of chained events, because that's part of the " +
+                        "fixed vocabulary of mosaic-core/mosaic-client."
                 )
                 CodeViewer(
                     code = """
@@ -468,13 +455,16 @@ object GetStartedScreenBuilder : ScreenBuilder {
                 )
             }
 
-            // Explore o catálogo — mesmo padrão de "Next steps" usado no About
+            // Same "Next steps" pattern used in About — switches Home's own AdaptiveNavigation tab
+            // (navigatorId = "home", the nested graph this entry itself lives in) rather than
+            // pushing a redundant screen onto "root", and syncs the shell's selected tab via
+            // UpdateTiles since this switch isn't a real click on the shell's own nav item.
             Column(
                 style = { size(width = fillHorizontally(), height = wrapVertically()) },
                 arrangement = arrangeVerticallySpacedBy(8)
             ) {
                 SimpleText(
-                    text = "Próximo passo",
+                    text = "Next step",
                     typography = typographyHeadlineSmall(),
                     style = { padding(start = 4) }
                 )
@@ -489,7 +479,16 @@ object GetStartedScreenBuilder : ScreenBuilder {
                             background(color(themeColorSurfaceContainer()))
                         },
                         events = {
-                            Navigate(trigger = EventTriggers.onClick(), navigatorId = "root", destination = "tiles")
+                            NavigateClearingStack(trigger = EventTriggers.onClick(), navigatorId = "home", destination = "tiles")
+                            UpdateTiles(
+                                trigger = EventTriggers.onClick(),
+                                updates = {
+                                    update(
+                                        tileId = "home_adaptive_navigation",
+                                        updateData = inlineTileUpdateData("selectedEntryId" to "tiles")
+                                    )
+                                }
+                            )
                         }
                     ) {
                         Column(
@@ -499,9 +498,9 @@ object GetStartedScreenBuilder : ScreenBuilder {
                             },
                             arrangement = arrangeVerticallySpacedBy(4)
                         ) {
-                            SimpleText(text = "Explorar Tiles", typography = typographyTitleMedium())
+                            SimpleText(text = "Explore Tiles", typography = typographyTitleMedium())
                             SimpleText(
-                                text = "Veja os 46 tiles disponíveis, agrupados por categoria.",
+                                text = "See all 46 available tiles, grouped by category.",
                                 typography = typographyBodySmall(),
                                 color = color(themeColorOnSurfaceVariant())
                             )
@@ -514,7 +513,16 @@ object GetStartedScreenBuilder : ScreenBuilder {
                             background(color(themeColorSurfaceContainer()))
                         },
                         events = {
-                            Navigate(trigger = EventTriggers.onClick(), navigatorId = "root", destination = "events")
+                            NavigateClearingStack(trigger = EventTriggers.onClick(), navigatorId = "home", destination = "events")
+                            UpdateTiles(
+                                trigger = EventTriggers.onClick(),
+                                updates = {
+                                    update(
+                                        tileId = "home_adaptive_navigation",
+                                        updateData = inlineTileUpdateData("selectedEntryId" to "events")
+                                    )
+                                }
+                            )
                         }
                     ) {
                         Column(
@@ -524,9 +532,9 @@ object GetStartedScreenBuilder : ScreenBuilder {
                             },
                             arrangement = arrangeVerticallySpacedBy(4)
                         ) {
-                            SimpleText(text = "Explorar Events", typography = typographyTitleMedium())
+                            SimpleText(text = "Explore Events", typography = typographyTitleMedium())
                             SimpleText(
-                                text = "Veja os 63 events disponíveis para montar cadeias de lógica.",
+                                text = "See all 63 available events for building logic chains.",
                                 typography = typographyBodySmall(),
                                 color = color(themeColorOnSurfaceVariant())
                             )

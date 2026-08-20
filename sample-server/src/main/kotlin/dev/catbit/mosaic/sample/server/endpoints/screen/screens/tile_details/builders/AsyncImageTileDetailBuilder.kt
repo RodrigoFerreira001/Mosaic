@@ -1,19 +1,32 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders
 
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.image.AsyncImageTileSchema
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
+import dev.catbit.mosaic.server.builder.color.color
+import dev.catbit.mosaic.server.builder.color.themeColorOnSurfaceVariant
+import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
+import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
+import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallySpacedBy
+import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.TileDetailBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
+import dev.catbit.mosaic.server.builder.tile.builders.grouping.FlowRow
 import dev.catbit.mosaic.server.builder.tile.builders.image.AsyncImage
 import dev.catbit.mosaic.server.builder.tile.builders.image.cropContentScale
+import dev.catbit.mosaic.server.builder.tile.builders.image.fillBoundsContentScale
+import dev.catbit.mosaic.server.builder.tile.builders.image.fillHeightContentScale
+import dev.catbit.mosaic.server.builder.tile.builders.image.fillWidthContentScale
+import dev.catbit.mosaic.server.builder.tile.builders.image.fitContentScale
+import dev.catbit.mosaic.server.builder.tile.builders.image.insideContentScale
+import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
+import dev.catbit.mosaic.server.builder.typography.typographyLabelMedium
 
 object AsyncImageTileDetailBuilder : TileDetailBuilder {
 
@@ -22,29 +35,92 @@ object AsyncImageTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Images and Icons",
-                description = "Imagem carregada via Coil 3 a partir de uma URL, bytes brutos ou base64 — para avatares, fotos de produto, banners."
+                description = "An image loaded via Coil 3 from a URL, raw bytes, or base64 — for avatars, " +
+                    "product photos, banners. model accepts three forms: Model.Url(url) for remote images, " +
+                    "Model.ArrayOfBytes(bytes) and Model.Base64(string) for images already available on the " +
+                    "server. It fires OnAsyncImageLoadStart/Success/Failure on every load-state change " +
+                    "(including reloads if model changes), so you can react with a Shimmer while it loads. " +
+                    "There's no built-in placeholder or error image — you render those yourself."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "model aceita 3 formas: Model.Url(url) pra imagens remotas, Model.ArrayOfBytes(bytes) " +
-                    "e Model.Base64(string) pra imagens já disponíveis no servidor. Dispara " +
-                    "OnAsyncImageLoadStart/Success/Failure — dá pra reagir com um Shimmer enquanto carrega."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("model", "Model", "Obrigatório. Url(url) / ArrayOfBytes(bytes) / Base64(string)."),
-                    ShowroomParam("contentDescription", "String?", "Acessibilidade."),
-                    ShowroomParam("contentScale", "ContentScale", "FIT (padrão), cropContentScale(), fillWidthContentScale(), etc."),
-                    ShowroomParam("alpha", "Float", "Padrão 1.0."),
-                    ShowroomParam("clipToBounds", "Boolean", "Padrão true."),
+            ShowroomSectionTitle("Interactive demo — real load-state triggers")
+            ShowroomDemoCard(title = "Reload the page to see the status flip from \"Loading...\" to \"Loaded\" for real") {
+                AsyncImage(
+                    id = "async_image_demo",
+                    model = AsyncImageTileSchema.Model.Url(
+                        "https://kotlinlang.org/docs/images/mascot-in-action.png"
+                    ),
+                    contentDescription = "AsyncImage demo image",
+                    contentScale = cropContentScale(),
+                    style = {
+                        size(width = fillHorizontally(max = 480), height = fixedVertically(200))
+                        clip(roundedCornerShape(all = 16))
+                    },
+                    events = {
+                        UpdateTiles(
+                            trigger = EventTriggers.onAsyncImageLoadStart(),
+                            updates = { update(tileId = "async_image_demo_status", updateData = inlineTileUpdateData("text" to "Status: loading...")) }
+                        )
+                        UpdateTiles(
+                            trigger = EventTriggers.onAsyncImageLoadSuccess(),
+                            updates = { update(tileId = "async_image_demo_status", updateData = inlineTileUpdateData("text" to "Status: loaded successfully")) }
+                        )
+                        UpdateTiles(
+                            trigger = EventTriggers.onAsyncImageLoadFailure(),
+                            updates = { update(tileId = "async_image_demo_status", updateData = inlineTileUpdateData("text" to "Status: failed to load")) }
+                        )
+                    }
                 )
-            )
+                SimpleText(id = "async_image_demo_status", text = "Status: loading...", color = color(themeColorOnSurfaceVariant()))
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("OnAsyncImageLoadFailure — a real, honest failure")
+            ShowroomDemoCard(title = "Points at a real, reachable SVG — Coil has no SVG decoder registered in this client, so it fails to decode") {
+                AsyncImage(
+                    id = "async_image_failure_demo",
+                    model = AsyncImageTileSchema.Model.Url("https://icon.icepanel.io/Technology/svg/Kotlin.svg"),
+                    contentDescription = "Broken image demo",
+                    contentScale = cropContentScale(),
+                    style = { size(width = fixedHorizontally(160), height = fixedVertically(100)); clip(roundedCornerShape(all = 12)) },
+                    events = {
+                        UpdateTiles(
+                            trigger = EventTriggers.onAsyncImageLoadFailure(),
+                            updates = { update(tileId = "async_image_failure_status", updateData = inlineTileUpdateData("text" to "Failed — no built-in error image, this is empty on purpose")) }
+                        )
+                    }
+                )
+                SimpleText(id = "async_image_failure_status", text = "Waiting for the request to fail...", color = color(themeColorOnSurfaceVariant()))
+            }
+
+            ShowroomSectionTitle("contentScale — all 6 values")
+            ShowroomDemoCard(title = "Same 220×110 box, same wide banner source image — the crop/fit differences are obvious off-square") {
+                FlowRow(horizontalArrangement = arrangeHorizontallySpacedBy(16), verticalArrangement = arrangeVerticallySpacedBy(16)) {
+                    listOf(
+                        "cropContentScale()" to cropContentScale(),
+                        "fitContentScale()" to fitContentScale(),
+                        "fillHeightContentScale()" to fillHeightContentScale(),
+                        "fillWidthContentScale()" to fillWidthContentScale(),
+                        "insideContentScale()" to insideContentScale(),
+                        "fillBoundsContentScale()" to fillBoundsContentScale()
+                    ).forEach { (label, scale) ->
+                        Column(arrangement = arrangeVerticallySpacedBy(6)) {
+                            SimpleText(text = label, typography = typographyLabelMedium())
+                            AsyncImage(
+                                model = AsyncImageTileSchema.Model.Url(
+                                    "https://blog.jetbrains.com/wp-content/uploads/2023/04/DSGN-16174-Blog-post-banner-and-promo-materials-for-post-about-Kotlin-mascot_3.png"
+                                ),
+                                contentScale = scale,
+                                style = {
+                                    size(width = fixedHorizontally(220), height = fixedVertically(110))
+                                    clip(roundedCornerShape(all = 12))
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 AsyncImage(
@@ -60,27 +136,11 @@ object AsyncImageTileDetailBuilder : TileDetailBuilder {
                 """
             )
 
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Imagem real carregada de uma URL pública") {
-                AsyncImage(
-                    id = "async_image_demo",
-                    model = AsyncImageTileSchema.Model.Url(
-                        "https://picsum.photos/seed/mosaic-showroom/480/270"
-                    ),
-                    contentDescription = "Imagem de demonstração do AsyncImage",
-                    contentScale = cropContentScale(),
-                    style = {
-                        size(width = fillHorizontally(max = 480), height = fixedVertically(200))
-                        clip(roundedCornerShape(all = 16))
-                    }
-                )
-            }
-
-            ShowroomSectionTitle("Placeholder com Shimmer durante o carregamento")
+            ShowroomSectionTitle("Placeholder with Shimmer while loading")
             ShowroomCode(
                 """
                 Box {
-                    Shimmer { CircularProgressIndicator() } // ver evento OnAsyncImageLoadStart/Success
+                    Shimmer { CircularProgressIndicator() } // see OnAsyncImageLoadStart/Success event
                     AsyncImage(
                         model = AsyncImageTileSchema.Model.Url(url),
                         events = {

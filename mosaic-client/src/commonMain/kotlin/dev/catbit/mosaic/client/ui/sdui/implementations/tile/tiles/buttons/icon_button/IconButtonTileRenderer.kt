@@ -33,6 +33,8 @@ object IconButtonTileRenderer : TileRenderer<IconButtonTileSchema> {
 
             val onClick = { triggerEvent(EventTriggers.onClick()) }
 
+            val isEnabled = enabled && !loading
+
             val content: @Composable () -> Unit = {
                 if (loading) {
                     CircularProgressIndicator(
@@ -50,7 +52,7 @@ object IconButtonTileRenderer : TileRenderer<IconButtonTileSchema> {
                 IconButtonTileSchema.Type.DEFAULT ->
                     IconButton(
                         modifier = modifier,
-                        enabled = enabled,
+                        enabled = isEnabled,
                         onClick = onClick,
                         content = content
                     )
@@ -58,7 +60,7 @@ object IconButtonTileRenderer : TileRenderer<IconButtonTileSchema> {
                 IconButtonTileSchema.Type.FILLED ->
                     FilledIconButton(
                         modifier = modifier,
-                        enabled = enabled,
+                        enabled = isEnabled,
                         onClick = onClick,
                         content = content
                     )
@@ -66,7 +68,7 @@ object IconButtonTileRenderer : TileRenderer<IconButtonTileSchema> {
                 IconButtonTileSchema.Type.FILLED_TONAL ->
                     FilledTonalIconButton(
                         modifier = modifier,
-                        enabled = enabled,
+                        enabled = isEnabled,
                         onClick = onClick,
                         content = content
                     )
@@ -74,7 +76,7 @@ object IconButtonTileRenderer : TileRenderer<IconButtonTileSchema> {
                 IconButtonTileSchema.Type.OUTLINED ->
                     OutlinedIconButton(
                         modifier = modifier,
-                        enabled = enabled,
+                        enabled = isEnabled,
                         onClick = onClick,
                         content = content
                     )

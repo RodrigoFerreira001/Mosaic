@@ -9,7 +9,9 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardNext
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardPreviousEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardSearchEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnKeyboardSendEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLeadingIconClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTextChangedEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnTrailingIconClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
 import dev.catbit.mosaic.core.data.schemas.tile.style.StyleSchema
@@ -18,37 +20,39 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 text input field in either a filled or outlined visual style controlled
- * by [kind]. Supports rich decoration (icons, labels, prefix/suffix, supporting text) and
- * full keyboard configuration.
+ * Renders a Material 3 text input field: [Kind.FILLED] → `TextField`, [Kind.OUTLINED] →
+ * `OutlinedTextField`. [label], [prefixText], [suffixText], [supportingText] and [placeholder]
+ * are rendered only when non-null, [enabled], [minLines] and [maxLines] are forwarded, and
+ * [state] set to [State.ERROR] switches the field into Material's error styling.
  *
- * **Updatable fields (via UpdateTiles):** `value`, `enabled`, `leadingIcon`, `clickableLeadingIcon`,
- * `trailingIcon`, `clickableTrailingIcon`, `prefixText`, `suffixText`, `placeholder`, `label`,
- * `supportingText`, `minLines`, `maxLines`, `kind`, `state`, `keyboardOptions`,
- * `visualTransformation`, `visibility`, `style`.
+ * **Text state:** the renderer keeps a local `TextFieldValue` seeded from [value]. A
+ * `LaunchedEffect` on [value] re-syncs that local state whenever the server pushes a new value
+ * (e.g. via `UpdateTiles`), placing the caret at the end of the new text. On each keystroke the
+ * renderer dispatches a local `TextFieldTileEvents.OnTextChange` that the holder applies to its
+ * own state, so the typed text survives without a round trip to the server.
+ *
+ * **Icons:** [leadingIcon] / [trailingIcon] render as plain icons by default. Setting
+ * [clickableLeadingIcon] / [clickableTrailingIcon] wraps them in an `IconButton` that fires its
+ * own trigger.
+ *
+ * **Keyboard:** [keyboardOptions] maps to Compose `KeyboardOptions` (capitalization, keyboard
+ * type, IME action, autocorrect, show-on-focus) and [visualTransformation] to the field's
+ * visual transformation — [VisualTransformation.None], [VisualTransformation.Password] (dots)
+ * or [VisualTransformation.Custom] with a [VisualTransformation.Custom.mask].
  *
  * **Triggers dispatched:**
- * - [OnTextChangedEventTrigger] — fired on every keystroke when the text changes; the new text
- *   string is passed as incomingData to downstream events. The renderer also dispatches a local
- *   [TextFieldTileEvents.OnTextChange] so sibling tiles on the same screen can read the value.
- * - [OnKeyboardDoneEventTrigger] — fired when the user presses the IME "Done" action.
- * - [OnKeyboardGoEventTrigger] — fired when the user presses the IME "Go" action.
- * - [OnKeyboardNextEventTrigger] — fired when the user presses the IME "Next" action.
- * - [OnKeyboardPreviousEventTrigger] — fired when the user presses the IME "Previous" action.
- * - [OnKeyboardSearchEventTrigger] — fired when the user presses the IME "Search" action.
- * - [OnKeyboardSendEventTrigger] — fired when the user presses the IME "Send" action.
- * - `OnLeadingIconClickEventTrigger` — fired when [clickableLeadingIcon] is true and the user
- *   taps the leading icon (not listed in `@Triggers` but wired in the renderer).
- * - `OnTrailingIconClickEventTrigger` — fired when [clickableTrailingIcon] is true and the
- *   user taps the trailing icon (not listed in `@Triggers` but wired in the renderer).
+ * - `OnTextChangedEventTrigger` — on every keystroke where the text actually differs from
+ *   [value]; the new text is passed as the event's incoming data.
+ * - `OnKeyboardDoneEventTrigger`, `OnKeyboardGoEventTrigger`, `OnKeyboardNextEventTrigger`,
+ *   `OnKeyboardPreviousEventTrigger`, `OnKeyboardSearchEventTrigger`,
+ *   `OnKeyboardSendEventTrigger` — when the matching IME action is pressed (the action shown
+ *   depends on [keyboardOptions]`.imeAction`).
+ * - `OnLeadingIconClickEventTrigger` — only when [clickableLeadingIcon] is `true`.
+ * - `OnTrailingIconClickEventTrigger` — only when [clickableTrailingIcon] is `true`.
  *
- * **Notes:** The renderer holds a local [TextFieldValue] state initialized from [value]. A
- * [LaunchedEffect] watches [value] and syncs the local state when the server pushes a new value
- * via UpdateTiles — the cursor is moved to the end of the new text on each sync. The trigger
- * for text changes is only fired when the new text differs from the previously known [value],
- * preventing feedback loops. [state] set to `ERROR` activates the Material error styling
- * (red border and supporting text color). [visualTransformation] supports `None`, `Password`
- * (dots), and `Custom` (character-level masking).
+ * **Value production:** the holder exposes the current [value] under a caller-chosen key so
+ * `GetData` / `EvaluateData` events can read this field by its [id]. An empty value produces
+ * no entry at all rather than an empty string.
  */
 @Immutable
 @Triggers(
@@ -60,6 +64,8 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
         OnKeyboardPreviousEventTrigger::class,
         OnKeyboardSearchEventTrigger::class,
         OnKeyboardSendEventTrigger::class,
+        OnLeadingIconClickEventTrigger::class,
+        OnTrailingIconClickEventTrigger::class,
     ]
 )
 @Serializable

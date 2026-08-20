@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -14,8 +11,11 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.Til
 import dev.catbit.mosaic.server.builder.event.builders.overlays.snackbar.DisplaySnackbar
 import dev.catbit.mosaic.server.builder.icon.icon
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallySpacedBy
 import dev.catbit.mosaic.server.builder.tile.builders.chips.AssistChip
 import dev.catbit.mosaic.server.builder.tile.builders.chips.defaultAssistChip
+import dev.catbit.mosaic.server.builder.tile.builders.chips.elevatedAssistChip
+import dev.catbit.mosaic.server.builder.tile.builders.grouping.Row
 
 object AssistChipTileDetailBuilder : TileDetailBuilder {
 
@@ -24,27 +24,39 @@ object AssistChipTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Chips",
-                description = "Chip Material 3 para ações inteligentes/automatizadas que atravessam apps — como \"Adicionar ao Calendário\" ou \"Compartilhar\"."
+                description = "A Material 3 chip for smart/automated actions that cross apps — like " +
+                    "\"Add to Calendar\" or \"Share\". Use it for actions triggered by context, not selection: " +
+                    "unlike FilterChip/InputChip, AssistChip has no selected state — it's always an action " +
+                    "button wearing a chip's appearance."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para ações disparadas por contexto, não seleção. Diferente de FilterChip/InputChip, " +
-                    "AssistChip não tem estado selected — é sempre um botão de ação com aparência de chip."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("text", "String", "Obrigatório."),
-                    ShowroomParam("leadingIcon / trailingIcon", "IconSchema?", "Opcionais."),
-                    ShowroomParam("variant", "Variant", "defaultAssistChip() (padrão, outlined) ou elevatedAssistChip()."),
-                    ShowroomParam("enabled", "Boolean", "Padrão true. Desabilitado não dispara clique."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Tap to fire a real action") {
+                AssistChip(
+                    id = "assist_chip_demo",
+                    text = "Add to calendar",
+                    leadingIcon = icon("calendar_today"),
+                    variant = defaultAssistChip(),
+                    events = {
+                        DisplaySnackbar(
+                            trigger = EventTriggers.onClick(),
+                            message = "AssistChip fired a real event"
+                        )
+                    }
                 )
-            )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("variant — defaultAssistChip() vs elevatedAssistChip()")
+            ShowroomDemoCard(title = "DEFAULT is outlined, ELEVATED adds a shadow. Also: trailingIcon and enabled = false") {
+                Row(arrangement = arrangeHorizontallySpacedBy(8)) {
+                    AssistChip(text = "Default", leadingIcon = icon("calendar_today"), variant = defaultAssistChip())
+                    AssistChip(text = "Elevated", leadingIcon = icon("calendar_today"), variant = elevatedAssistChip())
+                    AssistChip(text = "Trailing icon", trailingIcon = icon("open_in_new"))
+                    AssistChip(text = "Disabled", leadingIcon = icon("calendar_today"), enabled = false)
+                }
+            }
+
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 AssistChip(
@@ -58,22 +70,6 @@ object AssistChipTileDetailBuilder : TileDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Toque para disparar a ação de verdade") {
-                AssistChip(
-                    id = "assist_chip_demo",
-                    text = "Adicionar ao calendário",
-                    leadingIcon = icon("calendar_today"),
-                    variant = defaultAssistChip(),
-                    events = {
-                        DisplaySnackbar(
-                            trigger = EventTriggers.onClick(),
-                            message = "AssistChip disparou um evento de verdade"
-                        )
-                    }
-                )
-            }
 
             ShowroomRelated(
                 names = listOf("FilterChip", "InputChip", "SuggestionChip"),

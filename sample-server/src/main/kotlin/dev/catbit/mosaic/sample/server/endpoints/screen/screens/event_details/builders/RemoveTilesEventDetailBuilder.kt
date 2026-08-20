@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -35,37 +32,13 @@ object RemoveTilesEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Tile Management",
-                description = "Remove tiles específicos de um container pelos seus IDs, sem recarregar a tela inteira."
+                description = "Removes specific tiles from a container by their IDs, without reloading the " +
+                    "whole screen. Use it when you already know exactly which ID(s) to remove — for example, " +
+                    "deleting a specific list item. To empty a container completely, prefer WipeTiles instead."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use quando você já sabe exatamente qual(is) ID(s) remover — por exemplo, excluir um item de " +
-                    "lista específico. Para esvaziar um container por completo, prefira WipeTiles."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("groupingTileId", "String", "Obrigatório. ID do container alvo."),
-                    ShowroomParam("tileIds", "List<String>", "Obrigatório. IDs a remover; IDs desconhecidos são ignorados silenciosamente."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                RemoveTiles(
-                    trigger = EventTriggers.onClick(),
-                    groupingTileId = "item_list",
-                    tileIds = listOf("item_42")
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Remova itens individualmente da lista") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Remove items individually from the list") {
                 Column(
                     id = "remove_tiles_list",
                     style = { size(width = fillHorizontally(), height = wrapVertically()) },
@@ -75,8 +48,19 @@ object RemoveTilesEventDetailBuilder : EventDetailBuilder {
                     RemoveTilesListItem(id = "remove_tiles_item_2", label = "Item 2")
                     RemoveTilesListItem(id = "remove_tiles_item_3", label = "Item 3")
                 }
-                ShowroomNote("Cada botão \"remover\" chama RemoveTiles com groupingTileId = \"remove_tiles_list\" e tileIds = listOf(id do próprio item).")
+                ShowroomNote("Each \"remove\" button calls RemoveTiles with groupingTileId = \"remove_tiles_list\" and tileIds = listOf(this item's own id).")
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                RemoveTiles(
+                    trigger = EventTriggers.onClick(),
+                    groupingTileId = "item_list",
+                    tileIds = listOf("item_42")
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("AddTiles", "WipeTiles", "UpdateTiles"),

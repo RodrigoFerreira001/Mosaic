@@ -5,11 +5,16 @@ import dev.catbit.mosaic.core.data.schemas.event.events.image.ImageResizeOptions
 import io.github.aryapreetam.cmpimgcompress.CompressionConfig
 import io.github.aryapreetam.cmpimgcompress.ResizeOptions
 
+/** Converts a [CompressionScheme] (`TakePicture`/`GetImageFromGallery`'s `compression`) into the
+ * `cmpimgcompress` library's own [CompressionConfig]. */
 fun CompressionScheme.toCompressionConfig(): CompressionConfig = when (this) {
     is CompressionScheme.ByQuality -> CompressionConfig.ByQuality(qualityPercent)
     is CompressionScheme.ByTargetSize -> CompressionConfig.ByTargetSize(targetSizeKb)
 }
 
+/** Converts an [ImageResizeOptions] (`TakePicture`/`GetImageFromGallery`'s `resize`) into the
+ * `cmpimgcompress` library's own [ResizeOptions]. Only takes effect when paired with a non-null
+ * [CompressionScheme] — resizing is applied as part of the same re-encode pass. */
 fun ImageResizeOptions.toResizeOptions(): ResizeOptions = ResizeOptions(
     maxLongEdgePx = maxLongEdgePx,
     downscaleOnly = downscaleOnly,

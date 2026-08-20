@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -32,43 +29,15 @@ object IconButtonTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Buttons",
-                description = "Botão Material 3 sem rótulo, só ícone — para ações de toolbar e controles compactos (voltar, buscar, fechar)."
+                description = "A Material 3 button with no label, just an icon — for toolbar actions and " +
+                    "compact controls (back, search, close). Like Button, but without text: only the icon " +
+                    "and the buttonType (visual style) matter. Prefer IconButton when the icon's meaning is " +
+                    "already obvious from context — otherwise use Button with icon + text."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Igual ao Button, mas sem texto: só o ícone e o buttonType (visual) importam. " +
-                    "Prefira IconButton quando o significado do ícone já é óbvio pelo contexto — " +
-                    "senão use Button com icon + text."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("icon", "IconSchema", "Obrigatório. O ícone exibido."),
-                    ShowroomParam("buttonType", "Type", "defaultIconButton() (padrão), filledIconButton(), filledTonalIconButton(), outlinedIconButton()."),
-                    ShowroomParam("enabled", "Boolean", "Padrão true."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                IconButton(
-                    id = "backButton",
-                    icon = icon("arrow_back"),
-                    buttonType = defaultIconButton(),
-                    events = {
-                        NavigateUp(trigger = EventTriggers.onClick())
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Os 4 buttonType incrementam o mesmo contador") {
-                SimpleText(id = "icon_button_counter", text = "Toque em qualquer botão")
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "The 4 buttonType values increment the same counter") {
+                SimpleText(id = "icon_button_counter", text = "Tap any button")
                 Row(arrangement = arrangeHorizontallySpacedBy(8), alignment = alignVerticallyToCenter()) {
                     IconButton(
                         icon = icon("add_circle"),
@@ -93,6 +62,29 @@ object IconButtonTileDetailBuilder : TileDetailBuilder {
                 }
             }
 
+            ShowroomSectionTitle("enabled / loading")
+            ShowroomDemoCard(title = "enabled = false disables interactivity for real; loading = true forces disabled + spinner") {
+                Row(arrangement = arrangeHorizontallySpacedBy(16), alignment = alignVerticallyToCenter()) {
+                    IconButton(icon = icon("delete"), buttonType = filledIconButton(), enabled = true)
+                    IconButton(icon = icon("delete"), buttonType = filledIconButton(), enabled = false)
+                    IconButton(icon = icon("delete"), buttonType = filledIconButton(), enabled = true, loading = true)
+                }
+            }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                IconButton(
+                    id = "backButton",
+                    icon = icon("arrow_back"),
+                    buttonType = defaultIconButton(),
+                    events = {
+                        NavigateUp(trigger = EventTriggers.onClick(), navigatorId = "root")
+                    }
+                )
+                """
+            )
+
             ShowroomRelated(
                 names = listOf("Button", "FloatingActionButton", "Tooltip"),
                 destination = "tileDetails"
@@ -107,7 +99,7 @@ private fun dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope.iconB
         updates = {
             update(
                 tileId = "icon_button_counter",
-                updateData = inlineTileUpdateData("text" to "UpdateTiles disparado pelo IconButton")
+                updateData = inlineTileUpdateData("text" to "UpdateTiles fired by IconButton")
             )
         }
     )

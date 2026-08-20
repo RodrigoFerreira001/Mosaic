@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -23,57 +20,45 @@ object DisplayNavigationDrawerEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Overlays",
-                description = "Abre o menu de navegação lateral da tela — o conteúdo do drawer é definido " +
-                    "no tile da tela (navigationDrawerTiles), não neste evento."
+                description = "Opens the screen's side navigation drawer — the drawer's content is defined by " +
+                    "the screen's navigationDrawerTiles tile, not by this event. Use it, fired from a hamburger " +
+                    "button or equivalent. This event has no visible effect if the current screen doesn't " +
+                    "configure navigationDrawerTiles in its Screen(...) — the drawer needs to exist before it " +
+                    "can be opened. This very \"eventDetails\" page configures a minimal drawer just for this " +
+                    "demonstration (no other screen in this app opens one)."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use disparado por um botão de hambúrguer ou equivalente. Este evento não tem efeito " +
-                    "visível se a tela atual não configurar navigationDrawerTiles no Screen(...) — o drawer " +
-                    "precisa existir antes de poder ser aberto. Esta própria página \"eventDetails\" configura " +
-                    "um drawer mínimo só pra esta demonstração (nenhuma outra tela deste app o abre)."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("—", "—", "DisplayNavigationDrawer não recebe parâmetros além de trigger/events."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                // Configurado uma vez, no nível da tela:
-                Screen(
-                    id = "home",
-                    navigationDrawerTiles = {
-                        Column(id = "drawer_content") { /* itens do menu */ }
-                    }
-                ) { /* tiles da tela */ }
-
-                // Disparado de qualquer lugar dentro dessa tela:
-                IconButton(icon = icon("menu"), events = {
-                    DisplayNavigationDrawer(trigger = EventTriggers.onClick())
-                })
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Abra o drawer configurado nesta própria página") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Open the drawer configured on this very page") {
                 Button(
-                    text = "Abrir com DisplayNavigationDrawer",
+                    text = "Open with DisplayNavigationDrawer",
                     events = {
                         DisplayNavigationDrawer(trigger = EventTriggers.onClick())
                     }
                 )
                 ShowroomNote(
-                    "O drawer que abre contém um botão \"Fechar com DismissNavigationDrawer\" — a " +
-                        "demonstração do evento par, no fim do drawer."
+                    "The drawer that opens contains a \"Close with DismissNavigationDrawer\" button — the " +
+                        "demonstration of the paired event, at the bottom of the drawer."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                // Configured once, at the screen level:
+                Screen(
+                    id = "home",
+                    navigationDrawerTiles = {
+                        Column(id = "drawer_content") { /* menu items */ }
+                    }
+                ) { /* screen tiles */ }
+
+                // Fired from anywhere inside that screen:
+                IconButton(icon = icon("menu"), events = {
+                    DisplayNavigationDrawer(trigger = EventTriggers.onClick())
+                })
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("DismissNavigationDrawer", "ToggleMenu", "DisplayModalBottomSheet"),

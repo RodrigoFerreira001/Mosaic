@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.platform
 
+import com.jthemedetecor.OsThemeDetector
 import java.awt.Toolkit
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -63,5 +64,7 @@ actual object Platform {
             return "$offset|${tz.id}"
         }
     actual val darkMode: String
-        get() = "false"
+        get() = runCatching { OsThemeDetector.getDetector().isDark }
+            .getOrDefault(false)
+            .toString()
 }

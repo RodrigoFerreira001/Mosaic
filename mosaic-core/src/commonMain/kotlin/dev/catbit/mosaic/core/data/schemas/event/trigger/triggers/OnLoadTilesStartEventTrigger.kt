@@ -8,4 +8,5 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnLoadTilesStart")
+/** Fires on `LazyTiles` right before its network fetch begins. */
 object OnLoadTilesStartEventTrigger : EventTrigger

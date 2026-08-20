@@ -12,35 +12,27 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Displays a Material 3 snackbar with a message, an optional action label, and a configurable
- * duration. The snackbar is shown immediately by broadcasting a display signal to the active
- * screen.
+ * Shows a snackbar with [message], by broadcasting a display command on the screen channel.
+ * [duration] maps onto Material's `Short`, `Long` and `Indefinite`, and [actionLabel] adds an
+ * action button when non-null.
  *
- * **incomingData consumed:** Not used.
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSnackbarActionEventTrigger] — fired when the user taps the action label button.
- *   Only relevant when [actionLabel] is non-null.
- * - [OnSnackbarDismissedEventTrigger] — fired when the snackbar is dismissed for any reason
- *   other than the action button (timeout, swipe, or programmatic dismiss).
- *
- * **Failure scenarios:** None defined. The runner does not perform any fallible operation.
- *
- * **Notes:**
- * - The [SnackbarDuration] enum is mapped 1-to-1 to the Compose Material 3
- *   [SnackbarDuration] enum at runtime ([Short], [Long], [Indefinite]).
- * - [actionLabel] is optional; omitting it produces a snackbar with no action button, and
- *   [OnSnackbarActionEventTrigger] will never fire.
- * - Both trigger callbacks are wired at the time this event runs, before the snackbar is
- *   actually shown, so the hosting screen must keep this event's holder alive for the
- *   callbacks to be reachable.
+ * - `OnSuccessEventTrigger` — right after the command was broadcast, before the snackbar has
+ *   resolved. The broadcast is fire-and-forget, so this fires regardless of what the snackbar does
+ *   next. No data is passed downstream.
+ * - `OnSnackbarActionEventTrigger` — later, when the user presses the action button. No data is
+ *   passed downstream.
+ * - `OnSnackbarDismissedEventTrigger` — later, when the snackbar goes away without its action
+ *   being pressed. No data is passed downstream.
  */
 @Immutable
 @Triggers(
     [
+        OnSuccessEventTrigger::class,
         OnSnackbarActionEventTrigger::class,
         OnSnackbarDismissedEventTrigger::class,
-        OnSuccessEventTrigger::class
     ]
 )
 @Serializable

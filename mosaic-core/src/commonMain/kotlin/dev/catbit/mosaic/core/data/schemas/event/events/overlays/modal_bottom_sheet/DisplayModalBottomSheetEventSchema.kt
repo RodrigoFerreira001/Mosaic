@@ -7,43 +7,31 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
+import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Displays a modal bottom sheet populated with a server-defined tile tree. The sheet is shown
- * immediately when this event runs; no network call is made.
+ * Shows a modal bottom sheet built from [tiles], registered under [modalBottomSheetId] so a later
+ * `DismissModalBottomSheet` can close it. Unlike the plain bottom sheet, this one dims and blocks
+ * the content behind it.
  *
- * **incomingData consumed:** Not used.
+ * [isCancellable] decides whether the user can dismiss it by gesture or scrim tap, [fill] whether
+ * it takes the full height, and [allowsPartialExpansion] whether it stops at a half-expanded state
+ * before reaching full height.
+ *
+ * **incomingData consumed:** not used.
  *
  * **Triggers fired:**
- * - [OnSuccessEventTrigger] — fired after the sheet is pushed onto the screen's overlay stack.
- *
- * **Failure scenarios:** Adding an overlay whose [modalBottomSheetId] is already on the stack
- * fails; the failure is reported through onFailure with the offending id.
- *
- * **Notes:**
- * - [modalBottomSheetId] identifies this sheet on the overlay stack, so a
- *   [DismissModalBottomSheetEventSchema] can close this specific sheet even with other overlays
- *   stacked above it.
- * - [isCancellable] controls whether the user can dismiss the sheet by swiping down, tapping the
- *   scrim or pressing back; non-cancellable sheets can only be closed via
- *   [DismissModalBottomSheetEventSchema].
- * - [fill] makes the sheet content take the full screen height, so the sheet opens flush with the
- *   top of the screen. With `false`, the sheet is exactly as tall as its content.
- * - [allowsPartialExpansion] adds a resting position at half the screen height: the sheet opens
- *   there and the user drags it up to reach the fully expanded position. With `false` (the
- *   default) the sheet only has open and closed states. **This is silently ignored when the
- *   content is shorter than half the screen** — the platform only creates the half-height anchor
- *   for sheets taller than that, which in practice means pairing it with [fill] or with
- *   content known to be long.
+ * - `OnSuccessEventTrigger` — when the sheet was added. No data is passed downstream.
+ * - `OnFailureEventTrigger` — when it could not be added, typically because [modalBottomSheetId]
+ *   is already in use; the `Throwable` is passed as incomingData.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
-        OnFailureEventTrigger::class
+        OnFailureEventTrigger::class,
     ]
 )
 @Serializable

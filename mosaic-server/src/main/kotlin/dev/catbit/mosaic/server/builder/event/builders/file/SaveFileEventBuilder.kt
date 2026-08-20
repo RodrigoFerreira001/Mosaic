@@ -23,6 +23,20 @@ internal class SaveFileEventBuilder(
     )
 }
 
+/**
+ * Writes `incomingData` — required, and must be a `ByteArray` — to [fileName] in the client's
+ * own file storage. When [overrideIfExists] is `false`, the runner first checks [fileName] and
+ * refuses to write if something is already there. Dispatches `onSuccess` (no data) when the file
+ * was written; `onFailure` (carrying the thrown exception, logged) when `incomingData` is missing
+ * or not a `ByteArray`, when [overrideIfExists] is `false` and the file already exists, or when
+ * the write itself fails.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param fileName Name of the file to write.
+ * @param overrideIfExists Whether to overwrite an existing file under [fileName] instead of failing.
+ */
 fun EventSchemaBuilderScope.SaveFile(
     id: String = randomId(),
     trigger: EventTrigger,

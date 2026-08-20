@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -26,48 +23,15 @@ object InputChipTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Chips",
-                description = "Chip Material 3 representando um valor discreto escolhido pelo usuário — tags, contatos, itens removíveis."
+                description = "A Material 3 chip representing a discrete value chosen by the user — tags, " +
+                    "contacts, removable items. There's no elevated variant (Material 3 doesn't define one " +
+                    "for InputChip). The trailingIcon (usually a \"close\") is purely visual — clicking " +
+                    "anywhere on the chip fires onCheck/onUncheck; it's the server that decides to remove the " +
+                    "tile with RemoveTiles."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Sem variante elevated (Material 3 não define uma pro InputChip). O trailingIcon " +
-                    "(geralmente um \"close\") é só visual — clicar em qualquer parte do chip dispara " +
-                    "onCheck/onUncheck; é o servidor que decide remover o tile com RemoveTiles."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("text", "String", "Obrigatório."),
-                    ShowroomParam("selected", "Boolean", "Padrão false."),
-                    ShowroomParam("leadingIcon / trailingIcon", "IconSchema?", "trailingIcon tipicamente um ícone de fechar/remover."),
-                    ShowroomParam("enabled", "Boolean", "Padrão true."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                InputChip(
-                    id = "tag_${'$'}{tag.id}",
-                    text = tag.name,
-                    trailingIcon = icon("close"),
-                    selected = true,
-                    events = {
-                        RemoveTiles(
-                            trigger = EventTriggers.onUncheck(),
-                            groupingTileId = "tagContainer",
-                            tileIds = listOf("tag_${'$'}{tag.id}")
-                        )
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Toque num chip pra removê-lo de verdade via RemoveTiles") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Tap a chip to really remove it via RemoveTiles") {
                 Row(
                     id = "input_chip_demo_container",
                     arrangement = arrangeHorizontallySpacedBy(8)
@@ -88,8 +52,35 @@ object InputChipTileDetailBuilder : TileDetailBuilder {
                         )
                     }
                 }
-                SimpleText(text = "Recarregue a página pra trazer os chips de volta")
+                SimpleText(text = "Reload the page to bring the chips back")
             }
+
+            ShowroomSectionTitle("selected = false, enabled = false")
+            ShowroomDemoCard(title = "Unselected (unchecked look) vs disabled") {
+                Row(arrangement = arrangeHorizontallySpacedBy(8)) {
+                    InputChip(text = "Unselected", trailingIcon = icon("close"), selected = false)
+                    InputChip(text = "Disabled", trailingIcon = icon("close"), selected = true, enabled = false)
+                }
+            }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                InputChip(
+                    id = "tag_${'$'}{tag.id}",
+                    text = tag.name,
+                    trailingIcon = icon("close"),
+                    selected = true,
+                    events = {
+                        RemoveTiles(
+                            trigger = EventTriggers.onUncheck(),
+                            groupingTileId = "tagContainer",
+                            tileIds = listOf("tag_${'$'}{tag.id}")
+                        )
+                    }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("AssistChip", "FilterChip", "SuggestionChip"),

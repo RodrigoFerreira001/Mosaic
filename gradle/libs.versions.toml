@@ -1,5 +1,5 @@
 [versions]
-mosaic = "1.0.4"
+mosaic = "1.1.0"
 agp = "9.2.1"
 androidx-lifecycle = "2.10.0"
 kotlin = "2.4.0"
@@ -23,6 +23,7 @@ kotlinx-collections-immutable = "0.5.1"
 kotlinpoet = "2.3.0"
 filekit = "0.14.2"
 webcamCapture = "0.3.12"
+jSystemThemeDetector = "3.9.1"
 cmpImgcompress = "0.0.3"
 room3 = "3.0.0"
 ksp = "2.3.8"
@@ -30,6 +31,7 @@ androidx-sqlite = "2.7.0"
 androidx-exifinterface = "1.4.2"
 compose-stability-analyzer = "0.10.0"
 markdown-renderer = "0.43.0"
+dokka = "2.1.0"
 
 [libraries]
 
@@ -107,6 +109,9 @@ filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose
 # Webcam Capture (JVM desktop camera access)
 webcam-capture = { module = "com.github.sarxos:webcam-capture", version.ref = "webcamCapture" }
 
+# jSystemThemeDetector (JVM desktop OS dark-mode detection)
+jsystemthemedetector = { module = "com.github.Dansoftowner:jSystemThemeDetector", version.ref = "jSystemThemeDetector" }
+
 # CMP Image Compressor (cross-platform WebP compression/resize)
 cmp-imgcompress = { module = "io.github.aryapreetam:cmp-imgcompress", version.ref = "cmpImgcompress" }
 
@@ -138,3 +143,4 @@ compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "
 compose-multiplatform = { id = "org.jetbrains.compose", version.ref = "compose" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room3 = { id = "androidx.room3", version.ref = "room3" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }

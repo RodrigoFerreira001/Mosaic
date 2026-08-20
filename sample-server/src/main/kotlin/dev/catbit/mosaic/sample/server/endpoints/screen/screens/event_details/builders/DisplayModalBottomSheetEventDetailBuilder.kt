@@ -6,8 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -55,52 +53,17 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Overlays",
-                description = "Exibe um bottom sheet modal com uma árvore de tiles definida pelo servidor. " +
-                    "Aparece imediatamente — sem chamada de rede envolvida."
+                description = "Displays a modal bottom sheet with a server-defined tile tree. It appears " +
+                    "immediately — no network call involved. Use it for contextual menus, action sheets, short " +
+                    "forms, or filter panels. Just like the dialog, the content is a full tile tree — include a " +
+                    "DismissModalBottomSheet in some internal button to close it."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para menus contextuais, action sheets, formulários curtos ou painéis de filtro. " +
-                    "Assim como o dialog, o conteúdo é uma árvore de tiles completa — inclua um " +
-                    "DismissModalBottomSheet em algum botão interno para fechá-lo."
-            )
+            ShowroomSectionTitle("Interactive demo")
 
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("tiles", "TileSchemaBuilderScope.() -> Unit", "Obrigatório. Conteúdo do sheet."),
-                    ShowroomParam("modalBottomSheetId", "String", "Padrão randomId(). Identifica este sheet para que um DismissModalBottomSheet o feche especificamente."),
-                    ShowroomParam("isCancellable", "Boolean", "Padrão true. Arrastar para baixo ou tocar no scrim fecham quando true."),
-                    ShowroomParam("fill", "Boolean", "Padrão false. Com true o sheet vai até o topo da tela; com false ele tem a altura do próprio conteúdo."),
-                    ShowroomParam("allowsPartialExpansion", "Boolean", "Padrão false. Com true o sheet ganha um repouso na metade da tela e abre nele. Ignorado se o conteúdo for menor que meia tela."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                DisplayModalBottomSheet(
-                    trigger = EventTriggers.onClick(),
-                    modalBottomSheetId = "share_sheet",
-                    isCancellable = true,
-                    fill = false,
-                    allowsPartialExpansion = false,
-                    tiles = {
-                        Column(id = "sheet_root") {
-                            SimpleText(text = "Compartilhar via")
-                        }
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-
-            ShowroomDemoCard(title = "1. Compartilhar — sheet padrão (cancelável, sem fill)") {
+            ShowroomDemoCard(title = "1. Share — default sheet (cancellable, no fill)") {
                 Button(
-                    text = "Abrir sheet de compartilhamento",
+                    text = "Open share sheet",
                     buttonType = filledButton(),
                     events = {
                         DisplayModalBottomSheet(
@@ -109,11 +72,11 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             fill = false,
                             tiles = {
-                                SheetBody(title = "Compartilhar via") {
+                                SheetBody(title = "Share via") {
                                     listOf(
-                                        "link" to "Copiar link",
-                                        "chat" to "Mensagem",
-                                        "print" to "Imprimir"
+                                        "link" to "Copy link",
+                                        "chat" to "Message",
+                                        "print" to "Print"
                                     ).forEach { (iconName, label) ->
                                         Row(
                                             style = { padding(vertical = 4) },
@@ -126,7 +89,7 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                                 )
                                                 DisplaySnackbar(
                                                     trigger = EventTriggers.onClick(),
-                                                    message = "\"$label\" selecionado",
+                                                    message = "\"$label\" selected",
                                                     duration = snackbarShortDuration()
                                                 )
                                             }
@@ -143,14 +106,14 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "2. fill = true — sheet ocupando a tela inteira") {
+            ShowroomDemoCard(title = "2. fill = true — sheet filling the whole screen") {
                 ShowroomParagraph(
-                    "Com fill = true o sheet vai até o topo da tela e o formulário rola dentro dele. " +
-                        "Não há estado parcial: arrastar para baixo fecha o sheet direto. Compare com a " +
-                        "demo 1, onde fill = false deixa o sheet com a altura do próprio conteúdo."
+                    "With fill = true the sheet goes all the way to the top of the screen and the form scrolls " +
+                        "inside it. There's no partial state: swiping down closes the sheet directly. Compare " +
+                        "with demo 1, where fill = false leaves the sheet sized to its own content."
                 )
                 Button(
-                    text = "Abrir formulário em tela cheia",
+                    text = "Open full-screen form",
                     buttonType = filledButton(),
                     events = {
                         DisplayModalBottomSheet(
@@ -159,8 +122,8 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             fill = true,
                             tiles = {
-                                SheetBody(title = "Novo endereço") {
-                                    listOf("CEP", "Rua", "Número", "Complemento", "Bairro", "Cidade").forEach { label ->
+                                SheetBody(title = "New address") {
+                                    listOf("ZIP code", "Street", "Number", "Complement", "Neighborhood", "City").forEach { label ->
                                         SimpleText(
                                             text = label,
                                             typography = typographyBodyMedium(),
@@ -169,7 +132,7 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                         TextField(style = { size(width = fillHorizontally()) })
                                     }
                                     Button(
-                                        text = "Salvar",
+                                        text = "Save",
                                         buttonType = filledButton(),
                                         events = {
                                             DismissModalBottomSheet(
@@ -178,12 +141,12 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                             )
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Endereço salvo",
+                                                message = "Address saved",
                                                 duration = snackbarShortDuration()
                                             )
                                         }
                                     )
-                                    CloseSheetButton(FILL_SHEET_ID, text = "Descartar")
+                                    CloseSheetButton(FILL_SHEET_ID, text = "Discard")
                                 }
                             }
                         )
@@ -191,15 +154,15 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "3. allowsPartialExpansion = true — abre pela metade") {
+            ShowroomDemoCard(title = "3. allowsPartialExpansion = true — opens halfway") {
                 ShowroomParagraph(
-                    "O sheet ganha um repouso na metade da tela e abre nele; arraste para cima para " +
-                        "chegar ao topo, e para baixo para fechar. Precisa vir junto com fill (ou com " +
-                        "conteúdo comprovadamente longo): o Material só cria esse repouso para sheets " +
-                        "mais altos que meia tela."
+                    "The sheet gains a resting point at half the screen and opens there; swipe up to reach the " +
+                        "top, and down to close. It needs to come together with fill (or with content that's " +
+                        "provably tall): Material only creates that resting point for sheets taller than half " +
+                        "the screen."
                 )
                 Button(
-                    text = "Abrir lista em meia tela",
+                    text = "Open half-screen list",
                     buttonType = filledButton(),
                     events = {
                         DisplayModalBottomSheet(
@@ -209,12 +172,12 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                             fill = true,
                             allowsPartialExpansion = true,
                             tiles = {
-                                SheetBody(title = "Selecione um país") {
+                                SheetBody(title = "Select a country") {
                                     listOf(
-                                        "África do Sul", "Alemanha", "Argentina", "Austrália", "Brasil",
-                                        "Canadá", "Chile", "China", "Colômbia", "Coreia do Sul",
-                                        "Espanha", "Estados Unidos", "França", "Índia", "Itália",
-                                        "Japão", "México", "Nigéria", "Portugal", "Uruguai"
+                                        "South Africa", "Germany", "Argentina", "Australia", "Brazil",
+                                        "Canada", "Chile", "China", "Colombia", "South Korea",
+                                        "Spain", "United States", "France", "India", "Italy",
+                                        "Japan", "Mexico", "Nigeria", "Portugal", "Uruguay"
                                     ).forEach { country ->
                                         Row(
                                             style = { padding(vertical = 8) },
@@ -227,7 +190,7 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                                 )
                                                 DisplaySnackbar(
                                                     trigger = EventTriggers.onClick(),
-                                                    message = "$country selecionado",
+                                                    message = "$country selected",
                                                     duration = snackbarShortDuration()
                                                 )
                                             }
@@ -236,7 +199,7 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                             SimpleText(text = country, typography = typographyBodyMedium())
                                         }
                                     }
-                                    CloseSheetButton(PARTIAL_SHEET_ID, text = "Cancelar")
+                                    CloseSheetButton(PARTIAL_SHEET_ID, text = "Cancel")
                                 }
                             }
                         )
@@ -244,13 +207,13 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "4. isCancellable = false — só sai pelo botão") {
+            ShowroomDemoCard(title = "4. isCancellable = false — only the button gets you out") {
                 ShowroomParagraph(
-                    "Sem drag handle, sem arrastar para baixo, sem fechar tocando no scrim e sem back press. " +
-                        "O único caminho de saída é um DismissModalBottomSheet dentro do próprio sheet."
+                    "No drag handle, no swiping down, no closing by tapping the scrim, and no back press. The " +
+                        "only way out is a DismissModalBottomSheet inside the sheet itself."
                 )
                 Button(
-                    text = "Abrir sheet obrigatório",
+                    text = "Open mandatory sheet",
                     buttonType = filledTonalButton(),
                     events = {
                         DisplayModalBottomSheet(
@@ -259,15 +222,15 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                             isCancellable = false,
                             fill = false,
                             tiles = {
-                                SheetBody(title = "Aceite os termos") {
+                                SheetBody(title = "Accept the terms") {
                                     SimpleText(
-                                        text = "Tente arrastar para baixo ou tocar fora — nada acontece. " +
-                                            "Use os botões abaixo.",
+                                        text = "Try swiping down or tapping outside — nothing happens. Use the " +
+                                            "buttons below.",
                                         typography = typographyBodyMedium(),
                                         color = color(themeColorOnSurfaceVariant())
                                     )
                                     Button(
-                                        text = "Aceitar",
+                                        text = "Accept",
                                         buttonType = filledButton(),
                                         events = {
                                             DismissModalBottomSheet(
@@ -276,12 +239,12 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                             )
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Termos aceitos",
+                                                message = "Terms accepted",
                                                 duration = snackbarShortDuration()
                                             )
                                         }
                                     )
-                                    CloseSheetButton(BLOCKING_SHEET_ID, text = "Recusar")
+                                    CloseSheetButton(BLOCKING_SHEET_ID, text = "Decline")
                                 }
                             }
                         )
@@ -289,13 +252,13 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "5. Snackbar por cima do sheet") {
+            ShowroomDemoCard(title = "5. Snackbar on top of the sheet") {
                 ShowroomParagraph(
-                    "O snackbar é renderizado num layer criado depois do sheet, então deve aparecer " +
-                        "acima dele — inclusive com o sheet em fill."
+                    "The snackbar renders in a layer created after the sheet, so it should appear above it — " +
+                        "even with the sheet in fill mode."
                 )
                 Button(
-                    text = "Abrir sheet e disparar snackbars de dentro",
+                    text = "Open sheet and fire snackbars from inside",
                     buttonType = outlinedButton(),
                     events = {
                         DisplayModalBottomSheet(
@@ -304,48 +267,48 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             fill = true,
                             tiles = {
-                                SheetBody(title = "Teste de z-order") {
+                                SheetBody(title = "Z-order test") {
                                     SimpleText(
-                                        text = "O sheet está em fill (tela cheia). O snackbar disparado " +
-                                            "abaixo precisa aparecer sobre ele, não atrás.",
+                                        text = "The sheet is in fill mode (full screen). The snackbar fired " +
+                                            "below needs to appear above it, not behind.",
                                         typography = typographyBodyMedium(),
                                         color = color(themeColorOnSurfaceVariant())
                                     )
                                     Button(
-                                        text = "Snackbar curto",
+                                        text = "Short snackbar",
                                         buttonType = outlinedButton(),
                                         events = {
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Snackbar disparado de dentro do sheet",
+                                                message = "Snackbar fired from inside the sheet",
                                                 duration = snackbarShortDuration()
                                             )
                                         }
                                     )
                                     Button(
-                                        text = "Snackbar longo com ação",
+                                        text = "Long snackbar with action",
                                         buttonType = outlinedButton(),
                                         events = {
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Este fica mais tempo — arraste o sheet enquanto ele aparece",
+                                                message = "This one stays longer — drag the sheet while it shows",
                                                 duration = snackbarLongDuration(),
                                                 actionLabel = "OK"
                                             )
                                         }
                                     )
                                     Button(
-                                        text = "Dois snackbars em sequência",
+                                        text = "Two snackbars in sequence",
                                         buttonType = outlinedButton(),
                                         events = {
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Primeiro — deve animar a saída antes do segundo",
+                                                message = "First — should animate out before the second",
                                                 duration = snackbarShortDuration()
                                             )
                                             DisplaySnackbar(
                                                 trigger = EventTriggers.onClick(),
-                                                message = "Segundo — entrou depois que o primeiro saiu",
+                                                message = "Second — came in after the first left",
                                                 duration = snackbarShortDuration()
                                             )
                                         }
@@ -358,13 +321,13 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
-            ShowroomDemoCard(title = "6. Empilhamento — sheet sobre sheet sobre dialog") {
+            ShowroomDemoCard(title = "6. Stacking — sheet over sheet over dialog") {
                 ShowroomParagraph(
-                    "Cada overlay é uma camada independente com id próprio. O sheet do meio consegue " +
-                        "fechar o de baixo sem se fechar, provando que a pilha não é um único slot."
+                    "Each overlay is an independent layer with its own id. The middle sheet can close the one " +
+                        "below it without closing itself, proving the stack isn't a single slot."
                 )
                 Button(
-                    text = "Abrir pilha de overlays",
+                    text = "Open overlay stack",
                     buttonType = filledButton(),
                     events = {
                         DisplayModalBottomSheet(
@@ -373,14 +336,14 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                             isCancellable = true,
                             fill = false,
                             tiles = {
-                                SheetBody(title = "Camada 1 — sheet base") {
+                                SheetBody(title = "Layer 1 — base sheet") {
                                     SimpleText(
                                         text = "id: $STACK_SHEET_1_ID",
                                         typography = typographyBodyMedium(),
                                         color = color(themeColorOnSurfaceVariant())
                                     )
                                     Button(
-                                        text = "Abrir camada 2 (outro sheet)",
+                                        text = "Open layer 2 (another sheet)",
                                         buttonType = filledTonalButton(),
                                         events = {
                                             DisplayModalBottomSheet(
@@ -389,14 +352,14 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                                 isCancellable = true,
                                                 fill = false,
                                                 tiles = {
-                                                    SheetBody(title = "Camada 2 — sheet sobre sheet") {
+                                                    SheetBody(title = "Layer 2 — sheet over sheet") {
                                                         SimpleText(
                                                             text = "id: $STACK_SHEET_2_ID",
                                                             typography = typographyBodyMedium(),
                                                             color = color(themeColorOnSurfaceVariant())
                                                         )
                                                         Button(
-                                                            text = "Abrir camada 3 (dialog)",
+                                                            text = "Open layer 3 (dialog)",
                                                             buttonType = filledTonalButton(),
                                                             events = {
                                                                 DisplayDialog(
@@ -405,26 +368,26 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                                                     isCancellable = true,
                                                                     usePlatformDefaultWidth = false,
                                                                     tiles = {
-                                                                        DialogBody(title = "Camada 3 — dialog no topo") {
+                                                                        DialogBody(title = "Layer 3 — dialog on top") {
                                                                             SimpleText(
-                                                                                text = "Três overlays vivos ao mesmo tempo. " +
-                                                                                    "Feche na ordem que quiser.",
+                                                                                text = "Three overlays alive at the same time. " +
+                                                                                    "Close them in whatever order you like.",
                                                                                 typography = typographyBodyMedium(),
                                                                                 color = color(themeColorOnSurfaceVariant())
                                                                             )
                                                                             Button(
-                                                                                text = "Snackbar sobre os três",
+                                                                                text = "Snackbar over all three",
                                                                                 buttonType = outlinedButton(),
                                                                                 events = {
                                                                                     DisplaySnackbar(
                                                                                         trigger = EventTriggers.onClick(),
-                                                                                        message = "Snackbar acima de sheet + sheet + dialog",
+                                                                                        message = "Snackbar above sheet + sheet + dialog",
                                                                                         duration = snackbarLongDuration()
                                                                                     )
                                                                                 }
                                                                             )
                                                                             Button(
-                                                                                text = "Fechar o sheet da camada 1",
+                                                                                text = "Close layer 1's sheet",
                                                                                 buttonType = outlinedButton(),
                                                                                 events = {
                                                                                     DismissModalBottomSheet(
@@ -434,7 +397,7 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                                                                 }
                                                                             )
                                                                             Button(
-                                                                                text = "Fechar este dialog",
+                                                                                text = "Close this dialog",
                                                                                 buttonType = textButton(),
                                                                                 events = {
                                                                                     DismissDialog(
@@ -449,7 +412,7 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                                             }
                                                         )
                                                         Button(
-                                                            text = "Fechar só a camada 1 (a de baixo)",
+                                                            text = "Close only layer 1 (the bottom one)",
                                                             buttonType = outlinedButton(),
                                                             events = {
                                                                 DismissModalBottomSheet(
@@ -458,13 +421,13 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                                                                 )
                                                             }
                                                         )
-                                                        CloseSheetButton(STACK_SHEET_2_ID, text = "Fechar esta camada")
+                                                        CloseSheetButton(STACK_SHEET_2_ID, text = "Close this layer")
                                                     }
                                                 }
                                             )
                                         }
                                     )
-                                    CloseSheetButton(STACK_SHEET_1_ID, text = "Fechar esta camada")
+                                    CloseSheetButton(STACK_SHEET_1_ID, text = "Close this layer")
                                 }
                             }
                         )
@@ -472,10 +435,28 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                DisplayModalBottomSheet(
+                    trigger = EventTriggers.onClick(),
+                    modalBottomSheetId = "share_sheet",
+                    isCancellable = true,
+                    fill = false,
+                    allowsPartialExpansion = false,
+                    tiles = {
+                        Column(id = "sheet_root") {
+                            SimpleText(text = "Share via")
+                        }
+                    }
+                )
+                """
+            )
+
             ShowroomNote(
-                "fill e allowsPartialExpansion são independentes: fill decide a altura do sheet, " +
-                    "allowsPartialExpansion decide se existe um repouso na metade do caminho. " +
-                    "A combinação clássica do Material (lista longa que abre pela metade) é os dois true."
+                "fill and allowsPartialExpansion are independent: fill decides the sheet's height, " +
+                    "allowsPartialExpansion decides whether there's a resting point halfway. The classic " +
+                    "Material combination (a long list that opens halfway) is both set to true."
             )
 
             ShowroomRelated(
@@ -486,9 +467,9 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
     }
 
     /**
-     * Corpo padrão dos sheets desta página: título + conteúdo, com o respiro que o sheet não dá.
-     * Scrollable porque o sheet limita a altura ao que cabe na tela — sem isso, conteúdo longo
-     * (o formulário da demo de fill, por exemplo) fica cortado e inalcançável.
+     * Standard body for this page's sheets: title + content, with the breathing room the sheet doesn't
+     * give on its own. Scrollable because the sheet caps its height to what fits on screen — without
+     * this, long content (the fill demo's form, for example) gets cut off and unreachable.
      */
     private fun TileSchemaBuilderScope.SheetBody(
         title: String,
@@ -504,7 +485,7 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
         }
     }
 
-    /** Mesmo corpo, para o dialog usado na demo de empilhamento. */
+    /** Same body, for the dialog used in the stacking demo. */
     private fun TileSchemaBuilderScope.DialogBody(
         title: String,
         content: TileSchemaBuilderScope.() -> Unit
@@ -519,7 +500,7 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
 
     private fun TileSchemaBuilderScope.CloseSheetButton(
         sheetId: String,
-        text: String = "Fechar"
+        text: String = "Close"
     ) {
         Button(
             text = text,

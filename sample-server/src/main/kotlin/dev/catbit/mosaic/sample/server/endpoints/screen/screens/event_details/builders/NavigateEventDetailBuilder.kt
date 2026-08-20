@@ -1,17 +1,15 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
-import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder
 import dev.catbit.mosaic.server.builder.event.builders.data.TransformData
 import dev.catbit.mosaic.server.builder.event.builders.navigation.Navigate
 import dev.catbit.mosaic.server.builder.event.builders.networking.SetIncomingDataToNetworkParamsHolderQueryParameters
@@ -26,32 +24,50 @@ object NavigateEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Navigation",
-                description = "Empurra um novo destino na pilha de um navigator, opcionalmente removendo entradas " +
-                    "anteriores (popUpTo) e levando dados (data) para a tela de destino."
+                description = "Pushes a new destination onto a navigator's stack, optionally removing prior " +
+                    "entries (popUpTo) and carrying data along to the destination screen. Use it for any " +
+                    "navigation between screens within a navigator's scope — opening a detail page, starting a " +
+                    "flow, going to a settings screen. destination is the id of the target Screen/Graph.Entry; " +
+                    "navigatorId identifies which navigator (several nested ones can exist) should handle the " +
+                    "navigation. incomingData is converted to Map<String, Any> and merged with data (data wins " +
+                    "on key conflicts), becoming the destination screen's navigationData, read via " +
+                    "screenNavigationData()."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para qualquer navegação entre telas dentro do escopo de um navigator — abrir um detalhe, " +
-                    "iniciar um fluxo, ir para uma tela de configurações. destination é o id da Screen/Graph.Entry " +
-                    "de destino; navigatorId identifica qual navigator (podem existir vários aninhados) deve " +
-                    "processar a navegação. incomingData é convertido para Map<String, Any> e mesclado com data " +
-                    "(data vence em caso de conflito de chave), virando o navigationData da tela de destino, " +
-                    "lido via screenNavigationData()."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("destination", "String", "Obrigatório. Id da rota/tela de destino."),
-                    ShowroomParam("navigatorId", "String", "Obrigatório. Id do navigator registrado que deve navegar."),
-                    ShowroomParam("popUpTo", "PopUpTo?", "Opcional. poppingUpTo(destination, inclusive) — remove entradas da pilha antes de navegar."),
-                    ShowroomParam("data", "Map<String, Any>?", "Opcional. Mesclado com incomingData; vira navigationData da tela de destino."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Navigate for real to a tile's detail page") {
+                ShowroomParagraph(
+                    "The button below fires a real Navigate (not staged) to the \"tileDetails\" screen, " +
+                        "documenting the Button tile. It has to target a different destination id than " +
+                        "this very screen (\"eventDetails\") — the client's navigate() call hardcodes " +
+                        "launchSingleTop = true, and when destination already matches the back stack's top " +
+                        "entry id, the whole call (push and any popUpTo alike) is a silent no-op, by design."
                 )
-            )
+                Button(
+                    text = "View the Button tile",
+                    buttonType = outlinedButton(),
+                    events = {
+                        TransformData(
+                            trigger = EventTriggers.onClick(),
+                            template = mapOf("event" to "Button"),
+                            events = {
+                                SetIncomingDataToNetworkParamsHolderQueryParameters(
+                                    trigger = EventTriggers.onSuccess(),
+                                    events = {
+                                        Navigate(
+                                            trigger = EventTriggers.onSuccess(),
+                                            destination = "tileDetails",
+                                            navigatorId = "root"
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 Navigate(
@@ -64,43 +80,12 @@ object NavigateEventDetailBuilder : EventDetailBuilder {
                 """
             )
 
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Navegue de verdade para a página de outro evento") {
-                ShowroomParagraph(
-                    "O botão abaixo dispara um Navigate real (não é encenação) para esta mesma tela " +
-                        "\"eventDetails\", trocando apenas o evento documentado — é o mesmo mecanismo usado " +
-                        "pelos chips em \"Relacionados\", no fim de cada página."
-                )
-                Button(
-                    text = "Ver evento GetScreen",
-                    buttonType = outlinedButton(),
-                    events = {
-                        TransformData(
-                            trigger = EventTriggers.onClick(),
-                            template = mapOf("event" to "GetScreen"),
-                            events = {
-                                SetIncomingDataToNetworkParamsHolderQueryParameters(
-                                    trigger = EventTriggers.onSuccess(),
-                                    events = {
-                                        Navigate(
-                                            trigger = EventTriggers.onSuccess(),
-                                            destination = "eventDetails",
-                                            navigatorId = "root"
-                                        )
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-            }
-
             ShowroomNote(
-                "Por que não usamos o parâmetro data aqui: esta tela lê o evento a documentar via query " +
-                    "parameter da requisição HTTP feita pelo GetScreen automático da entry (request." +
-                    "queryParameters[\"event\"]), não via navigationData. Por isso a demo usa " +
-                    "SetIncomingDataToNetworkParamsHolderQueryParameters antes do Navigate, em vez do campo " +
-                    "data — que é ideal quando a tela de destino lê com screenNavigationData()."
+                "Why the data parameter isn't used here: this screen reads the event to document via the HTTP " +
+                    "request's query parameter, set by the entry's automatic GetScreen (request." +
+                    "queryParameters[\"event\"]), not via navigationData. That's why the demo uses " +
+                    "SetIncomingDataToNetworkParamsHolderQueryParameters before Navigate instead of the data " +
+                    "field — which is ideal when the destination screen reads with screenNavigationData()."
             )
 
             ShowroomRelated(

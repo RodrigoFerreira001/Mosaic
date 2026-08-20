@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnCheck")
+/** Fires on `Checkbox`/`Switch`/`FilterChip`/`InputChip` when it becomes checked/selected —
+ * followed, on the same tap, by the generic `onCheckChanged()`. */
 object OnCheckEventTrigger : EventTrigger

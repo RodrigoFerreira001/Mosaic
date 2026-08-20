@@ -6,9 +6,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -29,31 +26,63 @@ object SendNetworkRequestEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Networking",
-                description = "Faz uma requisição HTTP para uma URL e propaga a resposta pelos eventos filhos — a base de qualquer chamada a API."
+                description = "Makes an HTTP request to a URL and propagates the response through its " +
+                    "child events — the foundation of any API call. Use it for any server API call: CRUD, " +
+                    "authentication, data fetching. The response body is delivered as incomingData to the " +
+                    "child events — JSON becomes a Map/List/primitive value, any other content type becomes " +
+                    "a ByteArray. The request body is resolved as body (schema) ?? holder.body (set by " +
+                    "SetIncomingDataToNetworkParamsHolderBody) — the schema always takes priority."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use para qualquer chamada a API de servidor: CRUD, autenticação, busca de dados. " +
-                    "O corpo da resposta é entregue como incomingData aos eventos filhos — JSON vira " +
-                    "Map/List/valor primitivo, qualquer outro content-type vira ByteArray. " +
-                    "O body da requisição é resolvido como body (schema) ?? holder.body (definido por " +
-                    "SetIncomingDataToNetworkParamsHolderBody) — o schema sempre tem prioridade."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("url", "String", "Obrigatório. URL completa ou path relativo ao servidor configurado."),
-                    ShowroomParam("method", "HttpMethod", "Obrigatório. GET, POST, PUT, DELETE, PATCH."),
-                    ShowroomParam("body", "AnySerializable?", "Padrão null. Vence sobre o body armazenado no holder."),
-                    ShowroomParam("headers", "Map<String, String>?", "Padrão null. Mesclado com os headers do holder; o schema vence em colisão."),
-                    ShowroomParam("timeoutMillis", "Long?", "Padrão null → usa o timeout global do client (HttpTimeout, 20s)."),
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Real GET request to a public, unauthenticated API") {
+                SimpleText(
+                    id = "network_request_status_text",
+                    text = "Tap the button to fire the request."
                 )
-            )
+                Button(
+                    text = "Fetch https://jsonplaceholder.typicode.com/todos/1",
+                    events = {
+                        SendNetworkRequest(
+                            trigger = EventTriggers.onClick(),
+                            url = "https://jsonplaceholder.typicode.com/todos/1",
+                            method = HttpMethod.GET,
+                            events = {
+                                UpdateTiles(
+                                    trigger = EventTriggers.onStart(),
+                                    updates = {
+                                        update(
+                                            tileId = "network_request_status_text",
+                                            updateData = inlineTileUpdateData("text" to "Sending request...")
+                                        )
+                                    }
+                                )
+                                TransformData(
+                                    trigger = EventTriggers.onSuccess(),
+                                    template = mapOf("text" to "onSuccess · title received: \"<|title|>\""),
+                                    events = {
+                                        UpdateTiles(
+                                            trigger = EventTriggers.onSuccess(),
+                                            updates = { update("network_request_status_text", incomingTileUpdateData()) }
+                                        )
+                                    }
+                                )
+                                UpdateTiles(
+                                    trigger = EventTriggers.onFailure(),
+                                    updates = {
+                                        update(
+                                            tileId = "network_request_status_text",
+                                            updateData = inlineTileUpdateData("text" to "onFailure · connection failure or non-2xx response")
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+            }
 
-            ShowroomSectionTitle("Exemplo de código")
+            ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
                 SendNetworkRequest(
@@ -74,59 +103,10 @@ object SendNetworkRequestEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "GET real para uma API pública, sem autenticação") {
-                SimpleText(
-                    id = "network_request_status_text",
-                    text = "Toque no botão para disparar a requisição."
-                )
-                Button(
-                    text = "Buscar https://jsonplaceholder.typicode.com/todos/1",
-                    events = {
-                        SendNetworkRequest(
-                            trigger = EventTriggers.onClick(),
-                            url = "https://jsonplaceholder.typicode.com/todos/1",
-                            method = HttpMethod.GET,
-                            events = {
-                                UpdateTiles(
-                                    trigger = EventTriggers.onStart(),
-                                    updates = {
-                                        update(
-                                            tileId = "network_request_status_text",
-                                            updateData = inlineTileUpdateData("text" to "Enviando requisição...")
-                                        )
-                                    }
-                                )
-                                TransformData(
-                                    trigger = EventTriggers.onSuccess(),
-                                    template = mapOf("text" to "onSuccess · título recebido: \"<|title|>\""),
-                                    events = {
-                                        UpdateTiles(
-                                            trigger = EventTriggers.onSuccess(),
-                                            updates = { update("network_request_status_text", incomingTileUpdateData()) }
-                                        )
-                                    }
-                                )
-                                UpdateTiles(
-                                    trigger = EventTriggers.onFailure(),
-                                    updates = {
-                                        update(
-                                            tileId = "network_request_status_text",
-                                            updateData = inlineTileUpdateData("text" to "onFailure · falha de conexão ou resposta não-2xx")
-                                        )
-                                    }
-                                )
-                            }
-                        )
-                    }
-                )
-            }
-
             ShowroomNote(
-                "onNetworkResponse(code)/onNetworkFailure(code) substituem onSuccess/onFailure para " +
-                    "aquele status HTTP específico quando declarados como filho. onFailure nunca dispara " +
-                    "para códigos com onNetworkFailure(code) correspondente."
+                "onNetworkResponse(code)/onNetworkFailure(code) replace onSuccess/onFailure for that " +
+                    "specific HTTP status when declared as a child. onFailure never fires for codes with a " +
+                    "matching onNetworkFailure(code)."
             )
 
             ShowroomRelated(

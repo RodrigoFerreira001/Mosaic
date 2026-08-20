@@ -14,11 +14,11 @@ import androidx.compose.ui.Modifier
 import dev.catbit.mosaic.client.extensions.ObserveScrollDirection
 import dev.catbit.mosaic.client.extensions.OnDisplayEffect
 import dev.catbit.mosaic.client.extensions.ThresholdReachedEffect
+import dev.catbit.mosaic.client.extensions.filteredBy
 import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.extensions.onClick
 import dev.catbit.mosaic.client.extensions.toAlignment
 import dev.catbit.mosaic.client.extensions.toArrangement
-import dev.catbit.mosaic.client.platform.Platform
 import dev.catbit.mosaic.client.ui.composables.scrollbar.HorizontalScrollbar
 import dev.catbit.mosaic.client.ui.composables.scrollbar.defaultScrollbarStyle
 import dev.catbit.mosaic.client.ui.composables.scrollbar.rememberScrollbarAdapter
@@ -75,6 +75,8 @@ object LazyRowTileRenderer : TileRenderer<LazyRowTileSchema> {
                 onScrollBackward = { triggerEvent(EventTriggers.onScrolled(ScrollDirection.Start)) }
             )
 
+            val displayedTiles = tiles.filteredBy(filterChildrenByTerm)
+
             Box(
                 contentAlignment = Alignment.BottomStart
             ) {
@@ -89,7 +91,7 @@ object LazyRowTileRenderer : TileRenderer<LazyRowTileSchema> {
                     verticalAlignment = alignment.toAlignment(),
                     horizontalArrangement = arrangement.toArrangement(),
                 ) {
-                    items(tiles, key = { it.id }) { tileSchema ->
+                    items(displayedTiles, key = { it.id }) { tileSchema ->
                         CompositionLocalProvider(
                             LocalLazyItemScope provides this,
                             LocalRowScope provides null,
@@ -100,7 +102,7 @@ object LazyRowTileRenderer : TileRenderer<LazyRowTileSchema> {
                     }
                 }
 
-                if (Platform.name == "WasmJs" || Platform.name == "Jvm") {
+                if (displayScrollbar) {
                     HorizontalScrollbar(
                         modifier = Modifier.fillMaxWidth(),
                         style = defaultScrollbarStyle().copy(

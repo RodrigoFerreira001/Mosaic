@@ -5,7 +5,6 @@ import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnClickEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnLongPressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrollThresholdReachedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnScrolledEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
@@ -17,46 +16,50 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a vertically scrolling lazy list that only composes and lays out the items currently
- * visible on screen, using Compose's [LazyColumn]. Each child tile is keyed by its [id] for
- * stable recomposition. The list state can be programmatically controlled via
- * [ColumnTileBroadcastData] (ScrollToTop, ScrollTo, ScrollToBottom).
+ * Renders a Compose `LazyColumn` over [tiles] — one lazy item per child, keyed by the child's
+ * `id` — spaced by [arrangement] and aligned horizontally by [alignment]. Only visible children
+ * are composed, which makes this the tile to use for long or paginated lists.
  *
- * **Updatable fields (via UpdateTiles):** `tiles: SerializableImmutableList<TileSchema>`, `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `arrangement: ArrangementSchema.Vertical`,
- * `alignment: AlignmentSchema.Horizontal`, `scrollThreshold: Int?`,
- * `considerLoadingItemAtEndOnThresholdReached: Boolean`,
- * `searchableTerms: SerializableImmutableList<String>?`, `filterChildrenByTerm: String?`
+ * **Child scope:** each item publishes its `LazyItemScope` as a CompositionLocal (and clears the
+ * column scope), so children can use lazy-item modifiers such as `animateItem` and
+ * `fillParentMaxSize` — but **not** `ColumnScope.weight`.
  *
- * **Filtering:** When [filterChildrenByTerm] is non-null, only child tiles whose
- * [TileSchema.searchableTerms] list contains the term (case-insensitive) are rendered.
- * Children with a `null` [TileSchema.searchableTerms] are always shown regardless of the active term.
+ * **Filtering:** when [filterChildrenByTerm] is non-null and non-empty, only children whose
+ * `searchableTerms` contain that term (case-insensitive, substring match) are rendered.
+ * Children without `searchableTerms` are filtered out.
+ *
+ * **Pagination:** when [scrollThreshold] is set, the tile fires its threshold trigger as soon as
+ * fewer than or exactly [scrollThreshold] items remain past the last visible one. It fires at
+ * most once per item count, so it will not fire again until the list actually grows —
+ * [considerLoadingItemAtEndOnThresholdReached] (default `true`) additionally requires the list
+ * to have grown by more than one item, which accounts for a loading placeholder appended at the
+ * end while the next page is in flight.
+ *
+ * **Scroll control:** the tile listens to the screen broadcast channel and reacts to
+ * scroll-to-top, scroll-to-bottom and scroll-to-item commands addressed to its [id], each
+ * optionally animated. The scroll-to variant takes a child index.
  *
  * **Triggers dispatched:**
- * - `OnDisplayEventTrigger` — fired once when the tile enters composition.
- * - `OnScrolledEventTrigger` — fired while scrolling, with `ScrollDirection.Bottom` (forward)
- *   or `ScrollDirection.Top` (backward).
- * - `OnScrollThresholdReachedEventTrigger` — fired when the user scrolls within
- *   [scrollThreshold] items of the end of the list. Only active when [scrollThreshold] is
- *   non-null.
- * - `OnClickEventTrigger` and `OnLongPressEventTrigger` — fired when the list container is
- *   tapped or long-pressed.
+ * - `OnDisplayEventTrigger` — fired once when the tile enters composition (keyed by tile id).
+ * - `OnClickEventTrigger` — fired when the list itself is tapped, but **only if** an `OnClick`
+ *   event is declared on this tile.
+ * - `OnScrolledEventTrigger` — fired when the scroll direction changes, carrying
+ *   `ScrollDirection.Bottom` when scrolling forward and `ScrollDirection.Top` when scrolling
+ *   backward.
+ * - `OnScrollThresholdReachedEventTrigger` — fired as described above; never fired when
+ *   [scrollThreshold] is `null`.
  *
- * **Notes:** Uses the same [ColumnTileBroadcastData] broadcast channel as [ColumnTileSchema],
- * so both tile types respond to the same scroll commands. When
- * [considerLoadingItemAtEndOnThresholdReached] is `true`, the threshold calculation accounts
- * for a loading placeholder item appended at the end of the list. The renderer sets
- * [LocalLazyColumnRenderingScope] so that children that need lazy list item modifiers can
- * detect they are inside a lazy context.
+ * **Scrollbar:** when [displayScrollbar] is `true` the tile draws a vertical scrollbar on its
+ * trailing edge. It defaults to `false` and is honoured on every platform — enable it where a
+ * pointer-driven scrollbar makes sense, typically desktop and web.
  */
 @Immutable
 @Triggers(
     [
         OnDisplayEventTrigger::class,
         OnClickEventTrigger::class,
-        OnLongPressEventTrigger::class,
         OnScrolledEventTrigger::class,
-        OnScrollThresholdReachedEventTrigger::class
+        OnScrollThresholdReachedEventTrigger::class,
     ]
 )
 @Serializable
@@ -73,4 +76,5 @@ data class LazyColumnTileSchema(
     @SerialName("alignment") val alignment: AlignmentSchema.Horizontal,
     @SerialName("scrollThreshold") val scrollThreshold: Int? = null,
     @SerialName("considerLoadingItemAtEndOnThresholdReached") val considerLoadingItemAtEndOnThresholdReached: Boolean = true,
+    @SerialName("displayScrollbar") val displayScrollbar: Boolean = false,
 ) : TileSchema

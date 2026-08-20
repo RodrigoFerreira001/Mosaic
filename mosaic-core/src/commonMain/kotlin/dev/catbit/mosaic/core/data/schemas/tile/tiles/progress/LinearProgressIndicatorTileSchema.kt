@@ -9,20 +9,16 @@ import kotlinx.serialization.Serializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 
 /**
- * Renders a Material 3 [LinearProgressIndicator]. When [progress] is non-null, a determinate
- * indicator is rendered showing the given fraction (0.0–1.0). When [progress] is `null`, an
- * indeterminate (animated) indicator is rendered instead.
+ * Renders a Material 3 `LinearProgressIndicator`. When [progress] is `null` the indicator is
+ * indeterminate (endless sweep); when set, it is determinate and shows that fraction, where
+ * `0f` is empty and `1f` is complete.
  *
- * **Updatable fields (via UpdateTiles):** `style: StyleSchema`,
- * `visibility: TileSchema.Visibility`, `progress: Float?`
+ * **Triggers dispatched:** none. The tile emits no trigger and is not clickable, so any `events`
+ * declared on it are never fired.
  *
- * **Triggers dispatched:** None. This tile does not dispatch any event triggers.
- *
- * **Notes:** The determinate vs. indeterminate mode is toggled purely by the presence or
- * absence of [progress]. To transition from indeterminate to determinate, send an UpdateTiles
- * event with a non-null [progress] value. The [progress] value is read as a lambda
- * (`progress = { it }`) so that Compose can skip recomposition if only the value changes
- * without structural layout changes.
+ * **Notes:** colors, track and stroke cap are Material defaults — only [style] (size, padding,
+ * background, …) is applied. Drive a determinate indicator by pushing new [progress] values with
+ * `UpdateTiles`.
  */
 @Immutable
 @Serializable

@@ -8,6 +8,9 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnNetworkFailure")
+/** Fires on `SendNetworkRequest`/`UploadFile` instead of `onFailure()` when a child is wired to the
+ * exact non-2xx HTTP status code the response came back with.
+ * @property httpCode the exact status code this trigger matches. */
 data class OnNetworkFailureEventTrigger(
     @SerialName("httpCode") val httpCode: Int
 ) : EventTrigger

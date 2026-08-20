@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnDatePickerClose")
+/** Fires on `DatePicker` whenever the dialog closes — after confirming, on cancel, or on
+ * dismiss. */
 data object OnDatePickerCloseEventTrigger : EventTrigger

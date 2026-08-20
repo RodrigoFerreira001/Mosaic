@@ -1,1085 +1,1535 @@
-> Atualizado: jun/2026. Validado contra EventSchema, EventRunner, MosaicSerializer, e MosaicModules de cada evento.
+# Mosaic — Event Catalog
 
-# Mosaic — Events Catalog
+Complete, field-by-field reference for every `EventSchema` shipped in `mosaic-core`. Every entry below was written directly from that schema's KDoc (the primary source of truth) and cross-checked against its `mosaic-server` DSL builder — not paraphrased from any other document. If the framework's actual behavior ever needs re-verifying, re-read the schema in `mosaic-core/.../data/schemas/event/events/` and the matching builder in `mosaic-server/.../builder/event/builders/`.
 
-All events implement `EventSchema`. Every event inherits these base fields:
+Every event shares 3 base fields, always available and not repeated per entry below:
 
-| Field | Type | Description |
-|---|---|---|
-| `id` | `String` | Unique identifier for this event instance |
-| `trigger` | `EventTrigger` | Condition that causes this event to fire |
-| `events` | `List<EventSchema>?` | Child events executed after this one completes |
+| Field | Type | Default | What it's for |
+|---|---|---|---|
+| `id` | `String` | random id | Unique identifier — how `TriggerEvent`/`UpdateEvents` address this event by id. |
+| `trigger` | `EventTrigger` | required | The condition that must occur for this event to run — see `architecture.md` §5, "Event chaining". |
+| `events` | `List<EventSchema>?` | `null` | This event's children, each declaring which of *this* event's outgoing triggers runs it. |
 
-JSON serialization uses `@SerialName` as the `type` discriminator field.
-
-The `events` field enables event chaining: child events are dispatched using specific triggers (e.g., `OnSuccess`, `OnFailure`) after the parent event executes.
-
----
-
-## Tile Management
-
-### AddTilesEventSchema
-**JSON type:** `"AddTiles"`
-
-Inserts one or more tiles into a container tile.
-
-| Field | Type | Description |
-|---|---|---|
-| `groupingTileId` | `String` | ID of the target container (Column, Row, Box, etc.) |
-| `tiles` | `List<TileSchema>` | Tiles to insert |
-| `position` | `InsertionPosition` | Where to insert |
-
-`InsertionPosition` (sealed interface):
-- `Start` — prepend
-- `End` — append
-- `BeforeTile(tileId: String)` — before a specific tile
-- `AfterTile(tileId: String)` — after a specific tile
-- `AtIndex(index: Int)` — at a specific index
-
-**Child trigger used:** `OnTilesAdded`
-
----
-
-### RemoveTilesEventSchema
-**JSON type:** `"RemoveTiles"`
-
-Removes tiles by ID from a container.
-
-| Field | Type | Description |
-|---|---|---|
-| `groupingTileId` | `String?` | Container scope (null = search globally) |
-| `tileIds` | `List<String>` | IDs of tiles to remove |
-
-**Child trigger used:** `OnTilesRemoved`
-
----
-
-### UpdateTilesEventSchema
-**JSON type:** `"UpdateTiles"`
-
-Partially updates tile fields via JSON merge without altering tile types or tree structure.
-
-| Field | Type |
-|---|---|
-| `updates` | `List<Update>` |
-
-`Update`: `{ tileId: String, updateData: UpdateData }`
-
-`UpdateData` (sealed):
-- `Incoming` — usa o `incomingData` atual (coerced para `Map<String, Any>`); se não puder ser coercido, a entrada é ignorada silenciosamente.
-- `Inline` — `{ data: Map<String, AnySerializable?> }` com valores estáticos definidos pelo servidor.
-- `Mapped` — `{ patterns: Map<String, String> }`; cada valor é um pattern `<|path.to.value|>` (tipo nativo) ou `</path.to.value/>` (sempre `String`) resolvido contra o `incomingData` atual, usando o mesmo mecanismo de extração do `TransformData` — útil quando o campo de destino é `String` mas o valor de origem não é (ex.: `"text" to "<//>"` para um tick numérico de countdown). Se um pattern falhar (path inexistente, etc.), aquele `Update` inteiro conta como falha (`OnFailure`), sem interromper os demais.
-
-DSL helpers: `incomingTileUpdateData()`, `inlineTileUpdateData(data)`, `mappedIncomingTileUpdateData(patterns)`.
-
-**Triggers:** `OnTilesUpdated` (após todos os updates), `OnSuccess` (incondicional), `OnFailure` (tileId não encontrado; incomingData = exception)
-
----
-
-### ReplaceTilesEventSchema
-**JSON type:** `"ReplaceTiles"`
-
-Replaces all children of a container with a new list.
-
-| Field | Type | Description |
-|---|---|---|
-| `groupingTileId` | `String?` | Target container (null = screen root) |
-| `tiles` | `List<TileSchema>` | New tile list |
-
-**Child trigger used:** `OnTilesReplaced`
-
----
-
-### WipeTilesEventSchema
-**JSON type:** `"WipeTiles"`
-
-Removes all children from a container.
-
-| Field | Type |
-|---|---|
-| `groupingTileId` | `String` |
-
-**Child trigger used:** `OnTilesWiped`
-
----
-
-### ReloadLazyTilesEventSchema
-**JSON type:** `"ReloadLazyTiles"`
-
-Forces a `LazyTilesTileSchema` to re-fetch its content.
-
-| Field | Type |
-|---|---|
-| `lazyTileId` | `String` |
-
----
-
-### CheckIfTileContainsChildrenEventSchema
-**JSON type:** `"CheckIfTileContainsChildren"`
-
-Checks whether a container tile currently holds children with all of the specified IDs. Fires `OnSuccess` if every ID is present, `OnFailure` otherwise. No incomingData consumed or produced.
-
-| Field | Type | Description |
-|---|---|---|
-| `groupingTileId` | `String` | ID of the target container tile |
-| `childrenIds` | `List<String>` | IDs whose presence is checked |
-
-**Triggers:** `OnSuccess` (all IDs found), `OnFailure` (one or more IDs missing)
-
----
-
-### GetTileChildrenCountEventSchema
-**JSON type:** `"GetTileChildrenCount"`
-
-Returns the current number of direct children of a container tile. Fires `OnSuccess` with the count when the tile is found, `OnFailure` when `groupingTileId` does not match any tile in the tree.
-
-| Field | Type | Description |
-|---|---|---|
-| `groupingTileId` | `String` | ID of the target container tile |
-
-**Triggers:** `OnSuccess` (incomingData = `Int` count), `OnFailure` (tile not found)
-
----
-
-### RunEventsEventSchema
-**JSON type:** `"RunEvents"`
-
-Container transparente que dispara todos os seus eventos filhos incondicionalmente. Usado para agrupar múltiplos eventos sob um único trigger sem transformar o incomingData.
-
-Nenhum campo adicional além dos campos base (`id`, `trigger`, `events`).
-
-**Triggers:** `OnSuccess` — após despachar os filhos.
-
----
-
-### RunCancellableEventsEventSchema
-**JSON type:** `"RunCancellableEvents"`
-
-Executa os eventos filhos em `events` dentro de um contexto cancelável identificado por `cancellableEventId`, via `CancellableEventsHolder.runEvents(...)`. Um `RunCancellableEvents` posterior com o mesmo `cancellableEventId` substitui a execução em andamento (o job anterior é descartado do mapa ao completar). Ver `CancelEventsEventSchema` para cancelar explicitamente.
-
-| Field | Type | Description |
-|---|---|---|
-| `cancellableEventId` | `String` | Identificador do contexto cancelável |
-
-**Triggers:** `OnSuccess` — após despachar os filhos.
-
----
-
-### CancelEventsEventSchema
-**JSON type:** `"CancelEvents"`
-
-Cancela o contexto cancelável em andamento identificado por `cancellableEventId`, previamente iniciado por `RunCancellableEventsEventSchema`, via `CancellableEventsHolder.cancelEvents(...)`. No-op se nenhum contexto com esse id estiver em execução.
-
-| Field | Type | Description |
-|---|---|---|
-| `cancellableEventId` | `String` | Identificador do contexto cancelável a cancelar |
-
-**Triggers:** `OnSuccess` — após a solicitação de cancelamento ser despachada.
-
----
-
-### UpdateEventsEventSchema
-**JSON type:** `"UpdateEvents"`
-
-Partially updates event fields via JSON merge.
-
-| Field | Type |
-|---|---|
-| `updates` | `List<Update>` |
-
-`Update`: `{ eventId: String, data: Map<String, AnySerializable?> }`
-
-**Child trigger used:** `OnTilesUpdated`
-
----
-
-## Navigation
-
-### NavigateEventSchema
-**JSON type:** `"Navigate"`
-
-Navigates to a new screen within a named navigator.
-
-| Field | Type | Default |
-|---|---|---|
-| `destination` | `String` | required — target screen ID |
-| `navigatorId` | `String` | required — must match a registered NavigationController |
-| `popUpTo` | `PopUpTo?` | `null` |
-| `data` | `Map<String, AnySerializable>?` | `null` — passed as navigation data |
-
-`PopUpTo`: `{ destination: String, inclusive: Boolean }`
-
-**Child trigger used:** `OnNavigation`
-
----
-
-### NavigateClearingStackEventSchema
-**JSON type:** `"NavigateClearingStack"`
-
-Clears the entire back stack and navigates to a new screen within a named navigator, as its sole entry.
-
-| Field | Type | Default |
-|---|---|---|
-| `destination` | `String` | required — target screen ID |
-| `navigatorId` | `String` | required — must match a registered NavigationController |
-| `launchSingleTop` | `Boolean` | `true` — no-op if `destination` is already the top of the stack |
-| `data` | `Map<String, AnySerializable>?` | `null` — passed as navigation data |
-
-No `popUpTo`: the back stack is always cleared entirely.
-
-**Triggers fired:** `onSuccess()`. `onFailure()` — no navigator registered under `navigatorId`.
-
----
-
-### NavigateUpEventSchema
-**JSON type:** `"NavigateUp"`
-
-Pops the back stack by one entry.
-
-| Field | Type |
-|---|---|
-| `navigatorId` | `String` |
-
-**Child trigger used:** `OnNavigation`
-
----
-
-## Screen
-
-### GetScreenEventSchema
-**JSON type:** `"GetScreen"`
-
-Fetches screen content from the server for the current screen ID. Does NOT automatically apply the fetched `ScreenModel` to the screen state — chain a `ChangeScreenState` on `OnSuccess` to apply the result.
-
-| Field | Type | Default |
-|---|---|---|
-| `method` | `HttpMethod` | `GET` |
-| `body` | `AnySerializable?` | `null` |
-| `headers` | `Map<String, String>?` | `null` |
-| `timeoutMillis` | `Long?` | `null` |
-
-Body/headers resolution: same as `SendNetworkRequest` — schema value takes precedence over `NetworkParametersHolder`; holder is always consumed.
-
-**Child triggers used:**
-- `OnStart` — antes do request.
-- `OnSuccess` — resposta bem-sucedida; incomingData = `ScreenModel`.
-- `OnFailure` — falha sem matching `OnNetworkFailure`; incomingData = `Throwable`. Sempre disparado em exceção de rede ou erro de deserialização.
-- `OnNetworkFailure(httpCode)` — resposta não-2xx com child event declarando matching `OnNetworkFailure(httpCode)`; **substitui** `OnFailure`; incomingData = `NetworkResponseException`.
-
----
-
-### RefreshScreenEventSchema
-**JSON type:** `"RefreshScreen"`
-
-Re-fetches the current screen from the server.
-
-| Field | Type | Default |
-|---|---|---|
-| `method` | `HttpMethod` | `GET` |
-| `body` | `AnySerializable?` | `null` |
-| `headers` | `Map<String, String>?` | `null` |
-| `timeoutMillis` | `Long?` | `null` |
-
-**Child triggers used:** `OnSuccess`, `OnFailure`
-
----
-
-### ChangeScreenStateEventSchema
-**JSON type:** `"ChangeScreenState"`
-
-Transitions the screen to a given state directly (without a network call).
-
-| Field | Type |
-|---|---|
-| `state` | `State` (sealed interface) |
-
-`State`:
-- `Success(data: ScreenData?)` — `ScreenData` contains `tiles`, `navigationDrawerTiles?`, `events?`
-- `Failure`
-- `Initial`
+For the underlying mechanics — trigger matching, `incomingData` propagation, the `field ?: incomingData` fallback convention, `GetScreen`/`ChangeScreenState`'s split — see [`architecture.md`](architecture.md). This catalog documents *what* each event does, *what parameters it takes*, and *what triggers it fires*, not the dispatch machinery itself.
 
 ---
 
 ## Data
 
-### SendDataEventSchema
-**JSON type:** `"SendData"`
+### `CheckForReceivedData`
 
-Stores data in `DataMailer` under a key for cross-screen or cross-event retrieval.
+Reads a one-shot value from the client's `DataMailer` under `dataKey` and branches on whether it was there.
 
-| Field | Type |
-|---|---|
-| `dataKey` | `String` |
-| `data` | `AnySerializable?` |
+**Parameters:**
 
-**Child trigger used:** `OnDataSent`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `dataKey` | `String` | required | Key looked up in `DataMailer`. |
 
----
+**DSL example:**
+```kotlin
+CheckForReceivedData(
+    trigger = EventTriggers.onDisplay(),
+    dataKey = "upload_result"
+)
+```
 
-### CheckForReceivedDataEventSchema
-**JSON type:** `"CheckForReceivedData"`
+**Triggers fired:** `OnDataReceived` (value exists, passed as incoming data) then `OnSuccess` (same value) — both fire together when found. `OnFailure` (no incoming data) when nothing is there.
 
-Reads data from `DataMailer` by key. Fires `OnDataReceived` if data exists.
+**Notes:** `incomingData` not consumed. `DataMailer` is a one-shot channel — reading removes the entry, so a second `CheckForReceivedData` for the same key gets `OnFailure`.
 
-| Field | Type |
-|---|---|
-| `dataKey` | `String` |
+### `EvaluateData`
 
-**Child trigger used:** `OnDataReceived`
+Evaluates the boolean `expression` and branches on the result. Runs on the IO dispatcher.
 
----
+**Parameters:**
 
-### GetDataEventSchema
-**JSON type:** `"GetData"`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `expression` | `Expression` | required | Boolean expression tree — see below. |
 
-Reads data from a `DataSourceSchema` using an `AccessModeSchema`.
+`Expression` composes `not(expr)`, `expr1 and expr2`, `expr1 or expr2` over leaf comparisons. A leaf starts from a `Data` source — `incomingData()` or `dataSourceData(dataSource, accessMode)` — and calls a comparison function on it: `isEqualsTo`, `isSmallerThan`/`isBiggerThan` (+ `OrEquals` variants, for `Int`/`Long`/`Float`/`Double`), string ops (`matchesRegex`, `containsSubstring`, `startsWith`, `endsWith`, `equalsIgnoreCase`, `isBlank`/`isNotBlank`, `isLength*`), `isTrue`/`isFalse`, map ops (`containsKey`, `containsValue`, `isMapEmpty`/`isMapNotEmpty`, `isMapSize*`, `valueAtKeyEquals`, `valueAtKey(key)` — chainable, itself returns a `KeyedData` supporting most of the same operations, recursively), list ops (`listContains`, `inList`, `isListEmpty`/`isListNotEmpty`, `isListSize*`, `listContainsAll`, `listContainsAny`), and date ops (`isEqualTo`/`isBefore`/`isAfter`, `isWeekend`/`isWeekday`).
 
-| Field | Type |
-|---|---|
-| `readings` | `List<Reading>` |
+**DSL example:**
+```kotlin
+EvaluateData(
+    trigger = EventTriggers.onDisplay(),
+    expression = incomingData().valueAtKey("age").isBiggerThanOrEquals(18) and
+        dataSourceData(screenPlainData(), singleAccessMode("consent")).isTrue()
+)
+```
 
-`Reading`: `{ dataSource: DataSourceSchema, accessMode: AccessModeSchema }`
+**Triggers fired:** `OnSuccess` (expression is `true`, `incomingData` forwarded unchanged), `OnFailure` (expression is `false`, `incomingData` forwarded — or evaluation threw, in which case the `Throwable` is passed instead and the error is logged).
 
-`DataSourceSchema` (sealed interface):
-- `PlainDataBase` — flat persistent DB
-- `SegmentedDataBase(segmentId: String)` — segmented persistent DB
-- `ApplicationPlainData` — app-scoped plain memory (compartilhado entre todas as telas, vive até o app encerrar)
-- `ApplicationSegmentedData(segmentId: String)` — app-scoped segmented memory (idem, por segmento)
-- `ScreenPlainData` — screen-scoped plain memory
-- `ScreenSegmentedData(segmentId: String)` — screen-scoped segmented memory
-- `ScreenNavigationData` — data passed via navigation
-- `Tile(tileId: String, dataKey: String)` — reads a specific key from a tile's exposed value map via `TilesValueProducer.getValueWithKey`; returns `Map<String, Any>?`
+**Notes:** an operation applied to a value of the wrong runtime type (e.g. `isBiggerThan` on a `String`) evaluates to `false`, it never throws. `incomingData` is read by any `incomingData()` leaf and always forwarded downstream regardless of which branch fires.
 
-`AccessModeSchema` (sealed interface):
-- `Full` — returns all data as a map (for `Tile`: spreads the returned map into the accumulator). Preserves `null` values (`Map<String, Any?>`) — a key written with an explicit `null` (see `UpdateDataEventSchema` below) comes back intact.
-- `Single(dataId: String)` — returns one value (for `Tile`: stores the returned map under `dataId`). Does **not** distinguish "missing key" from "key present with `null` value" — both fail with `DataNotFoundException`.
-- `Batch(dataIds: List<String>, allowMissingData: Boolean, unwrapValuesToList: Boolean)` — returns multiple values (for `Tile`: returns the map from `getValueWithKey`; `dataIds` are applied as keys to filter the result). Same `null`-vs-missing limitation as `Single` per key.
+### `GetData`
 
-**Note:** This is a complex builder scenario. Always study `GetDataEventBuilder` before modifying.
+Reads one or more values from data sources and emits them downstream. Runs on the IO dispatcher.
 
-**Child triggers used:** `OnStart`, `OnSuccess`, `OnFailure`
+**Parameters:**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `readings` | block, one entry per `reading(dataSource, accessMode)` | required | Values to read — see below. |
 
-### UpdateDataEventSchema
-**JSON type:** `"UpdateData"`
+Each reading pairs a `dataSource` (`inlineData(...)`, `applicationPlainData()`, `applicationSegmentedData(id)`, `screenPlainData()`, `screenSegmentedData(id)`, `screenNavigationData()`, `plainDataBase()`, `segmentedDataBase(id)`, or `tile(tileId, dataKey)`) with an `accessMode` (`singleAccessMode(id)`, `batchAccessMode(ids, allowMissingData, unwrapValuesToList)`, or `fullAccessMode()`). Readings are processed in order into a single accumulator — a later reading overwrites an earlier one on key collision.
 
-Writes or updates data in a `DataSourceSchema`.
+**DSL example:**
+```kotlin
+GetData(
+    trigger = EventTriggers.onDisplay(),
+    readings = {
+        reading(dataSource = screenNavigationData(), accessMode = singleAccessMode("userId"))
+        reading(dataSource = plainDataBase(), accessMode = singleAccessMode("theme"))
+    }
+)
+```
 
-| Field | Type |
-|---|---|
-| `updates` | `List<Update>` |
+**Triggers fired:** `OnStart` (before any reading runs), `OnSuccess` (all readings resolved, assembled result as incoming data), `OnFailure` (aborts on the first problem — a `Single` reading resolving to `null`, a missing `Batch` id with `allowMissingData = false`, or a database error).
 
-`Update`: `{ dataSource: DataSourceSchema, updateData: UpdateDate }`
+**Notes:** result shape depends on the mix of access modes — `Full`, and `Batch` without `unwrapValuesToList`, produce a map keyed by data id; `Batch` with `unwrapValuesToList` produces a list; with only `Single` readings, one reading emits the bare value and several emit a list. A map result wins over a list result when the two mix. `incomingData` not consumed.
 
-`UpdateDate` (sealed, nested in `Update`):
-- `Incoming` — **legacy.** Coerces `incomingData` to `Map<String, AnySerializable?>` (`asMapAny()`) and explodes it: every top-level key becomes its own dataId written under `dataSource`. Silently skipped if the cast fails.
-- `Inline(data: Map<String, AnySerializable?>)` — **legacy.** Same explode-by-key behavior as `Incoming`, but with a static map.
-- `Explicit(dataId: String, value: ExplicitValue)` — declares the target `dataId` and value with **no inference**: the value is written as-is under that single `dataId`, even if the value is itself a map (e.g. a segmented-data row) or `null`. This is the correct mode whenever the write must store a whole record intact under one key — and the only reliable way to write a literal `null` under a `dataId`, since the runner always writes the entry when `dataId` is already known (unlike the legacy modes, which silently drop entries they can't resolve into a map).
-  - `ExplicitValue.Incoming` — writes `incomingData` verbatim (not coerced/exploded) under `dataId`.
-  - `ExplicitValue.Inline(value: AnySerializable?)` — writes a static value (including `null`) under `dataId`.
+### `ProcessData`
 
-DSL helpers: `incomingUpdateData()`, `inlineUpdateData(data)` / `inlineUpdateData(vararg pairs)` (legacy, explode-by-key), `explicitUpdateData(dataId, value)`, `explicitIncomingUpdateData(dataId)` (explicit, no inference), `explicitNullUpdateData(dataId)` (shorthand for `explicitUpdateData(dataId, null)`).
+Hands the event's `incomingData` to the `DataProcessor` registered by the client under the id `processWith`. Processors are supplied by the host application — what the processing actually does is opaque to the framework.
 
-**Legacy vs. Explicit — when to use which:** `Incoming`/`Inline` only make sense when the map genuinely represents multiple independent dataId → value pairs (e.g. `{"email": ..., "name": ...}`). If the value to write is itself a map representing a *single* record (e.g. `{"action":"NONE","comment":null,"imageBlob":null,"asBuilt":true}` for one segmented-data dataKey), use `Explicit`/`explicitIncomingUpdateData` instead — otherwise the legacy modes will wrongly explode that record into one write per top-level key.
+**Parameters:**
 
-**Writing `null`:** Only in-memory `dataSource`s (`ApplicationPlainData`, `ApplicationSegmentedData`, `ScreenPlainData`, `ScreenSegmentedData`) support `null` values. `PlainDataBase`/`SegmentedDataBase` (persistent DB) silently skip any entry whose resolved value is `null` — no error, no-op. There is no `ExplicitNull`/sentinel type anymore; a plain Kotlin `null` is used end-to-end (it was removed — do not reintroduce it).
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `processWith` | `String` | required | Id of the registered `DataProcessor` to invoke. |
 
-**Note:** Unlike `GetData`/`RemoveData`, `Update` has no `accessMode: AccessModeSchema` field — write targeting is controlled entirely via `dataSource` (which carries `segmentId` for segmented sources) plus `updateData`.
+**DSL example:**
+```kotlin
+ProcessData(trigger = EventTriggers.onSuccess(), processWith = "EVENT_RUNNER")
+```
 
-**Child trigger used:** `OnDataUpdated` (declared but **not fired** by the client runner — the runner performs writes and returns without calling any trigger)
+**Triggers fired:** `OnSuccess` (processor returned successfully, no data forwarded), `OnFailure` (processor returned failure — `Throwable` as incoming data; or no processor registered under `processWith`; or `incomingData` was `null` — no data in either of those two cases).
 
----
+**Notes:** `incomingData` is **required** — the event fails immediately if it's `null`, without even looking up the processor.
 
-### RemoveDataEventSchema
-**JSON type:** `"RemoveData"`
+### `RemoveData`
 
-Deletes data from a `DataSourceSchema`.
+Deletes values from data sources. Runs on the IO dispatcher.
 
-| Field | Type |
-|---|---|
-| `deletions` | `List<Deletion>` |
+**Parameters:**
 
-`Deletion`: `{ dataSource: DataSourceSchema, accessMode: AccessModeSchema }`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `deletions` | block, one entry per `addDeletion(dataSource, accessMode)` | required | Values to remove. |
 
-**Child trigger used:** `OnDataRemoved`
+Supported sources: application/screen plain and segmented holders, plus the plain and segmented local databases. Deletions targeting navigation data, a tile, or an inline source are silently ignored.
 
----
+**DSL example:**
+```kotlin
+RemoveData(
+    trigger = EventTriggers.onClick(),
+    deletions = {
+        addDeletion(dataSource = plainDataBase(), accessMode = singleAccessMode("draft"))
+    }
+)
+```
 
-### ProcessDataEventSchema
-**JSON type:** `"ProcessData"`
+**Triggers fired:** `OnSuccess` (every deletion completed, no data forwarded), `OnFailure` (at least one database deletion failed — fired once at the end, after every deletion was attempted).
 
-Passes the current `incomingData` to a registered `DataProcessor` by ID.
+**Notes:** all deletions are attempted regardless of earlier failures — there's no early abort. `accessMode = fullAccessMode()` wipes the entire source. `incomingData` not consumed.
 
-| Field | Type |
-|---|---|
-| `processWith` | `String` — ID of a registered `DataProcessor` |
+### `SendData`
 
-Built-in processor: `"EVENT_RUNNER"` — deserializes incoming data as events and executes them inline.
+Posts a value into the client's `DataMailer` under `dataKey`, where a later `CheckForReceivedData` can pick it up — the way to hand a value to another screen.
 
----
+**Parameters:**
 
-### TransformDataEventSchema
-**JSON type:** `"TransformData"`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `dataKey` | `String` | required | Key the value is stored under. |
+| `data` | `AnySerializable?` | `null` | Value to send; falls back to `incomingData` when omitted. |
 
-Reshapes `incomingData` by applying a template structure, substituting placeholders of the form `<|path.to.value|>` (raw) or `</path.to.value/>` (string) with values resolved from `incomingData`. The output mirrors the structural shape of the template (map, list, or scalar) with all placeholders replaced.
+**DSL example:**
+```kotlin
+SendData(trigger = EventTriggers.onSuccess(), dataKey = "upload_result")
+```
 
-| Field | Type | Description |
-|---|---|---|
-| `template` | `AnySerializable` | Template value — may be a String, Map, or List. Placeholders `<\|path\|>`/`</path/>` are resolved against `incomingData`. |
+**Triggers fired:** `OnSuccess` (value posted, no data forwarded), `OnFailure` (both `data` and `incomingData` are `null` — nothing to send, error logged).
 
-**Placeholder resolution:**
-- Dot-notation paths: `<|user.address.city|>`
-- Array index notation: `<|items[0].name|>`
-- Two delimiters, same path syntax: `<|path|>` (pipe) preserves the resolved value's native type (Int, Boolean, Map, etc.) when it's the whole template string; `</path/>` (slash) always coerces to `String` via `.toString()`, even as the whole template string — `<//>` (empty path) stringifies the entire `incomingData`.
-- A placeholder (either delimiter) embedded in surrounding text coerces the resolved value to String via `.toString()`
-- Non-string, non-Map, non-List template values (numbers, booleans) are returned as-is without substitution
-- Transformation is applied recursively to every leaf when template is a Map or List
+**Notes:** the value sent is `data` when it's non-null, otherwise `incomingData` — the `field ?: incomingData` fallback convention (see `architecture.md` §5).
 
-**Failure scenarios:** missing path segment (`NoSuchElementException`), wrong node type (`IllegalArgumentException`), out-of-bounds index, invalid index string.
+### `TransformData`
 
-**This event is synchronous — it does not dispatch to a background dispatcher.**
+Reshapes `incomingData` into a new value by applying `template` through the client's template engine — a payload rewritten mid-chain, no round trip.
 
-**Triggers:** `OnSuccess` (incomingData = fully resolved output), `OnFailure` (incomingData = `Throwable`)
+**Parameters (2 overloads):**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `template` | `AnySerializable` | required (1st overload) | Template applied to `incomingData` — string, map or list, with `<\|path\|>`/`</path/>` placeholders. |
+| `eventTemplate` | block | `{}` (2nd overload) | Alternate form — see Notes. |
 
-### EvaluateDataEventSchema
-**JSON type:** `"EvaluateData"`
+**DSL example:**
+```kotlin
+TransformData(
+    trigger = EventTriggers.onClick(),
+    template = mapOf("event" to "<|name|>")
+)
+```
 
-Evaluates a boolean expression against available data and fires `OnSuccess` or `OnFailure`.
+**Triggers fired:** `OnSuccess` (template applied, transformed value as incoming data), `OnFailure` (applying the template threw — `Throwable` as incoming data, error logged).
 
-| Field | Type |
-|---|---|
-| `expression` | `Expression` (sealed interface, recursive) |
+**Notes:** `incomingData` is the input the template is applied to — required for the placeholders to resolve against anything. There are two DSL overloads: one taking a literal `template` value, another taking `eventTemplate` (an `EventSchemaBuilderScope` block) — used when the template itself needs to be built from nested event-builder helpers rather than a plain literal.
 
-`Expression`:
-- `NotExpression(expression: Expression)`
-- `OrExpression(leftExpression, rightExpression)`
-- `AndExpression(leftExpression, rightExpression)`
-- `DataExpression(data: Data, operation: Operation)` — compares a data value using typed operations (String, Int, Long, Float, Double, Boolean, Map, List, LocalDateTime)
+### `UpdateData`
 
-`DataExpression.Data`:
-- `IncomingData` — uses the current `incomingData` from the event scope
-- `DataSourceData(reading: Reading)` — reads from a `DataSourceSchema` using an `AccessModeSchema`; supports all `DataSourceSchema` variants including `Tile(tileId, dataKey)`
+Writes values into data sources. Runs on the IO dispatcher.
 
-**Note:** Complex nested structure. Study the existing builder and schema thoroughly before generating code involving `EvaluateData`.
+**Parameters:**
 
-**Child triggers used:** `OnSuccess`, `OnFailure`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `updates` | block, one entry per `update(dataSource, updateData)` | required | Writes to perform. |
 
----
+`updateData` is one of: `incomingUpdateData()` (spreads `incomingData` when it's a map), `inlineUpdateData(map)` / `inlineUpdateData(vararg pairs)` (a literal map), `explicitUpdateData(dataId, value)` (writes one known id to a literal value), `explicitIncomingUpdateData(dataId)` (writes one known id, value from `incomingData`), or `explicitNullUpdateData(dataId)` (writes one known id to `null`).
+
+**DSL example:**
+```kotlin
+UpdateData(
+    trigger = EventTriggers.onSuccess(),
+    updates = {
+        update(
+            dataSource = applicationSegmentedData("auth"),
+            updateData = explicitIncomingUpdateData(dataId = "session")
+        )
+    }
+)
+```
+
+**Triggers fired:** `OnSuccess` (every write completed, no data forwarded), `OnFailure` (at least one database write failed — fired once at the end, after every write was attempted, each failure logged).
+
+**Notes:** in-memory data holders accept `null` (clears the entry); the local databases **don't support `null` yet** — entries resolving to `null` are silently skipped there instead of written. Updates targeting navigation data, a tile, or an inline source are silently ignored. `incoming*` variants are the only ones that read `incomingData`. Explicit variants are the only way to write a value that is itself a map/record intact under one key — the other variants would spread its keys instead.
+
+## Event orchestration
+
+### `RunEvents`
+
+Runs this event's own `events` list inline, in order, each receiving this event's `incomingData` — the way to fan a single trigger out into several events, or group events for reuse.
+
+**Parameters:** none beyond the base fields — `events` here **is the payload**, not a downstream chain (see Notes).
+
+**DSL example:**
+```kotlin
+RunEvents(trigger = EventTriggers.onClick()) {
+    BroadcastToSystem(
+        trigger = EventTriggers.inline(),
+        broadcastId = "cart_updated",
+        data = incomingBroadcastData()
+    )
+    UpdateData(trigger = EventTriggers.inline(), updates = { /* ... */ })
+}
+```
+
+**Triggers fired:** `OnSuccess` (every event in the list ran without throwing, no data forwarded), `OnFailure` (at least one threw — fired once at the end, after all were attempted, each failure logged).
+
+**Notes:** unlike every other event in this catalog, `RunEvents.events` is not filtered by trigger before running — every entry runs, unconditionally, in order. Each one is run guarded, so one failing event doesn't stop the rest.
+
+### `RunCancellableEvents`
+
+Runs this event's own `events` list inside a cancellable coroutine job, registered in the client's `CancellableEventsHolder` under `cancellableEventId`. A later `CancelEvents` carrying the same id stops the job mid-flight.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `cancellableEventId` | `String` | required | Key the job is registered under — a **global namespace**, not scoped per screen (see `architecture.md` §4). |
+
+**DSL example:**
+```kotlin
+RunCancellableEvents(trigger = EventTriggers.onDisplay(), cancellableEventId = "poll_status") {
+    StartTimeLoop(trigger = EventTriggers.inline(), timeData = seconds(delay = 5))
+}
+```
+
+**Triggers fired:** `OnSuccess` (as soon as the job is **registered**, not when the events finish — fire-and-forget), `OnFailure` (`events` is `null`, nothing to run).
+
+**Notes:** same "events is the payload, not a chain" behavior as `RunEvents`. Runs in its own coroutine scope, so this event returns immediately after registering the job — it never waits for the wrapped events to complete.
+
+### `CancelEvents`
+
+Cancels the coroutine job registered under `cancellableEventId`, stopping whatever `RunCancellableEvents` started with that id.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `cancellableEventId` | `String` | required | Key of the job to cancel. |
+
+**DSL example:**
+```kotlin
+CancelEvents(trigger = EventTriggers.onClick(), cancellableEventId = "poll_status")
+```
+
+**Triggers fired:** `OnSuccess` (a running job was found and cancelled, no data forwarded), `OnFailure` (nothing registered under that id — either it never ran or already finished; a `NoSuchElementException` is passed as incoming data).
+
+**Notes:** `incomingData` not consumed. Cancelling an id that already finished on its own is a normal `OnFailure`, not an exceptional case to guard against separately.
+
+### `TriggerEvent`
+
+Looks up the event registered on the screen under `eventId` and runs it inline — lets one event chain re-use another that lives on a different tile.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `eventId` | `String` | required | Id of the target event, looked up anywhere in the screen's tile tree. |
+
+**DSL example:**
+```kotlin
+TriggerEvent(trigger = EventTriggers.onClick(), eventId = "shared_logout_flow")
+```
+
+**Triggers fired:** `OnSuccess` (target event ran, no data forwarded), `OnFailure` (no event registered under `eventId` — no data; or running it threw — `Throwable` as incoming data). Both failure cases are logged.
+
+**Notes:** `incomingData` is forwarded unchanged to the event being run. The lookup searches the whole screen's tile tree (recursively, including nested navigation graphs' parent screens), not just the current tile.
+
+### `UpdateEvents`
+
+Patches events already registered on the screen — the event-level equivalent of `UpdateTiles`.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `updates` | block, one entry per `update(eventId, data)` | required | Patches to apply. |
+
+**DSL example:**
+```kotlin
+UpdateEvents(
+    trigger = EventTriggers.onSuccess(),
+    updates = {
+        update(eventId = "retry_upload", data = mapOf("url" to "<|newUrl|>"))
+    }
+)
+```
+
+**Triggers fired:** `OnSuccess` (every update applied, no data forwarded), `OnFailure` (at least one update failed, typically because no event carries that id — fired once at the end, after all updates were attempted).
+
+**Notes:** `data` is merged into the target event's own parameters as a shallow JSON patch, the same mechanism `UpdateTiles` uses on tiles. All updates are attempted regardless of earlier failures. `incomingData` not consumed.
+
+## File system
+
+### `DeleteFile`
+
+Deletes the file stored under `fileName` in the client's own file storage.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `fileName` | `String` | required | File to delete. |
+
+**DSL example:**
+```kotlin
+DeleteFile(trigger = EventTriggers.onClick(), fileName = "draft.json")
+```
+
+**Triggers fired:** `OnSuccess` (deleted, no data forwarded), `OnFailure` (deletion failed — `Throwable` as incoming data, logged).
+
+**Notes:** `incomingData` not consumed.
+
+### `GetFile`
+
+Reads the file stored under `fileName` and emits its content downstream, in the shape chosen by `outputType`.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `fileName` | `String` | required | File to read. |
+| `outputType` | `FileOutputType` | `arrayOfBytes()` | Shape of the emitted content — `arrayOfBytes()` (raw `ByteArray`), `flowOfBytes()` (streamed chunks, for large files), `platformFile()` (platform file handle), `mapObject()` (bytes decoded as JSON map), `base64()` (base64 string). |
+
+**DSL example:**
+```kotlin
+GetFile(
+    trigger = EventTriggers.onClick(),
+    fileName = "avatar.png",
+    outputType = platformFile()
+)
+```
+
+**Triggers fired:** `OnSuccess` (content in the chosen shape as incoming data), `OnFailure` (read failed, no file exists under `fileName` — `NoSuchElementException` — or `MapObject` decoding failed; `Throwable` as incoming data, logged).
+
+**Notes:** `incomingData` not consumed.
+
+### `OpenFilePicker`
+
+Opens the platform's native file picker and emits the chosen file downstream.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `fileType` | `FileType` | required | What can be picked — `imageFileType()`, `videoFileType()`, `imageAndVideoFileType()`, or `fileFileType(vararg extensions)` for arbitrary files narrowed by extension. |
+| `pickMode` | `PickMode` | required | Currently only `singlePickMode()` exists. |
+| `outputType` | `FileOutputType` | `platformFile()` | Shape of the emitted content — same 5 options as `GetFile`, different default. |
+
+**DSL example:**
+```kotlin
+OpenFilePicker(
+    trigger = EventTriggers.onClick(),
+    fileType = imageFileType(),
+    pickMode = singlePickMode(),
+    outputType = platformFile()
+)
+```
+
+**Triggers fired:** `OnSuccess` (file picked and read, content as incoming data), `OnCancelled` (user dismissed the picker without choosing, no data), `OnFailure` (`MapObject` decoding failed, or the picker itself threw — `Throwable` as incoming data).
+
+**Notes:** default `outputType` is `platformFile()` here, but `arrayOfBytes()` on `GetFile` — the two events share the `FileOutputType` enum but not its default. `incomingData` not consumed.
+
+### `SaveFile`
+
+Writes the event's `incomingData` to `fileName` in the client's own file storage.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `fileName` | `String` | required | File to write. |
+| `overrideIfExists` | `Boolean` | required (no default) | When `false`, the event first checks whether `fileName` already exists and refuses to write if so. |
+
+**DSL example:**
+```kotlin
+SaveFile(
+    trigger = EventTriggers.onSuccess(),
+    fileName = "cache.bin",
+    overrideIfExists = true
+)
+```
+
+**Triggers fired:** `OnSuccess` (written, no data forwarded), `OnFailure` — three distinct causes, all logged: `incomingData` missing or not a `ByteArray` (`IllegalArgumentException`), `overrideIfExists = false` and the file already exists (`IllegalStateException`), or the write itself failed (its own `Throwable`).
+
+**Notes:** `incomingData` is **required** and must be a `ByteArray` — this is the only way content reaches the event, there's no literal-content parameter.
+
+## Image
+
+### `TakePicture`
+
+Opens the camera through the client's `CameraManager` and emits the captured photo downstream. Runs on the IO dispatcher.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `compression` | `CompressionScheme?` | `null` | `byQuality(percent)` or `byTargetSize(kb)` — when set, re-encodes the capture (treated as `image/png`). `null` emits the original bytes untouched. |
+| `resize` | `ImageResizeOptions?` (`maxLongEdgePx`, `downscaleOnly`, `maintainAspectRatio`) | `null` | Only takes effect alongside a non-null `compression`; default resize options apply when left `null` there. |
+| `outputType` | `OutputType` (`ArrayOfBytes`/`Base64`) | required | Shape of the emitted image — `pictureArrayOfBytes()`/`pictureBase64()`. |
+
+**DSL example:**
+```kotlin
+TakePicture(
+    trigger = EventTriggers.onClick(),
+    compression = byQuality(qualityPercent = 80f),
+    outputType = pictureArrayOfBytes()
+)
+```
+
+**Triggers fired:** `OnSuccess` (image in the chosen shape as incoming data), `OnCancelled` (camera returned nothing, e.g. user backed out), `OnFailure` (capturing or compressing threw — `Throwable` as incoming data).
+
+**Notes:** `incomingData` not consumed. `resize` is silently a no-op if `compression` is `null`.
+
+### `GetImageFromGallery`
+
+Opens the platform picker restricted to images and emits the chosen image downstream. Same compression/resize contract as `TakePicture`. Runs on the IO dispatcher.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `compression` | `CompressionScheme?` | `null` | Same as `TakePicture` — re-encodes when set. |
+| `resize` | `ImageResizeOptions?` | `null` | Same as `TakePicture` — only effective alongside `compression`. |
+| `outputType` | `OutputType` (`ArrayOfBytes`/`Base64`) | required | `galleryArrayOfBytes()`/`galleryBase64()`. |
+
+**DSL example:**
+```kotlin
+GetImageFromGallery(
+    trigger = EventTriggers.onClick(),
+    resize = ImageResizeOptions(maxLongEdgePx = 1024),
+    outputType = galleryArrayOfBytes()
+)
+```
+
+**Triggers fired:** `OnSuccess` (image as incoming data), `OnCancelled` (picker dismissed without a choice), `OnFailure` (reading or compressing threw — `Throwable` as incoming data).
+
+**Notes:** its `OutputType`/compression helpers are separate functions from `TakePicture`'s (`gallery*` vs. `picture*` prefix) even though the underlying types have the same shape — not shared between the two events. `incomingData` not consumed.
+
+## Menu & popup
+
+### `ToggleMenu`
+
+Flips the open/closed state of the `Menu` tile identified by `menuId`. Since the tile only closes on dismissal by itself, this is how a menu is opened from the server side — and, wired onto a menu item's click, how it's closed after acting on a selection.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `menuId` | `String` | required | Id of the target `Menu` tile. |
+
+**DSL example:**
+```kotlin
+ToggleMenu(trigger = EventTriggers.onClick(), menuId = "item_menu")
+```
+
+**Triggers fired:** `OnSuccess` (signal reached the tile, no data forwarded), `OnFailure` (no tile with `menuId` currently mounted — `Throwable` as incoming data, logged).
+
+**Notes:** `incomingData` not consumed.
+
+### `TogglePopup`
+
+Flips the open/closed state of the `Popup` tile identified by `popupId` — the same mechanism as `ToggleMenu`, for popups.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `popupId` | `String` | required | Id of the target `Popup` tile. |
+
+**DSL example:**
+```kotlin
+TogglePopup(trigger = EventTriggers.onClick(), popupId = "info_popup")
+```
+
+**Triggers fired:** `OnSuccess` (signal reached the tile, no data forwarded), `OnFailure` (no tile with `popupId` currently mounted — `Throwable` as incoming data, logged).
+
+**Notes:** `incomingData` not consumed.
+
+## Navigation
+
+### `Navigate`
+
+Navigates the graph registered under `navigatorId` to `destination`, pushing it onto the back stack.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `destination` | `String` | required | Screen id to navigate to. |
+| `navigatorId` | `String` | required (no default anywhere in the framework — see `architecture.md` §4) | Which registered navigator's back stack to push onto (`"root"` is the app's own, by convention). |
+| `popUpTo` | `PopUpTo?` — `poppingUpTo(destination, inclusive)` | `null` | Pops entries up to `destination` before pushing the new one. |
+| `data` | `Map<String, AnySerializable>?` | `null` | Literal navigation arguments — wins over `incomingData` on key collision. |
+
+**DSL example:**
+```kotlin
+Navigate(
+    trigger = EventTriggers.onSuccess(),
+    destination = "product_details",
+    navigatorId = "root",
+    data = mapOf("productId" to "<|id|>")
+)
+```
+
+**Triggers fired:** `OnSuccess` (navigation performed, no data forwarded), `OnFailure` (no navigator registered under `navigatorId`, or the navigator refused the navigation — no data, logged).
+
+**Notes:** navigation arguments the destination receives are `incomingData` merged with `data`, `data` winning on key collision — only map-shaped `incomingData` contributes, and `null` values are dropped from both sides (navigation arguments are never `null`).
+
+### `NavigateUp`
+
+Pops the back stack of the graph registered under `navigatorId`, going back one entry.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `navigatorId` | `String` | required | Which registered navigator to pop. |
+
+**DSL example:**
+```kotlin
+NavigateUp(trigger = EventTriggers.onClick(), navigatorId = "root")
+```
+
+**Triggers fired:** `OnSuccess` (entry popped, no data forwarded), `OnFailure` (no navigator registered, or nothing to pop — no data, logged).
+
+**Notes:** `incomingData` not consumed.
+
+### `NavigateClearingStack`
+
+Navigates the graph registered under `navigatorId` to `destination`, clearing the whole back stack so the destination becomes the only entry — the usual move after login or logout.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `destination` | `String` | required | Screen id to navigate to. |
+| `navigatorId` | `String` | required | Which registered navigator's back stack to clear and push onto. |
+| `launchSingleTop` | `Boolean` | `true` | Avoids stacking a second copy when the destination is already the current entry. |
+| `data` | `Map<String, AnySerializable>?` | `null` | Same merge-with-`incomingData` semantics as `Navigate`. |
+
+**DSL example:**
+```kotlin
+NavigateClearingStack(
+    trigger = EventTriggers.onSuccess(),
+    destination = "home",
+    navigatorId = "root"
+)
+```
+
+**Triggers fired:** `OnSuccess` (navigation performed, no data forwarded), `OnFailure` (no navigator registered, or refused — no data, logged).
+
+**Notes:** the only one of the 3 navigation events with `launchSingleTop`. Same `incomingData`+`data` merge rule as `Navigate`.
 
 ## Networking
 
-### SendNetworkRequestEventSchema
-**JSON type:** `"SendNetworkRequest"`
+### `DownloadFile`
 
-Sends an HTTP request.
+Downloads `url` and hands the result to the platform's own download destination — the user's Downloads folder or equivalent.
 
-| Field | Type | Default |
-|---|---|---|
-| `url` | `String` | required |
-| `method` | `HttpMethod` | required |
-| `body` | `AnySerializable?` | `null` |
-| `headers` | `Map<String, String>?` | `null` |
-| `timeoutMillis` | `Long?` | `null` |
+**Parameters:**
 
-**Trigger dispatch logic:**
-- `OnStart` — antes do request.
-- `OnSuccess` — resposta **2xx** sem listener customizado registrado para aquele status.
-- `OnFailure` — resposta **não-2xx** sem listener customizado, ou exceção de rede; incomingData = response body ou `Throwable`.
-- `OnNetworkResponse(statusCode)` — resposta **2xx** com listener registrado para aquele status; **substitui** `OnSuccess`.
-- `OnNetworkFailure(statusCode)` — resposta **não-2xx** com listener registrado para aquele status; **substitui** `OnFailure`. Nunca disparado em exceção de rede.
-
-Um child event ativa o dispatch customizado se declarar `OnNetworkResponse(statusCode)` **ou** `OnNetworkFailure(statusCode)` para aquele status.
-
----
-
-### DownloadFileEventSchema
-**JSON type:** `"DownloadFile"`
-
-Downloads a file straight into the device's public/general storage (system Downloads location), with progress reporting. Platform-specific: Android uses `android.app.DownloadManager` (silent, GET-only); iOS presents `FileKit.openFileSaver()` (one-tap `UIDocumentPickerViewController` export dialog — no silent public storage exists on iOS); JVM writes silently to `~/Downloads`; wasmJs uses `FileKit.download(...)` to trigger the browser's native download. See `DownloadFileToMemoryEventSchema` (in-memory) and `DownloadFileToDiskEventSchema` (app-private storage) for the other two download variants.
-
-| Field | Type | Default |
-|---|---|---|
-| `url` | `String` | required |
-| `method` | `HttpMethod` | required |
-| `body` | `AnySerializable?` | `null` |
-| `headers` | `Map<String, String>?` | `null` |
-| `targetFileName` | `String` | required |
-| `mimeType` | `String?` | `null` |
-
-**Child triggers used:** `OnStart`, `OnDownloadProgress`, `OnDownloadFinish`, `OnSuccess`, `OnDownloadFailure`, `OnFailure`
-
----
-
-### DownloadFileToMemoryEventSchema
-**JSON type:** `"DownloadFileToMemory"`
-
-Downloads a file with progress reporting, producing the full `ByteArray` in memory on completion. No disk persistence.
-
-| Field | Type | Default |
-|---|---|---|
-| `url` | `String` | required |
-| `method` | `HttpMethod` | required |
-| `body` | `AnySerializable?` | `null` |
-| `headers` | `Map<String, String>?` | `null` |
-
-**Child triggers used:** `OnStart`, `OnDownloadProgress`, `OnDownloadFinish`, `OnSuccess`, `OnDownloadFailure`, `OnFailure`
-
----
-
-### DownloadFileToDiskEventSchema
-**JSON type:** `"DownloadFileToDisk"`
-
-Downloads a file from `url` via `method` straight to the app's private storage at `targetFileName`, streaming the response body to disk chunk by chunk without ever holding the full file in memory.
-
-| Field | Type | Default |
-|---|---|---|
-| `url` | `String` | required |
-| `method` | `HttpMethod` | required |
-| `body` | `AnySerializable?` | `null` |
-| `headers` | `Map<String, String>?` | `null` |
-| `targetFileName` | `String` | required |
-
-**Child triggers used:** `OnStart`, `OnDownloadProgress`, `OnDownloadFinish` (incomingData = `targetFileName`), `OnSuccess`, `OnDownloadFailure`, `OnFailure`
-
----
-
-### SendFileEventSchema
-**JSON type:** `"SendFile"`
-
-Uploads a file as a **raw binary body** (no multipart) with progress reporting. Designed for the signed-URL pattern: the backend issues a temporary upload URL (GCS/S3) and the client PUTs the bytes directly to storage.
-
-| Field | Type | Default |
-|---|---|---|
-| `url` | `String?` | `null` → uses the URL from `NetworkParametersHolder` (set via `SetIncomingDataToNetworkParamsHolderUrl`) |
-| `method` | `HttpMethod` | DSL default: `PUT` |
-| `headers` | `Map<String, String>?` | `null` |
-| `contentType` | `String?` | `null` → `application/octet-stream` (must match the signed content type) |
-
-**incomingData consumed:** the file bytes as `ByteArray` (e.g. from `OnDownloadFinish`). Non-`ByteArray` → `OnFailure` without request. Missing URL (schema and holder both null) → `OnFailure` with `MissingUploadUrlException`.
-
-**Trigger dispatch logic:**
-- `OnStart` — antes do upload.
-- `OnUploadProgress` — a cada mudança de percentual; incomingData = `Int` 0–100.
-- `OnSuccess` — resposta **2xx** sem listener customizado registrado para aquele status.
-- `OnFailure` — resposta **não-2xx** sem listener customizado, exceção de rede, URL ausente ou incomingData inválido.
-- `OnNetworkResponse(statusCode)` — resposta **2xx** com listener registrado para aquele status; **substitui** `OnSuccess`.
-- `OnNetworkFailure(statusCode)` — resposta **não-2xx** com listener registrado para aquele status; **substitui** `OnFailure`. Nunca disparado em exceção de rede.
-
-Um child event ativa o dispatch customizado se declarar `OnNetworkResponse(statusCode)` **ou** `OnNetworkFailure(statusCode)` para aquele status.
-
-**Typical signed-URL chain:** `SendNetworkRequest` (pede a signed URL) → `TransformData` (extrai a URL) → `SetIncomingDataToNetworkParamsHolderUrl` → evento que produz `ByteArray` → `SendFile`.
-
----
-
-### SetIncomingDataToNetworkParamsHolderBodyEventSchema
-**JSON type:** `"SetIncomingDataToNetworkParamsHolderBody"`
-
-Stores `incomingData` as the request **body** in the `NetworkParametersHolder`, consumed by the next network event in the chain (schema `body` takes precedence). No specific fields.
-
-**Child triggers used:** `OnSuccess` (incomingData forwarded unchanged), `OnFailure` (incomingData null)
-
----
-
-### SetIncomingDataToNetworkParamsHolderHeadersEventSchema
-**JSON type:** `"SetIncomingDataToNetworkParamsHolderHeaders"`
-
-Stores `incomingData` as request **headers** (`Map<String, String>`) in the `NetworkParametersHolder`, merged into the next network event (schema headers win on collision). No specific fields.
-
-**Child triggers used:** `OnSuccess`, `OnFailure`
-
----
-
-### SetIncomingDataToNetworkParamsHolderUrlEventSchema
-**JSON type:** `"SetIncomingDataToNetworkParamsHolderUrl"`
-
-Stores `incomingData` (a `String`) as the request **URL** in the `NetworkParametersHolder` — the mechanism for feeding a runtime-generated signed URL into `SendFile` (used when its `url` is `null`). No specific fields.
-
-**Child triggers used:** `OnSuccess` (incomingData forwarded unchanged), `OnFailure` (incomingData null or not a String)
-
----
-
-### SetIncomingDataToNetworkParamsHolderQueryParametersEventSchema
-**JSON type:** `"SetIncomingDataToNetworkParamsHolderQueryParameters"`
-
-Stores `incomingData` as **query parameters** (`Map<String, Any?>`) in the `NetworkParametersHolder`, appended to the URL of the next network event (`SendNetworkRequest`, `GetScreen`, `DownloadFile`). Null values within the map are skipped. No specific fields.
-
-**Child triggers used:** `OnSuccess` (incomingData forwarded unchanged), `OnFailure` (incomingData null or not a Map)
-
----
-
-## File System
-
-### SaveFileEventSchema
-**JSON type:** `"SaveFile"`
-
-Saves the `incomingData` (as `ByteArray`) to the file system.
-
-| Field | Type | Default |
-|---|---|---|
-| `fileName` | `String` | required |
-| `overrideIfExists` | `Boolean` | required |
-
-**Child triggers used:** `OnSuccess`, `OnFailure`
-
----
-
-### GetFileEventSchema
-**JSON type:** `"GetFile"`
-
-Reads a file from the file system. Data passed to child events on success is shaped by `outputType`.
-
-| Field | Type | Default |
-|---|---|---|
-| `fileName` | `String` | required |
-| `outputType` | `FileOutputType` | `ArrayOfBytes` |
-
-`FileOutputType` (enum): `ArrayOfBytes` (whole file as `ByteArray`), `FlowOfBytes` (chunked `Flow<ByteArray>`, no full read into memory), `PlatformFile` (file reference only, no read), `MapObject` (file decoded as JSON into `Map<String, AnySerializable?>`), `Base64` (whole file as a base64-encoded `String`).
-
-**Child triggers used:** `OnSuccess` (with data per `outputType`), `OnFailure` (file not found, I/O error, or invalid JSON when `outputType` is `MapObject`)
-
----
-
-### DeleteFileEventSchema
-**JSON type:** `"DeleteFile"`
-
-Deletes a file from the file system, identified by `fileName`.
-
-| Field | Type | Default |
-|---|---|---|
-| `fileName` | `String` | required |
-
-**Child triggers used:** `OnSuccess`, `OnFailure`
-
----
-
-### OpenFilePickerEventSchema
-**JSON type:** `"OpenFilePicker"`
-
-Opens the system file picker, allowing the user to select a file. On selection, delivers the file to child events shaped by `outputType`. Cancellation fires `onFailure()`.
-
-| Field | Type | Default |
-|---|---|---|
-| `fileType` | `FileType` | required |
-| `pickMode` | `PickMode` | `Single` |
-| `outputType` | `FileOutputType` | `PlatformFile` |
-
-`FileType` (sealed): `Image`, `Video`, `ImageAndVideo`, `File(types: List<String>)` — file extensions (e.g. `"pdf"`, `"png"`).
-`PickMode` (sealed): `Single`.
-`FileOutputType` (enum): `PlatformFile` (picked file reference, no read; chain with `UploadFile`/`SaveFile`), `ArrayOfBytes` (whole file as `ByteArray`), `FlowOfBytes` (chunked `Flow<ByteArray>`, no full read into memory), `MapObject` (file decoded as JSON into `Map<String, AnySerializable?>`), `Base64` (whole file as a base64-encoded `String`).
-
-**Child triggers fired:** `OnStart` (file selected, reading contents when `outputType` requires it), `OnSuccess` (data shaped per `outputType`), `OnFailure` (cancelled, exception, or invalid JSON when `outputType` is `MapObject`).
-
----
-
-### TakePictureEventSchema
-**JSON type:** `"TakePicture"`
-
-Opens the device camera, allowing the user to take a picture. Backed by Mosaic's own `CameraManager` (`ui/sdui/foundation/camera/CameraManager.kt`), implemented natively per platform — no third-party picker library:
-- **Android:** `ActivityResultContracts.TakePicturePreview()` via `activityResultRegistry` (`AndroidCameraManager`)
-- **iOS:** `UIImagePickerController` (camera source) presented on the top-most view controller (`IOSCameraManager`)
-- **JVM:** live-preview `JDialog` backed by `com.github.sarxos:webcam-capture` (`JvmCameraManager`)
-- **Wasm/JS:** `getUserMedia` + `<video>`/`<canvas>` capture overlay (`WasmJsCameraManager`)
-
-The captured photo is raw PNG bytes from `CameraManager` (lossless, no baked-in quality/format decision per platform). Compression is applied directly by the runner via `io.github.aryapreetam:cmp-imgcompress:0.0.3` (single `commonMain` artifact covering Android/iOS/JVM/Wasm) — no wrapper class:
-- `compression == null` → the raw PNG bytes are returned as-is (`incomingData`), untouched.
-- `compression != null` → re-encoded as **WebP** (the library's only output format) using `compression` (+ optional `resize`).
-
-| Field | Type | Default | Notes |
+| Parameter | Type | Default | What it's for |
 |---|---|---|---|
-| `compression` | `CompressionScheme?` | `null` | `CompressionScheme.ByQuality(qualityPercent: Float)` or `CompressionScheme.ByTargetSize(targetSizeKb: Int)` |
-| `resize` | `ImageResizeOptions?` | `null` | Only applies when `compression != null`; null uses the library's own default (`maxLongEdgePx = 2560`) |
-| `outputType` | `TakePictureEventSchema.OutputType` | `ArrayOfBytes` | `ArrayOfBytes` or `Base64` — shape of the captured image in `incomingData`. Enum is **nested in and private to this schema** (not shared with `GetImageFromGalleryEventSchema`, which has its own identical-shaped `OutputType`) |
+| `url` | `String` | required | Endpoint to download from. |
+| `method` | `HttpMethod` | required | HTTP method. |
+| `body` | `AnySerializable?` | `null` | Request body. |
+| `headers` | `Map<String, String>?` | `null` | Request headers. |
+| `targetFileName` | `String` | required | Name the downloaded file is saved under. |
+| `mimeType` | `String?` | `null` | Content type describing the saved file. |
 
-`ImageResizeOptions`: `maxLongEdgePx: Int? = 2560`, `downscaleOnly: Boolean = true`, `maintainAspectRatio: Boolean = true` — mirrors the library's `ResizeOptions` 1:1.
+**DSL example:**
+```kotlin
+DownloadFile(
+    trigger = EventTriggers.onClick(),
+    url = "/api/reports/latest",
+    method = HttpMethod.GET,
+    targetFileName = "report.pdf",
+    mimeType = "application/pdf"
+)
+```
 
-**Child triggers used:** `OnSuccess` (`ByteArray` or base64 `String` in `incomingData` per `outputType` — original format if `compression` is null, WebP otherwise; chain with `SaveFile`), `OnFailure` (cancelled, exception, or no camera available).
+**Triggers fired:** `OnStart` (before the download begins), `OnDownloadProgress` (repeatedly, progress as incoming data), then either `OnDownloadFinish` + `OnSuccess` (both carrying `targetFileName`) or `OnDownloadFailure` + `OnFailure` (both carrying the `Throwable`, logged) — or `OnCancelled` alone (user cancelled; neither failure trigger fires in that case).
 
----
+**Notes:** the only one of the 3 download events with an `OnCancelled` trigger — it's the only one whose destination (the platform's public download UI) can be interactively cancelled by the user. `incomingData` not consumed.
 
-### GetImageFromGalleryEventSchema
-**JSON type:** `"GetImageFromGallery"`
+### `DownloadFileToDisk`
 
-Opens the device gallery, allowing the user to pick an image. Uses `FileKit.openFilePicker(type = FileKitType.Image)` — equivalent to `OpenFilePicker` pre-filtered to images, exposed as its own event for convenience. Works on all platforms. Same `compression`/`resize` contract as `TakePicture`, sharing `CompressionScheme`/`ImageResizeOptions`.
+Downloads `url` into the client's own private file storage under `targetFileName` — `GetFile`/`DeleteFile` can reach it afterwards.
 
-**No permission or manifest entry required:** on Android, `FileKit.openFilePicker(type = Image)` goes through the system Photo Picker (`PickVisualMedia`); on iOS, `PHPickerViewController`. Both grant access only to the picked item, without any storage/media permission. Don't request `RequestPermission(GALLERY)` just to use this event — that's only for broad, persistent gallery access elsewhere in the app.
+**Parameters:**
 
-| Field | Type | Default | Notes |
+| Parameter | Type | Default | What it's for |
 |---|---|---|---|
-| `compression` | `CompressionScheme?` | `null` | Same as `TakePicture` |
-| `resize` | `ImageResizeOptions?` | `null` | Same as `TakePicture` |
-| `outputType` | `GetImageFromGalleryEventSchema.OutputType` | `ArrayOfBytes` | `ArrayOfBytes` or `Base64` — shape of the picked image in `incomingData`. Own nested enum, duplicated from (not shared with) `TakePictureEventSchema.OutputType` |
+| `url` | `String` | required | Endpoint to download from. |
+| `method` | `HttpMethod` | required | HTTP method. |
+| `body` | `AnySerializable?` | `null` | Request body. |
+| `headers` | `Map<String, String>?` | `null` | Request headers. |
+| `targetFileName` | `String` | required | Name the file is saved under, in the app's private storage. |
 
-**Child triggers used:** `OnSuccess` (`ByteArray` or base64 `String` in `incomingData` per `outputType` — original format if `compression` is null, WebP otherwise; chain with `SaveFile`), `OnFailure` (cancelled or exception).
+**DSL example:**
+```kotlin
+DownloadFileToDisk(
+    trigger = EventTriggers.onClick(),
+    url = "/api/offline-data",
+    method = HttpMethod.GET,
+    targetFileName = "offline_cache.json"
+)
+```
 
----
+**Triggers fired:** `OnStart`, `OnDownloadProgress` (progress as incoming data), then `OnDownloadFinish` + `OnSuccess` (both carrying `targetFileName`) or `OnDownloadFailure` + `OnFailure` (both carrying the `Throwable`, logged). No `OnCancelled` — private storage writes aren't interactively cancellable.
+
+**Notes:** `incomingData` not consumed.
+
+### `DownloadFileToMemory`
+
+Downloads `url` without touching the filesystem, keeping the content in memory.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `url` | `String` | required | Endpoint to download from. |
+| `method` | `HttpMethod` | required | HTTP method. |
+| `body` | `AnySerializable?` | `null` | Request body. |
+| `headers` | `Map<String, String>?` | `null` | Request headers. |
+
+**DSL example:**
+```kotlin
+DownloadFileToMemory(
+    trigger = EventTriggers.onClick(),
+    url = "/api/thumbnail",
+    method = HttpMethod.GET
+)
+```
+
+**Triggers fired:** `OnStart`, `OnDownloadProgress` (progress as incoming data), then `OnDownloadFinish` + `OnSuccess` (both carrying the total byte count, not a file name) or `OnDownloadFailure` + `OnFailure` (both carrying the `Throwable`, logged).
+
+**Notes:** the only download event that never touches the filesystem. `incomingData` not consumed.
+
+### `SendNetworkRequest`
+
+Sends an HTTP request to `url` and emits the response downstream — the general-purpose way to talk to a backend from inside an event chain.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `url` | `String` | required | Endpoint. |
+| `method` | `HttpMethod` | required | HTTP method. |
+| `body` | `AnySerializable?` | `null` | Request body. |
+| `headers` | `Map<String, String>?` | `null` | Request headers. |
+| `timeoutMillis` | `Long?` | `null` | Request timeout override. |
+
+**DSL example:**
+```kotlin
+SendNetworkRequest(
+    trigger = EventTriggers.onClick(),
+    url = "/api/login",
+    method = HttpMethod.POST
+)
+```
+
+**Triggers fired:** `OnStart` (before sending) — then exactly one outcome trigger per response: `OnNetworkResponse`/`OnNetworkFailure` (only if this event has a child wired to that **exact** HTTP status code — the first for 2xx, the second for the rest, parsed body as incoming data), otherwise `OnSuccess` (2xx) or `OnFailure` (non-2xx, parsed body as incoming data — or the request itself failed, e.g. timeout/no connectivity, `Throwable` as incoming data, logged).
+
+**Notes:** response body is auto-parsed — JSON content types become plain maps/lists/primitives, everything else stays a raw `ByteArray`; a JSON body that fails to parse yields `null` rather than throwing. `incomingData` not consumed by this event, but its parsed response becomes the next event's `incomingData`.
+
+### `SetIncomingDataToNetworkParamsHolderBody`
+
+Stores the event's `incomingData` as the request body in the client's `NetworkParametersHolder`, so a later request in the chain picks it up instead of carrying the body on its own schema.
+
+**Parameters:** none beyond the base fields.
+
+**DSL example:**
+```kotlin
+SetIncomingDataToNetworkParamsHolderBody(trigger = EventTriggers.onSuccess())
+```
+
+**Triggers fired:** `OnSuccess` (stored, no data forwarded), `OnFailure` (`incomingData` is `null`, logged).
+
+**Notes:** `incomingData` is **required** — any non-null value is accepted as-is, no type validation. See `architecture.md` §4 for `NetworkParametersHolder`'s "whoever consumes it first wins" behavior — this event only stages the value, it doesn't guarantee which subsequent network event reads it.
+
+### `SetIncomingDataToNetworkParamsHolderHeaders`
+
+Same staging mechanism as the Body variant, for request headers.
+
+**Parameters:** none beyond the base fields.
+
+**DSL example:**
+```kotlin
+SetIncomingDataToNetworkParamsHolderHeaders(trigger = EventTriggers.onSuccess())
+```
+
+**Triggers fired:** `OnSuccess` (stored, no data forwarded), `OnFailure` (`incomingData` missing, not a map, or holds no `String` value at all — logged).
+
+**Notes:** `incomingData` must be a map holding **at least one** `String` value — entries whose value isn't a `String` are silently dropped rather than failing the whole event.
+
+### `SetIncomingDataToNetworkParamsHolderQueryParameters`
+
+Same staging mechanism, for query parameters.
+
+**Parameters:** none beyond the base fields.
+
+**DSL example:**
+```kotlin
+SetIncomingDataToNetworkParamsHolderQueryParameters(trigger = EventTriggers.onSuccess())
+```
+
+**Triggers fired:** `OnSuccess` (stored, no data forwarded), `OnFailure` (`incomingData` missing or not a map — logged).
+
+**Notes:** unlike the Headers variant, there's no "at least one valid value" requirement here — any map keyed by `String` is accepted, values aren't validated.
+
+### `SetIncomingDataToNetworkParamsHolderUrl`
+
+Same staging mechanism, for the URL.
+
+**Parameters:** none beyond the base fields.
+
+**DSL example:**
+```kotlin
+SetIncomingDataToNetworkParamsHolderUrl(trigger = EventTriggers.onSuccess())
+```
+
+**Triggers fired:** `OnSuccess` (stored, no data forwarded), `OnFailure` (`incomingData` missing or not a `String` — logged).
+
+**Notes:** `UploadFile` is the primary consumer of this one — it's the only network event whose `url` field is nullable, precisely so it can be fed from here instead of a schema literal.
+
+### `UploadFile`
+
+Uploads the file carried in the event's `incomingData` to `url`, reporting progress as it goes. Pair with `OpenFilePicker` or `GetFile` using their `PlatformFile` output.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `url` | `String?` | `null` | Endpoint — falls back to `NetworkParametersHolder` (see `SetIncomingDataToNetworkParamsHolderUrl`) when omitted. |
+| `method` | `HttpMethod` | `HttpMethod.PUT` | HTTP method — the only networking event with a non-required default here. |
+| `headers` | `Map<String, String>?` | `null` | Request headers. |
+| `contentType` | `String?` | `null` | Content type of the uploaded file. |
+
+**DSL example:**
+```kotlin
+UploadFile(
+    trigger = EventTriggers.onSuccess(),
+    url = "<|signedUrl|>",
+    contentType = "image/png"
+)
+```
+
+**Triggers fired:** `OnStart` (after `incomingData` was validated, before the upload begins), `OnUploadProgress` (repeatedly, progress as incoming data), then `OnNetworkResponse`/`OnNetworkFailure` (only if a child is wired to the exact status) or `OnSuccess` (parsed body as incoming data) — or `OnFailure`, three distinct causes: `incomingData` not a `PlatformFile` (fires **before** `OnStart`, no data), non-2xx response with no status-specific child (parsed body as incoming data), or the upload itself failing (`Throwable`).
+
+**Notes:** `incomingData` is **required** and must be a `PlatformFile`. Response parsing follows the same JSON-or-raw-bytes rule as `SendNetworkRequest`.
 
 ## Overlays
 
-### DisplayDialogEventSchema
-**JSON type:** `"DisplayDialog"`
+Two structurally different groups: `BottomSheet`/`ModalBottomSheet`/`Dialog` are addressed by an id you choose and can fail (`OnFailure` exists); `NavigationDrawer`/`Snackbar` are pure fire-and-forget broadcasts with no id (one drawer/snackbar per screen) and no `OnFailure` at all.
 
-Pushes a dialog with the provided tile tree onto the screen's overlay stack.
+### `DisplayBottomSheet`
 
-| Field | Type |
-|---|---|
-| `dialogId` | `String` |
-| `tiles` | `List<TileSchema>` |
-| `isCancellable` | `Boolean` |
-| `usePlatformDefaultWidth` | `Boolean` |
+Shows a **non-modal** bottom sheet built from `tiles`, registered under `bottomSheetId` — doesn't dim or block the content behind it.
 
-**Child triggers used:** `OnSuccess`, `OnFailure` (id already on the stack)
+**Parameters:**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `bottomSheetId` | `String` | required | Id this sheet is registered under, for `DismissBottomSheet` to target later. |
+| `tiles` | `List<TileSchema>` | required | Sheet content. |
+| `isCancellable` | `Boolean` | required | Whether the user can dismiss it by gesture. |
+| `fill` | `Boolean` | required | Whether the sheet takes the full height. |
+| `allowsPartialExpansion` | `Boolean` | required | Whether it stops at a half-expanded state before reaching full height. |
 
-### DismissDialogEventSchema
-**JSON type:** `"DismissDialog"`
+**DSL example:**
+```kotlin
+DisplayBottomSheet(
+    trigger = EventTriggers.onClick(),
+    bottomSheetId = "filters",
+    isCancellable = true,
+    fill = false,
+    allowsPartialExpansion = true,
+    tiles = { Column { /* filter controls */ } }
+)
+```
 
-Dismisses the dialog with the given id.
+**Triggers fired:** `OnSuccess` (added, no data forwarded), `OnFailure` (couldn't be added — typically `bottomSheetId` already in use — `Throwable` as incoming data).
 
-| Field | Type |
-|---|---|
-| `dialogId` | `String` |
+**Notes:** `incomingData` not consumed.
 
-**Child triggers used:** `OnSuccess`, `OnFailure` (id not on the stack)
+### `DismissBottomSheet`
 
----
+Closes the bottom sheet registered under `bottomSheetId`.
 
-### DisplayBottomSheetEventSchema
-**JSON type:** `"DisplayBottomSheet"`
+**Parameters:**
 
-Pushes a non-modal bottom sheet onto the screen's overlay stack. Renders inline in the screen
-layout: no scrim, content behind stays interactive.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `bottomSheetId` | `String` | required | Id of the sheet to close. |
 
-| Field | Type |
-|---|---|
-| `bottomSheetId` | `String` |
-| `tiles` | `List<TileSchema>` |
-| `isCancellable` | `Boolean` |
-| `fill` | `Boolean` |
-| `allowsPartialExpansion` | `Boolean` |
+**DSL example:**
+```kotlin
+DismissBottomSheet(trigger = EventTriggers.onClick(), bottomSheetId = "filters")
+```
 
-**Child triggers used:** `OnSuccess`, `OnFailure` (id already on the stack)
+**Triggers fired:** `OnSuccess` (dismissed, no data forwarded), `OnFailure` (no sheet showing under that id — `Throwable` as incoming data).
 
----
+**Notes:** dismissal here starts the two-phase animation handshake described in `architecture.md` §5 — the overlay isn't actually gone from the tree the instant this event succeeds.
 
-### DismissBottomSheetEventSchema
-**JSON type:** `"DismissBottomSheet"`
+### `DisplayModalBottomSheet`
 
-Dismisses the non-modal bottom sheet with the given id.
+Shows a **modal** bottom sheet built from `tiles`, registered under `modalBottomSheetId` — unlike the plain variant, this one dims and blocks the content behind it.
 
-| Field | Type |
-|---|---|
-| `bottomSheetId` | `String` |
+**Parameters:**
 
-**Child triggers used:** `OnSuccess`, `OnFailure` (id not on the stack)
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `modalBottomSheetId` | `String` | required | Id this sheet is registered under. |
+| `tiles` | `List<TileSchema>` | required | Sheet content. |
+| `isCancellable` | `Boolean` | required | Whether the user can dismiss it by gesture or scrim tap. |
+| `fill` | `Boolean` | required | Whether the sheet takes the full height. |
+| `allowsPartialExpansion` | `Boolean` | required | Whether it stops at a half-expanded state. |
 
----
+**DSL example:**
+```kotlin
+DisplayModalBottomSheet(
+    trigger = EventTriggers.onClick(),
+    modalBottomSheetId = "share_sheet",
+    isCancellable = true,
+    fill = false,
+    allowsPartialExpansion = false,
+    tiles = { /* share options */ }
+)
+```
 
-### DisplayModalBottomSheetEventSchema
-**JSON type:** `"DisplayModalBottomSheet"`
+**Triggers fired:** `OnSuccess` (added, no data forwarded), `OnFailure` (couldn't be added, typically `modalBottomSheetId` already in use — `Throwable` as incoming data).
 
-Pushes a modal bottom sheet onto the screen's overlay stack. Renders in its own window, with scrim.
+**Notes:** `incomingData` not consumed.
 
-| Field | Type |
-|---|---|
-| `modalBottomSheetId` | `String` |
-| `tiles` | `List<TileSchema>` |
-| `isCancellable` | `Boolean` |
-| `fill` | `Boolean` |
-| `allowsPartialExpansion` | `Boolean` |
+### `DismissModalBottomSheet`
 
-**Child triggers used:** `OnSuccess`, `OnFailure` (id already on the stack)
+Closes the modal bottom sheet registered under `modalBottomSheetId`.
 
----
+**Parameters:**
 
-### DismissModalBottomSheetEventSchema
-**JSON type:** `"DismissModalBottomSheet"`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `modalBottomSheetId` | `String` | required | Id of the sheet to close. |
 
-Dismisses the modal bottom sheet with the given id.
+**DSL example:**
+```kotlin
+DismissModalBottomSheet(trigger = EventTriggers.onClick(), modalBottomSheetId = "share_sheet")
+```
 
-| Field | Type |
-|---|---|
-| `modalBottomSheetId` | `String` |
+**Triggers fired:** `OnSuccess` (dismissed, no data forwarded), `OnFailure` (nothing showing under that id — `Throwable` as incoming data).
 
-**Child triggers used:** `OnSuccess`, `OnFailure` (id not on the stack)
+**Notes:** same two-phase dismissal handshake as `DismissBottomSheet`.
 
----
+### `DisplayDialog`
 
-### DisplayNavigationDrawerEventSchema
-**JSON type:** `"DisplayNavigationDrawer"`
+Shows a dialog built from `tiles`, registered under `dialogId`.
 
-Opens the navigation drawer.
+**Parameters:**
 
-No additional fields.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `dialogId` | `String` | required | Id this dialog is registered under. |
+| `tiles` | `List<TileSchema>` | required | Dialog content. |
+| `isCancellable` | `Boolean` | required | Whether the back gesture or a scrim tap dismisses it. |
+| `usePlatformDefaultWidth` | `Boolean` | required | `true` keeps the platform's default width; `false` lets the dialog size itself from its content. |
 
----
+**DSL example:**
+```kotlin
+DisplayDialog(
+    trigger = EventTriggers.onClick(),
+    dialogId = "confirm_delete",
+    isCancellable = true,
+    usePlatformDefaultWidth = true,
+    tiles = { /* confirmation content */ }
+)
+```
 
-### DismissNavigationDrawerEventSchema
-**JSON type:** `"DismissNavigationDrawer"`
+**Triggers fired:** `OnSuccess` (added, no data forwarded), `OnFailure` (couldn't be added, typically `dialogId` already in use — `Throwable` as incoming data).
 
-Closes the navigation drawer.
+**Notes:** `incomingData` not consumed. Unlike the two bottom sheet variants, `Dialog`'s dismissal has **no exit animation to wait for** — its two-phase handshake resolves instantly (see `architecture.md` §5).
 
-No additional fields.
+### `DismissDialog`
 
-**Child trigger used:** `OnSuccess` (fired when the signal is broadcast, not when the animation ends)
+Closes the dialog registered under `dialogId`.
 
----
+**Parameters:**
 
-### DisplaySnackbarEventSchema
-**JSON type:** `"DisplaySnackbar"`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `dialogId` | `String` | required | Id of the dialog to close. |
 
-Shows a snackbar with a message, configurable duration, and optional action button.
+**DSL example:**
+```kotlin
+DismissDialog(trigger = EventTriggers.onClick(), dialogId = "confirm_delete")
+```
 
-| Field | Type | Default |
-|---|---|---|
-| `message` | `String` | required |
-| `duration` | `SnackbarDurationSchema` | `Short` |
-| `actionLabel` | `String?` | `null` |
+**Triggers fired:** `OnSuccess` (dismissed, no data forwarded), `OnFailure` (nothing showing under that id — `Throwable` as incoming data).
 
-`SnackbarDurationSchema` (enum): `Short`, `Long`, `Indefinite`
+**Notes:** `incomingData` not consumed.
 
-**Child triggers used:** `OnSnackbarAction` (when action button is clicked), `OnSnackbarDismissed` (when snackbar is dismissed)
+### `DisplayNavigationDrawer`
 
----
+Opens the screen's navigation drawer, by broadcasting an open command on the screen's broadcast channel. The drawer's content is declared on the screen itself (`ScreenTileSchema.navigationDrawerTiles`), so this event carries no parameters — there's only ever one drawer per screen.
 
-### DismissSnackbarEventSchema
-**JSON type:** `"DismissSnackbar"`
+**Parameters:** none beyond the base fields.
 
-Programmatically dismisses the currently displayed snackbar. Useful for `Indefinite` duration snackbars.
+**DSL example:**
+```kotlin
+DisplayNavigationDrawer(trigger = EventTriggers.onClick())
+```
 
-No additional fields.
+**Triggers fired:** `OnSuccess` — always, right after the broadcast, fire-and-forget. Fires even when the screen declares no drawer at all.
 
----
+**Notes:** no `OnFailure` exists for this event — see the group note above. `incomingData` not consumed.
 
-## Events / Meta
+### `DismissNavigationDrawer`
 
-### TriggerEventEventSchema
-**JSON type:** `"TriggerEvent"`
+Closes the screen's navigation drawer, by broadcasting a close command.
 
-Manually fires another event by its ID.
+**Parameters:** none beyond the base fields.
 
-| Field | Type |
-|---|---|
-| `eventId` | `String` |
+**DSL example:**
+```kotlin
+DismissNavigationDrawer(trigger = EventTriggers.onClick())
+```
 
----
+**Triggers fired:** `OnSuccess` — always, fire-and-forget. Fires even when no drawer is open.
 
-## Menu
+**Notes:** `incomingData` not consumed.
 
-### ToggleMenuEventSchema
-**JSON type:** `"ToggleMenu"`
+### `DisplaySnackbar`
 
-Toggles the expanded state of a `MenuTileSchema`.
+Shows a snackbar with `message`, by broadcasting a display command on the screen's broadcast channel.
 
-| Field | Type |
-|---|---|
-| `menuId` | `String` |
+**Parameters:**
 
-**Child trigger used:** `OnMenuItemClick`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `message` | `String` | required | Snackbar text. |
+| `duration` | `SnackbarDuration` (`Short`/`Long`/`Indefinite`) | `Short` — `snackbarShortDuration()`/`snackbarLongDuration()`/`snackbarIndefiniteDuration()` | How long it stays visible. |
+| `actionLabel` | `String?` | `null` | Adds an action button when non-null. |
 
----
+**DSL example:**
+```kotlin
+DisplaySnackbar(
+    trigger = EventTriggers.onFailure(),
+    message = "Login failed",
+    duration = snackbarShortDuration()
+)
+```
 
-## Popup
+**Triggers fired:** `OnSuccess` (right after the broadcast, before the snackbar has actually resolved — fire-and-forget), then, **later, asynchronously**: `OnSnackbarAction` (user pressed the action button) or `OnSnackbarDismissed` (it went away without the action being pressed).
 
-### TogglePopupEventSchema
-**JSON type:** `"TogglePopup"`
+**Notes:** `incomingData` not consumed. `OnSuccess` firing doesn't mean the snackbar was seen or resolved — it only confirms the broadcast was sent; `OnSnackbarAction`/`OnSnackbarDismissed` are the events that reflect what actually happened, and can fire well after `OnSuccess` already ran downstream events.
 
-Toggles the expanded state of a `PopupTileSchema`.
+### `DismissSnackbar`
 
-| Field | Type |
-|---|---|
-| `popupId` | `String` |
+Hides the snackbar currently showing on the screen, by broadcasting a dismiss command.
 
-**Child triggers used:** `OnSuccess`, `OnFailure`
+**Parameters:** none beyond the base fields.
 
----
+**DSL example:**
+```kotlin
+DismissSnackbar(trigger = EventTriggers.onClick())
+```
 
-## Time
+**Triggers fired:** `OnSuccess` — always, fire-and-forget. Fires even when no snackbar is showing.
 
-### StartCountdownTimerEventSchema
-**JSON type:** `"StartCountdownTimer"`
+**Notes:** `incomingData` not consumed.
 
-Starts a countdown timer that counts down from `timerData.initial` to zero in decrements of `timerData.step`. Runner is a placeholder — countdown/trigger-firing logic not yet implemented.
+## Pull to refresh
 
-| Field | Type | Description |
-|---|---|---|
-| `timerData` | `TimerData` | `Milliseconds(initial: Long, step: Long)` or `Seconds(initial: Int, step: Int)` — build with `milliseconds(initial, step)` / `seconds(initial, step)` DSL helpers, which validate `step >= 0` and `step < initial` |
+### `StopRefreshing`
 
-**Child triggers used:** `OnCountdownTimerTick` (`EventTriggers.onTimeTick()`, each `step`), `OnTimeFinish` (`EventTriggers.onTimeFinish()`), `OnSuccess`
+Stops the loading indicator of the `PullToRefresh` tile identified by `tileId`. The tile never hides its own spinner — this event has to close every refresh flow, on the success branch and the failure branch alike (see `tiles-catalog.md`'s `PullToRefresh` entry).
 
----
+**Parameters:**
 
-### StartTimeLoopEventSchema
-**JSON type:** `"StartTimeLoop"`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tileId` | `String` | required | Id of the target `PullToRefresh` tile. |
 
-Starts an unbounded loop that repeats every `timeData.delay` — unlike `StartCountdownTimerEventSchema`, there is no end condition. Runner is a placeholder — loop/trigger-firing logic not yet implemented.
+**DSL example:**
+```kotlin
+RefreshScreen(
+    trigger = EventTriggers.onPull(),
+    events = {
+        StopRefreshing(trigger = EventTriggers.onSuccess(), tileId = "list")
+        StopRefreshing(trigger = EventTriggers.onFailure(), tileId = "list")
+    }
+)
+```
 
-| Field | Type | Description |
-|---|---|---|
-| `timeData` | `TimeData` | `Milliseconds(delay: Long)` or `Seconds(delay: Int)` — build with `milliseconds(delay)` / `seconds(delay)` DSL helpers, which validate `delay > 0` |
+**Triggers fired:** `OnSuccess` (signal reached the tile, no data forwarded), `OnFailure` (no tile with `tileId` currently mounted — `Throwable` as incoming data).
 
-**Child triggers used:** `OnTimeLoop` (`EventTriggers.onTimeLoop()`, each `delay`), `OnSuccess`
+**Notes:** `incomingData` not consumed. Forgetting to chain this on the failure branch is the single most common way a `PullToRefresh` spinner gets stuck.
 
----
+## Screen
+
+### `GetScreen`
+
+Fetches the payload of the screen this event lives in and emits it downstream **without applying it**. Pair with `ChangeScreenState` to decide when and how the fetched content is installed.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `method` | `HttpMethod` | `HttpMethod.GET` | HTTP method for the fetch. |
+| `body` | `AnySerializable?` | `null` | Request body. |
+| `headers` | `Map<String, String>?` | `null` | Request headers. |
+| `timeoutMillis` | `Long?` | `null` | Request timeout override. |
+
+**DSL example:**
+```kotlin
+GetScreen(
+    trigger = EventTriggers.onDisplay(),
+    events = { ChangeScreenState(trigger = EventTriggers.onSuccess(), state = successState()) }
+)
+```
+
+**Triggers fired:** `OnStart` (before the request), `OnSuccess` (the fetched `ScreenModel` as incoming data, ready for `ChangeScreenState`), `OnNetworkFailure` (only if this event has a child wired to the exact HTTP status of the failure), otherwise `OnFailure` (every other failure — `Throwable` as incoming data, logged).
+
+**Notes:** the request always targets **this screen's own id** — there's no way to fetch a different screen's content through this event; fetching another screen is always navigation (`Navigate`/`NavigateClearingStack`). This is exactly the pair the `initialEvents` default of every `entry{}` uses (see `architecture.md` §5). `incomingData` not consumed.
+
+### `RefreshScreen`
+
+Refetches the screen this event lives in **and applies the result to it** — `GetScreen` + `ChangeScreenState` fused into one step. The screen moves to its initial (loading) state, then to success with the new content or to its failure state.
+
+**Parameters:** identical to `GetScreen` — `method` (default `HttpMethod.GET`), `body`, `headers`, `timeoutMillis`.
+
+**DSL example:**
+```kotlin
+RefreshScreen(trigger = EventTriggers.onPull())
+```
+
+**Triggers fired:** `OnSuccess` (fetched and applied, `ScreenModel` as incoming data), `OnNetworkFailure` (status-specific child exists), otherwise `OnFailure` (every other failure — `Throwable` as incoming data, logged; the screen is left in its failure state either way).
+
+**Notes:** unlike `GetScreen`, no extra event is needed to install what came back — but that also means it always flashes the screen back to its loading state first, even if the previous content is still valid. `incomingData` not consumed.
+
+### `ChangeScreenState`
+
+Moves the screen this event lives in to another state, with no network call involved.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `state` | `State` — `initialState()`, `failureState()`, or `successState(data?)` | required | Target state. `Success.data` (tiles/navigationDrawerTiles/events) is optional. |
+
+**DSL example:**
+```kotlin
+ChangeScreenState(trigger = EventTriggers.onSuccess(), state = successState())
+```
+
+**Triggers fired:** `OnSuccess` (state applied, no data forwarded), `OnFailure` (applying the state threw — including `Success` with no declared data and no `ScreenModel` in `incomingData` — no data, logged).
+
+**Notes:** for `Success`, content comes from `state`'s own `data` when passed to `successState(data)`, otherwise from `incomingData`, which must then be a `ScreenModel` — typically the one produced by a preceding `GetScreen`. `successState()` with no argument (the default used by every `entry{}`) always relies on `incomingData`.
 
 ## Scroll
 
-### ScrollColumnTileEventSchema
-**JSON type:** `"ScrollColumn"`
+### `ScrollColumnTile`
 
-| Field | Type |
-|---|---|
-| `tileId` | `String` |
-| `where` | `Where`: `Top`, `Bottom`, `To(index: Int)` |
-| `smoothly` | `Boolean` |
+Scrolls the `Column` or `LazyColumn` tile identified by `tileId`, by broadcasting a scroll command on the screen's broadcast channel.
 
-**Child trigger used:** `OnScrolled`
+**Parameters:**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tileId` | `String` | required | Target tile. |
+| `where` | `Where` — `scrollColumnToTop()`, `scrollColumnTo(index)`, `scrollColumnToBottom()` | required | Scroll destination. |
+| `smoothly` | `Boolean` | required | Animated vs. immediate jump. |
 
-### ScrollRowTileEventSchema
-**JSON type:** `"ScrollRow"`
+**DSL example:**
+```kotlin
+ScrollColumnTile(
+    trigger = EventTriggers.onClick(),
+    tileId = "list",
+    where = scrollColumnToTop(),
+    smoothly = true
+)
+```
 
-| Field | Type |
-|---|---|
-| `tileId` | `String` |
-| `where` | `Where`: `Start`, `End`, `To(index: Int)` |
-| `smoothly` | `Boolean` |
+**Triggers fired:** `OnSuccess` — always, fire-and-forget, fires even when no tile carries `tileId`.
 
-**Child trigger used:** `OnScrolled`
+**Notes:** `where`'s `To(index)` is read as a **pixel offset** by a plain `Column` and as a **child index** by a `LazyColumn` — same field, different meaning depending on which tile receives it. `incomingData` not consumed, no `OnFailure` exists.
 
----
+### `ScrollRowTile`
 
-### ScrollPagerTileEventSchema
-**JSON type:** `"ScrollPager"`
+Horizontal counterpart of `ScrollColumnTile`, for `Row`/`LazyRow`.
 
-| Field | Type |
-|---|---|
-| `tileId` | `String` |
-| `where` | `Where`: `Begin`, `PreviousPage`, `NextPage`, `End` |
+**Parameters:**
 
-**Child trigger used:** `OnScrolled`
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tileId` | `String` | required | Target tile. |
+| `where` | `Where` — `scrollRowToStart()`, `scrollRowTo(index)`, `scrollRowToEnd()` | required | Scroll destination. |
+| `smoothly` | `Boolean` | required | Animated vs. immediate jump. |
 
----
+**DSL example:**
+```kotlin
+ScrollRowTile(
+    trigger = EventTriggers.onClick(),
+    tileId = "tabs_row",
+    where = scrollRowTo(index = 3),
+    smoothly = true
+)
+```
 
-## Pull to Refresh
+**Triggers fired:** `OnSuccess` — always, fire-and-forget.
 
-### StopRefreshingEventSchema
-**JSON type:** `"StopRefreshing"`
+**Notes:** same pixel-offset-vs-index distinction as `ScrollColumnTile`, on the horizontal axis. No `OnFailure`.
 
-Stops the pull-to-refresh animation on a `PullToRefreshTileSchema`.
+### `ScrollPagerTile`
 
-| Field | Type |
-|---|---|
-| `tileId` | `String` |
+Moves the `Pager` or `Carousel` tile identified by `tileId` to another page/item.
 
----
+**Parameters:**
 
-## Security
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `tileId` | `String` | required | Target tile. |
+| `where` | `Where` — `scrollPageToBegin()`, `scrollPageToPreviousPage()`, `scrollPageToNextPage()`, `scrollPageToEnd()` | required | Scroll destination. |
+| `smoothly` | `Boolean` | required | Animated vs. immediate jump. |
 
-### RequestPermissionEventSchema
-**JSON type:** `"RequestPermission"`
+**DSL example:**
+```kotlin
+ScrollPagerTile(
+    trigger = EventTriggers.onClick(),
+    tileId = "onboarding",
+    where = scrollPageToNextPage(),
+    smoothly = true
+)
+```
 
-Requests one or more runtime permissions from the user using each platform's native mechanism.
+**Triggers fired:** `OnSuccess` — always, fire-and-forget.
 
-| Field | Type |
-|---|---|
-| `permissions` | `List<Permissions>` |
+**Notes:** unlike the other two, there's no `To(index)` variant — only relative navigation (begin/end/next/previous). The receiving tile clamps the result, so requesting the next page on the last one is a no-op, not an error. Shared by both `Pager` and `Carousel` (they use the same broadcast). No `OnFailure`.
 
-`Permissions`: `CAMERA`, `GALLERY`, `STORAGE`, `MICROPHONE`, `LOCATION`, `NOTIFICATION`, `CONTACTS`
+## Security & system
 
-**Child triggers used:** `onPermissionsAcquired`, `onPermissionsDenied`, `onPermissionRationale` (Android only — first denial, can ask again), `onSuccess`, `onFailure`
+### `RequestPermission`
 
-> ⚠️ **Requisito do app consumidor:** as permissões solicitadas devem estar declaradas no `AndroidManifest.xml` (Android) e no `Info.plist` com a `NSXxxUsageDescription` correspondente (iOS). Sem essas entradas, a solicitação falha em runtime.
+Asks the platform for the runtime permissions listed in `permissions`, through the client's `PermissionManager`.
 
----
+**Parameters:**
 
-## System
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `permissions` | `List<Permissions>` | required | Requested permissions — `cameraPermission()`, `galleryPermission()`, `storagePermission()`, `microphonePermission()`, `locationPermission()`, `notificationPermission()`, `contactsPermission()`. |
 
-### BroadcastToSystemEventSchema
-**JSON type:** `"BroadcastToSystem"`
+**DSL example:**
+```kotlin
+RequestPermission(
+    trigger = EventTriggers.onClick(),
+    permissions = listOf(cameraPermission(), microphonePermission())
+)
+```
 
-Sends a named broadcast with an arbitrary payload to the system (e.g., for cross-screen or host-app communication). Runner is a placeholder — logic not yet implemented.
+**Triggers fired:** `OnPermissionsAcquired` then `OnSuccess` (every requested permission granted), `OnPermissionsDenied` then `OnFailure` (denied), `OnPermissionRationale` (platform wants a rationale shown before asking again — chain the explanation onto this and request once more). No data passed in any case.
 
-| Field | Type | Description |
-|---|---|---|
-| `broadcastId` | `String` | Identifier for the broadcast channel |
-| `data` | `BroadcastData` | Payload — `Incoming` (uses `incomingData`) or `Inline(data: AnySerializable)` (static value) |
+**Notes:** `incomingData` not consumed. `Rationale` is Android-only in practice (per platform permission APIs — see `architecture.md` §7); other platforms only ever produce `Granted`/`Denied`.
 
-`BroadcastData` (sealed interface, nested in schema):
-- `Incoming` — uses the current `incomingData` as payload
-- `Inline(data: AnySerializable)` — uses a static inline value
+### `BroadcastToSystem`
 
-DSL helpers: `incomingBroadcastData()` / `inlineBroadcastData(data)`
+Publishes a value on the client's system broadcast channel under `broadcastId` — the outbound half of the bridge between server-declared flows and native app code (push notifications, connectivity changes, etc. can be the *inbound* half via `SystemBroadcastListener`).
 
-**Child triggers used:** `OnSuccess`, `OnFailure`
+**Parameters:**
 
----
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `broadcastId` | `String` | required | Channel id — matched against `OnSystemBroadcast(broadcastId)` on the receiving end. |
+| `data` | `BroadcastData` — `incomingBroadcastData()` or `inlineBroadcastData(value)` | required | Payload: `incomingBroadcastData()` publishes `incomingData`; `inlineBroadcastData(value)` publishes a literal. |
 
-### CheckIfHasInternetConnectionEventSchema
-**JSON type:** `"CheckIfHasInternetConnection"`
+**DSL example:**
+```kotlin
+BroadcastToSystem(
+    trigger = EventTriggers.onSuccess(),
+    broadcastId = "cart_updated",
+    data = incomingBroadcastData()
+)
+```
 
-Checks whether the device has an active internet connection.
+**Triggers fired:** `OnSuccess` (published, no data forwarded), `OnFailure` (only in the `incomingBroadcastData()` case, when `incomingData` is `null` — nothing to publish).
 
-No additional fields.
+**Notes:** app-wide, not screen-scoped — reaches the host application and any mounted `SystemBroadcastListener` tile, on any screen.
 
-**Child triggers used:** `OnSuccess`, `OnFailure`
+### `CheckIfHasInternetConnection`
 
----
+Asks the client's network layer whether the device currently has an internet connection, and branches on the answer. Runs on the IO dispatcher.
 
-### OpenExternalLinkEventSchema
-**JSON type:** `"OpenExternalLink"`
+**Parameters:** none beyond the base fields.
 
-Abre `url` usando o mecanismo de link externo da plataforma: navegador padrão no Android, iOS e JVM, ou uma nova aba no wasmJs.
+**DSL example:**
+```kotlin
+CheckIfHasInternetConnection(trigger = EventTriggers.onDisplay())
+```
 
-| Field | Type | Description |
-|---|---|---|
-| `url` | `String` | URL a ser aberta |
+**Triggers fired:** `OnStart` (before the check), `OnSuccess` (connected, no data), `OnFailure` (not connected, no data).
 
-**Child triggers used:** `OnSuccess`, `OnFailure`
+**Notes:** `incomingData` not consumed.
 
----
+### `DropCaches`
 
-### DropCachesEventSchema
-**JSON type:** `"DropCaches"`
+Clears the client's local caches, selectively.
 
-Drops locally persisted Mosaic caches (screens, initial graph, cache version), selectively controlled by each boolean flag.
+**Parameters:**
 
-| Field | Type | Description |
-|---|---|---|
-| `dropScreensCache` | `Boolean` | Drops every cached `ScreenResponse` |
-| `dropInitialGraphCache` | `Boolean` | Drops the cached initial navigation graph |
-| `dropVersionCache` | `Boolean` | Drops the locally stored cache-busting version |
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `dropScreensCache` | `Boolean` | required | Clears cached screen payloads. |
+| `dropInitialGraphCache` | `Boolean` | required | Clears the cached initial navigation graph. |
+| `dropVersionCache` | `Boolean` | required | Clears the cached version marker used to decide whether cached content is still valid. |
 
-**Child triggers used:** `OnSuccess`, `OnFailure`
+**DSL example:**
+```kotlin
+DropCaches(
+    trigger = EventTriggers.onClick(),
+    dropScreensCache = true,
+    dropInitialGraphCache = false,
+    dropVersionCache = false
+)
+```
 
----
+**Triggers fired:** `OnSuccess` (dropped, no data forwarded), `OnFailure` (dropping failed — `Throwable` as incoming data, logged).
+
+**Notes:** all 3 flags are required, no defaults — forces the author to decide each one explicitly rather than silently clearing everything.
+
+### `OpenExternalLink`
+
+Hands `url` to the platform so it opens outside the app — the system browser, or whichever app claims the scheme.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `url` | `String` | required | URL or URI scheme to open. |
+
+**DSL example:**
+```kotlin
+OpenExternalLink(trigger = EventTriggers.onClick(), url = "https://example.com/terms")
+```
+
+**Triggers fired:** `OnSuccess` (platform accepted the request, no data forwarded), `OnFailure` (opening threw, e.g. nothing handles the URL — `Throwable` as incoming data, logged).
+
+**Notes:** `incomingData` not consumed. Accepting the request isn't proof the URL actually opened something meaningful — a scheme with no registered handler can still fail silently depending on the platform.
 
 ## Theme
 
-### SetThemeEventSchema
-**JSON type:** `"SetTheme"`
+### `SetTheme`
 
-Overrides the app's Material3 color scheme (light + dark) globally at runtime, regardless of the current screen. Persists until `ResetTheme` is dispatched or the app restarts.
+Overrides the app's Material color schemes at runtime — every Material 3 color role, from `primary` through the surface-container and fixed-accent families.
 
-| Field | Type | Description |
-|---|---|---|
-| `colorsScheme` | `ColorsScheme` | `{ lightColorScheme: ColorScheme, darkColorScheme: ColorScheme }` |
+**Parameters:**
 
-`ColorScheme` mirrors every Compose Material3 `ColorScheme` role (`primary`, `onPrimary`, `surfaceContainerHighest`, etc.) as a hex color **String** (not `ColorSchema`/`color(...)`), parsed via `String.toColor()` on the client. Use the `colorsScheme(...)`/`colorScheme(...)` DSL helper functions (`mosaic-server`) to build these instead of constructing them directly — the full field list is long, see the schema source.
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `colorsScheme` | `ColorsScheme` — `colorsScheme(light, dark)` | required | A full light **and** full dark `ColorScheme`, each built via `colorScheme(...)` (48 hex-string parameters, one per Material 3 role — no partial overrides, every role must be specified). |
 
-**Child triggers used:** `OnSuccess`
+**DSL example:**
+```kotlin
+SetTheme(
+    trigger = EventTriggers.onSuccess(),
+    colorsScheme = colorsScheme(
+        light = colorScheme(primary = "#6750A4", onPrimary = "#FFFFFF", /* ...45 more roles */),
+        dark = colorScheme(primary = "#D0BCFF", onPrimary = "#381E72", /* ...45 more roles */)
+    )
+)
+```
 
----
+**Triggers fired:** `OnSuccess` — always, after both schemes are applied. No `OnFailure` exists.
 
-### ResetThemeEventSchema
-**JSON type:** `"ResetTheme"`
+**Notes:** `incomingData` not consumed. Both light and dark are always applied together in one call — there's no way to override just one; the app keeps following the system's light/dark setting, only the values each mode resolves to change. There's no partial/incremental theming — every one of the 48 roles must be supplied on every call.
 
-Reverts a previous `SetTheme` override, restoring the app's default color scheme (light + dark).
+### `ResetTheme`
 
-No additional fields.
+Drops any color scheme previously installed by `SetTheme`, putting the app back on the color scheme it was built with.
 
-**Child triggers used:** `OnSuccess`
+**Parameters:** none beyond the base fields.
+
+**DSL example:**
+```kotlin
+ResetTheme(trigger = EventTriggers.onClick())
+```
+
+**Triggers fired:** `OnSuccess` — always, after the reset. No `OnFailure` exists.
+
+**Notes:** `incomingData` not consumed.
+
+## Tile management
+
+### `AddTiles`
+
+Appends `tiles` as children of the grouping tile identified by `groupingTileId`, without rebuilding the rest of the screen.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `groupingTileId` | `String` | required | Target container tile. |
+| `tiles` | `List<TileSchema>` | required | Tiles to insert. |
+| `position` | `InsertionPosition` — `insertAtStart()`, `insertAtEnd()`, `insertBeforeTile(id)`, `insertAfterTile(id)`, `insertAtIndex(i)` | required | Where to insert. |
+
+**DSL example:**
+```kotlin
+AddTiles(
+    trigger = EventTriggers.onSuccess(),
+    groupingTileId = "results",
+    position = insertAtEnd(),
+    tiles = { items.forEach { Card(id = it.id) { SimpleText(text = it.title) } } }
+)
+```
+
+**Triggers fired:** `OnSuccess` (added, no data forwarded), `OnFailure` (no grouping tile carries `groupingTileId`, or it can't hold children — `Throwable` as incoming data, logged).
+
+**Notes:** `incomingData` not consumed. `tiles` is a DSL block, but it's evaluated exactly once, when the screen is built server-side — any `id`/`randomId()` calls inside it resolve to fixed values baked into the served schema. If this same `AddTiles` fires more than once (e.g. a repeatable trigger like `onScrollThresholdReached` firing again after the list grows), it re-inserts the *same* ids, which crashes list renderers that key by id (`LazyColumn`/`LazyRow`). For pagination that needs to fire repeatedly, fetch each page over the network instead (fresh ids generated per response) rather than relying on a single static `AddTiles`, or disable further firing after one page (e.g. patch the source tile's `scrollThreshold` to `null` via `UpdateTiles` once the list is exhausted).
+
+### `CheckIfTileContainsChildren`
+
+Tests whether the grouping tile identified by `groupingTileId` currently holds every child listed in `childrenIds`.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `groupingTileId` | `String` | required | Container tile to inspect. |
+| `childrenIds` | `List<String>` | required | Ids expected to be present. |
+
+**DSL example:**
+```kotlin
+CheckIfTileContainsChildren(
+    trigger = EventTriggers.onDisplay(),
+    groupingTileId = "cart_items",
+    childrenIds = listOf("item_1", "item_2")
+)
+```
+
+**Triggers fired:** `OnSuccess` (all listed children present, no data), `OnFailure` (at least one missing, or no grouping tile carries `groupingTileId` — no data in either case, so the two failure causes are indistinguishable downstream).
+
+**Notes:** `incomingData` not consumed.
+
+### `GetTileChildrenCount`
+
+Reads how many children the grouping tile identified by `groupingTileId` currently holds.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `groupingTileId` | `String` | required | Container tile to inspect. |
+
+**DSL example:**
+```kotlin
+GetTileChildrenCount(trigger = EventTriggers.onDisplay(), groupingTileId = "cart_items")
+```
+
+**Triggers fired:** `OnSuccess` (count as incoming data, an `Int`), `OnFailure` (no grouping tile carries `groupingTileId`, or it can't hold children — no data).
+
+**Notes:** `incomingData` not consumed.
+
+### `ReloadLazyTiles`
+
+Resets the `LazyTiles` tile identified by `lazyTileId` back to its loading state, making it fire its network request again — the way to retry after a failed load.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `lazyTileId` | `String` | required | Target `LazyTiles` tile. |
+
+**DSL example:**
+```kotlin
+ReloadLazyTiles(trigger = EventTriggers.onClick(), lazyTileId = "recommendations")
+```
+
+**Triggers fired:** `OnSuccess` (signal reached the tile, no data forwarded), `OnFailure` (no tile with `lazyTileId` currently mounted — `Throwable` as incoming data).
+
+**Notes:** `incomingData` not consumed. `OnSuccess` here reports the reset signal reaching the tile, **not** the outcome of the reload that follows — that arrives later through the `LazyTiles` tile's own `OnLoadTilesSuccess`/`OnLoadTilesFailure` triggers, not through this event.
+
+### `RemoveTiles`
+
+Removes the children listed in `tileIds` from the grouping tile identified by `groupingTileId`.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `groupingTileId` | `String` | required | Target container tile. |
+| `tileIds` | `List<String>` | required | Ids to remove. |
+
+**DSL example:**
+```kotlin
+RemoveTiles(
+    trigger = EventTriggers.onClick(),
+    groupingTileId = "cart_items",
+    tileIds = listOf("item_2")
+)
+```
+
+**Triggers fired:** `OnSuccess` (removal completed, no data forwarded), `OnFailure` (no grouping tile carries `groupingTileId` — `Throwable` as incoming data, logged).
+
+**Notes:** ids in `tileIds` that aren't among the container's actual children are silently ignored — not a failure. `incomingData` not consumed.
+
+### `ReplaceTiles`
+
+Swaps the whole children list of the grouping tile identified by `groupingTileId` for `tiles`.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `groupingTileId` | `String` | required | Target container tile. |
+| `tiles` | `List<TileSchema>` | required | New complete children list. |
+
+**DSL example:**
+```kotlin
+ReplaceTiles(
+    trigger = EventTriggers.onSuccess(),
+    groupingTileId = "results",
+    tiles = { items.forEach { Card(id = it.id) { SimpleText(text = it.title) } } }
+)
+```
+
+**Triggers fired:** `OnSuccess` (replaced, no data forwarded), `OnFailure` (no grouping tile carries `groupingTileId` — `Throwable` as incoming data, logged).
+
+**Notes:** `incomingData` not consumed.
+
+### `UpdateTiles`
+
+Patches tiles in place — the primary way to change what's on screen without refetching it.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `updates` | block, one entry per `update(tileId, updateData)` | required | Patches to apply. |
+
+`updateData` is one of: `incomingTileUpdateData()` (uses `incomingData` as-is when it's a map), `inlineTileUpdateData(map)` / `inlineTileUpdateData(vararg pairs)` (a literal map), or `mappedIncomingTileUpdateData(patterns)` (one template per field, each resolved against `incomingData` via the `<|path|>` template engine — see `architecture.md` §5).
+
+**DSL example:**
+```kotlin
+UpdateTiles(
+    trigger = EventTriggers.onSuccess(),
+    updates = {
+        update(tileId = "progress", updateData = mappedIncomingTileUpdateData("progress" to "<|percent|>"))
+    }
+)
+```
+
+**Triggers fired:** `OnSuccess` (every update applied, no data forwarded), `OnFailure` (at least one update failed — no tile carries that id, a `Mapped` template threw, or an `Incoming` update got non-map `incomingData` — fired once at the end, each failure logged).
+
+**Notes:** the merge is per-field — only listed fields change, and `style` is merged (not replaced wholesale) the same way the rest of the tile is. All updates are attempted regardless of earlier failures.
+
+### `WipeTiles`
+
+Removes every child of the grouping tile identified by `groupingTileId`, leaving it empty.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `groupingTileId` | `String` | required | Container tile to empty. |
+
+**DSL example:**
+```kotlin
+WipeTiles(trigger = EventTriggers.onClick(), groupingTileId = "cart_items")
+```
+
+**Triggers fired:** `OnSuccess` (children removed, no data forwarded), `OnFailure` (no grouping tile carries `groupingTileId` — `Throwable` as incoming data, logged).
+
+**Notes:** `incomingData` not consumed.
+
+## Time
+
+### `StartCountdownTimer`
+
+Starts a countdown in a coroutine launched from the running event's context, ticking down from `initial` to `step` in `step`-sized decrements, waiting one step between ticks.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `timerData` | `TimerData` — `milliseconds(initial, step)` or `seconds(initial, step)` | required | Countdown range and unit. |
+
+**DSL example:**
+```kotlin
+StartCountdownTimer(trigger = EventTriggers.onDisplay(), timerData = seconds(initial = 60, step = 1))
+```
+
+**Triggers fired:** `OnCountdownTimerTick` (once per tick, remaining amount as incoming data), `OnTimeFinish` (once, after the last tick, no data). **Neither success nor failure is reported.**
+
+**Notes:** the event returns immediately after launching the countdown — the chain continues while the timer runs in the background. It stops on its own when the countdown ends; to stop it early, launch it from inside `RunCancellableEvents` and cancel that id with `CancelEvents` (see `architecture.md` §4, `CancellableEventsHolder`). `incomingData` not consumed.
+
+### `StartTimeLoop`
+
+Starts an endless loop in a coroutine launched from the running event's context, firing once per period.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `timeData` | `TimeData` — `milliseconds(delay)` or `seconds(delay)` | required | Loop period and unit. |
+
+**DSL example:**
+```kotlin
+StartTimeLoop(trigger = EventTriggers.onDisplay(), timeData = seconds(delay = 30))
+```
+
+**Triggers fired:** `OnTimeLoop` — once per period, indefinitely, no data. **Neither success nor failure is reported.**
+
+**Notes:** the first fire happens **after** the first delay, not immediately. Runs forever by design — the only way to stop it is the same `RunCancellableEvents`/`CancelEvents` pairing as `StartCountdownTimer`. `incomingData` not consumed.

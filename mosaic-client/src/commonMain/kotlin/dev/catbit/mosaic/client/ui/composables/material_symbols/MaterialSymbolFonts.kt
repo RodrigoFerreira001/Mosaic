@@ -14,10 +14,15 @@ import dev.catbit.mosaic.client.generated.resources.materialSymbolsRounded
 import dev.catbit.mosaic.client.generated.resources.materialSymbolsSharp
 import org.jetbrains.compose.resources.Font
 
+/** `CompositionLocal` carrying the loaded [MaterialSymbolFonts] — provided by
+ * `MosaicTheme`/`MosaicApplication`, read by [MaterialSymbol]. Reading it before it's provided
+ * throws, which is why every Mosaic screen must render inside `MosaicApplication`. */
 internal val LocalMaterialSymbolFonts = staticCompositionLocalOf<MaterialSymbolFonts> {
     error("MaterialSymbolFonts not provided")
 }
 
+/** The 6 loaded Material Symbols font family variants — one per (outlined/rounded/sharp) ×
+ * (regular/filled) combination — built once by [loadMaterialSymbolFonts]. */
 @Stable
 data class MaterialSymbolFonts(
     val outlined: FontFamily,
@@ -28,6 +33,15 @@ data class MaterialSymbolFonts(
     val sharpFilled: FontFamily
 )
 
+/**
+ * Variable-font axis configuration applied uniformly to every Material Symbol glyph in the app —
+ * passed via `MosaicThemeConfig.materialSymbolFontsConfig` in `MosaicApplication`.
+ *
+ * @property weight glyph stroke weight. Must resolve to a value in `[100, 700]`.
+ * @property grade fine weight adjustment independent of [weight] (Google's own "grade" axis). Must
+ * be in `[-25, 200]`.
+ * @property opticalSize the font's optical-size axis, in sp. Must be in `[20sp, 48sp]`.
+ */
 @Stable
 data class MaterialSymbolFontsConfig(
     val weight: FontWeight = FontWeight.Normal,
@@ -35,6 +49,15 @@ data class MaterialSymbolFontsConfig(
     val opticalSize: TextUnit = 24.sp
 )
 
+/**
+ * Builds the 6 [MaterialSymbolFonts] variants from [config]'s variable-font axis settings — called
+ * once by `MosaicTheme` to populate [LocalMaterialSymbolFonts]. Every glyph in the app shares the
+ * same [config], since Compose's variable-font variation settings are baked into the `FontFamily`
+ * itself rather than adjustable per-glyph at draw time.
+ *
+ * @param config the axis values to apply.
+ * @throws IllegalArgumentException if any of [config]'s values falls outside its documented range.
+ */
 @Composable
 fun loadMaterialSymbolFonts(
     config: MaterialSymbolFontsConfig

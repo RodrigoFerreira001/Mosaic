@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnPermissionsAcquired")
+/** Fires alongside `onSuccess()` on `RequestPermission` when every requested permission was
+ * granted. */
 object OnPermissionsAcquiredEventTrigger : EventTrigger

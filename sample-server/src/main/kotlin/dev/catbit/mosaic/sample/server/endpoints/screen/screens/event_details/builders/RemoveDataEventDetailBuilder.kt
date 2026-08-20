@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -39,45 +36,17 @@ object RemoveDataEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Data",
-                description = "Apaga dados de um data store — uma chave, um lote de chaves ou o store " +
-                    "inteiro (fullAccessMode())."
+                description = "Erases data from a data store — a single key, a batch of keys, or the whole " +
+                    "store (fullAccessMode()). Use it to clear session data on logout, remove a cached value, " +
+                    "or reset a form segment. ScreenNavigationData and Tile are ignored as targets (no " +
+                    "effect). fullAccessMode() erases the entire segment — use with care."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use ao limpar dados de sessão no logout, remover um valor em cache ou resetar um segmento " +
-                    "de formulário. ScreenNavigationData e Tile são ignorados como alvo (sem efeito). " +
-                    "fullAccessMode() apaga o segmento inteiro — use com cuidado."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("deletions", "DeleteDataDeletionBuilderScope.() -> Unit", "Obrigatório. Um addDeletion(dataSource, accessMode) por remoção."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                RemoveData(
-                    trigger = EventTriggers.onClick(),
-                    deletions = {
-                        addDeletion(
-                            dataSource = segmentedDataBase("auth"),
-                            accessMode = fullAccessMode()
-                        )
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Grave um valor, confirme que existe, depois remova") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Write a value, confirm it exists, then remove it") {
                 SimpleText(
                     id = "remove_data_value",
-                    text = "(nenhum valor lido ainda)",
+                    text = "(no value read yet)",
                     typography = typographyTitleMedium()
                 )
                 Row(
@@ -85,7 +54,7 @@ object RemoveDataEventDetailBuilder : EventDetailBuilder {
                     arrangement = arrangeHorizontallySpacedBy(8)
                 ) {
                     Button(
-                        text = "Gravar valor",
+                        text = "Write value",
                         buttonType = outlinedButton(),
                         events = {
                             UpdateData(
@@ -93,14 +62,14 @@ object RemoveDataEventDetailBuilder : EventDetailBuilder {
                                 updates = {
                                     update(
                                         dataSource = screenSegmentedData("remove_data_demo"),
-                                        updateData = inlineUpdateData("note" to "Valor de exemplo gravado")
+                                        updateData = inlineUpdateData("note" to "Sample value written")
                                     )
                                 }
                             )
                         }
                     )
                     Button(
-                        text = "Consultar",
+                        text = "Read",
                         buttonType = outlinedButton(),
                         events = {
                             GetData(
@@ -129,7 +98,7 @@ object RemoveDataEventDetailBuilder : EventDetailBuilder {
                                         updates = {
                                             update(
                                                 "remove_data_value",
-                                                inlineTileUpdateData("text" to "Não encontrado — foi removido ou nunca gravado")
+                                                inlineTileUpdateData("text" to "Not found — it was removed or never written")
                                             )
                                         }
                                     )
@@ -138,7 +107,7 @@ object RemoveDataEventDetailBuilder : EventDetailBuilder {
                         }
                     )
                     Button(
-                        text = "Remover com RemoveData",
+                        text = "Remove with RemoveData",
                         buttonType = filledTonalButton(),
                         events = {
                             RemoveData(
@@ -154,11 +123,25 @@ object RemoveDataEventDetailBuilder : EventDetailBuilder {
                     )
                 }
                 ShowroomNote(
-                    "Depois de remover, clique em \"Consultar\" de novo: o singleAccessMode não encontra mais " +
-                        "a chave \"note\" e o GetData dispara onFailure, atualizando o texto para o aviso de " +
-                        "\"não encontrado\"."
+                    "After removing, click \"Read\" again: singleAccessMode no longer finds the \"note\" key " +
+                        "and GetData fires onFailure, updating the text to the \"not found\" message."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                RemoveData(
+                    trigger = EventTriggers.onClick(),
+                    deletions = {
+                        addDeletion(
+                            dataSource = segmentedDataBase("auth"),
+                            accessMode = fullAccessMode()
+                        )
+                    }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("UpdateData", "GetData"),

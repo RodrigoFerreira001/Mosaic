@@ -22,6 +22,8 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.bu
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DisplayNavigationDrawerEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DisplaySnackbarEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DownloadFileEventDetailBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DownloadFileToDiskEventDetailBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DownloadFileToMemoryEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DropCachesEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.EvaluateDataEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.GetDataEventDetailBuilder
@@ -49,7 +51,7 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.bu
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.ScrollPagerTileEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.ScrollRowTileEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.SendDataEventDetailBuilder
-import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.SendFileEventDetailBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.UploadFileEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.SendNetworkRequestEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.SetIncomingDataToNetworkParamsHolderBodyEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.SetIncomingDataToNetworkParamsHolderHeadersEventDetailBuilder
@@ -68,23 +70,32 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.bu
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.UpdateEventsEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.UpdateTilesEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.WipeTilesEventDetailBuilder
+import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.dokkaEventDocsUrl
 import dev.catbit.mosaic.server.builder.event.builders.navigation.NavigateUp
+import dev.catbit.mosaic.server.builder.event.builders.overlays.navigation_drawer.DismissNavigationDrawer
+import dev.catbit.mosaic.server.builder.event.builders.system.OpenExternalLink
 import dev.catbit.mosaic.server.builder.icon.icon
+import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
 import dev.catbit.mosaic.server.builder.screen.Screen
 import dev.catbit.mosaic.server.builder.tile.builders.app_bars.TopAppBar
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.IconButton
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
+import dev.catbit.mosaic.server.builder.tile.builders.tooltip.Tooltip
+import dev.catbit.mosaic.server.builder.typography.typographyBodyMedium
+import dev.catbit.mosaic.server.builder.typography.typographyTitleMedium
 import io.ktor.server.routing.RoutingCall
 
 /**
- * Generic destination shared by every card in the Tiles/Events catalogs
+ * Generic destination shared by every card in the Events catalog
  * ([dev.catbit.mosaic.sample.server.dsl.tiles.catalog.CatalogItem]) that reads the `event` query
  * parameter (staged by the card's tap via `SetIncomingDataToNetworkParamsHolderQueryParameters`)
  * and delegates the actual content to [eventDetailBuilderManager] — one dedicated
  * [dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder] per
- * event name. Tile catalog entries have no matching builder yet (no "tileDetails" screen exists),
- * so tapping one currently throws [NoSuchElementException] — a known gap, not covered here.
+ * event name. The tile equivalent lives in
+ * [dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.TileDetailsScreenBuilder]
+ * (screen id `"tileDetails"`).
  */
 private val eventDetailBuilderManager = EventDetailBuilderManager(
     builders = listOf(
@@ -114,7 +125,9 @@ private val eventDetailBuilderManager = EventDetailBuilderManager(
         EvaluateDataEventDetailBuilder,
         SendNetworkRequestEventDetailBuilder,
         DownloadFileEventDetailBuilder,
-        SendFileEventDetailBuilder,
+        DownloadFileToDiskEventDetailBuilder,
+        DownloadFileToMemoryEventDetailBuilder,
+        UploadFileEventDetailBuilder,
         SetIncomingDataToNetworkParamsHolderBodyEventDetailBuilder,
         SetIncomingDataToNetworkParamsHolderHeadersEventDetailBuilder,
         SetIncomingDataToNetworkParamsHolderUrlEventDetailBuilder,
@@ -165,6 +178,28 @@ object EventDetailsScreenBuilder : ScreenBuilder {
 
         return Screen(
             id = "eventDetails",
+            navigationDrawerTiles = {
+                Column(
+                    style = {
+                        size(width = fixedHorizontally(280), height = fillVertically())
+                        padding(horizontal = 20, vertical = 20)
+                    },
+                    arrangement = arrangeVerticallySpacedBy(12)
+                ) {
+                    SimpleText(text = "Showroom drawer", typography = typographyTitleMedium())
+                    SimpleText(
+                        text = "This drawer exists only so DisplayNavigationDrawer and DismissNavigationDrawer " +
+                            "have something real to open and close. Tap the button below to close it.",
+                        typography = typographyBodyMedium()
+                    )
+                    Button(
+                        text = "Close with DismissNavigationDrawer",
+                        events = {
+                            DismissNavigationDrawer(trigger = EventTriggers.onClick())
+                        }
+                    )
+                }
+            },
         ) {
             Column(
                 style = {
@@ -193,6 +228,19 @@ object EventDetailsScreenBuilder : ScreenBuilder {
                         SimpleText(
                             text = eventName
                         )
+                    },
+                    actions = {
+                        Tooltip(text = "Open code reference") {
+                            IconButton(
+                                icon = icon("code"),
+                                events = {
+                                    OpenExternalLink(
+                                        trigger = EventTriggers.onClick(),
+                                        url = dokkaEventDocsUrl(eventName)
+                                    )
+                                }
+                            )
+                        }
                     }
                 )
 

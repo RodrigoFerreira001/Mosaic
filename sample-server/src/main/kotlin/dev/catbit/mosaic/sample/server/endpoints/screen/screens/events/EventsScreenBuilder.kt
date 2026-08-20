@@ -2,6 +2,7 @@ package dev.catbit.mosaic.sample.server.endpoints.screen.screens.events
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.extensions.randomId
+import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.UnderConstructionBadge
 import dev.catbit.mosaic.sample.server.endpoints.screen.ScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.CatalogEntry
 import dev.catbit.mosaic.server.builder.color.color
@@ -24,9 +25,8 @@ import dev.catbit.mosaic.server.builder.event.builders.networking.SetIncomingDat
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.incomingTileUpdateData
 import dev.catbit.mosaic.server.builder.icon.icon
-import dev.catbit.mosaic.server.builder.placement.alignToBottomEnd
 import dev.catbit.mosaic.server.builder.placement.alignToCenter
-import dev.catbit.mosaic.server.builder.placement.alignToTopStart
+import dev.catbit.mosaic.server.builder.placement.alignToTopEnd
 import dev.catbit.mosaic.server.builder.placement.arrangeHorizontallySpacedBy
 import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
 import dev.catbit.mosaic.server.builder.screen.Screen
@@ -46,71 +46,73 @@ import dev.catbit.mosaic.server.builder.typography.typographyTitleMedium
 import io.ktor.server.routing.RoutingCall
 
 private val eventCatalogEntries = listOf(
-    CatalogEntry("AddTiles", "add_box", "Tile Management", "Insere um ou mais tiles novos na lista de filhos de um container, numa posição específica, sem recarregar a tela."),
-    CatalogEntry("RemoveTiles", "delete", "Tile Management", "Remove tiles específicos da lista de filhos de um container pelas suas ids."),
-    CatalogEntry("UpdateTiles", "sync", "Tile Management", "Aplica patches de dados a tiles existentes sem alterar a estrutura da árvore."),
-    CatalogEntry("ReplaceTiles", "swap_horiz", "Tile Management", "Substitui atomicamente toda a lista de filhos de um container por um novo conjunto."),
-    CatalogEntry("WipeTiles", "delete_sweep", "Tile Management", "Remove todos os filhos de um container numa única operação, deixando-o vazio."),
-    CatalogEntry("ReloadLazyTiles", "autorenew", "Tile Management", "Sinaliza um LazyColumn/LazyRow para descartar o conteúdo e buscar tiles de novo, resetando a paginação."),
-    CatalogEntry("CheckIfTileContainsChildren", "checklist", "Tile Management", "Verifica de forma síncrona se um container possui todos os filhos indicados."),
-    CatalogEntry("GetTileChildrenCount", "pin", "Tile Management", "Retorna o número atual de filhos diretos de um container."),
-    CatalogEntry("RunEvents", "playlist_play", "Tile Management", "Executa todos os eventos filhos incondicionalmente, agrupando uma cadeia sob um único trigger."),
-    CatalogEntry("UpdateEvents", "edit_note", "Tile Management", "Corrige o incomingData de eventos já registrados sem round-trip de rede."),
-    CatalogEntry("Navigate", "arrow_forward", "Navigation", "Empilha um destino na pilha de um navigator, podendo remover entradas anteriores e levar dados."),
-    CatalogEntry("NavigateClearingStack", "restart_alt", "Navigation", "Navega para um destino limpando toda a pilha de navegação atual."),
-    CatalogEntry("NavigateUp", "arrow_back", "Navigation", "Remove o destino atual da pilha, equivalente ao botão de voltar do sistema."),
-    CatalogEntry("GetScreen", "download", "Screen", "Busca a definição de uma tela no servidor e expõe o resultado como incomingData."),
-    CatalogEntry("RefreshScreen", "refresh", "Screen", "Recarrega a tela atual do zero, buscando e aplicando a nova definição automaticamente."),
-    CatalogEntry("ChangeScreenState", "tune", "Screen", "Transiciona a tela imediatamente para Success, Failure ou Initial sem chamada de rede."),
-    CatalogEntry("SendData", "outbox", "Data", "Publica um valor no barramento DataMailer, disponível para outras telas via CheckForReceivedData."),
-    CatalogEntry("CheckForReceivedData", "inbox", "Data", "Lê o barramento DataMailer por um valor e o encaminha como incomingData."),
-    CatalogEntry("GetData", "download_for_offline", "Data", "Lê dados de uma ou mais fontes — tile, memória da tela, banco persistente — e agrega o resultado."),
-    CatalogEntry("UpdateData", "save", "Data", "Grava dados chave-valor num ou mais data stores, em memória ou persistentes."),
-    CatalogEntry("RemoveData", "delete_forever", "Data", "Apaga dados de um data store — uma chave, um lote de chaves ou o store inteiro."),
-    CatalogEntry("ProcessData", "memory", "Data", "Delega o incomingData a um DataProcessor registrado no cliente para lógica nativa da plataforma."),
-    CatalogEntry("TransformData", "transform", "Data", "Remodela o incomingData substituindo placeholders por valores resolvidos a partir dele mesmo."),
-    CatalogEntry("EvaluateData", "rule", "Data", "Avalia uma árvore de expressão booleana e ramifica a cadeia entre onSuccess e onFailure."),
-    CatalogEntry("SendNetworkRequest", "cloud", "Networking", "Realiza uma requisição HTTP e propaga a resposta pelos eventos filhos."),
-    CatalogEntry("DownloadFile", "cloud_download", "Networking", "Baixa um arquivo de uma URL direto para o armazenamento público do dispositivo."),
-    CatalogEntry("SendFile", "cloud_upload", "Networking", "Envia um arquivo como binário bruto para uma URL, sem multipart."),
-    CatalogEntry("SetIncomingDataToNetworkParamsHolderBody", "data_object", "Networking", "Guarda o incomingData como corpo da próxima requisição de rede da cadeia."),
-    CatalogEntry("SetIncomingDataToNetworkParamsHolderHeaders", "list_alt", "Networking", "Guarda o incomingData como headers da próxima requisição de rede da cadeia."),
-    CatalogEntry("SetIncomingDataToNetworkParamsHolderUrl", "link", "Networking", "Guarda o incomingData como URL da próxima requisição de rede da cadeia."),
-    CatalogEntry("SetIncomingDataToNetworkParamsHolderQueryParameters", "filter_list", "Networking", "Guarda o incomingData como query parameters da próxima requisição de rede da cadeia."),
-    CatalogEntry("SaveFile", "save", "File System", "Salva dados num arquivo local do dispositivo."),
-    CatalogEntry("GetFile", "folder_open", "File System", "Lê um arquivo armazenado localmente, moldado pelo outputType configurado."),
-    CatalogEntry("DeleteFile", "delete", "File System", "Apaga um arquivo armazenado localmente identificado pelo nome."),
-    CatalogEntry("OpenFilePicker", "attach_file", "File System", "Abre o seletor de arquivos do sistema para o usuário escolher um arquivo."),
-    CatalogEntry("TakePicture", "photo_camera", "File System", "Abre a câmera do dispositivo para o usuário tirar uma foto."),
-    CatalogEntry("GetImageFromGallery", "photo_library", "File System", "Abre a galeria do dispositivo para o usuário escolher uma imagem."),
-    CatalogEntry("DisplayDialog", "open_in_new", "Overlays", "Exibe um diálogo modal com uma árvore de tiles definida pelo servidor."),
-    CatalogEntry("DismissDialog", "close", "Overlays", "Fecha programaticamente o diálogo exibido no momento."),
-    CatalogEntry("DisplayModalBottomSheet", "vertical_align_bottom", "Overlays", "Exibe um bottom sheet modal com uma árvore de tiles definida pelo servidor."),
-    CatalogEntry("DismissModalBottomSheet", "expand_more", "Overlays", "Fecha o bottom sheet modal com o id informado."),
-    CatalogEntry("DisplayBottomSheet", "bottom_panel_open", "Overlays", "Exibe um bottom sheet não-modal, sem scrim, que convive com a tela por trás."),
-    CatalogEntry("DismissBottomSheet", "bottom_panel_close", "Overlays", "Fecha o bottom sheet não-modal com o id informado."),
-    CatalogEntry("DisplayNavigationDrawer", "menu_open", "Overlays", "Abre o menu de navegação lateral da tela."),
-    CatalogEntry("DismissNavigationDrawer", "menu", "Overlays", "Fecha o menu de navegação lateral da tela."),
-    CatalogEntry("DisplaySnackbar", "chat_bubble", "Overlays", "Exibe um snackbar Material 3 com mensagem, ação opcional e duração configurável."),
-    CatalogEntry("DismissSnackbar", "cancel", "Overlays", "Fecha programaticamente o snackbar exibido no momento."),
-    CatalogEntry("TriggerEvent", "bolt", "Events / Meta", "Localiza outro evento registrado pela id e o executa inline, como uma sub-rotina reutilizável."),
-    CatalogEntry("RunCancellableEvents", "play_circle", "Events / Meta", "Executa uma cadeia de eventos que pode ser interrompida por um CancelEvents correspondente."),
-    CatalogEntry("CancelEvents", "cancel", "Events / Meta", "Interrompe a execução de uma cadeia de eventos cancelável iniciada por RunCancellableEvents."),
-    CatalogEntry("ToggleMenu", "more_vert", "Menu", "Alterna o estado aberto/fechado de um tile de Menu."),
-    CatalogEntry("TogglePopup", "picture_in_picture", "Popup", "Alterna o estado aberto/fechado de um tile de Popup."),
-    CatalogEntry("StartCountdownTimer", "timer", "Time", "Inicia uma contagem regressiva no cliente, disparando triggers a cada segundo e ao zerar."),
-    CatalogEntry("StartTimeLoop", "loop", "Time", "Inicia um laço de tempo recorrente no cliente, disparando triggers em intervalos configurados."),
-    CatalogEntry("ScrollColumnTile", "swap_vert", "Scroll", "Rola imperativamente um Column ou LazyColumn até uma posição via broadcast."),
-    CatalogEntry("ScrollRowTile", "swap_horiz", "Scroll", "Rola imperativamente um Row ou LazyRow até uma posição via broadcast."),
-    CatalogEntry("ScrollPagerTile", "view_carousel", "Scroll", "Navega imperativamente um Pager até uma página alvo via broadcast."),
-    CatalogEntry("StopRefreshing", "check_circle", "Pull to Refresh", "Sinaliza um PullToRefresh para parar o indicador de carregamento e voltar ao estado ocioso."),
-    CatalogEntry("RequestPermission", "lock", "Security", "Solicita uma ou mais permissões em tempo de execução usando o mecanismo nativo de cada plataforma."),
-    CatalogEntry("BroadcastToSystem", "podcasts", "System", "Emite um broadcast nomeado, notificando qualquer assinante do app pelo broadcastId."),
-    CatalogEntry("CheckIfHasInternetConnection", "wifi", "System", "Verifica se o dispositivo tem conexão ativa com a internet."),
-    CatalogEntry("DropCaches", "delete_sweep", "System", "Limpa caches internos do Mosaic — dados, imagens ou telas — mantidos em memória ou disco."),
-    CatalogEntry("OpenExternalLink", "open_in_new", "System", "Abre uma URL no navegador ou app externo do sistema, fora do contexto do Mosaic."),
-    CatalogEntry("SetTheme", "palette", "Theme", "Sobrescreve o color scheme Material 3 do app em tempo de execução, até ser revertido."),
-    CatalogEntry("ResetTheme", "format_color_reset", "Theme", "Reverte um SetTheme anterior, restaurando o color scheme padrão do app."),
+    CatalogEntry("AddTiles", "add_box", "Tile Management", "Inserts one or more new tiles into a container's child list, at a specific position, without reloading the screen."),
+    CatalogEntry("RemoveTiles", "delete", "Tile Management", "Removes specific tiles from a container's child list by their ids."),
+    CatalogEntry("UpdateTiles", "sync", "Tile Management", "Applies data patches to existing tiles without changing the tree structure."),
+    CatalogEntry("ReplaceTiles", "swap_horiz", "Tile Management", "Atomically replaces a container's entire child list with a new set."),
+    CatalogEntry("WipeTiles", "delete_sweep", "Tile Management", "Removes all children of a container in a single operation, leaving it empty."),
+    CatalogEntry("ReloadLazyTiles", "autorenew", "Tile Management", "Signals a LazyColumn/LazyRow to discard its content and fetch tiles again, resetting pagination."),
+    CatalogEntry("CheckIfTileContainsChildren", "checklist", "Tile Management", "Synchronously checks whether a container holds all the specified children."),
+    CatalogEntry("GetTileChildrenCount", "pin", "Tile Management", "Returns the current number of direct children of a container."),
+    CatalogEntry("RunEvents", "playlist_play", "Tile Management", "Runs all child events unconditionally, grouping a chain under a single trigger."),
+    CatalogEntry("UpdateEvents", "edit_note", "Tile Management", "Patches the incomingData of already-registered events without a network round-trip."),
+    CatalogEntry("Navigate", "arrow_forward", "Navigation", "Pushes a destination onto a navigator's stack, optionally popping earlier entries and carrying data."),
+    CatalogEntry("NavigateClearingStack", "restart_alt", "Navigation", "Navigates to a destination while clearing the entire current navigation stack."),
+    CatalogEntry("NavigateUp", "arrow_back", "Navigation", "Removes the current destination from the stack, equivalent to the system back button."),
+    CatalogEntry("GetScreen", "download", "Screen", "Fetches a screen definition from the server and exposes the result as incomingData."),
+    CatalogEntry("RefreshScreen", "refresh", "Screen", "Reloads the current screen from scratch, automatically fetching and applying the new definition."),
+    CatalogEntry("ChangeScreenState", "tune", "Screen", "Immediately transitions the screen to Success, Failure, or Initial without a network call."),
+    CatalogEntry("SendData", "outbox", "Data", "Publishes a value onto the DataMailer bus, available to other screens via CheckForReceivedData."),
+    CatalogEntry("CheckForReceivedData", "inbox", "Data", "Reads a value off the DataMailer bus and forwards it as incomingData."),
+    CatalogEntry("GetData", "download_for_offline", "Data", "Reads data from one or more sources — tile, screen memory, persistent database — and aggregates the result."),
+    CatalogEntry("UpdateData", "save", "Data", "Writes key-value data to one or more data stores, in-memory or persistent."),
+    CatalogEntry("RemoveData", "delete_forever", "Data", "Deletes data from a data store — a single key, a batch of keys, or the entire store."),
+    CatalogEntry("ProcessData", "memory", "Data", "Delegates the incomingData to a DataProcessor registered on the client for platform-native logic."),
+    CatalogEntry("TransformData", "transform", "Data", "Reshapes the incomingData by substituting placeholders with values resolved from it."),
+    CatalogEntry("EvaluateData", "rule", "Data", "Evaluates a boolean expression tree and branches the chain between onSuccess and onFailure."),
+    CatalogEntry("SendNetworkRequest", "cloud", "Networking", "Performs an HTTP request and propagates the response through the child events."),
+    CatalogEntry("DownloadFile", "cloud_download", "Networking", "Downloads a file from a URL directly to the device's public storage."),
+    CatalogEntry("DownloadFileToDisk", "save_alt", "Networking", "Downloads a file from a URL into the app's own private storage."),
+    CatalogEntry("DownloadFileToMemory", "memory", "Networking", "Downloads a file from a URL entirely in memory, without touching the filesystem."),
+    CatalogEntry("UploadFile", "cloud_upload", "Networking", "Uploads a PlatformFile to a URL, typically a pre-signed storage URL."),
+    CatalogEntry("SetIncomingDataToNetworkParamsHolderBody", "data_object", "Networking", "Stores the incomingData as the body of the chain's next network request."),
+    CatalogEntry("SetIncomingDataToNetworkParamsHolderHeaders", "list_alt", "Networking", "Stores the incomingData as the headers of the chain's next network request."),
+    CatalogEntry("SetIncomingDataToNetworkParamsHolderUrl", "link", "Networking", "Stores the incomingData as the URL of the chain's next network request."),
+    CatalogEntry("SetIncomingDataToNetworkParamsHolderQueryParameters", "filter_list", "Networking", "Stores the incomingData as the query parameters of the chain's next network request."),
+    CatalogEntry("SaveFile", "save", "File System", "Saves data to a local file on the device."),
+    CatalogEntry("GetFile", "folder_open", "File System", "Reads a locally stored file, shaped by the configured outputType."),
+    CatalogEntry("DeleteFile", "delete", "File System", "Deletes a locally stored file identified by name."),
+    CatalogEntry("OpenFilePicker", "attach_file", "File System", "Opens the system file picker for the user to choose a file."),
+    CatalogEntry("TakePicture", "photo_camera", "File System", "Opens the device camera for the user to take a photo."),
+    CatalogEntry("GetImageFromGallery", "photo_library", "File System", "Opens the device gallery for the user to choose an image."),
+    CatalogEntry("DisplayDialog", "open_in_new", "Overlays", "Shows a modal dialog with a tile tree defined by the server."),
+    CatalogEntry("DismissDialog", "close", "Overlays", "Programmatically closes the currently displayed dialog."),
+    CatalogEntry("DisplayModalBottomSheet", "vertical_align_bottom", "Overlays", "Shows a modal bottom sheet with a tile tree defined by the server."),
+    CatalogEntry("DismissModalBottomSheet", "expand_more", "Overlays", "Closes the modal bottom sheet with the given id."),
+    CatalogEntry("DisplayBottomSheet", "bottom_panel_open", "Overlays", "Shows a non-modal bottom sheet, without a scrim, that coexists with the screen behind it."),
+    CatalogEntry("DismissBottomSheet", "bottom_panel_close", "Overlays", "Closes the non-modal bottom sheet with the given id."),
+    CatalogEntry("DisplayNavigationDrawer", "menu_open", "Overlays", "Opens the screen's side navigation drawer."),
+    CatalogEntry("DismissNavigationDrawer", "menu", "Overlays", "Closes the screen's side navigation drawer."),
+    CatalogEntry("DisplaySnackbar", "chat_bubble", "Overlays", "Shows a Material 3 snackbar with a message, optional action, and configurable duration."),
+    CatalogEntry("DismissSnackbar", "cancel", "Overlays", "Programmatically closes the currently displayed snackbar."),
+    CatalogEntry("TriggerEvent", "bolt", "Events / Meta", "Locates another registered event by id and runs it inline, like a reusable subroutine."),
+    CatalogEntry("RunCancellableEvents", "play_circle", "Events / Meta", "Runs an event chain that can be interrupted by a matching CancelEvents."),
+    CatalogEntry("CancelEvents", "cancel", "Events / Meta", "Interrupts execution of a cancellable event chain started by RunCancellableEvents."),
+    CatalogEntry("ToggleMenu", "more_vert", "Menu", "Toggles the open/closed state of a Menu tile."),
+    CatalogEntry("TogglePopup", "picture_in_picture", "Popup", "Toggles the open/closed state of a Popup tile."),
+    CatalogEntry("StartCountdownTimer", "timer", "Time", "Starts a countdown on the client, firing triggers every second and when it reaches zero."),
+    CatalogEntry("StartTimeLoop", "loop", "Time", "Starts a recurring time loop on the client, firing triggers at configured intervals."),
+    CatalogEntry("ScrollColumnTile", "swap_vert", "Scroll", "Imperatively scrolls a Column or LazyColumn to a position via broadcast."),
+    CatalogEntry("ScrollRowTile", "swap_horiz", "Scroll", "Imperatively scrolls a Row or LazyRow to a position via broadcast."),
+    CatalogEntry("ScrollPagerTile", "view_carousel", "Scroll", "Imperatively navigates a Pager to a target page via broadcast."),
+    CatalogEntry("StopRefreshing", "check_circle", "Pull to Refresh", "Signals a PullToRefresh to stop its loading indicator and return to the idle state."),
+    CatalogEntry("RequestPermission", "lock", "Security", "Requests one or more runtime permissions using each platform's native mechanism."),
+    CatalogEntry("BroadcastToSystem", "podcasts", "System", "Emits a named broadcast, notifying any app subscriber listening on the broadcastId."),
+    CatalogEntry("CheckIfHasInternetConnection", "wifi", "System", "Checks whether the device has an active internet connection."),
+    CatalogEntry("DropCaches", "delete_sweep", "System", "Clears internal Mosaic caches — data, images, or screens — held in memory or on disk."),
+    CatalogEntry("OpenExternalLink", "open_in_new", "System", "Opens a URL in the browser or an external system app, outside the Mosaic context."),
+    CatalogEntry("SetTheme", "palette", "Theme", "Overrides the app's Material 3 color scheme at runtime, until reverted."),
+    CatalogEntry("ResetTheme", "format_color_reset", "Theme", "Reverts a previous SetTheme, restoring the app's default color scheme."),
 )
 
 // Preserves first-seen order, same grouping m3.material.io uses to label its component grid.
@@ -216,7 +218,8 @@ object EventsScreenBuilder : ScreenBuilder {
                 background(color(themeColorSurfaceContainerLowest()))
                 padding(horizontal = 16, top = 16, bottom = 16)
             },
-            arrangement = arrangeVerticallySpacedBy(16)
+            arrangement = arrangeVerticallySpacedBy(16),
+            scrollable = true
         ) {
             // Hero: dark card topped by a big overlapping-blob illustration, same DNA as the
             // colorful collage that sits beside/behind every m3.material.io hero title.
@@ -229,29 +232,13 @@ object EventsScreenBuilder : ScreenBuilder {
                 }
             ) {
                 Box(
+                    alignment = alignToTopEnd(),
                     style = {
                         size(width = fillHorizontally(), height = fixedVertically(140))
                         background(color(themeColorSecondaryContainer()))
                     }
                 ) {
-                    Box(
-                        alignment = alignToTopStart(),
-                        style = {
-                            size(width = fixedHorizontally(90), height = fixedVertically(90))
-                            clip(circleShape())
-                            background(color(themeColorTertiaryContainer()))
-                            margin(top = 8, start = 8)
-                        }
-                    ) {}
-                    Box(
-                        alignment = alignToBottomEnd(),
-                        style = {
-                            size(width = fixedHorizontally(120), height = fixedVertically(120))
-                            clip(circleShape())
-                            background(color(themeColorPrimaryContainer()))
-                            margin(bottom = 8, end = 8)
-                        }
-                    ) {}
+                    UnderConstructionBadge()
                 }
                 Column(
                     style = {
@@ -266,9 +253,9 @@ object EventsScreenBuilder : ScreenBuilder {
                         color = color(themeColorInverseOnSurface())
                     )
                     SimpleText(
-                        text = "Events são o que acontece quando o usuário interage: ler dado, transformar, " +
-                            "chamar uma API, navegar, atualizar outros tiles. Eles se encadeiam em cadeias, com " +
-                            "o incomingData fluindo de um evento pai para os filhos a cada passo.",
+                        text = "Events are what happens when the user interacts: read data, transform it, " +
+                            "call an API, navigate, update other tiles. They chain together, with " +
+                            "incomingData flowing from a parent event to its children at every step.",
                         typography = typographyBodyLarge(),
                         color = color(themeColorInverseOnSurface())
                     )
@@ -277,7 +264,7 @@ object EventsScreenBuilder : ScreenBuilder {
 
             SearchBar(
                 id = "events_search",
-                placeholder = "Buscar events",
+                placeholder = "Search events",
                 style = {
                     size(width = fillHorizontally(), height = wrapVertically())
                 },
@@ -306,10 +293,9 @@ object EventsScreenBuilder : ScreenBuilder {
             Column(
                 id = "events_catalog_list",
                 style = {
-                    size(width = fillHorizontally(), height = fillVertically())
+                    size(width = fillHorizontally(), height = wrapVertically())
                 },
-                arrangement = arrangeVerticallySpacedBy(24),
-                scrollable = true
+                arrangement = arrangeVerticallySpacedBy(24)
             ) {
                 eventCatalogEntriesByCategory.forEach { (category, entries) ->
                     Column(

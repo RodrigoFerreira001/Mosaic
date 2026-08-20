@@ -5,7 +5,6 @@ import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.animation.ContentTransitionSchema
 import dev.catbit.mosaic.core.data.schemas.color.ColorSchema
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
-import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntryChangedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNavigationEntrySetEventTrigger
 import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
@@ -63,7 +62,6 @@ import kotlinx.serialization.Serializable
 @Triggers(
     [
         OnAdaptiveNavigationItemClickEventTrigger::class,
-        OnNavigationEntryChangedEventTrigger::class,
         OnNavigationEntrySetEventTrigger::class,
     ]
 )

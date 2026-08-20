@@ -8,4 +8,6 @@ import kotlinx.serialization.Serializable
 @Immutable
 @Serializable
 @SerialName("OnUncheck")
+/** Fires on `Checkbox`/`Switch`/`FilterChip`/`InputChip` when it becomes unchecked/unselected —
+ * followed, on the same tap, by the generic `onCheckChanged()`. */
 object OnUncheckEventTrigger : EventTrigger

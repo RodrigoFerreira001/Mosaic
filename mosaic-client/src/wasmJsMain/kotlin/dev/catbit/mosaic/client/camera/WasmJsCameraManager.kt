@@ -10,7 +10,7 @@ import org.khronos.webgl.toByteArray
 
 class WasmJsCameraManager : CameraManager {
     override suspend fun takePicture(): ByteArray? =
-        runCatching { jsOpenCamera().await<Int8Array?>()?.toByteArray() }.getOrNull()
+        runCatching { jsOpenCamera().await()?.toByteArray() }.getOrNull()
 }
 
 @JsFun(

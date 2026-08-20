@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -29,51 +26,23 @@ object GetImageFromGalleryEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "File System",
-                description = "Abre a galeria do dispositivo pra escolher uma imagem — usa o Photo Picker do " +
-                    "sistema, sem exigir permissão de storage."
+                description = "Opens the device's gallery to pick an image — uses the system Photo Picker, so " +
+                    "no storage permission is required. Use it for any gallery-based image selection flow: " +
+                    "avatars, uploads, imports. Because it relies on the native picker (Android PickVisualMedia " +
+                    "/ iOS PHPickerViewController), the app only gets access to the chosen image, without " +
+                    "needing RequestPermission(GALLERY) or a manifest entry. compression/resize follow the " +
+                    "same contract as TakePicture — without compression, the image comes back in its original " +
+                    "format; with compression, it's re-encoded as WebP."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra qualquer fluxo de seleção de imagem da galeria — avatar, upload, importação. Como " +
-                    "usa o Photo Picker nativo (Android PickVisualMedia / iOS PHPickerViewController), o app " +
-                    "só recebe acesso à imagem escolhida, sem precisar de RequestPermission(GALLERY) nem " +
-                    "entrada no manifest. compression/resize seguem o mesmo contrato de TakePicture — sem " +
-                    "compression, a imagem volta no formato original; com compression, sai recodificada como " +
-                    "WebP."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("compression", "CompressionScheme?", "null (padrão). byQuality(percentual) ou byTargetSize(kb)."),
-                    ShowroomParam("resize", "ImageResizeOptions?", "null (padrão). Só se aplica com compression definido."),
-                    ShowroomParam("outputType", "OutputType", "galleryArrayOfBytes() (padrão) ou galleryBase64()."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                GetImageFromGallery(
-                    trigger = EventTriggers.onClick(),
-                    compression = byQuality(70f),
-                    events = {
-                        SaveFile(trigger = EventTriggers.onSuccess(), fileName = "avatar.webp")
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Escolha uma imagem da galeria e salve-a") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Pick an image from the gallery and save it") {
                 SimpleText(
                     id = "gallery_image_status",
-                    text = "Toque no botão para abrir a galeria."
+                    text = "Tap the button to open the gallery."
                 )
                 Button(
-                    text = "Escolher da galeria e salvar como mosaic_demo_photo.webp",
+                    text = "Pick from gallery and save as mosaic_demo_photo.webp",
                     events = {
                         GetImageFromGallery(
                             trigger = EventTriggers.onClick(),
@@ -88,13 +57,13 @@ object GetImageFromGalleryEventDetailBuilder : EventDetailBuilder {
                                         UpdateTiles(
                                             trigger = EventTriggers.onSuccess(),
                                             updates = {
-                                                update("gallery_image_status", inlineTileUpdateData("text" to "Imagem escolhida e salva ✓"))
+                                                update("gallery_image_status", inlineTileUpdateData("text" to "Image picked and saved ✓"))
                                             }
                                         )
                                         UpdateTiles(
                                             trigger = EventTriggers.onFailure(),
                                             updates = {
-                                                update("gallery_image_status", inlineTileUpdateData("text" to "Falha ao salvar a imagem"))
+                                                update("gallery_image_status", inlineTileUpdateData("text" to "Failed to save the image"))
                                             }
                                         )
                                     }
@@ -102,7 +71,7 @@ object GetImageFromGalleryEventDetailBuilder : EventDetailBuilder {
                                 UpdateTiles(
                                     trigger = EventTriggers.onFailure(),
                                     updates = {
-                                        update("gallery_image_status", inlineTileUpdateData("text" to "Seleção cancelada"))
+                                        update("gallery_image_status", inlineTileUpdateData("text" to "Selection cancelled"))
                                     }
                                 )
                             }
@@ -110,10 +79,23 @@ object GetImageFromGalleryEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 ShowroomNote(
-                    "Mesmo arquivo mosaic_demo_photo.webp usado na demo de TakePicture — escolher aqui " +
-                        "sobrescreve o que uma foto de câmera tiver salvo antes, já que overrideIfExists = true."
+                    "Same mosaic_demo_photo.webp file used in the TakePicture demo — picking here overwrites " +
+                        "whatever a camera photo saved before it, since overrideIfExists = true."
                 )
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                GetImageFromGallery(
+                    trigger = EventTriggers.onClick(),
+                    compression = byQuality(70f),
+                    events = {
+                        SaveFile(trigger = EventTriggers.onSuccess(), fileName = "avatar.webp")
+                    }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("TakePicture", "SaveFile", "OpenFilePicker"),

@@ -4,10 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -34,36 +30,15 @@ object ScrollRowTileEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Scroll",
-                description = "Rola imperativamente um Row ou LazyRow até uma posição via broadcast — controle " +
-                    "de navegação horizontal e carrosséis."
+                description = "Imperatively scrolls a Row or LazyRow to a position via broadcast — " +
+                    "horizontal navigation and carousel control. Use it for navigation in horizontal lists " +
+                    "— filter chips, card carousels — when an external button (not a swipe) should move the " +
+                    "scroll. If tileId doesn't match any Row/LazyRow in the tree, the broadcast is silently " +
+                    "ignored."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra navegação em listas horizontais — chips de filtro, carrosséis de cards — quando um " +
-                    "botão externo (não um swipe) deve mover o scroll. Se o tileId não corresponder a nenhum " +
-                    "Row/LazyRow na árvore, o broadcast é silenciosamente ignorado."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("tileId", "String", "Obrigatório. ID do Row/LazyRow a rolar."),
-                    ShowroomParam("where", "Where", "Obrigatório. scrollRowToStart(), scrollRowTo(index) ou scrollRowToEnd()."),
-                    ShowroomParam("smoothly", "Boolean", "true (padrão). Rolagem animada vs instantânea."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                ScrollRow(trigger = EventTriggers.onClick(), tileId = "chip_row", where = scrollRowToStart(), smoothly = false)
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Role uma linha horizontal até o início e até o fim") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Scroll a horizontal row to the start and to the end") {
                 Row(
                     id = "scroll_row_demo_list",
                     style = { size(width = fillHorizontally(), height = wrapVertically()) },
@@ -92,7 +67,7 @@ object ScrollRowTileEventDetailBuilder : EventDetailBuilder {
                     arrangement = arrangeHorizontallySpacedBy(8)
                 ) {
                     Button(
-                        text = "Rolar ao início",
+                        text = "Scroll to start",
                         buttonType = outlinedButton(),
                         events = {
                             ScrollRow(
@@ -104,7 +79,7 @@ object ScrollRowTileEventDetailBuilder : EventDetailBuilder {
                         }
                     )
                     Button(
-                        text = "Rolar ao fim",
+                        text = "Scroll to end",
                         buttonType = outlinedButton(),
                         events = {
                             ScrollRow(
@@ -117,6 +92,13 @@ object ScrollRowTileEventDetailBuilder : EventDetailBuilder {
                     )
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                ScrollRow(trigger = EventTriggers.onClick(), tileId = "chip_row", where = scrollRowToStart(), smoothly = false)
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("ScrollColumnTile", "ScrollPagerTile"),

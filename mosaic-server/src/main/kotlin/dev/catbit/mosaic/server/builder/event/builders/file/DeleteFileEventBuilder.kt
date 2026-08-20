@@ -21,6 +21,16 @@ internal class DeleteFileEventBuilder(
     )
 }
 
+/**
+ * Deletes the file stored under [fileName] in the client's own file storage. Does not consume
+ * `incomingData`. Dispatches `onSuccess` (no data) when the deletion completed; `onFailure`
+ * (carrying the `Throwable`, logged) when it failed.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param fileName Name of the file to delete.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ */
 fun EventSchemaBuilderScope.DeleteFile(
     id: String = randomId(),
     trigger: EventTrigger,

@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -28,69 +25,31 @@ object TriggerEventEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Event Flow",
-                description = "Salta para outro event por eventId, em qualquer ponto da mesma árvore de events da tile — permite reaproveitar uma \"sub-rotina\" a partir de múltiplos triggers."
+                description = "Jumps to another event by eventId, anywhere in the same tile's event tree — " +
+                    "lets you reuse a \"subroutine\" from multiple triggers. TriggerEvent carries no logic of " +
+                    "its own: it just fires the event identified by eventId, as if that event's original " +
+                    "trigger had fired now. It's useful for centralizing a sequence (e.g. \"save the form\") " +
+                    "and calling it from several different buttons without duplicating the event tree. The " +
+                    "target event (eventId) must be registered in the same tile's event tree — you can't point " +
+                    "to an event on another tile or another screen."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "TriggerEvent não carrega lógica própria: ele apenas dispara o event identificado por " +
-                    "eventId, como se o trigger original desse event tivesse disparado agora. É útil para " +
-                    "centralizar uma sequência (ex.: \"salvar formulário\") e chamá-la a partir de vários " +
-                    "botões diferentes sem duplicar a árvore de events."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("eventId", "String", "Obrigatório. id do event alvo — precisa existir na mesma árvore de events da tile."),
-                    ShowroomParam("trigger", "EventTrigger", "Obrigatório. Quando este TriggerEvent deve disparar."),
-                    ShowroomParam("events", "EventSchemaBuilderScope.() -> Unit", "Opcional. Events filhos encadeados após o disparo — não substituem os events do alvo."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                Column(id = "root") {
-                    events = {
-                        // "sub-rotina" reutilizável
-                        DisplaySnackbar(
-                            id = "notify_saved",
-                            trigger = EventTriggers.inline(),
-                            message = "Salvo com sucesso!"
-                        )
-                    }
-                }
-
-                Button(
-                    text = "Salvar",
-                    events = {
-                        TriggerEvent(
-                            trigger = EventTriggers.onClick(),
-                            eventId = "notify_saved"
-                        )
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Dois botões chamando o mesmo event por eventId") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Two buttons calling the same event by eventId") {
                 Column(
                     id = "trigger_event_demo_root",
                     events = {
-                        // "sub-rotina" registrada uma única vez, chamada pelos dois botões abaixo
+                        // "Subroutine" registered once, called by both buttons below
                         DisplaySnackbar(
                             id = "trigger_event_subroutine",
                             trigger = EventTriggers.inline(),
-                            message = "Sub-rotina \"trigger_event_subroutine\" executada!"
+                            message = "Subroutine \"trigger_event_subroutine\" ran!"
                         )
                     }
                 ) {
                     Row(arrangement = arrangeHorizontallySpacedBy(8)) {
                         Button(
-                            text = "Botão A → dispara subrotina",
+                            text = "Button A → fires the subroutine",
                             events = {
                                 TriggerEvent(
                                     trigger = EventTriggers.onClick(),
@@ -99,7 +58,7 @@ object TriggerEventEventDetailBuilder : EventDetailBuilder {
                             }
                         )
                         Button(
-                            text = "Botão B → dispara a mesma subrotina",
+                            text = "Button B → fires the same subroutine",
                             buttonType = outlinedButton(),
                             events = {
                                 TriggerEvent(
@@ -112,9 +71,35 @@ object TriggerEventEventDetailBuilder : EventDetailBuilder {
                 }
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                Column(id = "root") {
+                    events = {
+                        // Reusable "subroutine"
+                        DisplaySnackbar(
+                            id = "notify_saved",
+                            trigger = EventTriggers.inline(),
+                            message = "Saved successfully!"
+                        )
+                    }
+                }
+
+                Button(
+                    text = "Save",
+                    events = {
+                        TriggerEvent(
+                            trigger = EventTriggers.onClick(),
+                            eventId = "notify_saved"
+                        )
+                    }
+                )
+                """
+            )
+
             ShowroomNote(
-                "O event alvo (eventId) precisa estar registrado na mesma árvore de events da tile — " +
-                    "não é possível apontar para um event de outra tile ou outra screen."
+                "The target event (eventId) must be registered in the same tile's event tree — it's not " +
+                    "possible to point to an event on another tile or another screen."
             )
 
             ShowroomRelated(

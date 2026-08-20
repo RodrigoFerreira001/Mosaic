@@ -21,6 +21,16 @@ internal class DismissBottomSheetEventBuilder(
     )
 }
 
+/**
+ * Closes the bottom sheet registered under [bottomSheetId]. Does not consume `incomingData`.
+ * Dispatches `onSuccess` (no data) when the sheet was dismissed; `onFailure` (carrying the
+ * thrown exception) when no bottom sheet is showing under [bottomSheetId].
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
+ * @param bottomSheetId Id of the `DisplayBottomSheet` sheet to close.
+ */
 fun EventSchemaBuilderScope.DismissBottomSheet(
     id: String = randomId(),
     trigger: EventTrigger,

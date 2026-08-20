@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.tooltip
 
+import androidx.compose.foundation.layout.visible
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
@@ -7,9 +8,11 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import dev.catbit.mosaic.client.extensions.toComposeColor
 import dev.catbit.mosaic.client.extensions.toShape
+import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.tooltip.TooltipTileSchema
@@ -33,6 +36,9 @@ object TooltipTileRenderer : TileRenderer<TooltipTileSchema> {
             }
 
             TooltipBox(
+                modifier = Modifier
+                    .visible(isVisible())
+                    .styledWith(style),
                 positionProvider = positionProvider,
                 state = tooltipState,
                 tooltip = {

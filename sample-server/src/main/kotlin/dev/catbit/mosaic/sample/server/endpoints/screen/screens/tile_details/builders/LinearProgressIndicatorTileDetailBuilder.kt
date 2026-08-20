@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -26,36 +23,13 @@ object LinearProgressIndicatorTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Progress",
-                description = "Barra de progresso Material 3 de largura total — determinada (0.0–1.0) ou indeterminada (progress = null)."
+                description = "A full-width Material 3 progress bar — determinate (0.0-1.0) or indeterminate " +
+                    "(progress = null). Shares the same semantics as CircularProgressIndicator, just in bar form " +
+                    "— ideal for downloads, form submissions, or multi-step operations shown side by side."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Mesma semântica de CircularProgressIndicator, só que em formato de barra — ideal " +
-                    "pra downloads, envios de formulário ou operações com várias etapas visíveis lado a lado."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("progress", "Float?", "null = indeterminado; 0.0–1.0 = determinado."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                LinearProgressIndicator(
-                    id = "downloadBar",
-                    progress = 0.45f,
-                    style = { size(width = fillHorizontally(), height = wrapVertically()) }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Cada botão dispara um UpdateTiles(\"progress\" to ...) real") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Each button fires a real UpdateTiles(\"progress\" to ...)") {
                 LinearProgressIndicator(
                     id = "linear_progress_demo",
                     progress = null,
@@ -63,7 +37,7 @@ object LinearProgressIndicatorTileDetailBuilder : TileDetailBuilder {
                 )
                 Row(arrangement = arrangeHorizontallySpacedBy(8)) {
                     Button(
-                        text = "Indeterminado",
+                        text = "Indeterminate",
                         events = {
                             UpdateTiles(
                                 trigger = EventTriggers.onClick(),
@@ -91,6 +65,17 @@ object LinearProgressIndicatorTileDetailBuilder : TileDetailBuilder {
                     )
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                LinearProgressIndicator(
+                    id = "downloadBar",
+                    progress = 0.45f,
+                    style = { size(width = fillHorizontally(), height = wrapVertically()) }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("CircularProgressIndicator", "PullToRefresh"),

@@ -5,9 +5,6 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomNote
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -28,50 +25,23 @@ object OpenFilePickerEventDetailBuilder : EventDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "File System",
-                description = "Abre o seletor de arquivos do sistema, permitindo ao usuário escolher um " +
-                    "arquivo — upload, anexo, importação de qualquer tipo."
+                description = "Opens the system's file picker, letting the user choose a file — for upload, " +
+                    "attachment, or import of any type. Use it for any flow that requires the user to pick a " +
+                    "file from the device. fileType restricts the options shown in the picker (image, video, " +
+                    "both, or a list of extensions via fileFileType). outputType controls how the content " +
+                    "arrives in incomingData — platformFile() (default) only delivers the reference, without " +
+                    "reading anything, ideal for chaining directly into UploadFile/SaveFile without loading " +
+                    "everything into memory first."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use pra qualquer fluxo que exija o usuário escolher um arquivo do dispositivo. fileType " +
-                    "restringe as opções mostradas no seletor (imagem, vídeo, ambos, ou uma lista de " +
-                    "extensões via fileFileType). outputType controla como o conteúdo chega no incomingData — " +
-                    "platformFile() (padrão) só entrega a referência, sem ler nada, ideal pra encadear direto " +
-                    "com SendFile/SaveFile sem carregar tudo na memória primeiro."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("fileType", "FileType", "Obrigatório. imageFileType(), videoFileType(), imageAndVideoFileType() ou fileFileType(vararg types)."),
-                    ShowroomParam("pickMode", "PickMode", "singlePickMode() (padrão, única opção suportada hoje)."),
-                    ShowroomParam("outputType", "FileOutputType", "platformFile() (padrão), arrayOfBytes(), flowOfBytes(), mapObject() ou base64()."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                OpenFilePicker(
-                    trigger = EventTriggers.onClick(),
-                    fileType = imageFileType(),
-                    events = {
-                        SendFile(trigger = EventTriggers.onSuccess(), url = "/api/upload/avatar", method = HttpMethod.POST)
-                    }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Selecione um arquivo pdf, png ou txt") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Pick a pdf, png, or txt file") {
                 SimpleText(
                     id = "open_file_picker_status",
-                    text = "Toque no botão para abrir o seletor de arquivos."
+                    text = "Tap the button to open the file picker."
                 )
                 Button(
-                    text = "Selecionar arquivo (pdf, png, txt)",
+                    text = "Pick a file (pdf, png, txt)",
                     events = {
                         OpenFilePicker(
                             trigger = EventTriggers.onClick(),
@@ -81,13 +51,13 @@ object OpenFilePickerEventDetailBuilder : EventDetailBuilder {
                                 UpdateTiles(
                                     trigger = EventTriggers.onSuccess(),
                                     updates = {
-                                        update("open_file_picker_status", inlineTileUpdateData("text" to "Arquivo selecionado ✓"))
+                                        update("open_file_picker_status", inlineTileUpdateData("text" to "File picked ✓"))
                                     }
                                 )
                                 UpdateTiles(
                                     trigger = EventTriggers.onFailure(),
                                     updates = {
-                                        update("open_file_picker_status", inlineTileUpdateData("text" to "Seleção cancelada"))
+                                        update("open_file_picker_status", inlineTileUpdateData("text" to "Selection cancelled"))
                                     }
                                 )
                             }
@@ -95,15 +65,28 @@ object OpenFilePickerEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 ShowroomNote(
-                    "outputType = platformFile() entrega só a referência do arquivo (PlatformFile), sem ler " +
-                        "seu conteúdo — por isso este exemplo só confirma que algo foi selecionado, sem " +
-                        "mostrar o conteúdo. Encadeie com SendFile ou troque para arrayOfBytes()/base64() " +
-                        "quando precisar dos bytes de verdade."
+                    "outputType = platformFile() only delivers the file's reference (PlatformFile), without " +
+                        "reading its content — that's why this example only confirms something was picked, " +
+                        "without showing the content. Chain it with UploadFile, or switch to " +
+                        "arrayOfBytes()/base64() when you need the actual bytes."
                 )
             }
 
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                OpenFilePicker(
+                    trigger = EventTriggers.onClick(),
+                    fileType = imageFileType(),
+                    events = {
+                        UploadFile(trigger = EventTriggers.onSuccess(), url = "/api/upload/avatar", method = HttpMethod.POST)
+                    }
+                )
+                """
+            )
+
             ShowroomRelated(
-                names = listOf("SendFile", "GetImageFromGallery", "TakePicture"),
+                names = listOf("UploadFile", "GetImageFromGallery", "TakePicture"),
                 destination = "eventDetails"
             )
         }

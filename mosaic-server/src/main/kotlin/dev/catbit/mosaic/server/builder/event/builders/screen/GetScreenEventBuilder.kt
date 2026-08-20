@@ -29,6 +29,26 @@ internal class GetScreenEventBuilder(
     )
 }
 
+/**
+ * Fetches the payload of the screen this event lives in and emits it downstream, without
+ * applying it — pair it with `ChangeScreenState` to decide when and how the fetched content is
+ * installed, which is what makes custom loading and error flows possible. The request targets
+ * the screen's own id, shaped by [method], [body], [headers] and [timeoutMillis]. Does not
+ * consume `incomingData`. Dispatches `onStart` before the request is sent; `onSuccess` (carrying
+ * the fetched `ScreenModel`, ready for `ChangeScreenState`) when the screen was fetched;
+ * `onNetworkFailure(status)` (carrying the failure) when the request failed with an HTTP status
+ * and a child event is wired to that exact status; `onFailure` (carrying the `Throwable`, logged)
+ * for every other failure and for HTTP failures with no status-specific event declared — only one
+ * of the latter two fires per failure.
+ *
+ * @param id Unique identifier of this event. Defaults to a random id.
+ * @param trigger Trigger that fires this event, built via `EventTriggers`.
+ * @param events Child events chained after this one, wired to its triggers (`onStart`, `onSuccess`, `onNetworkFailure`, `onFailure`).
+ * @param method HTTP method used for the request. Defaults to GET.
+ * @param body Request body. Defaults to none.
+ * @param headers Request headers. Defaults to none.
+ * @param timeoutMillis Request timeout, in milliseconds. Defaults to none (client default).
+ */
 fun EventSchemaBuilderScope.GetScreen(
     id: String = randomId(),
     trigger: EventTrigger,

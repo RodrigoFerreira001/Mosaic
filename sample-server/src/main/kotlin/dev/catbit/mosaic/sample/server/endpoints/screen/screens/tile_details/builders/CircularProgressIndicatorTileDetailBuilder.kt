@@ -4,9 +4,6 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParagraph
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParam
-import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomParamsTable
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
@@ -26,44 +23,21 @@ object CircularProgressIndicatorTileDetailBuilder : TileDetailBuilder {
     override fun TileSchemaBuilderScope.buildDetail(tileName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                category = "Progress",
-                description = "Indicador circular Material 3 — determinado (0.0–1.0) ou indeterminado (progress = null, gira sem parar)."
+                description = "A Material 3 circular indicator — determinate (0.0–1.0) or indeterminate " +
+                    "(progress = null, spinning forever). Use indeterminate while the operation's duration is " +
+                    "unknown, and determinate when there's a real progress fraction (upload, download). " +
+                    "progress is updatable via UpdateTiles at any time."
             )
 
-            ShowroomSectionTitle("Visão geral")
-            ShowroomParagraph(
-                "Use indeterminado enquanto não se sabe a duração da operação, e determinado quando " +
-                    "há uma fração real de progresso (upload, download). progress é atualizável via " +
-                    "UpdateTiles a qualquer momento."
-            )
-
-            ShowroomSectionTitle("Parâmetros")
-            ShowroomParamsTable(
-                listOf(
-                    ShowroomParam("progress", "Float?", "null = indeterminado (girando); 0.0–1.0 = determinado."),
-                )
-            )
-
-            ShowroomSectionTitle("Exemplo de código")
-            ShowroomCode(
-                """
-                CircularProgressIndicator(
-                    id = "uploadProgress",
-                    progress = null,
-                    style = { size(fixedHorizontally(48), fixedVertically(48)) }
-                )
-                """
-            )
-
-            ShowroomSectionTitle("Demo interativa")
-            ShowroomDemoCard(title = "Cada botão dispara um UpdateTiles(\"progress\" to ...) real") {
+            ShowroomSectionTitle("Interactive demo")
+            ShowroomDemoCard(title = "Each button fires a real UpdateTiles(\"progress\" to ...)") {
                 CircularProgressIndicator(
                     id = "circular_progress_demo",
                     progress = null
                 )
                 Row(arrangement = arrangeHorizontallySpacedBy(8)) {
                     Button(
-                        text = "Indeterminado",
+                        text = "Indeterminate",
                         events = {
                             UpdateTiles(
                                 trigger = EventTriggers.onClick(),
@@ -108,6 +82,17 @@ object CircularProgressIndicatorTileDetailBuilder : TileDetailBuilder {
                     )
                 }
             }
+
+            ShowroomSectionTitle("Code sample")
+            ShowroomCode(
+                """
+                CircularProgressIndicator(
+                    id = "uploadProgress",
+                    progress = null,
+                    style = { size(fixedHorizontally(48), fixedVertically(48)) }
+                )
+                """
+            )
 
             ShowroomRelated(
                 names = listOf("LinearProgressIndicator", "PullToRefresh"),
