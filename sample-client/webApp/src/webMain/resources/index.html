@@ -25,6 +25,11 @@
             if (sessionStorage.getItem('coiReloadedOnce')) return;
 
             navigator.serviceWorker.register('coi-serviceworker.js').then(function () {
+                // Waits until the worker is actually active and has claimed this page
+                // (self.clients.claim() in its activate handler) — reloading any earlier risks
+                // the reloaded navigation itself not being intercepted yet.
+                return navigator.serviceWorker.ready;
+            }).then(function () {
                 sessionStorage.setItem('coiReloadedOnce', '1');
                 window.location.reload();
             }).catch(function (error) {
