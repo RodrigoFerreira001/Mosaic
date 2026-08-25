@@ -10,6 +10,9 @@ on:
       - 'mosaic-server/**'
       - 'sample-core/**'
       - 'sample-client/**'
+      - 'sample-buildSrc/**'
+      - 'settings.gradle.kts'
+      - 'gradle.properties'
       - 'build.gradle.kts'
       - 'gradle/libs.versions.toml'
       - '.github/workflows/docs.yml'
@@ -45,7 +48,7 @@ jobs:
         run: ./gradlew dokkaGeneratePublicationHtml
 
       - name: Build sample-client wasmJs distribution
-        run: ./gradlew :sample-client:webApp:wasmJsBrowserDistribution
+        run: ./gradlew :sample-client:webApp:wasmJsBrowserDistribution -Pmosaic.environment=remote
 
       # GitHub Pages serves a single artifact per site: docs at the root (preserving today's
       # https://<user>.github.io/Mosaic/ link), the live showroom demo nested under /showroom/.
