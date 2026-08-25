@@ -47,6 +47,7 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
     private const val STACK_SHEET_1_ID = "display_mbs_stack_1"
     private const val STACK_SHEET_2_ID = "display_mbs_stack_2"
     private const val STACK_DIALOG_ID = "display_mbs_stack_dialog"
+    private const val ON_DISPLAY_SHEET_ID = "display_mbs_on_display"
 
     override fun canBuild(eventName: String) = eventName == "DisplayModalBottomSheet"
 
@@ -435,6 +436,43 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
+            ShowroomDemoCard(title = "7. onDisplay — fires once the sheet is actually on screen") {
+                ShowroomParagraph(
+                    "OnSuccess fires the instant the sheet is registered — before Compose has even started " +
+                        "composing it. OnDisplay fires slightly later, once the sheet has actually entered " +
+                        "composition on screen (its entrance animation may still be running). The snackbar you " +
+                        "get here is the proof: it's wired to onDisplay, not onSuccess."
+                )
+                Button(
+                    text = "Open sheet wired to onDisplay",
+                    buttonType = filledTonalButton(),
+                    events = {
+                        DisplayModalBottomSheet(
+                            trigger = EventTriggers.onClick(),
+                            modalBottomSheetId = ON_DISPLAY_SHEET_ID,
+                            isCancellable = true,
+                            fill = false,
+                            events = {
+                                DisplaySnackbar(
+                                    trigger = EventTriggers.onDisplay(),
+                                    message = "Sheet is on screen now — this is onDisplay, not onSuccess",
+                                    duration = snackbarShortDuration()
+                                )
+                            },
+                            tiles = {
+                                SheetBody(title = "Wired to onDisplay") {
+                                    Paragraph(
+                                        "The snackbar you just saw was triggered by this sheet's own onDisplay, " +
+                                            "fired from inside DisplayModalBottomSheet's events block."
+                                    )
+                                    CloseSheetButton(ON_DISPLAY_SHEET_ID)
+                                }
+                            }
+                        )
+                    }
+                )
+            }
+
             ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
@@ -511,6 +549,14 @@ object DisplayModalBottomSheetEventDetailBuilder : EventDetailBuilder {
                     modalBottomSheetId = sheetId
                 )
             }
+        )
+    }
+
+    private fun TileSchemaBuilderScope.Paragraph(text: String) {
+        SimpleText(
+            text = text,
+            typography = typographyBodyMedium(),
+            color = color(themeColorOnSurfaceVariant())
         )
     }
 }

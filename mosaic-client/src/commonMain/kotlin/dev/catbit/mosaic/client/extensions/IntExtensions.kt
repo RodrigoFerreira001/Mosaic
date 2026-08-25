@@ -22,6 +22,11 @@ import androidx.compose.runtime.setValue
  * items without also growing the list past the placeholder doesn't cause a second fire, and a list
  * that never grows only fires once total.
  *
+ * That baseline is also lowered whenever `totalItemsCount` dips below its previous peak — the
+ * signature of a failed page load whose loading placeholder got swapped for an error tile with no
+ * net growth (`RemoveTiles` then `AddTiles`, same count). Without this, a failure permanently blocks
+ * re-pagination even after the list would otherwise grow past the stale baseline again.
+ *
  * @receiver the threshold: how many items from the end of the list counts as "reached".
  * @param lazyListState the list's own scroll state to observe.
  * @param considerLoadingItemAtEnd when `true` (the default), requires the list to have grown by more
@@ -36,6 +41,21 @@ fun Int.ThresholdReachedEffect(
     onThresholdReached: () -> Unit
 ) {
     var lastTriggeredItemCount by remember { mutableStateOf(0) }
+    var peakItemCount by remember { mutableStateOf(0) }
+
+    val totalItemsCount by remember {
+        derivedStateOf { lazyListState.layoutInfo.totalItemsCount }
+    }
+
+    LaunchedEffect(totalItemsCount) {
+        when {
+            totalItemsCount > peakItemCount -> peakItemCount = totalItemsCount
+            totalItemsCount < peakItemCount -> {
+                lastTriggeredItemCount = minOf(lastTriggeredItemCount, totalItemsCount - 1)
+                peakItemCount = totalItemsCount
+            }
+        }
+    }
 
     val reachedThreshold by remember {
         derivedStateOf {

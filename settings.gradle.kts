@@ -3,6 +3,8 @@ rootProject.name = "Mosaic"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
+    includeBuild("sample-buildSrc")
+
     repositories {
         google {
             mavenContent {

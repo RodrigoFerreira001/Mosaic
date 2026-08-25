@@ -10,6 +10,11 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
+    id("mosaic-build-config")
+}
+
+buildConfig {
+    packageName.set("dev.catbit.mosaic.sample.client")
 }
 
 kotlin {
@@ -30,6 +35,13 @@ kotlin {
     }
 
     sourceSets {
+        commonMain {
+            kotlin.srcDir(
+                tasks.named("generateBuildConfig").map {
+                    layout.buildDirectory.dir("generated/buildconfig")
+                }
+            )
+        }
         commonMain.dependencies {
             // Mosaic
             implementation(projects.sampleCore)

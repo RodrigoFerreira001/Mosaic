@@ -77,6 +77,7 @@ Each one exists to solve a specific problem — a named class/singleton you can 
 | `ScreenTilesBroadcastChannel` vs `SystemBroadcastChannel` | Pub/sub within one screen vs. app-wide. |
 | Hierarchy of `TilesManager` / `LocalTilesManager` | Nested navigation graphs hosting their own tile tree inside a tile. |
 | `stackableOverlays` | Bottom sheets/dialogs stacking, addressable by id, with a real exit animation. |
+| `OverlayDisplayCallbackHolder` | Firing `OnDisplay` on `DisplayBottomSheet`/`DisplayModalBottomSheet`/`DisplayDialog` at the moment the overlay actually enters composition, not when it's merely registered (that's `OnSuccess`, earlier). |
 | `MosaicSerializer` | Resolving polymorphic JSON to the right concrete type, extensible by third parties. |
 | `DrawableResourcesHolder` | The `Image` tile resolving a name to an app-bundled asset. |
 | `CameraManager` | Abstracting the device camera behind one platform-agnostic `takePicture()`, for `TakePicture`. Bound per-platform, not app-wide. |
@@ -102,6 +103,7 @@ No dedicated class enforces these — a typo or a missed step fails silently (it
 - **`TileGroupEvent`** — `RadioButton`'s mutual-exclusion mechanism: a plain `groupId` field, no central group registry, every matching-type tile in the tree gets asked and decides for itself whether to react.
 - **Two-phase overlay dismissal** — a bottom sheet/dialog flips `isDismissing` first, plays its exit animation, and only then is actually removed from the tree — because Compose recomposition is instant but the animation is a suspend call.
 - **`GetScreen` → `ChangeScreenState`** — fetching a screen's content and installing it are deliberately two separate events, fused by default in `RefreshScreen` and in the `initialEvents` default of every `entry{}`.
+- **Infinite-scroll pagination** — no dedicated event; four pieces wired by convention. `SendNetworkRequest` nested in a `LazyColumn`/`LazyRow`'s own `events`, `trigger = onScrollThresholdReached()`, fetches the next page; its response (an `EventList`, decoded via `ProcessData(processWith = "EVENT_RUNNER")`) swaps a loading placeholder for real content (`RemoveTiles`+`AddTiles`) *and* rewrites that same `SendNetworkRequest`'s own `url` for the next page (`UpdateEvents`) — skip the rewrite and every scroll re-fetches the same page forever. See `mosaic-server` skill for the full worked recipe. Layout gotcha: put `weightVertically(1f)` on a wrapping container, not on the lazy tile itself, or it never actually scrolls internally and `scrollThreshold` never re-fires.
 - **`StyleSchema` application order** — a fixed sequence (`windowInsets → margin → size → clip → background → onClick → border → padding`) that determines how margin/padding/background/border interact visually.
 - **`Modifier.size()` + `LocalXScope` availability** — `weight`/`span` sizing only works inside the matching container type; otherwise it's silently ignored.
 - **`@Triggers` annotation** — source-only documentation (`AnnotationRetention.SOURCE`), visible to humans and tooling, never read at runtime.

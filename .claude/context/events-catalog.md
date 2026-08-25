@@ -312,7 +312,7 @@ UpdateEvents(
 
 **Triggers fired:** `OnSuccess` (every update applied, no data forwarded), `OnFailure` (at least one update failed, typically because no event carries that id — fired once at the end, after all updates were attempted).
 
-**Notes:** `data` is merged into the target event's own parameters as a shallow JSON patch, the same mechanism `UpdateTiles` uses on tiles. All updates are attempted regardless of earlier failures. `incomingData` not consumed.
+**Notes:** `data` is merged into the target event's own parameters as a shallow JSON patch, the same mechanism `UpdateTiles` uses on tiles. All updates are attempted regardless of earlier failures. `incomingData` not consumed. This is also how infinite-scroll pagination advances the page: a `SendNetworkRequest`'s own `url` gets rewritten to the next page from inside its own success response — see `skill/mosaic-server/SKILL.md` §9.
 
 ## File system
 
@@ -804,7 +804,7 @@ DisplayBottomSheet(
 )
 ```
 
-**Triggers fired:** `OnSuccess` (added, no data forwarded), `OnFailure` (couldn't be added — typically `bottomSheetId` already in use — `Throwable` as incoming data).
+**Triggers fired:** `OnSuccess` (added, no data forwarded), `OnFailure` (couldn't be added — typically `bottomSheetId` already in use — `Throwable` as incoming data), `OnDisplay` (fires once, when the sheet actually enters composition on screen — later than `OnSuccess`, which fires as soon as it's registered).
 
 **Notes:** `incomingData` not consumed.
 
@@ -853,7 +853,7 @@ DisplayModalBottomSheet(
 )
 ```
 
-**Triggers fired:** `OnSuccess` (added, no data forwarded), `OnFailure` (couldn't be added, typically `modalBottomSheetId` already in use — `Throwable` as incoming data).
+**Triggers fired:** `OnSuccess` (added, no data forwarded), `OnFailure` (couldn't be added, typically `modalBottomSheetId` already in use — `Throwable` as incoming data), `OnDisplay` (fires once, when the sheet actually enters composition on screen — later than `OnSuccess`, which fires as soon as it's registered).
 
 **Notes:** `incomingData` not consumed.
 
@@ -900,7 +900,7 @@ DisplayDialog(
 )
 ```
 
-**Triggers fired:** `OnSuccess` (added, no data forwarded), `OnFailure` (couldn't be added, typically `dialogId` already in use — `Throwable` as incoming data).
+**Triggers fired:** `OnSuccess` (added, no data forwarded), `OnFailure` (couldn't be added, typically `dialogId` already in use — `Throwable` as incoming data), `OnDisplay` (fires once, when the dialog actually enters composition on screen — later than `OnSuccess`, which fires as soon as it's registered).
 
 **Notes:** `incomingData` not consumed. Unlike the two bottom sheet variants, `Dialog`'s dismissal has **no exit animation to wait for** — its two-phase handshake resolves instantly (see `architecture.md` §5).
 

@@ -42,6 +42,7 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
     private const val STACK_DIALOG_2_ID = "display_dialog_stack_2"
     private const val STACK_DIALOG_3_ID = "display_dialog_stack_3"
     private const val STACK_SHEET_ID = "display_dialog_stack_sheet"
+    private const val ON_DISPLAY_DIALOG_ID = "display_dialog_on_display"
 
     override fun canBuild(eventName: String) = eventName == "DisplayDialog"
 
@@ -361,6 +362,44 @@ object DisplayDialogEventDetailBuilder : EventDetailBuilder {
                                         }
                                     )
                                     CloseDialogButton(STACK_DIALOG_1_ID, text = "Close this layer")
+                                }
+                            }
+                        )
+                    }
+                )
+            }
+
+            ShowroomDemoCard(title = "6. onDisplay — fires once the dialog is actually on screen") {
+                ShowroomParagraph(
+                    "OnSuccess fires the instant the dialog is registered — before Compose has even started " +
+                        "composing it. OnDisplay fires slightly later, once the dialog has actually entered " +
+                        "composition on screen. The gap is smaller here than on the bottom sheets — a dialog has " +
+                        "no entrance animation to wait for — but it's still a separate moment, driven by Compose " +
+                        "recomposition instead of the event's own registration."
+                )
+                Button(
+                    text = "Open dialog wired to onDisplay",
+                    buttonType = filledTonalButton(),
+                    events = {
+                        DisplayDialog(
+                            trigger = EventTriggers.onClick(),
+                            dialogId = ON_DISPLAY_DIALOG_ID,
+                            isCancellable = true,
+                            usePlatformDefaultWidth = false,
+                            events = {
+                                DisplaySnackbar(
+                                    trigger = EventTriggers.onDisplay(),
+                                    message = "Dialog is on screen now — this is onDisplay, not onSuccess",
+                                    duration = snackbarShortDuration()
+                                )
+                            },
+                            tiles = {
+                                DialogBody(title = "Wired to onDisplay") {
+                                    Paragraph(
+                                        "The snackbar you just saw was triggered by this dialog's own onDisplay, " +
+                                            "fired from inside DisplayDialog's events block."
+                                    )
+                                    CloseDialogButton(ON_DISPLAY_DIALOG_ID)
                                 }
                             }
                         )

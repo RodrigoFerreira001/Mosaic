@@ -50,6 +50,7 @@ import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventTriggerDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.TileDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.CancellableEventsHolder
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.OverlayDisplayCallbackHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunnerManager
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
@@ -242,6 +243,7 @@ internal class MosaicModules(
             )
         }
         single { CancellableEventsHolder() }
+        single { OverlayDisplayCallbackHolder() }
     }
 
     private val dataModule = module {

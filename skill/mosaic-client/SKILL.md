@@ -348,6 +348,7 @@ Each of these is a plain public Koin single (or interface) in `mosaic-client` â€
 | `NetworkParametersHolder` | `class` | `get<NetworkParametersHolder>()` |
 | `DataMailer` | `class` | `get<DataMailer>()` |
 | `CancellableEventsHolder` | `class` | `get<CancellableEventsHolder>()` |
+| `OverlayDisplayCallbackHolder` | `class` | `get<OverlayDisplayCallbackHolder>()` from `EventRunningScope`, `koinInject<OverlayDisplayCallbackHolder>()` from a `@Composable` |
 | `ApplicationDataHolder` | `interface` | `get<ApplicationDataHolder>()` |
 | `ScreenDataHolder` | `interface` | already `EventRunningScope.screenDataHolder` |
 | `ScreenExtrasHolder` | `class` | `get<ScreenExtrasHolder>()` â€” relevant mainly if your custom tile hosts its own nested navigation graph, the way the built-in `NestedNavigationGraph` tile does |

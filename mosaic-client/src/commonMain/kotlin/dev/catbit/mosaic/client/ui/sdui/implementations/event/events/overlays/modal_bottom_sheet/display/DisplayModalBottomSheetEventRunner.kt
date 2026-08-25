@@ -2,12 +2,16 @@ package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.overlays.m
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.OverlayDisplayCallbackHolder
 import dev.catbit.mosaic.core.data.schemas.event.events.overlays.modal_bottom_sheet.DisplayModalBottomSheetEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 
 object DisplayModalBottomSheetEventRunner : EventRunner<DisplayModalBottomSheetEventSchema> {
     override suspend fun EventRunningScope.runEvent(event: DisplayModalBottomSheetEventSchema) {
         with(event) {
+            get<OverlayDisplayCallbackHolder>().register(modalBottomSheetId) {
+                onTrigger(EventTriggers.onDisplay())
+            }
             tilesOverlaysEditor.addModalBottomSheet(
                 id = modalBottomSheetId,
                 isCancellable = isCancellable,
@@ -19,6 +23,7 @@ object DisplayModalBottomSheetEventRunner : EventRunner<DisplayModalBottomSheetE
                     onTrigger(EventTriggers.onSuccess())
                 }
                 .onFailure {
+                    get<OverlayDisplayCallbackHolder>().cancel(modalBottomSheetId)
                     onTrigger(
                         eventTrigger = EventTriggers.onFailure(),
                         data = it

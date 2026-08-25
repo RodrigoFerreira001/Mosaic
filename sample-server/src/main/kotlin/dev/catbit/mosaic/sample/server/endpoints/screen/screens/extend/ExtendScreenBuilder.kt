@@ -118,7 +118,7 @@ private const val REGISTRATION_CODE = """
 // sample-client/.../App.kt — this exact app's real registration call
 MosaicApplication(
     applicationId = "MosaicSample",
-    baseUrl = "http://192.168.3.105:9090",
+    baseUrl = BuildConfig.BASE_URL,
     dependencyInjectionConfig = mosaicDependencyInjectionConfig(
         tileDefinitions = listOf(
             AdaptiveNavigationTileDefinition,

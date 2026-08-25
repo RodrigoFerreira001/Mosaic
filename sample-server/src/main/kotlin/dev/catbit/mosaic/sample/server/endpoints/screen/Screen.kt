@@ -7,6 +7,7 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.extend.ExtendScr
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.get_started.GetStartedScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.home.HomeScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.mechanisms.MechanismsScreenBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.pagination_sample.PaginationSampleScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.style.StyleScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.TileDetailsScreenBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.tiles.TilesScreenBuilder
@@ -28,6 +29,7 @@ private val screenBuilderManager = ScreenBuilderManager(
         GetStartedScreenBuilder,
         ExtendScreenBuilder,
         MechanismsScreenBuilder,
+        PaginationSampleScreenBuilder,
     )
 )
 

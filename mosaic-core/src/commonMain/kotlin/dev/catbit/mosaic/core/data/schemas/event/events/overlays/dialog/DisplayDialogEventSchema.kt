@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import dev.catbit.mosaic.core.annotations.Triggers
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.tile.TileSchema
@@ -25,12 +26,14 @@ import kotlinx.serialization.Serializable
  * - `OnSuccessEventTrigger` — when the dialog was added. No data is passed downstream.
  * - `OnFailureEventTrigger` — when it could not be added, typically because [dialogId] is already
  *   in use; the `Throwable` is passed as incomingData.
+ * - `OnDisplayEventTrigger` — once, when the dialog actually enters composition on screen.
  */
 @Immutable
 @Triggers(
     [
         OnSuccessEventTrigger::class,
         OnFailureEventTrigger::class,
+        OnDisplayEventTrigger::class,
     ]
 )
 @Serializable

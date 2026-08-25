@@ -822,6 +822,68 @@ Key events for pre-populating requests (all fire on `EventTriggers.onSuccess()` 
 - `onFailure` fires for non-2xx and network exceptions, **without** a matching `onNetworkFailure(code)` child (network exceptions always fall through to `onFailure`, never to a status-specific trigger — there was no HTTP response to have a status).
 - `onNetworkFailure(401)` fires instead, only if some child is wired to it.
 
+### Pagination / infinite scroll
+
+There's no dedicated pagination event — it's `LazyColumn`/`LazyRow`'s `scrollThreshold` plus `SendNetworkRequest` plus `UpdateEvents`, wired together by convention:
+
+```kotlin
+// Pattern: LazyColumn(scrollThreshold) → SendNetworkRequest(onScrollThresholdReached) → AddTiles/RemoveTiles (loading + result) → UpdateEvents (advance the page)
+LazyColumn(
+    id = "results_list",
+    scrollThreshold = 5,                             // fires once the user is within 5 items of the end
+    events = {
+        SendNetworkRequest(
+            id = "fetch_next_page",                  // stable id — UpdateEvents targets it by this
+            trigger = EventTriggers.onScrollThresholdReached(),
+            url = "/api/results?page=1",              // page 1 only — every later page comes from UpdateEvents below
+            method = HttpMethod.GET,
+            events = {
+                AddTiles(trigger = EventTriggers.onStart(), groupingTileId = "results_list") {
+                    Row(id = "loading") { CircularProgressIndicator() }
+                }
+                RemoveTiles(trigger = EventTriggers.onFailure(), groupingTileId = "results_list", tileIds = listOf("loading"))
+                AddTiles(trigger = EventTriggers.onFailure(), groupingTileId = "results_list") {
+                    Row(id = "loading") { SimpleText("Failed to load more") }   // same id as the spinner — see gotcha below
+                }
+                // The response body IS an EventList (RemoveTiles + AddTiles + UpdateEvents),
+                // decoded and run inline — see below for what the backend actually returns.
+                ProcessData(trigger = EventTriggers.onSuccess(), processWith = "EVENT_RUNNER")
+            }
+        )
+    }
+) {
+    // page 1's own items go here, embedded directly at screen-build time
+}
+```
+
+The backend endpoint for `/api/results?page=N` responds with `EventList { ... }` (`mosaic-server`'s `EventList` builder, not a `Screen`) instead of a bare data payload — the exact same tile/event DSL, just returned as a standalone list of events for `ProcessData(processWith = "EVENT_RUNNER")` to run:
+
+```kotlin
+// Ktor route backing the SendNetworkRequest above
+get("results") {
+    val page = call.request.queryParameters.getOrFail<Int>("page")
+    call.respond(
+        EventList {
+            RemoveTiles(trigger = EventTriggers.inline(), groupingTileId = "results_list", tileIds = listOf("loading"))
+            AddTiles(trigger = EventTriggers.inline(), groupingTileId = "results_list") {
+                // this page's real items
+            }
+            // Advances the SAME SendNetworkRequest to the next page — nothing else does this.
+            // Skip it and every future scroll re-fetches page N forever.
+            UpdateEvents(
+                trigger = EventTriggers.inline(),
+                updates = { update(eventId = "fetch_next_page", data = mapOf("url" to "/api/results?page=${page + 1}")) }
+            )
+        }
+    )
+}
+```
+
+**Gotchas:**
+- **The page number only advances on success.** A failure response doesn't (can't, generically) know what "the next page" should be, so it leaves the `SendNetworkRequest`'s `url` untouched. A retry (manual `TriggerEvent(eventId = "fetch_next_page")` off a "Try again" button, or the list scrolling again) re-requests the *same* page. If a backend's failure logic is "this exact page always fails," page 3+ becomes unreachable — a demo/test endpoint simulating a one-time failure needs to track that it already failed once (e.g. an in-memory attempt counter keyed by page) so a retry of that same page can succeed.
+- **Layout**: give the `LazyColumn`/`LazyRow` a genuinely bounded, scrollable height by putting `weightVertically(1f)` on a *wrapping* container (a `Box`, typically) and sizing the lazy tile itself with `height = fillVertically()` inside that box — not `weightVertically(1f)` directly on the lazy tile. Get this backwards and the list still renders its first page fine, but never actually scrolls internally, so `scrollThreshold` never re-fires — nothing errors, it just silently never pages further.
+- `considerLoadingItemAtEndOnThresholdReached` (default `true`) requires the item count to grow by *more* than the loading placeholder alone before re-firing — this is what stops the spinner itself from being mistaken for "the list grew." See `architecture.md` §4/§5 (`ThresholdReachedEffect`) for the full guard mechanics, including how it recovers after a failed page.
+
 ---
 
 ## 10. Reusable Compositions

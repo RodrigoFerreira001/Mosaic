@@ -50,6 +50,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LifecycleStartEffect
 import dev.catbit.mosaic.client.extensions.observeScreenTileBroadcastChannel
 import dev.catbit.mosaic.client.extensions.observeSystemBroadcastChannel
+import dev.catbit.mosaic.client.ui.sdui.foundation.events.OverlayDisplayCallbackHolder
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
@@ -57,6 +58,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 
 object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
 
@@ -199,7 +201,16 @@ object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
             skipPartiallyExpanded = !overlay.allowsPartialExpansion
         )
 
-        val finish = { dispatchEvent(ScreenTileEvents.OnDismissOverlayFinished(instanceKey)) }
+        val overlayDisplayCallbackHolder = koinInject<OverlayDisplayCallbackHolder>()
+
+        val finish = {
+            overlayDisplayCallbackHolder.cancel(instanceKey)
+            dispatchEvent(ScreenTileEvents.OnDismissOverlayFinished(instanceKey))
+        }
+
+        LaunchedEffect(instanceKey) {
+            overlayDisplayCallbackHolder.fire(instanceKey)
+        }
 
         LaunchedEffect(Unit) {
             sheetState.show()
@@ -244,7 +255,16 @@ object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
             skipPartiallyExpanded = !overlay.allowsPartialExpansion
         )
 
-        val finish = { dispatchEvent(ScreenTileEvents.OnDismissOverlayFinished(instanceKey)) }
+        val overlayDisplayCallbackHolder = koinInject<OverlayDisplayCallbackHolder>()
+
+        val finish = {
+            overlayDisplayCallbackHolder.cancel(instanceKey)
+            dispatchEvent(ScreenTileEvents.OnDismissOverlayFinished(instanceKey))
+        }
+
+        LaunchedEffect(instanceKey) {
+            overlayDisplayCallbackHolder.fire(instanceKey)
+        }
 
         LaunchedEffect(Unit) {
             sheetState.show()
@@ -309,7 +329,16 @@ object ScreenTileRenderer : TileRenderer<ScreenTileSchema> {
         instanceKey: String,
         overlay: ScreenTileSchema.StackableOverlay.Dialog
     ) {
-        val finish = { dispatchEvent(ScreenTileEvents.OnDismissOverlayFinished(instanceKey)) }
+        val overlayDisplayCallbackHolder = koinInject<OverlayDisplayCallbackHolder>()
+
+        val finish = {
+            overlayDisplayCallbackHolder.cancel(instanceKey)
+            dispatchEvent(ScreenTileEvents.OnDismissOverlayFinished(instanceKey))
+        }
+
+        LaunchedEffect(instanceKey) {
+            overlayDisplayCallbackHolder.fire(instanceKey)
+        }
 
         LaunchedEffect(overlay.isDismissing) {
             if (overlay.isDismissing) finish()

@@ -23,11 +23,7 @@ import org.jetbrains.compose.resources.vectorResource
 fun App() {
     MosaicApplication(
         applicationId = "MosaicSample",
-        // Public sample-server, hosted via Firebase Hosting -> Cloud Run (see /firebase.json).
-        // For local development against a machine on your LAN, temporarily swap this back to
-        // something like "http://192.168.x.x:9090" — the sample-server itself always listens on
-        // 9090 locally (see sample-server/.../Application.kt).
-        baseUrl = "https://mosaicsampleserver.web.app",
+        baseUrl = BuildConfig.BASE_URL,
         dependencyInjectionConfig = mosaicDependencyInjectionConfig(
             tileDefinitions = listOf(
                 AdaptiveNavigationTileDefinition,

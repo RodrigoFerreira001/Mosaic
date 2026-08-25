@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.tile_details.builders
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
+import dev.catbit.mosaic.sample.server.BuildConfig
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
@@ -31,7 +32,7 @@ object LazyTilesTileDetailBuilder : TileDetailBuilder {
     // sendHttpRequest (which backs both LazyTiles and SendNetworkRequest) never prepends the
     // client's baseUrl — url must be a fully-qualified address, matching the sample-client's own
     // hardcoded baseUrl in App.kt. A relative path here silently fails to resolve on every target.
-    private const val SAMPLE_SERVER_BASE_URL = "http://192.168.3.105:9090"
+    private val SAMPLE_SERVER_BASE_URL = BuildConfig.BASE_URL
 
     override fun canBuild(tileName: String) = tileName == "LazyTiles"
 

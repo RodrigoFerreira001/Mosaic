@@ -96,6 +96,12 @@ Isso vale para **qualquer** mudança relacionada a um Tile ou Event — schema, 
 
 Uma tarefa que cria, modifica ou remove um Tile/Event **só está concluída** quando KDoc, catálogo, skill e o exemplo no showroom estiverem sincronizados entre si — isso não é um passo opcional "se der tempo", é parte da definição de "terminado" para esse tipo de tarefa.
 
+**Regra 9. Comentário de código (`//`) só quando explicitamente pedido — o padrão é código legível sem comentário nenhum.**
+
+Nomes de variável/função/classe bons e uma estrutura clara substituem o comentário na maioria dos casos — se o comentário só repete o que o código já deixa óbvio, não escreva. Escreva um comentário apenas quando o usuário pedir explicitamente comentários naquela tarefa, ou quando, mesmo sem pedido, o motivo por trás do código não é dedutível pela leitura (uma constante que replica um valor externo específico, um workaround pra um bug de uma lib, uma ordem de operações não-óbvia que quebra se invertida). Nesse segundo caso, o comentário explica o *porquê*, nunca o *o quê*.
+
+Isso **não** se aplica ao KDoc de `Schema`/`Builder`/mecanismos públicos exigido pelas Regras 7 e 8 — esse é contrato/documentação estrutural do framework, não um comentário explicativo opcional, e continua obrigatório como já descrito acima.
+
 ---
 
 ## Workflow: Adding a New Event

@@ -2,6 +2,7 @@ package dev.catbit.mosaic.sample.server.endpoints.initial_graph
 
 import dev.catbit.mosaic.sample.server.endpoints.initial_graph.entries.EventDetails
 import dev.catbit.mosaic.sample.server.endpoints.initial_graph.entries.Home
+import dev.catbit.mosaic.sample.server.endpoints.initial_graph.entries.PaginationSample
 import dev.catbit.mosaic.sample.server.endpoints.initial_graph.entries.TileDetails
 import dev.catbit.mosaic.server.builder.animation.slideHorizontalReverseTransition
 import dev.catbit.mosaic.server.builder.animation.slideHorizontalTransition
@@ -24,6 +25,7 @@ fun Route.initialGraph() {
                 Home()
                 EventDetails()
                 TileDetails()
+                PaginationSample()
             }
         )
     }

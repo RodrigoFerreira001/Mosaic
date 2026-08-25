@@ -6,11 +6,11 @@ FROM eclipse-temurin:21-jdk AS build
 WORKDIR /workspace
 
 COPY . .
-RUN ./gradlew :sample-server:buildFatJar --no-daemon
+RUN ./gradlew :sample-server:buildFatJar --no-daemon -Pmosaic.environment=remote
 
-# mosaic-core has no jvmToolchain pinned, so it compiles with whatever JDK runs Gradle above
-# (21-jdk) — the runtime image has to match that bytecode version, not sample-server's own
-# jvmToolchain(11), which only constrains sample-server's own sources.
+# mosaic-core's jvm target compiles at JvmTarget.JVM_21 (its android target stays at 11) — the
+# runtime image has to match that bytecode version. sample-server's own jvmToolchain is pinned to
+# 21 too now, for the same reason, so local `./gradlew :sample-server:run` matches this image.
 FROM eclipse-temurin:21-jre AS runtime
 WORKDIR /app
 

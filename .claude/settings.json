@@ -1,5 +1,15 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "AGENTS_MD=\"$(git rev-parse --show-toplevel 2>/dev/null)/AGENTS.md\"; if [ -f \"$AGENTS_MD\" ]; then jq -Rs '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext: (\"# AGENTS.md - project rules (this project uses AGENTS.md instead of CLAUDE.md, so it is NOT auto-loaded like a normal CLAUDE.md would be; read it in FULL below before any code change in this repo). Rule 8 in particular requires KDoc + catalog (.claude/context) + skill (skill/mosaic*) + showroom (sample-server event_details/tile_details builders) to ALL be updated together, in the same task, for any Tile/Event change - no exceptions:\\n\\n\" + .)}}' \"$AGENTS_MD\"; fi"
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write",

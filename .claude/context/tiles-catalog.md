@@ -681,7 +681,7 @@ LazyColumn(scrollThreshold = 5, displayScrollbar = true) {
 
 **Triggers fired:** `OnDisplay` (always), `OnClick` (only if declared), `OnScrolled` (`ScrollDirection.Bottom`/`Top`), `OnScrollThresholdReached` (only when `scrollThreshold` is set — fires at most once per item count, not again until the list actually grows).
 
-**Notes:** publishes `LazyItemScope` per item (children get `animateItem`/`fillParentMaxSize`, but **not** `ColumnScope.weight`) and clears the column scope. Programmatic scroll-to-item commands take a **child index**, not a pixel offset (contrast with the non-lazy `Column`).
+**Notes:** publishes `LazyItemScope` per item (children get `animateItem`/`fillParentMaxSize`, but **not** `ColumnScope.weight`) and clears the column scope. Programmatic scroll-to-item commands take a **child index**, not a pixel offset (contrast with the non-lazy `Column`). For pagination via `scrollThreshold`, give this tile a genuinely bounded/scrollable height by putting `weightVertically(1f)` on a *wrapping* container (a `Box`, typically) and sizing this tile with `height = fillVertically()` inside that box — `weightVertically(1f)` directly on the `LazyColumn` itself doesn't reliably produce a bounded viewport, so it renders fine but never scrolls internally, and `scrollThreshold` silently never re-fires. See `skill/mosaic-server/SKILL.md` §9 for the full pagination recipe.
 
 ### `LazyRow`
 
@@ -708,7 +708,7 @@ LazyRow(arrangement = arrangeHorizontallySpacedBy(8)) {
 
 **Triggers fired:** `OnDisplay`, `OnClick` (only if declared), `OnScrolled` (`ScrollDirection.End`/`Start`), `OnScrollThresholdReached` (same semantics as `LazyColumn`).
 
-**Notes:** publishes `LazyItemScope` per item (not `RowScope.weight`), clears the row and flow-row scopes. Scroll-to-item commands take a child index.
+**Notes:** publishes `LazyItemScope` per item (not `RowScope.weight`), clears the row and flow-row scopes. Scroll-to-item commands take a child index. Same `scrollThreshold` layout gotcha as `LazyColumn` — put `weightHorizontally(1f)` on a *wrapping* container, size this tile with `width = fillHorizontally()` inside it. See `skill/mosaic-server/SKILL.md` §9 for the full pagination recipe.
 
 ### `Row`
 

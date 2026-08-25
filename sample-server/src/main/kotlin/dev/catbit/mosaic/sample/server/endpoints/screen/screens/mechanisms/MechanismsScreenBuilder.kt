@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.mechanisms
 
+import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.sample.core.schemas.tiles.code.CodeViewerTileSchema
 import dev.catbit.mosaic.sample.server.dsl.tiles.code.CodeViewer
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.UnderConstructionBadge
@@ -10,10 +11,13 @@ import dev.catbit.mosaic.server.builder.color.themeColorInverseSurface
 import dev.catbit.mosaic.server.builder.color.themeColorOnSurfaceVariant
 import dev.catbit.mosaic.server.builder.color.themeColorPrimaryContainer
 import dev.catbit.mosaic.server.builder.color.themeColorSurfaceContainerLowest
+import dev.catbit.mosaic.server.builder.event.builders.navigation.Navigate
 import dev.catbit.mosaic.server.builder.placement.alignToTopEnd
 import dev.catbit.mosaic.server.builder.placement.arrangeVerticallySpacedBy
 import dev.catbit.mosaic.server.builder.screen.Screen
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.filledTonalButton
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Box
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.Column
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
@@ -185,7 +189,7 @@ private val mechanismTopics = listOf(
             MosaicHeadersPlugin        Stamps every outgoing request with 9 x-mosaic-* device/platform headers, no opt-out.
             MosaicColors               Runtime-swappable theme, driven by SetTheme/ResetTheme.
             TemplateProcessor          The <|path|> template engine behind TransformData/UpdateTiles.
-            ThresholdReachedEffect     Infinite-scroll pagination's "don't re-fire until the list grows" guard.
+            ThresholdReachedEffect     Infinite-scroll pagination's "don't re-fire until the list grows past its last count" guard.
         """.trimIndent(),
         codeIsKotlin = false,
     ),
@@ -235,6 +239,70 @@ private fun TileSchemaBuilderScope.MechanismSection(topic: MechanismTopic) {
                 }
             )
         }
+    }
+}
+
+/**
+ * Unlike the topics above, this one ends in a live demo instead of just a code block — pagination
+ * is a runtime guard ([mosaic-client]'s `Int.ThresholdReachedEffect`), best understood by watching
+ * it actually get stuck (or not) across a failed page, not by reading a signature.
+ */
+private fun TileSchemaBuilderScope.PaginationSection() {
+    Column(
+        style = {
+            size(width = fillHorizontally(), height = wrapVertically())
+        },
+        arrangement = arrangeVerticallySpacedBy(12)
+    ) {
+        SimpleText(
+            text = "Pagination / infinite scroll",
+            typography = typographyHeadlineSmall()
+        )
+        SimpleText(
+            text = "LazyColumn/LazyRow's scrollThreshold fires OnScrollThresholdReached once the " +
+                "scroll position comes within that many items of the end. Wire a SendNetworkRequest " +
+                "to it, have the response come back as an EventList that adds the next batch of " +
+                "items and rewrites that same request's own url (via UpdateEvents) to point at the " +
+                "next page — each response arms the next fetch.",
+            typography = typographyBodyLarge(),
+            color = color(themeColorOnSurfaceVariant())
+        )
+        CodeViewer(
+            code = """
+                LazyColumn(
+                    id = "PAGINATED_LIST",
+                    scrollThreshold = 10,
+                    events = {
+                        SendNetworkRequest(
+                            id = "PAGINATION_EVENT",
+                            trigger = EventTriggers.onScrollThresholdReached(),
+                            url = "https://.../pagination?page=1",
+                            method = HttpMethod.GET,
+                            events = {
+                                AddTiles(trigger = EventTriggers.onStart(), groupingTileId = "PAGINATED_LIST") { /* loading row */ }
+                                ProcessData(trigger = EventTriggers.onSuccess(), processWith = "EVENT_RUNNER")
+                            }
+                        )
+                    }
+                ) { /* first page, embedded directly */ }
+            """.trimIndent(),
+            language = CodeViewerTileSchema.Language.KOTLIN,
+            theme = CodeViewerTileSchema.Theme.ATOM_ONE,
+            style = {
+                size(width = fillHorizontally(), height = wrapVertically())
+            }
+        )
+        Button(
+            text = "Open the live pagination sample",
+            buttonType = filledTonalButton(),
+            events = {
+                Navigate(
+                    trigger = EventTriggers.onClick(),
+                    destination = "paginationSample",
+                    navigatorId = "root"
+                )
+            }
+        )
     }
 }
 
@@ -298,6 +366,8 @@ object MechanismsScreenBuilder : ScreenBuilder {
             mechanismTopics.forEach { topic ->
                 MechanismSection(topic)
             }
+
+            PaginationSection()
         }
     }
 }
