@@ -86,6 +86,10 @@ Open work only. Completed items are tracked in the git history, not here.
   point; the open work is negotiating the scheme and wiring it through the request/response path
   on both sides.
 
+- [ ] **WasmJs browser navigation** — use https://github.com/terrakok/navigation3-browser to back
+  Mosaic's navigation on the WasmJs target with real browser history / URL integration
+  (back/forward buttons, deep links via URL).
+
 ## Recorded decisions (won't do)
 
 Kept here so the analysis is not repeated and these do not come back as bug reports.

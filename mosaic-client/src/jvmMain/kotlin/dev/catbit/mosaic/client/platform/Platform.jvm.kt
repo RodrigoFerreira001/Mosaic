@@ -1,6 +1,5 @@
 package dev.catbit.mosaic.client.platform
 
-import com.jthemedetecor.OsThemeDetector
 import java.awt.Toolkit
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -64,7 +63,27 @@ actual object Platform {
             return "$offset|${tz.id}"
         }
     actual val darkMode: String
-        get() = runCatching { OsThemeDetector.getDetector().isDark }
+        get() = runCatching { isDarkModeEnabled() }
             .getOrDefault(false)
             .toString()
+
+    private fun isDarkModeEnabled(): Boolean {
+        val os = System.getProperty("os.name").lowercase()
+        return when {
+            os.contains("mac") ->
+                executeCommand("defaults read -g AppleInterfaceStyle")
+                    .contains("dark", ignoreCase = true)
+
+            os.contains("win") ->
+                executeCommand(
+                    "reg query HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize /v AppsUseLightTheme"
+                ).contains("0x0")
+
+            os.contains("linux") ->
+                executeCommand("gsettings get org.gnome.desktop.interface color-scheme")
+                    .contains("dark", ignoreCase = true)
+
+            else -> false
+        }
+    }
 }

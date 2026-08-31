@@ -215,7 +215,7 @@ object GetStartedScreenBuilder : ScreenBuilder {
                     code = """
                         // gradle/libs.versions.toml
                         [versions]
-                        mosaic = "1.1.0"
+                        mosaic = "1.1.1"
 
                         [libraries]
                         mosaic-core = { module = "dev.catbit:mosaic-core", version.ref = "mosaic" }
@@ -229,8 +229,8 @@ object GetStartedScreenBuilder : ScreenBuilder {
 
                         // Or with direct coordinates:
                         dependencies {
-                            implementation("dev.catbit:mosaic-core:1.1.0")
-                            implementation("dev.catbit:mosaic-server:1.1.0")
+                            implementation("dev.catbit:mosaic-core:1.1.1")
+                            implementation("dev.catbit:mosaic-server:1.1.1")
                         }
                     """.trimIndent(),
                     language = CodeViewerTileSchema.Language.KOTLIN,
@@ -256,7 +256,7 @@ object GetStartedScreenBuilder : ScreenBuilder {
                     code = """
                         // gradle/libs.versions.toml
                         [versions]
-                        mosaic = "1.1.0"
+                        mosaic = "1.1.1"
 
                         [libraries]
                         mosaic-core = { module = "dev.catbit:mosaic-core", version.ref = "mosaic" }
@@ -274,8 +274,8 @@ object GetStartedScreenBuilder : ScreenBuilder {
 
                         // Or with direct coordinates:
                         commonMain.dependencies {
-                            implementation("dev.catbit:mosaic-core:1.1.0")
-                            implementation("dev.catbit:mosaic-client:1.1.0")
+                            implementation("dev.catbit:mosaic-core:1.1.1")
+                            implementation("dev.catbit:mosaic-client:1.1.1")
                         }
                     """.trimIndent(),
                     language = CodeViewerTileSchema.Language.KOTLIN,

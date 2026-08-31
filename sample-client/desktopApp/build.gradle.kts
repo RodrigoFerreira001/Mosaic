@@ -21,7 +21,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "dev.catbit.mosaic.sample"
-            packageVersion = "1.1.0"
+            packageVersion = "1.1.1"
         }
     }
 }

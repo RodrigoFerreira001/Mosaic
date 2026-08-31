@@ -48,7 +48,7 @@ All three modules are published to Maven Central under `dev.catbit`. `mosaic-cor
 **`gradle/libs.versions.toml`**
 ```toml
 [versions]
-mosaic = "1.1.0"
+mosaic = "1.1.1"
 
 [libraries]
 mosaic-core = { module = "dev.catbit:mosaic-core", version.ref = "mosaic" }
@@ -67,8 +67,8 @@ Or with direct coordinates:
 
 ```kotlin
 dependencies {
-    implementation("dev.catbit:mosaic-core:1.1.0")
-    implementation("dev.catbit:mosaic-server:1.1.0")
+    implementation("dev.catbit:mosaic-core:1.1.1")
+    implementation("dev.catbit:mosaic-server:1.1.1")
 }
 ```
 
@@ -79,7 +79,7 @@ That's the whole backend footprint — `mosaic-server` is a plain JVM library, n
 **`gradle/libs.versions.toml`**
 ```toml
 [versions]
-mosaic = "1.1.0"
+mosaic = "1.1.1"
 
 [libraries]
 mosaic-core = { module = "dev.catbit:mosaic-core", version.ref = "mosaic" }
@@ -102,8 +102,8 @@ Or with direct coordinates:
 
 ```kotlin
 commonMain.dependencies {
-    implementation("dev.catbit:mosaic-core:1.1.0")
-    implementation("dev.catbit:mosaic-client:1.1.0")
+    implementation("dev.catbit:mosaic-core:1.1.1")
+    implementation("dev.catbit:mosaic-client:1.1.1")
 }
 ```
 

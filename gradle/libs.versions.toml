@@ -1,5 +1,5 @@
 [versions]
-mosaic = "1.1.0"
+mosaic = "1.1.1"
 agp = "9.2.1"
 androidx-lifecycle = "2.10.0"
 kotlin = "2.4.0"
@@ -23,7 +23,6 @@ kotlinx-collections-immutable = "0.5.1"
 kotlinpoet = "2.3.0"
 filekit = "0.14.2"
 webcamCapture = "0.3.12"
-jSystemThemeDetector = "3.9.1"
 cmpImgcompress = "0.0.3"
 room3 = "3.0.0"
 ksp = "2.3.8"
@@ -108,9 +107,6 @@ filekit-dialogs-compose = { module = "io.github.vinceglb:filekit-dialogs-compose
 
 # Webcam Capture (JVM desktop camera access)
 webcam-capture = { module = "com.github.sarxos:webcam-capture", version.ref = "webcamCapture" }
-
-# jSystemThemeDetector (JVM desktop OS dark-mode detection)
-jsystemthemedetector = { module = "com.github.Dansoftowner:jSystemThemeDetector", version.ref = "jSystemThemeDetector" }
 
 # CMP Image Compressor (cross-platform WebP compression/resize)
 cmp-imgcompress = { module = "io.github.aryapreetam:cmp-imgcompress", version.ref = "cmpImgcompress" }
