@@ -7,14 +7,11 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.key
-import dev.catbit.mosaic.client.ui.composables.material_symbols.LocalMaterialSymbolFonts
-import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbolFontsConfig
-import dev.catbit.mosaic.client.ui.composables.material_symbols.loadMaterialSymbolFonts
+import dev.catbit.material_symbols.MaterialSymbolFontsConfig
+import dev.catbit.material_symbols.MaterialSymbolsRenderingScope
 
 @Composable
-internal fun MosaicTheme(
+fun MosaicTheme(
     colors: MosaicColors = MosaicColors(
         defaultLightColorScheme = lightColorScheme(),
         defaultDarkColorScheme = darkColorScheme()
@@ -35,12 +32,8 @@ internal fun MosaicTheme(
         shapes = shapes,
         typography = typography,
     ) {
-        key(materialSymbolFontsConfig) {
-            CompositionLocalProvider(
-                LocalMaterialSymbolFonts provides loadMaterialSymbolFonts(materialSymbolFontsConfig)
-            ) {
-                content()
-            }
+        MaterialSymbolsRenderingScope(materialSymbolFontsConfig) {
+            content()
         }
     }
 }

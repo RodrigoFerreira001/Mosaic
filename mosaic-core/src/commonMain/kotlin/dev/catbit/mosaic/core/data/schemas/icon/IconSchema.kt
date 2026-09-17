@@ -6,7 +6,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * Represents a Material Symbol icon rendered via the custom `MaterialSymbol` composable.
+ * Represents a Material Symbol icon rendered via the `MaterialSymbol` composable (from the
+ * `dev.catbit:material-symbols` library).
  *
  * **Fields:**
  * - [name] — Material Symbol identifier string (e.g. `"home"`, `"visibility"`, `"add"`).

@@ -2,8 +2,8 @@ package dev.catbit.mosaic.client.extensions
 
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import dev.catbit.material_symbols.MaterialSymbolStyle
 import dev.catbit.mosaic.client.ui.composables.icon.Icon
-import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbolStyle
 import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 
 /** Converts the wire-format [IconSchema.Style] into the [MaterialSymbolStyle] the [Icon] composable

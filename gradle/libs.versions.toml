@@ -1,36 +1,35 @@
 [versions]
-mosaic = "1.1.1"
-agp = "9.2.1"
-androidx-lifecycle = "2.10.0"
-kotlin = "2.4.0"
+mosaic = "1.2.0"
+material-symbols = "1.0.1"
+agp = "9.3.2"
+androidx-lifecycle = "2.11.0"
+kotlin = "2.4.20"
 android-minSdk = "26"
 android-compileSdk = "37"
 vanniktechMavenPublish = "0.37.0"
-compose = "1.11.1"
+compose = "1.12.0"
 kotlinx-coroutines = "1.11.0"
 kotlinx-serialization = "1.11.0"
 koin = "4.2.2"
-ktor = "3.5.1"
-logback = "1.5.38"
-compose-material3 = "1.11.0-alpha07"
+ktor = "3.5.2"
+logback = "1.6.3"
+compose-material3 = "1.12.0-alpha03"
 compose-navigation3 = "1.1.1"
-compose-material3-adaptative = "1.3.0-beta02"
+compose-material3-adaptative = "1.3.0-rc01"
 shimmer = "1.5.0"
 compose-lifecycle = "2.11.0"
-coil = "3.5.0"
+coil = "3.6.2"
 kotlinx-datetime = "0.8.0"
-kotlinx-collections-immutable = "0.5.1"
-kotlinpoet = "2.3.0"
-filekit = "0.14.2"
+kotlinx-collections-immutable = "0.5.2"
+filekit = "0.16.0"
 webcamCapture = "0.3.12"
 cmpImgcompress = "0.0.3"
-room3 = "3.0.0"
+room3 = "3.0.3"
 ksp = "2.3.8"
-androidx-sqlite = "2.7.0"
+androidx-sqlite = "2.7.1"
 androidx-exifinterface = "1.4.2"
-compose-stability-analyzer = "0.10.0"
-markdown-renderer = "0.43.0"
-dokka = "2.1.0"
+markdown-renderer = "0.45.0"
+dokka = "2.2.0"
 
 [libraries]
 
@@ -53,6 +52,9 @@ compose-ui-tooling-preview = { module = "org.jetbrains.compose.ui:ui-tooling-pre
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose" }
 compose-components-ui-tooling-preview = { module = "org.jetbrains.compose.components:components-ui-tooling-preview", version.ref = "compose" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version = "1.13.0" }
+
+# Material Symbols
+material-symbols = { module = "dev.catbit:material-symbols", version.ref = "material-symbols" }
 
 # Coil
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
@@ -95,10 +97,6 @@ kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collec
 
 # Logback
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
-
-# Kotlinpoet
-kotlinpoet = { module = "com.squareup:kotlinpoet", version.ref = "kotlinpoet" }
-kotlinpoet-ksp = { module = "com.squareup:kotlinpoet-ksp", version.ref = "kotlinpoet" }
 
 # FileKit
 filekit-core = { module = "io.github.vinceglb:filekit-core", version.ref = "filekit" }

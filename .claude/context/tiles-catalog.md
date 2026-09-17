@@ -390,6 +390,7 @@ Renders a read-only text field that opens a Material 3 `DatePickerDialog` when t
 | `cancelLabel` | `String` | required | Label of the dialog's cancel button. |
 | `supportingText` | `String?` | `null` | Helper text shown below the field. |
 | `state` | `State` (`NORMAL`/`ERROR`) | `normalDatePicker()` | `ERROR` switches the field into Material's error styling. |
+| `iconStyle` | `Style` (`OUTLINED`/`ROUNDED`/`SHARP`) | `outlinedDatePickerIcon()` | Glyph style variant of the leading `calendar_month` icon. |
 
 **DSL example:**
 ```kotlin
@@ -397,7 +398,8 @@ DatePicker(
     id = "birth_date",
     confirmLabel = "OK",
     cancelLabel = "Cancel",
-    kind = outlinedDatePicker()
+    kind = outlinedDatePicker(),
+    iconStyle = roundedDatePickerIcon()
 )
 ```
 
@@ -420,13 +422,15 @@ Renders a read-only text field that opens a Material 3 `TimePickerDialog` when t
 | `cancelLabel` | `String` | required | Label of the dialog's cancel button. |
 | `supportingText` | `String?` | `null` | Helper text shown below the field. |
 | `state` | `State` (`NORMAL`/`ERROR`) | `normalTimePicker()` | `ERROR` switches the field into Material's error styling. |
+| `iconStyle` | `Style` (`OUTLINED`/`ROUNDED`/`SHARP`) | `outlinedTimePickerIcon()` | Glyph style variant of the leading `alarm` icon. |
 
 **DSL example:**
 ```kotlin
 TimePicker(
     id = "reminder_time",
     confirmLabel = "OK",
-    cancelLabel = "Cancel"
+    cancelLabel = "Cancel",
+    iconStyle = roundedTimePickerIcon()
 )
 ```
 
@@ -1299,12 +1303,14 @@ Renders a search field — a `Surface` (extra-large shape, high surface-containe
 | `placeholder` | `String?` | `null` | Shown when `query` is empty. |
 | `leadingIcon` | tile block? | `null` | **Any tile** in the leading slot (not just `IconSchema`). |
 | `trailingIcon` | tile block? | `null` | **Any tile** in the trailing slot — cross-fades out for a built-in clear button once `query` has text, see Notes. |
+| `clearIconStyle` | `Style` (`OUTLINED`/`ROUNDED`/`SHARP`) | `outlinedSearchBarClearIcon()` | Glyph style variant of the built-in `clear` icon shown once `query` has text. |
 
 **DSL example:**
 ```kotlin
 SearchBar(
     id = "search",
     placeholder = "Search tiles…",
+    clearIconStyle = roundedSearchBarClearIcon(),
     events = {
         TransformData(
             trigger = EventTriggers.onQueryChanged(),

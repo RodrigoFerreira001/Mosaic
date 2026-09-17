@@ -17,7 +17,6 @@ kotlin {
     sourceSets {
         webMain.dependencies {
             implementation(projects.sampleClient.shared)
-            implementation(projects.mosaic.mosaicClient)
             implementation(libs.compose.ui)
         }
     }

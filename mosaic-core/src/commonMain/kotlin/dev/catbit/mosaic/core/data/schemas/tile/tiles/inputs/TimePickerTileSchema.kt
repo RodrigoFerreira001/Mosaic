@@ -24,6 +24,9 @@ import kotlinx.serialization.Serializable
  * to/from hour + minute for the Compose `TimePickerState`. The dialog is always 24-hour and uses
  * the vertical layout; when [selectedTime] is `null` it opens at `00:00`.
  *
+ * [iconStyle] picks the glyph style variant — [Style.OUTLINED] (default), [Style.ROUNDED], or
+ * [Style.SHARP] — for the field's leading `alarm` icon.
+ *
  * **Open state:** [expanded] drives the dialog. Pressing the field dispatches a local
  * `TimePickerTileEvents.OnTimePickerToggle` (holder flips [expanded]); confirming dispatches
  * `OnTimeConfirmed` (holder stores the time and closes); cancelling or dismissing dispatches
@@ -65,7 +68,8 @@ data class TimePickerTileSchema(
     @SerialName("confirmLabel") val confirmLabel: String,
     @SerialName("cancelLabel") val cancelLabel: String,
     @SerialName("supportingText") val supportingText: String?,
-    @SerialName("state") val state: State
+    @SerialName("state") val state: State,
+    @SerialName("iconStyle") val iconStyle: Style
 ) : TileSchema {
 
     enum class Kind {
@@ -74,5 +78,9 @@ data class TimePickerTileSchema(
 
     enum class State {
         NORMAL, ERROR
+    }
+
+    enum class Style {
+        OUTLINED, ROUNDED, SHARP
     }
 }

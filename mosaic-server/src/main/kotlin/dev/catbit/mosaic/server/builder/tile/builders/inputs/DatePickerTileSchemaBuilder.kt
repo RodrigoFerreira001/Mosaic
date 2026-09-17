@@ -22,7 +22,8 @@ internal class DatePickerTileSchemaBuilder(
     private val confirmLabel: String,
     private val cancelLabel: String,
     private val supportingText: String?,
-    private val state: DatePickerTileSchema.State
+    private val state: DatePickerTileSchema.State,
+    private val iconStyle: DatePickerTileSchema.Style
 ) : TileSchemaBuilder<DatePickerTileSchema>() {
 
     override fun build() = DatePickerTileSchema(
@@ -38,7 +39,8 @@ internal class DatePickerTileSchemaBuilder(
         confirmLabel = confirmLabel,
         cancelLabel = cancelLabel,
         supportingText = supportingText,
-        state = state
+        state = state,
+        iconStyle = iconStyle
     )
 }
 
@@ -69,6 +71,7 @@ internal class DatePickerTileSchemaBuilder(
  * @param cancelLabel Label of the dialog's cancel button.
  * @param supportingText Helper text shown below the field. Defaults to none.
  * @param state Visual state of the field — normal or error. Defaults to normal.
+ * @param iconStyle Glyph style variant of the leading `calendar_month` icon — outlined, rounded, or sharp. Defaults to outlined.
  */
 fun TileSchemaBuilderScope.DatePicker(
     id: String = randomId(),
@@ -82,7 +85,8 @@ fun TileSchemaBuilderScope.DatePicker(
     confirmLabel: String,
     cancelLabel: String,
     supportingText: String? = null,
-    state: DatePickerTileSchema.State = normalDatePicker()
+    state: DatePickerTileSchema.State = normalDatePicker(),
+    iconStyle: DatePickerTileSchema.Style = outlinedDatePickerIcon()
 ) {
     addBuilder(
         DatePickerTileSchemaBuilder(
@@ -97,7 +101,8 @@ fun TileSchemaBuilderScope.DatePicker(
             confirmLabel = confirmLabel,
             cancelLabel = cancelLabel,
             supportingText = supportingText,
-            state = state
+            state = state,
+            iconStyle = iconStyle
         )
     )
 }
@@ -114,3 +119,12 @@ fun normalDatePicker() = DatePickerTileSchema.State.NORMAL
 
 /** Error visual state — switches the field to Material's error styling. */
 fun errorDatePicker() = DatePickerTileSchema.State.ERROR
+
+/** Outlined glyph style for the field's leading icon. */
+fun outlinedDatePickerIcon() = DatePickerTileSchema.Style.OUTLINED
+
+/** Rounded glyph style for the field's leading icon. */
+fun roundedDatePickerIcon() = DatePickerTileSchema.Style.ROUNDED
+
+/** Sharp glyph style for the field's leading icon. */
+fun sharpDatePickerIcon() = DatePickerTileSchema.Style.SHARP

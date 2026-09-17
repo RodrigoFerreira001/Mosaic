@@ -5,10 +5,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import dev.catbit.material_symbols.MaterialSymbol
+import dev.catbit.material_symbols.MaterialSymbolStyle
 import dev.catbit.mosaic.client.extensions.toComposeColor
 import dev.catbit.mosaic.client.extensions.toMaterialSymbolStyle
-import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbol
-import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbolStyle
 import dev.catbit.mosaic.core.data.schemas.icon.IconSchema
 
 /**
@@ -29,7 +29,8 @@ fun Icon(
     filled: Boolean = false,
     tint: Color? = null,
     size: Dp? = null,
-    style: MaterialSymbolStyle? = null
+    style: MaterialSymbolStyle = MaterialSymbolStyle.OUTLINED,
+    contentDescription: String? = null
 ) {
     MaterialSymbol(
         iconName = name,
@@ -37,7 +38,8 @@ fun Icon(
         filled = filled,
         tint = tint,
         size = size,
-        style = style
+        style = style,
+        contentDescription = contentDescription
     )
 }
 

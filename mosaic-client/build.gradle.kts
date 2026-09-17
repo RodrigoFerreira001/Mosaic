@@ -100,6 +100,9 @@ kotlin {
             implementation(libs.compose.components.ui.tooling.preview)
             implementation(libs.compose.ui.tooling.preview)
 
+            // Material Symbols
+            implementation(libs.material.symbols)
+
             // Navigation
             implementation(libs.compose.navigation3.ui)
             implementation(libs.compose.navigation3.adaptiveNavigation3)

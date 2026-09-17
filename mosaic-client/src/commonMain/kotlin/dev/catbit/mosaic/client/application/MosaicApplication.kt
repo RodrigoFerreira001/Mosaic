@@ -50,6 +50,8 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
+import dev.catbit.material_symbols.MaterialSymbol
+import dev.catbit.material_symbols.MaterialSymbolFontsConfig
 import dev.catbit.mosaic.client.di.MosaicModules
 import dev.catbit.mosaic.client.extensions.toContentTransform
 import dev.catbit.mosaic.client.generated.resources.Res
@@ -59,8 +61,6 @@ import dev.catbit.mosaic.client.generated.resources.mosaic_failure_retry
 import dev.catbit.mosaic.client.generated.resources.mosaic_failure_title
 import dev.catbit.mosaic.client.logger.DefaultMosaicLogger
 import dev.catbit.mosaic.client.logger.MosaicLogger
-import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbol
-import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbolFontsConfig
 import dev.catbit.mosaic.client.ui.effects.SingleEffect
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventDefinition
 import dev.catbit.mosaic.client.ui.sdui.foundation.definitions.EventTriggerDefinition
@@ -445,7 +445,8 @@ private fun MosaicApplicationFailureContent(
         MaterialSymbol(
             iconName = "error",
             size = 72.dp,
-            tint = MaterialTheme.colorScheme.onBackground
+            tint = MaterialTheme.colorScheme.onBackground,
+            contentDescription = "Error icon"
         )
 
         Spacer(modifier = Modifier.height(16.dp))

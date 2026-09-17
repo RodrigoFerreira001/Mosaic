@@ -17,6 +17,9 @@ import dev.catbit.mosaic.server.builder.tile.builders.inputs.TimePicker
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.errorTimePicker
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.filledTimePicker
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.outlinedTimePicker
+import dev.catbit.mosaic.server.builder.tile.builders.inputs.outlinedTimePickerIcon
+import dev.catbit.mosaic.server.builder.tile.builders.inputs.roundedTimePickerIcon
+import dev.catbit.mosaic.server.builder.tile.builders.inputs.sharpTimePickerIcon
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 
 object TimePickerTileDetailBuilder : TileDetailBuilder {
@@ -72,6 +75,15 @@ object TimePickerTileDetailBuilder : TileDetailBuilder {
                         cancelLabel = "Cancel"
                     )
                     TimePicker(selectedTime = "09:00", kind = outlinedTimePicker(), confirmLabel = "OK", cancelLabel = "Cancel")
+                }
+            }
+
+            ShowroomSectionTitle("iconStyle")
+            ShowroomDemoCard(title = "outlinedTimePickerIcon(), roundedTimePickerIcon(), sharpTimePickerIcon()") {
+                Row(arrangement = arrangeHorizontallySpacedBy(12)) {
+                    TimePicker(selectedTime = null, iconStyle = outlinedTimePickerIcon(), confirmLabel = "OK", cancelLabel = "Cancel")
+                    TimePicker(selectedTime = null, iconStyle = roundedTimePickerIcon(), confirmLabel = "OK", cancelLabel = "Cancel")
+                    TimePicker(selectedTime = null, iconStyle = sharpTimePickerIcon(), confirmLabel = "OK", cancelLabel = "Cancel")
                 }
             }
 

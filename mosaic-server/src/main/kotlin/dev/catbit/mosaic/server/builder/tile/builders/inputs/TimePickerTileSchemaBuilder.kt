@@ -22,7 +22,8 @@ internal class TimePickerTileSchemaBuilder(
     private val confirmLabel: String,
     private val cancelLabel: String,
     private val supportingText: String?,
-    private val state: TimePickerTileSchema.State
+    private val state: TimePickerTileSchema.State,
+    private val iconStyle: TimePickerTileSchema.Style
 ) : TileSchemaBuilder<TimePickerTileSchema>() {
 
     override fun build() = TimePickerTileSchema(
@@ -38,7 +39,8 @@ internal class TimePickerTileSchemaBuilder(
         confirmLabel = confirmLabel,
         cancelLabel = cancelLabel,
         supportingText = supportingText,
-        state = state
+        state = state,
+        iconStyle = iconStyle
     )
 }
 
@@ -69,6 +71,7 @@ internal class TimePickerTileSchemaBuilder(
  * @param cancelLabel Label of the dialog's cancel button.
  * @param supportingText Helper text shown below the field. Defaults to none.
  * @param state Visual state of the field — normal or error. Defaults to normal.
+ * @param iconStyle Glyph style variant of the leading `alarm` icon — outlined, rounded, or sharp. Defaults to outlined.
  */
 fun TileSchemaBuilderScope.TimePicker(
     id: String = randomId(),
@@ -82,7 +85,8 @@ fun TileSchemaBuilderScope.TimePicker(
     confirmLabel: String,
     cancelLabel: String,
     supportingText: String? = null,
-    state: TimePickerTileSchema.State = normalTimePicker()
+    state: TimePickerTileSchema.State = normalTimePicker(),
+    iconStyle: TimePickerTileSchema.Style = outlinedTimePickerIcon()
 ) {
     addBuilder(
         TimePickerTileSchemaBuilder(
@@ -97,7 +101,8 @@ fun TileSchemaBuilderScope.TimePicker(
             confirmLabel = confirmLabel,
             cancelLabel = cancelLabel,
             supportingText = supportingText,
-            state = state
+            state = state,
+            iconStyle = iconStyle
         )
     )
 }
@@ -114,3 +119,12 @@ fun normalTimePicker() = TimePickerTileSchema.State.NORMAL
 
 /** Error visual state — switches the field to Material's error styling. */
 fun errorTimePicker() = TimePickerTileSchema.State.ERROR
+
+/** Outlined glyph style for the field's leading icon. */
+fun outlinedTimePickerIcon() = TimePickerTileSchema.Style.OUTLINED
+
+/** Rounded glyph style for the field's leading icon. */
+fun roundedTimePickerIcon() = TimePickerTileSchema.Style.ROUNDED
+
+/** Sharp glyph style for the field's leading icon. */
+fun sharpTimePickerIcon() = TimePickerTileSchema.Style.SHARP

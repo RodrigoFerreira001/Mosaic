@@ -37,6 +37,9 @@ import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableLis
  * **Notes:** this is only the input field — it has no expanded state and shows no suggestion
  * list. Render results yourself, e.g. by pairing it with a `LazyColumn` whose
  * `filterChildrenByTerm` is driven by the query.
+ *
+ * [clearIconStyle] picks the glyph style variant — [Style.OUTLINED] (default), [Style.ROUNDED],
+ * or [Style.SHARP] — for the built-in `clear` icon shown once [query] has text.
  */
 @Immutable
 @Triggers(
@@ -57,5 +60,11 @@ data class SearchBarTileSchema(
     @SerialName("query") val query: String = "",
     @SerialName("placeholder") val placeholder: String? = null,
     @SerialName("leadingIcon") val leadingIcon: TileSchema? = null,
-    @SerialName("trailingIcon") val trailingIcon: TileSchema? = null
-) : TileSchema
+    @SerialName("trailingIcon") val trailingIcon: TileSchema? = null,
+    @SerialName("clearIconStyle") val clearIconStyle: Style = Style.OUTLINED
+) : TileSchema {
+
+    enum class Style {
+        OUTLINED, ROUNDED, SHARP
+    }
+}

@@ -53,10 +53,10 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.serialization.SavedStateConfiguration
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_MEDIUM_LOWER_BOUND
+import dev.catbit.material_symbols.MaterialSymbol
 import dev.catbit.mosaic.client.extensions.textOrNull
 import dev.catbit.mosaic.client.extensions.toComposeColor
 import dev.catbit.mosaic.client.extensions.toContentTransform
-import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbol
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.graph.ScreenNavKey
 import dev.catbit.mosaic.client.ui.sdui.foundation.local_providers.LocalTilesManager
@@ -223,7 +223,8 @@ object AdaptiveNavigationTileRenderer : TileRenderer<AdaptiveNavigationTileSchem
                                         ) {
                                             MaterialSymbol(
                                                 iconName = "menu",
-                                                size = 24.dp
+                                                size = 24.dp,
+                                                contentDescription = "Menu icon"
                                             )
                                         }
                                     }

@@ -16,16 +16,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import dev.catbit.material_symbols.MaterialSymbolStyle
 import dev.catbit.mosaic.client.extensions.hasErrorState
 import dev.catbit.mosaic.client.extensions.hourMinuteToIsoTime
 import dev.catbit.mosaic.client.extensions.isoTimeToHourMinute
 import dev.catbit.mosaic.client.extensions.textOrNull
-import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbol
+import dev.catbit.mosaic.client.generated.resources.Res
+import dev.catbit.mosaic.client.generated.resources.mosaic_time_picker_alarm_icon_description
+import dev.catbit.mosaic.client.ui.composables.icon.Icon
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.inputs.TimePickerTileSchema
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 object TimePickerTileRenderer : TileRenderer<TimePickerTileSchema> {
@@ -63,7 +67,15 @@ object TimePickerTileRenderer : TileRenderer<TimePickerTileSchema> {
                         supportingText = supportingText.textOrNull(),
                         interactionSource = interactionSource,
                         leadingIcon = {
-                            MaterialSymbol("alarm")
+                            Icon(
+                                name = "alarm",
+                                style = when (iconStyle) {
+                                    TimePickerTileSchema.Style.OUTLINED -> MaterialSymbolStyle.OUTLINED
+                                    TimePickerTileSchema.Style.ROUNDED -> MaterialSymbolStyle.ROUNDED
+                                    TimePickerTileSchema.Style.SHARP -> MaterialSymbolStyle.SHARP
+                                },
+                                contentDescription = stringResource(Res.string.mosaic_time_picker_alarm_icon_description)
+                            )
                         }
                     )
                 }
@@ -79,7 +91,15 @@ object TimePickerTileRenderer : TileRenderer<TimePickerTileSchema> {
                         supportingText = supportingText.textOrNull(),
                         interactionSource = interactionSource,
                         leadingIcon = {
-                            MaterialSymbol("alarm")
+                            Icon(
+                                name = "alarm",
+                                style = when (iconStyle) {
+                                    TimePickerTileSchema.Style.OUTLINED -> MaterialSymbolStyle.OUTLINED
+                                    TimePickerTileSchema.Style.ROUNDED -> MaterialSymbolStyle.ROUNDED
+                                    TimePickerTileSchema.Style.SHARP -> MaterialSymbolStyle.SHARP
+                                },
+                                contentDescription = stringResource(Res.string.mosaic_time_picker_alarm_icon_description)
+                            )
                         }
                     )
                 }
@@ -102,7 +122,10 @@ object TimePickerTileRenderer : TileRenderer<TimePickerTileSchema> {
                     confirmButton = {
                         TextButton(
                             onClick = {
-                                val iso = hourMinuteToIsoTime(timePickerState.hour, timePickerState.minute)
+                                val iso = hourMinuteToIsoTime(
+                                    timePickerState.hour,
+                                    timePickerState.minute
+                                )
                                 dispatchEvent(TimePickerTileEvents.OnTimeConfirmed(iso))
                                 triggerEvent(trigger = EventTriggers.onTimeSelected(), data = iso)
                                 triggerEvent(EventTriggers.onTimePickerClose())

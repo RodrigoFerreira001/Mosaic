@@ -36,14 +36,18 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import dev.catbit.material_symbols.MaterialSymbolStyle
 import dev.catbit.mosaic.client.extensions.textOrNull
-import dev.catbit.mosaic.client.ui.composables.material_symbols.MaterialSymbol
+import dev.catbit.mosaic.client.generated.resources.Res
+import dev.catbit.mosaic.client.generated.resources.mosaic_search_bar_clear_icon_description
+import dev.catbit.mosaic.client.ui.composables.icon.Icon
 import dev.catbit.mosaic.client.ui.modifiers.handPointer
 import dev.catbit.mosaic.client.ui.modifiers.styledWith
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderer
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.renderer.TileRenderingScope
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
 import dev.catbit.mosaic.core.data.schemas.tile.tiles.search.SearchBarTileSchema
+import org.jetbrains.compose.resources.stringResource
 
 object SearchBarTileRenderer : TileRenderer<SearchBarTileSchema> {
 
@@ -93,9 +97,14 @@ object SearchBarTileRenderer : TileRenderer<SearchBarTileSchema> {
                                     dispatchEvent(SearchBarTileEvents.OnQueryCleared)
                                 }
                             ) {
-                                MaterialSymbol(
-                                    iconName = "clear",
-                                    size = 24.dp
+                                Icon(
+                                    name = "clear",
+                                    style = when (clearIconStyle) {
+                                        SearchBarTileSchema.Style.OUTLINED -> MaterialSymbolStyle.OUTLINED
+                                        SearchBarTileSchema.Style.ROUNDED -> MaterialSymbolStyle.ROUNDED
+                                        SearchBarTileSchema.Style.SHARP -> MaterialSymbolStyle.SHARP
+                                    },
+                                    contentDescription = stringResource(Res.string.mosaic_search_bar_clear_icon_description)
                                 )
                             }
                         }

@@ -23,6 +23,9 @@ import kotlinx.serialization.Serializable
  * **Dates are ISO strings.** [selectedDate] is an ISO date (`yyyy-MM-dd`); the renderer converts
  * it to/from epoch millis for the Compose `DatePickerState`.
  *
+ * [iconStyle] picks the glyph style variant — [Style.OUTLINED] (default), [Style.ROUNDED], or
+ * [Style.SHARP] — for the field's leading `calendar_month` icon.
+ *
  * **Open state:** [expanded] drives the dialog. Pressing the field dispatches a local
  * `DatePickerTileEvents.OnDatePickerToggle` (holder flips [expanded]); confirming dispatches
  * `OnDateConfirmed` (holder stores the date and closes); cancelling or dismissing dispatches
@@ -65,7 +68,8 @@ data class DatePickerTileSchema(
     @SerialName("confirmLabel") val confirmLabel: String,
     @SerialName("cancelLabel") val cancelLabel: String,
     @SerialName("supportingText") val supportingText: String?,
-    @SerialName("state") val state: State
+    @SerialName("state") val state: State,
+    @SerialName("iconStyle") val iconStyle: Style
 ) : TileSchema {
 
     enum class Kind {
@@ -74,5 +78,9 @@ data class DatePickerTileSchema(
 
     enum class State {
         NORMAL, ERROR
+    }
+
+    enum class Style {
+        OUTLINED, ROUNDED, SHARP
     }
 }

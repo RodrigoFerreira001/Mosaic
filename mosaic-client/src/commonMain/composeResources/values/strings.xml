@@ -3,4 +3,7 @@
     <string name="mosaic_failure_title">Something went wrong</string>
     <string name="mosaic_failure_details">We couldn't load the content. Please check your connection and try again.</string>
     <string name="mosaic_failure_retry">Try again</string>
+    <string name="mosaic_date_picker_calendar_icon_description">Calendar icon</string>
+    <string name="mosaic_time_picker_alarm_icon_description">Alarm icon</string>
+    <string name="mosaic_search_bar_clear_icon_description">Clear icon</string>
 </resources>

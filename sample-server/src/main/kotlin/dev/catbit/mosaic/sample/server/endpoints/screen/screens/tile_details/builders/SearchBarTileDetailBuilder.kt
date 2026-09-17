@@ -22,6 +22,9 @@ import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.builders.grouping.LazyColumn
 import dev.catbit.mosaic.server.builder.tile.builders.image.Icon
 import dev.catbit.mosaic.server.builder.tile.builders.search.SearchBar
+import dev.catbit.mosaic.server.builder.tile.builders.search.outlinedSearchBarClearIcon
+import dev.catbit.mosaic.server.builder.tile.builders.search.roundedSearchBarClearIcon
+import dev.catbit.mosaic.server.builder.tile.builders.search.sharpSearchBarClearIcon
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 
 object SearchBarTileDetailBuilder : TileDetailBuilder {
@@ -125,6 +128,28 @@ object SearchBarTileDetailBuilder : TileDetailBuilder {
                 SimpleText(
                     text = "tune icon disappears as soon as you type — the clear button takes over the same slot",
                     color = color(themeColorOnSurfaceVariant())
+                )
+            }
+
+            ShowroomSectionTitle("clearIconStyle")
+            ShowroomDemoCard(title = "outlinedSearchBarClearIcon(), roundedSearchBarClearIcon(), sharpSearchBarClearIcon() — type to reveal the clear button") {
+                SearchBar(
+                    id = "search_bar_clear_outlined_demo",
+                    placeholder = "Outlined clear icon",
+                    query = "type here",
+                    clearIconStyle = outlinedSearchBarClearIcon()
+                )
+                SearchBar(
+                    id = "search_bar_clear_rounded_demo",
+                    placeholder = "Rounded clear icon",
+                    query = "type here",
+                    clearIconStyle = roundedSearchBarClearIcon()
+                )
+                SearchBar(
+                    id = "search_bar_clear_sharp_demo",
+                    placeholder = "Sharp clear icon",
+                    query = "type here",
+                    clearIconStyle = sharpSearchBarClearIcon()
                 )
             }
 

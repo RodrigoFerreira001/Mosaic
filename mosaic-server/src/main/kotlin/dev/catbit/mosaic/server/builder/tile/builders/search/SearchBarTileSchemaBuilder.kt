@@ -19,7 +19,8 @@ internal class SearchBarTileSchemaBuilder(
     private val query: String,
     private val placeholder: String?,
     private val leadingIcon: (TileSchemaBuilderScope.() -> Unit)?,
-    private val trailingIcon: (TileSchemaBuilderScope.() -> Unit)?
+    private val trailingIcon: (TileSchemaBuilderScope.() -> Unit)?,
+    private val clearIconStyle: SearchBarTileSchema.Style
 ) : TileSchemaBuilder<SearchBarTileSchema>() {
 
     override fun build() = SearchBarTileSchema(
@@ -33,7 +34,8 @@ internal class SearchBarTileSchemaBuilder(
         leadingIcon = leadingIcon?.let { TileSchemaBuilderScope().apply(it).build() }
             ?.firstOrNull(),
         trailingIcon = trailingIcon?.let { TileSchemaBuilderScope().apply(it).build() }
-            ?.firstOrNull()
+            ?.firstOrNull(),
+        clearIconStyle = clearIconStyle
     )
 }
 
@@ -60,6 +62,7 @@ internal class SearchBarTileSchemaBuilder(
  * @param placeholder Text shown when the field is empty. Defaults to none.
  * @param leadingIcon Tile rendered in the leading slot. Defaults to none.
  * @param trailingIcon Tile rendered in the trailing slot while [query] is empty; replaced by a clear button once it has text. Defaults to none.
+ * @param clearIconStyle Glyph style variant of the built-in `clear` icon — outlined, rounded, or sharp. Defaults to outlined.
  */
 fun TileSchemaBuilderScope.SearchBar(
     id: String = randomId(),
@@ -70,7 +73,8 @@ fun TileSchemaBuilderScope.SearchBar(
     query: String = "",
     placeholder: String? = null,
     leadingIcon: (TileSchemaBuilderScope.() -> Unit)? = null,
-    trailingIcon: (TileSchemaBuilderScope.() -> Unit)? = null
+    trailingIcon: (TileSchemaBuilderScope.() -> Unit)? = null,
+    clearIconStyle: SearchBarTileSchema.Style = outlinedSearchBarClearIcon()
 ) {
     addBuilder(
         SearchBarTileSchemaBuilder(
@@ -82,7 +86,17 @@ fun TileSchemaBuilderScope.SearchBar(
             query = query,
             placeholder = placeholder,
             leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon
+            trailingIcon = trailingIcon,
+            clearIconStyle = clearIconStyle
         )
     )
 }
+
+/** Outlined glyph style for the search bar's built-in clear icon. */
+fun outlinedSearchBarClearIcon() = SearchBarTileSchema.Style.OUTLINED
+
+/** Rounded glyph style for the search bar's built-in clear icon. */
+fun roundedSearchBarClearIcon() = SearchBarTileSchema.Style.ROUNDED
+
+/** Sharp glyph style for the search bar's built-in clear icon. */
+fun sharpSearchBarClearIcon() = SearchBarTileSchema.Style.SHARP

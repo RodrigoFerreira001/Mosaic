@@ -17,6 +17,9 @@ import dev.catbit.mosaic.server.builder.tile.builders.inputs.DatePicker
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.errorDatePicker
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.filledDatePicker
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.outlinedDatePicker
+import dev.catbit.mosaic.server.builder.tile.builders.inputs.outlinedDatePickerIcon
+import dev.catbit.mosaic.server.builder.tile.builders.inputs.roundedDatePickerIcon
+import dev.catbit.mosaic.server.builder.tile.builders.inputs.sharpDatePickerIcon
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 
 object DatePickerTileDetailBuilder : TileDetailBuilder {
@@ -79,6 +82,30 @@ object DatePickerTileDetailBuilder : TileDetailBuilder {
                     DatePicker(
                         selectedDate = "1990-01-01",
                         kind = outlinedDatePicker(),
+                        confirmLabel = "OK",
+                        cancelLabel = "Cancel"
+                    )
+                }
+            }
+
+            ShowroomSectionTitle("iconStyle")
+            ShowroomDemoCard(title = "outlinedDatePickerIcon(), roundedDatePickerIcon(), sharpDatePickerIcon()") {
+                Row(arrangement = arrangeHorizontallySpacedBy(12)) {
+                    DatePicker(
+                        selectedDate = null,
+                        iconStyle = outlinedDatePickerIcon(),
+                        confirmLabel = "OK",
+                        cancelLabel = "Cancel"
+                    )
+                    DatePicker(
+                        selectedDate = null,
+                        iconStyle = roundedDatePickerIcon(),
+                        confirmLabel = "OK",
+                        cancelLabel = "Cancel"
+                    )
+                    DatePicker(
+                        selectedDate = null,
+                        iconStyle = sharpDatePickerIcon(),
                         confirmLabel = "OK",
                         cancelLabel = "Cancel"
                     )

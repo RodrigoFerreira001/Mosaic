@@ -55,6 +55,9 @@ kotlin {
             implementation(libs.compose.ui)
             implementation(libs.compose.components.resources)
 
+            // Material Symbols
+            implementation(libs.material.symbols)
+
             // Adaptive
             implementation(libs.compose.material3.adaptative)
             implementation(libs.compose.viewmodel)

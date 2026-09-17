@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-internal class MosaicColors(
+class MosaicColors(
     private val defaultLightColorScheme: ColorScheme,
     private val defaultDarkColorScheme: ColorScheme
 ) {
