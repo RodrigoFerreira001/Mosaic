@@ -1311,6 +1311,25 @@ ResetTheme(trigger = EventTriggers.onClick())
 
 **Notes:** `incomingData` not consumed.
 
+### `SetColorMode`
+
+Sets the app's color mode — light, dark, or following the system setting — overriding whatever was set before. Unlike `SetTheme`, which swaps the Material color roles themselves, this only decides which of the already-installed light/dark schemes is active.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `colorMode` | `SetColorModeEventSchema.ColorMode` — `colorModeLight()` / `colorModeDark()` / `colorModeSystemDefault()` | `colorModeSystemDefault()` | Which color mode to apply. |
+
+**DSL example:**
+```kotlin
+SetColorMode(trigger = EventTriggers.onClick(), colorMode = colorModeDark())
+```
+
+**Triggers fired:** `OnSuccess` — always, after the color mode is applied. No `OnFailure` exists.
+
+**Notes:** `incomingData` not consumed.
+
 ## Tile management
 
 ### `AddTiles`

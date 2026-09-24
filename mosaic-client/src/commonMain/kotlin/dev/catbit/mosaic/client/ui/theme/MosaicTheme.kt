@@ -9,6 +9,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import dev.catbit.material_symbols.MaterialSymbolFontsConfig
 import dev.catbit.material_symbols.MaterialSymbolsRenderingScope
+import org.koin.compose.koinInject
 
 @Composable
 fun MosaicTheme(
@@ -22,7 +23,15 @@ fun MosaicTheme(
     content: @Composable () -> Unit
 ) {
 
-    val colorScheme = if (isSystemInDarkTheme())
+    val mosaicColorMode = koinInject<MosaicColorMode>()
+
+    val darkMode = when (mosaicColorMode.colorMode) {
+        MosaicColorMode.ColorMode.LIGHT -> false
+        MosaicColorMode.ColorMode.DARK -> true
+        MosaicColorMode.ColorMode.SYSTEM_DEFAULT -> isSystemInDarkTheme()
+    }
+
+    val colorScheme = if (darkMode)
         colors.darkColorScheme
     else
         colors.lightColorScheme

@@ -119,6 +119,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.chec
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.open_external_link.OpenExternalLinkEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.system.drop_caches.DropCachesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.theme.reset_theme.ResetThemeEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.theme.set_color_mode.SetColorModeEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.theme.set_theme.SetThemeEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.add_tiles.AddTilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.tiles.check_if_tile_contains_children.CheckIfTileContainsChildrenEventDefinition
@@ -179,6 +180,7 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.search.search
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.system.system_broadcast_listener.SystemBroadcastListenerTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.text.simple_text.SimpleTextTileDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.tile.tiles.tooltip.TooltipTileDefinition
+import dev.catbit.mosaic.client.ui.theme.MosaicColorMode
 import dev.catbit.mosaic.client.ui.theme.MosaicColors
 import dev.catbit.mosaic.core.data.schemas.event.EventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
@@ -242,6 +244,7 @@ internal class MosaicModules(
                 defaultDarkColorScheme = colorScheme.darkColorScheme
             )
         }
+        single { MosaicColorMode() }
         single { CancellableEventsHolder() }
         single { OverlayDisplayCallbackHolder() }
     }
@@ -549,7 +552,8 @@ internal class MosaicModules(
         UpdateEventsEventDefinition,
         ReloadLazyTilesEventDefinition,
         SetThemeEventDefinition,
-        ResetThemeEventDefinition
+        ResetThemeEventDefinition,
+        SetColorModeEventDefinition
     )
 
     private val dataProcessorsModule = module {

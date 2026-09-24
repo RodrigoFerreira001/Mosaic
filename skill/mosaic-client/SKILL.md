@@ -363,7 +363,7 @@ Each of these is a plain public Koin single (or interface) in `mosaic-client` �
 | `Int.ThresholdReachedEffect(...)` | public extension fun (`mosaic-client/.../extensions/IntExtensions.kt`) | call directly — reuse it if building a custom lazy-list-style tile with pagination |
 | `Platform` | plain `expect object`, not Koin-injected | reference `dev.catbit.mosaic.client.platform.Platform` directly — its fields are also what `MosaicHeadersPlugin` sends as `x-mosaic-*` headers on every outgoing request |
 
-Client internals that are `internal` to the `mosaic-client` module (e.g. `MosaicColors`, `TemplateProcessor`) aren't reachable from outside it at all — Kotlin won't let a consuming app's module resolve the symbol, so there's nothing actionable to document about them here; they only affect behavior through the built-in events/tiles that already use them.
+Client internals that are `internal` to the `mosaic-client` module (e.g. `MosaicColors`, `MosaicColorMode`, `TemplateProcessor`) aren't reachable from outside it at all — Kotlin won't let a consuming app's module resolve the symbol, so there's nothing actionable to document about them here; they only affect behavior through the built-in events/tiles that already use them.
 
 ### `MosaicHeadersPlugin` — every outgoing request carries platform headers
 
