@@ -84,6 +84,7 @@ Each one exists to solve a specific problem — a named class/singleton you can 
 | `DataProcessor` | Extension point for `ProcessData(processWith = id)` — a Koin-multibound interface (`id` + `process(data)`), resolved via `getAll<DataProcessor>()` and matched by `id`. Third parties add their own via `additionalKoinModule`. |
 | `MosaicHeadersPlugin` | Stamps **every** outgoing request — `SendNetworkRequest`, `UploadFile`, all 3 downloads, `GetScreen`/`RefreshScreen`, the initial-graph fetch, the cache-version check, no exceptions, no opt-out — with 9 `x-mosaic-*` device/platform headers, read live from `Platform`. A backend author can always rely on these being present. |
 | `MosaicColors` | Runtime-swappable theme, driven by `SetTheme`/`ResetTheme`. |
+| `MosaicColorMode` | Runtime-swappable light/dark/system color mode, driven by `SetColorMode`. |
 | Cache TTL + fallback | Staying usable offline without every load blocking on network. |
 | `BuildContext` (server) | Propagating a DSL-authored ambient value through nested builders without explicit parameters. |
 | `TemplateProcessor` | The `<\|path\|>` template engine behind `TransformData`/`UpdateTiles`. |

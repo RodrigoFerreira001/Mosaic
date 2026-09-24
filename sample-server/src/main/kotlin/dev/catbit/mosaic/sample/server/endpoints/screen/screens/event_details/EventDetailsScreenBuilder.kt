@@ -57,6 +57,7 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.bu
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.SetIncomingDataToNetworkParamsHolderHeadersEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.SetIncomingDataToNetworkParamsHolderQueryParametersEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.SetIncomingDataToNetworkParamsHolderUrlEventDetailBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.SetColorModeEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.SetThemeEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.StartCountdownTimerEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.StartTimeLoopEventDetailBuilder
@@ -161,6 +162,7 @@ private val eventDetailBuilderManager = EventDetailBuilderManager(
         OpenExternalLinkEventDetailBuilder,
         SetThemeEventDetailBuilder,
         ResetThemeEventDetailBuilder,
+        SetColorModeEventDetailBuilder,
     )
 )
 

@@ -669,6 +669,6 @@ Documentação detalhada em `.claude/context/`:
 |---|---|
 | `architecture.md` | O que é o Mosaic, pipelines de Tile/Event, mecanismos explícitos e implícitos do runtime, camada de dados, plataformas. |
 | `tiles-catalog.md` | Catálogo completo dos 48 `TileSchema`s: parâmetros, snippet de DSL, triggers disparados, notas de comportamento. |
-| `events-catalog.md` | Catálogo completo dos 67 `EventSchema`s: parâmetros, snippet de DSL, triggers disparados, notas de comportamento. |
+| `events-catalog.md` | Catálogo completo dos 68 `EventSchema`s: parâmetros, snippet de DSL, triggers disparados, notas de comportamento. |
 
 E as 3 skills (`skill/mosaic/`, `skill/mosaic-client/`, `skill/mosaic-server/`) — ver "Extensão por Bibliotecas Externas" acima para quando usar cada uma.

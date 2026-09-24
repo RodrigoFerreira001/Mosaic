@@ -113,7 +113,7 @@ object SetThemeEventDetailBuilder : EventDetailBuilder {
             )
 
             ShowroomRelated(
-                names = listOf("ResetTheme"),
+                names = listOf("ResetTheme", "SetColorMode"),
                 destination = "eventDetails"
             )
         }

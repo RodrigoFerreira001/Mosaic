@@ -60,6 +60,7 @@ import dev.catbit.mosaic.core.data.schemas.event.events.system.CheckIfHasInterne
 import dev.catbit.mosaic.core.data.schemas.event.events.system.DropCachesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.system.OpenExternalLinkEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.theme.ResetThemeEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.theme.SetColorModeEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.theme.SetThemeEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.AddTilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.tiles.CheckIfTileContainsChildrenEventSchema
@@ -1282,6 +1283,7 @@ class MosaicSerializer(
             StartTimeLoopEventSchema::class to StartTimeLoopEventSchema.serializer(),
             ReloadLazyTilesEventSchema::class to ReloadLazyTilesEventSchema.serializer(),
             ResetThemeEventSchema::class to ResetThemeEventSchema.serializer(),
-            SetThemeEventSchema::class to SetThemeEventSchema.serializer()
+            SetThemeEventSchema::class to SetThemeEventSchema.serializer(),
+            SetColorModeEventSchema::class to SetColorModeEventSchema.serializer()
         )
 }

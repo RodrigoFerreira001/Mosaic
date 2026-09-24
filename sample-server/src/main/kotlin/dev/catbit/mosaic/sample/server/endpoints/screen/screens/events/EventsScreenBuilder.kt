@@ -113,6 +113,7 @@ private val eventCatalogEntries = listOf(
     CatalogEntry("OpenExternalLink", "open_in_new", "System", "Opens a URL in the browser or an external system app, outside the Mosaic context."),
     CatalogEntry("SetTheme", "palette", "Theme", "Overrides the app's Material 3 color scheme at runtime, until reverted."),
     CatalogEntry("ResetTheme", "format_color_reset", "Theme", "Reverts a previous SetTheme, restoring the app's default color scheme."),
+    CatalogEntry("SetColorMode", "contrast", "Theme", "Sets the app's color mode — light, dark, or following the system setting."),
 )
 
 // Preserves first-seen order, same grouping m3.material.io uses to label its component grid.

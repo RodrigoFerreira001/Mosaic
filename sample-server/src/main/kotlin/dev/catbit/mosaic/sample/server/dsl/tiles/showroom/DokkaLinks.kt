@@ -157,6 +157,7 @@ private val EVENT_LINKS: Map<String, Pair<String, String>> = mapOf(
     "BroadcastToSystem" to (EVENT_SYSTEM to "BroadcastToSystem"),
     "ResetTheme" to (EVENT_THEME to "ResetTheme"),
     "SetTheme" to (EVENT_THEME to "SetTheme"),
+    "SetColorMode" to (EVENT_THEME to "SetColorMode"),
     "ChangeScreenState" to (EVENT_SCREEN to "ChangeScreenState"),
     "RefreshScreen" to (EVENT_SCREEN to "RefreshScreen"),
     "GetScreen" to (EVENT_SCREEN to "GetScreen"),
