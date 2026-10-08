@@ -3,6 +3,7 @@ package dev.catbit.mosaic.server.builder.event.builders.networking
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.UploadFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
@@ -15,6 +16,7 @@ internal class UploadFileEventBuilder(
     private val method: HttpMethod,
     private val headers: Map<String, String>?,
     private val contentType: String?,
+    private val timeouts: TimeoutsSchema?,
 ) : EventSchemaBuilder<UploadFileEventSchema>() {
 
     override fun build() = UploadFileEventSchema(
@@ -25,6 +27,7 @@ internal class UploadFileEventBuilder(
         method = method,
         headers = headers,
         contentType = contentType,
+        timeouts = timeouts,
     )
 }
 
@@ -50,6 +53,7 @@ internal class UploadFileEventBuilder(
  * @param method HTTP method used for the request, built with [httpGet], [httpPost], [httpPut], [httpDelete], [httpPatch] etc. Defaults to PUT.
  * @param headers Request headers. Defaults to none.
  * @param contentType Content type of the uploaded file. Defaults to none.
+ * @param timeouts Request, connect and socket timeout overrides, built with [timeout]. Defaults to none (client defaults).
  */
 fun EventSchemaBuilderScope.UploadFile(
     id: String = randomId(),
@@ -59,6 +63,7 @@ fun EventSchemaBuilderScope.UploadFile(
     method: HttpMethod = httpPut(),
     headers: Map<String, String>? = null,
     contentType: String? = null,
+    timeouts: TimeoutsSchema? = null,
 ) {
     addBuilder(
         UploadFileEventBuilder(
@@ -69,6 +74,7 @@ fun EventSchemaBuilderScope.UploadFile(
             method = method,
             headers = headers,
             contentType = contentType,
+            timeouts = timeouts,
         )
     )
 }

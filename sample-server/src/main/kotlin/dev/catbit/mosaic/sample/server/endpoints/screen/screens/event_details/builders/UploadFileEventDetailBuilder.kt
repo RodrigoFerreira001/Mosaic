@@ -32,7 +32,8 @@ object UploadFileEventDetailBuilder : EventDetailBuilder {
                     trigger = EventTriggers.onSuccess(), // incomingData = PlatformFile, from OpenFilePicker or GetFile
                     url = null, // resolved from the NetworkParamsHolder, set via SetIncomingDataToNetworkParamsHolderUrl
                     method = httpPut(),
-                    contentType = "image/jpeg"
+                    contentType = "image/jpeg",
+                    timeouts = timeout(requestTimeoutMillis = 15 * 60_000, socketTimeoutMillis = 60_000)
                 )
                 """
             )
@@ -51,6 +52,13 @@ object UploadFileEventDetailBuilder : EventDetailBuilder {
                 "No interactive demo here: a real upload needs a real pre-signed URL against a real storage " +
                     "bucket, which this sample server doesn't have a backend for. The code above is the real " +
                     "usage pattern end to end."
+            )
+
+            ShowroomNote(
+                "The client's default request timeout (20s) covers the whole upload — for large files set timeouts, e.g. " +
+                    "timeout(requestTimeoutMillis = 15 * 60_000, socketTimeoutMillis = 60_000), which keeps a slow-but-progressing " +
+                    "upload alive while still failing a stalled one. On the web only requestTimeoutMillis applies, and without " +
+                    "it there is no timeout."
             )
 
             ShowroomRelated(

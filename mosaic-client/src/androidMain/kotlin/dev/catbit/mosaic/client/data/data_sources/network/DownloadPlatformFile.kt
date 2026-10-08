@@ -8,6 +8,7 @@ import android.webkit.MimeTypeMap
 import dev.catbit.mosaic.client.application.ActivityHolder
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -34,11 +35,13 @@ internal actual suspend fun downloadPlatformFileToMemory(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend (ByteArray) -> Unit
 ) {
     httpClient.prepareRequest(urlString = url) {
         method = httpMethod
+        applyTimeouts(timeouts)
 
         headers.forEach { (k, v) -> header(k, v) }
         body?.let { setBody(TextContent(it, ContentType.Application.Json)) }
@@ -102,12 +105,14 @@ internal actual suspend fun downloadPlatformFileToDisk(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     targetFileName: String,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend () -> Unit
 ) {
     httpClient.prepareRequest(urlString = url) {
         method = httpMethod
+        applyTimeouts(timeouts)
 
         headers.forEach { (k, v) -> header(k, v) }
         body?.let { setBody(TextContent(it, ContentType.Application.Json)) }
@@ -150,7 +155,8 @@ private const val DOWNLOAD_POLL_INTERVAL_MS = 500L
  * Delegated entirely to [DownloadManager] — the system service does its own networking and
  * writes straight into the public Downloads folder, silently, with no runtime permission needed
  * on any supported API level (26+). [httpClient] is unused here since the request never goes
- * through Ktor. Only plain `GET` requests with no body are supported, matching `DownloadManager`'s
+ * through Ktor. [timeouts] is ignored for the same reason — `DownloadManager` applies its own
+ * timeouts and retries. Only plain `GET` requests with no body are supported, matching `DownloadManager`'s
  * own capabilities.
  */
 internal actual suspend fun downloadPlatformFileToPublicStorage(
@@ -160,6 +166,7 @@ internal actual suspend fun downloadPlatformFileToPublicStorage(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     targetFileName: String,
     mimeType: String?,
     onProgress: suspend (Float) -> Unit,

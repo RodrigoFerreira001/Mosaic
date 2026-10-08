@@ -2,6 +2,7 @@
 
 package dev.catbit.mosaic.client.data.data_sources.network
 
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.WebFile
 import io.ktor.client.HttpClient
@@ -17,10 +18,11 @@ import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 
-@JsFun("""(url, method, headersJson, file, contentType, onProgress) => {
+@JsFun("""(url, method, headersJson, file, contentType, timeoutMillis, onProgress) => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open(method, url);
+        xhr.timeout = timeoutMillis;
         const headers = JSON.parse(headersJson);
         for (const key in headers) xhr.setRequestHeader(key, headers[key]);
         if (contentType) xhr.setRequestHeader('Content-Type', contentType);
@@ -30,6 +32,7 @@ import org.khronos.webgl.get
         };
         xhr.onload = () => resolve(xhr);
         xhr.onerror = () => reject(new Error('Upload failed: network error'));
+        xhr.ontimeout = () => reject(new Error('Upload failed: timed out after ' + timeoutMillis + 'ms'));
         xhr.send(file);
     });
 }""")
@@ -39,6 +42,7 @@ private external fun xhrUploadFile(
     headersJson: String,
     file: JsAny,
     contentType: String?,
+    timeoutMillis: Int,
     onProgress: (Int) -> Unit
 ): Promise<JsAny>
 
@@ -59,6 +63,7 @@ internal actual suspend fun uploadPlatformFile(
     platformFile: PlatformFile,
     contentType: String?,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     onProgress: suspend (Float) -> Unit
 ): UploadResult = coroutineScope {
     val jsFile: JsAny = (platformFile.webFile as WebFile.FileWrapper).file.unsafeCast()
@@ -92,6 +97,7 @@ internal actual suspend fun uploadPlatformFile(
             headersJson = headersJson,
             file = jsFile,
             contentType = contentType,
+            timeoutMillis = timeouts.toXhrTimeoutMillis(),
             onProgress = { percent -> progressChannel.trySend(percent) }
         ).await()
     } finally {

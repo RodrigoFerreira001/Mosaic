@@ -11,6 +11,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTr
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnUploadProgressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -19,6 +20,10 @@ import kotlinx.serialization.Serializable
  * Uploads the file carried in the event's incomingData to [url] with [method], [headers] and
  * [contentType], reporting progress as it goes. Pair it with `OpenFilePicker` or `GetFile` using
  * their `PlatformFile` output.
+ *
+ * [timeouts] overrides the client's timeouts for this transfer — the default request timeout
+ * covers the whole upload, so large files need a higher `requestTimeoutMillis`. On the web only
+ * `requestTimeoutMillis` applies, and without it the upload has no timeout.
  *
  * **Response shape:** a JSON content type is parsed into plain maps, lists and primitives;
  * anything else is passed through as raw bytes. A JSON body that fails to parse yields `null`.
@@ -59,5 +64,6 @@ data class UploadFileEventSchema(
     @SerialName("url") val url: String?,
     @SerialName("method") val method: HttpMethod,
     @SerialName("headers") val headers: Map<String, String>?,
-    @SerialName("contentType") val contentType: String?
+    @SerialName("contentType") val contentType: String?,
+    @SerialName("timeouts") val timeouts: TimeoutsSchema? = null
 ) : EventSchema

@@ -32,6 +32,7 @@ object UploadFileEventRunner : EventRunner<UploadFileEventSchema> {
                 UploadFileUseCase.Params(
                     url = url,
                     headers = headers,
+                    timeouts = timeouts,
                     httpMethod = method.toKtorHttpMethod(),
                     contentType = contentType,
                     platformFile = platformFile,

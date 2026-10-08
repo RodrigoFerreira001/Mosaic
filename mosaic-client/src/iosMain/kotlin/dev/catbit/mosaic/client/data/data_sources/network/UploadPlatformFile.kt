@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.data.data_sources.network
 
 import dev.catbit.mosaic.client.extensions.asChunkedFlow
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.size
 import io.ktor.client.HttpClient
@@ -25,6 +26,7 @@ internal actual suspend fun uploadPlatformFile(
     platformFile: PlatformFile,
     contentType: String?,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     onProgress: suspend (Float) -> Unit
 ): UploadResult {
 
@@ -34,6 +36,7 @@ internal actual suspend fun uploadPlatformFile(
         urlString = url
     ) {
         method = httpMethod
+        applyTimeouts(timeouts)
 
         headers.forEach { (k, v) -> header(k, v) }
         queryParameters?.forEach { (key, value) -> value?.let { parameter(key, it.toString()) } }

@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.data.data_sources.network
 
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import io.ktor.client.HttpClient
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -16,10 +17,10 @@ import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.readAvailable
+import java.io.File
 import kotlinx.coroutines.flow.flow
 import kotlinx.io.Buffer
 import kotlinx.io.readByteArray
-import java.io.File
 
 internal actual suspend fun downloadPlatformFileToMemory(
     httpClient: HttpClient,
@@ -28,11 +29,13 @@ internal actual suspend fun downloadPlatformFileToMemory(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend (ByteArray) -> Unit
 ) {
     httpClient.prepareRequest(urlString = url) {
         method = httpMethod
+        applyTimeouts(timeouts)
 
         headers.forEach { (k, v) -> header(k, v) }
         body?.let { setBody(TextContent(it, ContentType.Application.Json)) }
@@ -96,12 +99,14 @@ internal actual suspend fun downloadPlatformFileToDisk(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     targetFileName: String,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend () -> Unit
 ) {
     httpClient.prepareRequest(urlString = url) {
         method = httpMethod
+        applyTimeouts(timeouts)
 
         headers.forEach { (k, v) -> header(k, v) }
         body?.let { setBody(TextContent(it, ContentType.Application.Json)) }
@@ -150,6 +155,7 @@ internal actual suspend fun downloadPlatformFileToPublicStorage(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     targetFileName: String,
     mimeType: String?,
     onProgress: suspend (Float) -> Unit,
@@ -160,6 +166,7 @@ internal actual suspend fun downloadPlatformFileToPublicStorage(
 
     httpClient.prepareRequest(urlString = url) {
         method = httpMethod
+        applyTimeouts(timeouts)
 
         headers.forEach { (k, v) -> header(k, v) }
         body?.let { setBody(TextContent(it, ContentType.Application.Json)) }

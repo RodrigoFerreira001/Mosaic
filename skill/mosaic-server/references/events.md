@@ -592,6 +592,7 @@ Downloads `url` and hands the result to the platform's own download destination 
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
 | `targetFileName` | `String` | required | Name the downloaded file is saved under. |
 | `mimeType` | `String?` | `null` | Content type describing the saved file. |
+| `timeouts` | `TimeoutsSchema?` | `null` | Request, connect and socket timeout overrides, built with `timeout(requestTimeoutMillis, connectTimeoutMillis, socketTimeoutMillis)`; `null` fields keep the client default. |
 
 **DSL example:**
 ```kotlin
@@ -606,7 +607,7 @@ DownloadFile(
 
 **Triggers fired:** `OnStart` (before the download begins), `OnDownloadProgress` (repeatedly, progress as incoming data), then either `OnDownloadFinish` + `OnSuccess` (both carrying `targetFileName`) or `OnDownloadFailure` + `OnFailure` (both carrying the `Throwable`, logged) — or `OnCancelled` alone (user cancelled; neither failure trigger fires in that case).
 
-**Notes:** the only one of the 3 download events with an `OnCancelled` trigger — it's the only one whose destination (the platform's public download UI) can be interactively cancelled by the user. `incomingData` not consumed.
+**Notes:** the only one of the 3 download events with an `OnCancelled` trigger — it's the only one whose destination (the platform's public download UI) can be interactively cancelled by the user. `incomingData` not consumed. **Timeouts:** same as `UploadFile` — set `timeouts` for large files. On Android this event goes through the system `DownloadManager`, which ignores `timeouts`; on the web only `requestTimeoutMillis` applies, and without it the transfer has no timeout.
 
 ### `DownloadFileToDisk`
 
@@ -621,6 +622,7 @@ Downloads `url` into the client's own private file storage under `targetFileName
 | `body` | `AnySerializable?` | `null` | Request body. |
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
 | `targetFileName` | `String` | required | Name the file is saved under, in the app's private storage. |
+| `timeouts` | `TimeoutsSchema?` | `null` | Request, connect and socket timeout overrides, built with `timeout(requestTimeoutMillis, connectTimeoutMillis, socketTimeoutMillis)`; `null` fields keep the client default. |
 
 **DSL example:**
 ```kotlin
@@ -634,7 +636,7 @@ DownloadFileToDisk(
 
 **Triggers fired:** `OnStart`, `OnDownloadProgress` (progress as incoming data), then `OnDownloadFinish` + `OnSuccess` (both carrying `targetFileName`) or `OnDownloadFailure` + `OnFailure` (both carrying the `Throwable`, logged). No `OnCancelled` — private storage writes aren't interactively cancellable.
 
-**Notes:** `incomingData` not consumed.
+**Notes:** `incomingData` not consumed. **Timeouts:** same as `UploadFile` — set `timeouts` for large files; on the web only `requestTimeoutMillis` applies, and without it the transfer has no timeout.
 
 ### `DownloadFileToMemory`
 
@@ -648,6 +650,7 @@ Downloads `url` without touching the filesystem, keeping the content in memory.
 | `method` | `HttpMethod` | required | HTTP method — `httpGet()`, `httpPost()`, `httpPut()`, `httpDelete()`, `httpPatch()`, `httpHead()`, `httpOptions()`, `httpTrace()`, `httpQuery()`. |
 | `body` | `AnySerializable?` | `null` | Request body. |
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
+| `timeouts` | `TimeoutsSchema?` | `null` | Request, connect and socket timeout overrides, built with `timeout(requestTimeoutMillis, connectTimeoutMillis, socketTimeoutMillis)`; `null` fields keep the client default. |
 
 **DSL example:**
 ```kotlin
@@ -660,7 +663,7 @@ DownloadFileToMemory(
 
 **Triggers fired:** `OnStart`, `OnDownloadProgress` (progress as incoming data), then `OnDownloadFinish` + `OnSuccess` (both carrying the total byte count, not a file name) or `OnDownloadFailure` + `OnFailure` (both carrying the `Throwable`, logged).
 
-**Notes:** the only download event that never touches the filesystem. `incomingData` not consumed.
+**Notes:** the only download event that never touches the filesystem. `incomingData` not consumed. **Timeouts:** same as `UploadFile` — set `timeouts` for large files; on the web only `requestTimeoutMillis` applies, and without it the transfer has no timeout.
 
 ### `SendNetworkRequest`
 
@@ -761,6 +764,7 @@ Uploads the file carried in the event's `incomingData` to `url`, reporting progr
 | `method` | `HttpMethod` | `httpPut()` | HTTP method — the only networking event with a non-required default here. |
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
 | `contentType` | `String?` | `null` | Content type of the uploaded file. |
+| `timeouts` | `TimeoutsSchema?` | `null` | Request, connect and socket timeout overrides, built with `timeout(requestTimeoutMillis, connectTimeoutMillis, socketTimeoutMillis)`; `null` fields keep the client default. |
 
 **DSL example:**
 ```kotlin
@@ -773,7 +777,7 @@ UploadFile(
 
 **Triggers fired:** `OnStart` (after `incomingData` was validated, before the upload begins), `OnUploadProgress` (repeatedly, progress as incoming data), then `OnNetworkResponse`/`OnNetworkFailure` (only if a child is wired to the exact status) or `OnSuccess` (parsed body as incoming data) — or `OnFailure`, three distinct causes: `incomingData` not a `PlatformFile` (fires **before** `OnStart`, no data), non-2xx response with no status-specific child (parsed body as incoming data), or the upload itself failing (`Throwable`).
 
-**Notes:** `incomingData` is **required** and must be a `PlatformFile`. Response parsing follows the same JSON-or-raw-bytes rule as `SendNetworkRequest`.
+**Notes:** `incomingData` is **required** and must be a `PlatformFile`. Response parsing follows the same JSON-or-raw-bytes rule as `SendNetworkRequest`. **Timeouts:** the client default request timeout (20s) covers the whole transfer, so set `timeouts` for large files — e.g. `timeout(requestTimeoutMillis = 15 * 60_000, socketTimeoutMillis = 60_000)` keeps slow-but-progressing uploads alive while still failing a stalled one. On the web only `requestTimeoutMillis` applies (mapped to `XMLHttpRequest.timeout`), and without it the upload has no timeout.
 
 ## Overlays
 

@@ -3,6 +3,7 @@ package dev.catbit.mosaic.server.builder.event.builders.networking
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileToMemoryEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
@@ -15,7 +16,8 @@ internal class DownloadFileToMemoryEventBuilder(
     private val url: String,
     private val method: HttpMethod,
     private val body: AnySerializable?,
-    private val headers: Map<String, String>?
+    private val headers: Map<String, String>?,
+    private val timeouts: TimeoutsSchema?,
 ) : EventSchemaBuilder<DownloadFileToMemoryEventSchema>() {
 
     override fun build() = DownloadFileToMemoryEventSchema(
@@ -25,7 +27,8 @@ internal class DownloadFileToMemoryEventBuilder(
         url = url,
         method = method,
         body = body,
-        headers = headers
+        headers = headers,
+        timeouts = timeouts,
     )
 }
 
@@ -44,6 +47,7 @@ internal class DownloadFileToMemoryEventBuilder(
  * @param method HTTP method used for the request, built with [httpGet], [httpPost], [httpPut], [httpDelete], [httpPatch] etc.
  * @param body Request body. Defaults to none.
  * @param headers Request headers. Defaults to none.
+ * @param timeouts Request, connect and socket timeout overrides, built with [timeout]. Defaults to none (client defaults).
  */
 fun EventSchemaBuilderScope.DownloadFileToMemory(
     id: String = randomId(),
@@ -52,7 +56,8 @@ fun EventSchemaBuilderScope.DownloadFileToMemory(
     url: String,
     method: HttpMethod,
     body: AnySerializable? = null,
-    headers: Map<String, String>? = null
+    headers: Map<String, String>? = null,
+    timeouts: TimeoutsSchema? = null,
 ) {
     addBuilder(
         DownloadFileToMemoryEventBuilder(
@@ -62,7 +67,8 @@ fun EventSchemaBuilderScope.DownloadFileToMemory(
             url = url,
             method = method,
             body = body,
-            headers = headers
+            headers = headers,
+            timeouts = timeouts,
         )
     )
 }

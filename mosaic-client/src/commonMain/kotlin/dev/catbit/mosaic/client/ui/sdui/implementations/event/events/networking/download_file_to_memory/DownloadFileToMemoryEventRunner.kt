@@ -17,6 +17,7 @@ object DownloadFileToMemoryEventRunner : EventRunner<DownloadFileToMemoryEventSc
                 DownloadFileToMemoryUseCase.Params(
                     url = url,
                     headers = headers,
+                    timeouts = timeouts,
                     body = body,
                     httpMethod = method.toKtorHttpMethod(),
                     onProgress = { progress ->

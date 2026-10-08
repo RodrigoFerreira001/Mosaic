@@ -11,6 +11,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
@@ -18,7 +19,9 @@ import kotlinx.serialization.Serializable
 
 /**
  * Downloads [url] without touching the filesystem, keeping the content in memory. [method],
- * [headers] and [body] shape the request.
+ * [headers] and [body] shape the request; [timeouts] overrides the client's timeouts for this
+ * transfer. On the web only `requestTimeoutMillis` applies, and without it the transfer has no
+ * timeout.
  *
  * **incomingData consumed:** not used.
  *
@@ -51,5 +54,6 @@ data class DownloadFileToMemoryEventSchema(
     @SerialName("url") val url: String,
     @SerialName("method") val method: HttpMethod,
     @SerialName("body") val body: AnySerializable?,
-    @SerialName("headers") val headers: Map<String, String>?
+    @SerialName("headers") val headers: Map<String, String>?,
+    @SerialName("timeouts") val timeouts: TimeoutsSchema? = null
 ) : EventSchema

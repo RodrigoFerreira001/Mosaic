@@ -11,6 +11,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
@@ -18,7 +19,9 @@ import kotlinx.serialization.Serializable
 
 /**
  * Downloads [url] into the client's own file storage under [targetFileName], where `GetFile` and
- * `DeleteFile` can reach it afterwards. [method], [headers] and [body] shape the request.
+ * `DeleteFile` can reach it afterwards. [method], [headers] and [body] shape the request;
+ * [timeouts] overrides the client's timeouts for this transfer. On the web only
+ * `requestTimeoutMillis` applies, and without it the transfer has no timeout.
  *
  * **incomingData consumed:** not used.
  *
@@ -52,5 +55,6 @@ data class DownloadFileToDiskEventSchema(
     @SerialName("method") val method: HttpMethod,
     @SerialName("body") val body: AnySerializable?,
     @SerialName("headers") val headers: Map<String, String>?,
-    @SerialName("targetFileName") val targetFileName: String
+    @SerialName("targetFileName") val targetFileName: String,
+    @SerialName("timeouts") val timeouts: TimeoutsSchema? = null
 ) : EventSchema

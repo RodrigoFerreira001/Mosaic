@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.data.data_sources.network
 
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpMethod
 
@@ -11,6 +12,7 @@ internal expect suspend fun downloadPlatformFileToMemory(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend (ByteArray) -> Unit
 )
@@ -23,6 +25,7 @@ internal expect suspend fun downloadPlatformFileToDisk(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     targetFileName: String,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend () -> Unit
@@ -45,6 +48,7 @@ internal expect suspend fun downloadPlatformFileToPublicStorage(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     targetFileName: String,
     mimeType: String?,
     onProgress: suspend (Float) -> Unit,

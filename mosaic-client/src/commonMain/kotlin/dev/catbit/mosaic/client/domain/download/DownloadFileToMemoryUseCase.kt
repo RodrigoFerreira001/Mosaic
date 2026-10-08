@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.domain.download
 
 import dev.catbit.mosaic.client.data.repository.MosaicRepository
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.domain.base.UseCase
 import io.ktor.http.HttpMethod
 
@@ -16,6 +17,7 @@ class DownloadFileToMemoryUseCase(
         repository.downloadFileToMemory(
             url = url,
             headers = headers,
+            timeouts = timeouts,
             body = body,
             httpMethod = httpMethod,
             onProgress = onProgress,
@@ -27,6 +29,7 @@ class DownloadFileToMemoryUseCase(
     /**
      * @property url endpoint to download from.
      * @property headers request headers.
+     * @property timeouts request, connect and socket timeout overrides.
      * @property body request body.
      * @property httpMethod HTTP method.
      * @property onProgress called repeatedly with download progress (0f–1f).
@@ -36,6 +39,7 @@ class DownloadFileToMemoryUseCase(
     data class Params(
         val url: String,
         val headers: Map<String, String>?,
+        val timeouts: TimeoutsSchema? = null,
         val body: Any?,
         val httpMethod: HttpMethod,
         val onProgress: suspend (Float) -> Unit = {},

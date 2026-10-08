@@ -12,6 +12,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
@@ -20,7 +21,10 @@ import kotlinx.serialization.Serializable
 /**
  * Downloads [url] and hands the result to the platform's own download destination — the user's
  * Downloads folder or equivalent — under [targetFileName], with [mimeType] describing the content.
- * [method], [headers] and [body] shape the request.
+ * [method], [headers] and [body] shape the request; [timeouts] overrides the client's timeouts
+ * for this transfer. On Android the download is handed to the system `DownloadManager`, which
+ * ignores [timeouts]; on the web only `requestTimeoutMillis` applies, and without it the transfer
+ * has no timeout.
  *
  * **incomingData consumed:** not used.
  *
@@ -58,5 +62,6 @@ data class DownloadFileEventSchema(
     @SerialName("body") val body: AnySerializable?,
     @SerialName("headers") val headers: Map<String, String>?,
     @SerialName("targetFileName") val targetFileName: String,
-    @SerialName("mimeType") val mimeType: String?
+    @SerialName("mimeType") val mimeType: String?,
+    @SerialName("timeouts") val timeouts: TimeoutsSchema? = null
 ) : EventSchema

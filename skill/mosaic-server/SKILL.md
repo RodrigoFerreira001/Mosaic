@@ -405,7 +405,7 @@ poppingUpTo(destination = "home", inclusive = false)
 httpGet()   httpPost()   httpPut()   httpDelete()   httpPatch()
 httpHead()  httpOptions()  httpTrace()  httpQuery()
 
-// Per-request timeouts for SendNetworkRequest / GetScreen / RefreshScreen (same package) — null keeps the client default
+// Per-request timeouts for SendNetworkRequest, GetScreen, RefreshScreen, the 3 downloads and UploadFile (same package) — null keeps the client default
 timeout(requestTimeoutMillis = 60_000, connectTimeoutMillis = null, socketTimeoutMillis = 60_000)
 
 // Image compression/resize for TakePicture / GetImageFromGallery (dev.catbit.mosaic.server.builder.event.builders.image)

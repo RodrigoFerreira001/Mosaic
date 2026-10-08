@@ -4,6 +4,7 @@ package dev.catbit.mosaic.client.data.data_sources.network
 
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.download
 import io.ktor.client.HttpClient
@@ -21,10 +22,11 @@ import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 
-@JsFun("""(url, method, headersJson, body, onProgress) => {
+@JsFun("""(url, method, headersJson, body, timeoutMillis, onProgress) => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open(method, url);
+        xhr.timeout = timeoutMillis;
         const headers = JSON.parse(headersJson);
         for (const key in headers) xhr.setRequestHeader(key, headers[key]);
         xhr.responseType = 'arraybuffer';
@@ -33,6 +35,7 @@ import org.khronos.webgl.get
         };
         xhr.onload = () => resolve(xhr);
         xhr.onerror = () => reject(new Error('Download failed: network error'));
+        xhr.ontimeout = () => reject(new Error('Download failed: timed out after ' + timeoutMillis + 'ms'));
         xhr.send(body || null);
     });
 }""")
@@ -41,6 +44,7 @@ private external fun xhrDownloadFile(
     method: String,
     headersJson: String,
     body: String?,
+    timeoutMillis: Int,
     onProgress: (Int) -> Unit
 ): Promise<JsAny>
 
@@ -59,6 +63,7 @@ private suspend fun performXhrDownload(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     onProgress: suspend (Float) -> Unit
 ): ByteArray = coroutineScope {
     val targetUrl = URLBuilder(url).apply {
@@ -89,6 +94,7 @@ private suspend fun performXhrDownload(
             method = httpMethod.value,
             headersJson = headersJson,
             body = body,
+            timeoutMillis = timeouts.toXhrTimeoutMillis(),
             onProgress = { percent -> progressChannel.trySend(percent) }
         ).await()
     } finally {
@@ -116,10 +122,11 @@ internal actual suspend fun downloadPlatformFileToMemory(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend (ByteArray) -> Unit
 ) {
-    val bytes = performXhrDownload(url, headers, body, httpMethod, queryParameters, onProgress)
+    val bytes = performXhrDownload(url, headers, body, httpMethod, queryParameters, timeouts, onProgress)
     onDownloadFinished(bytes)
 }
 
@@ -131,13 +138,14 @@ internal actual suspend fun downloadPlatformFileToDisk(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     targetFileName: String,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend () -> Unit
 ) {
     // The XHR path always buffers the full response before onload fires, so there's
     // no incremental-write benefit here — it's already fully in memory either way.
-    val bytes = performXhrDownload(url, headers, body, httpMethod, queryParameters, onProgress)
+    val bytes = performXhrDownload(url, headers, body, httpMethod, queryParameters, timeouts, onProgress)
     fileSystem.saveFileStreaming(targetFileName, flowOf(bytes))
     onDownloadFinished()
 }
@@ -155,12 +163,13 @@ internal actual suspend fun downloadPlatformFileToPublicStorage(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     targetFileName: String,
     mimeType: String?,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend () -> Unit
 ) {
-    val bytes = performXhrDownload(url, headers, body, httpMethod, queryParameters, onProgress)
+    val bytes = performXhrDownload(url, headers, body, httpMethod, queryParameters, timeouts, onProgress)
     FileKit.download(bytes = bytes, fileName = targetFileName)
     onDownloadFinished()
 }

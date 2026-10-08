@@ -152,6 +152,7 @@ class MosaicRepositoryImpl(
     override suspend fun downloadFileToMemory(
         url: String,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema?,
         body: Any?,
         httpMethod: HttpMethod,
         onProgress: suspend (Float) -> Unit,
@@ -160,6 +161,7 @@ class MosaicRepositoryImpl(
     ) = network.downloadFileToMemory(
         url = url,
         headers = headers,
+        timeouts = timeouts,
         body = body,
         httpMethod = httpMethod,
         onProgress = onProgress,
@@ -170,6 +172,7 @@ class MosaicRepositoryImpl(
     override suspend fun downloadFileToDisk(
         url: String,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema?,
         body: Any?,
         httpMethod: HttpMethod,
         targetFileName: String,
@@ -179,6 +182,7 @@ class MosaicRepositoryImpl(
     ) = network.downloadFileToDisk(
         url = url,
         headers = headers,
+        timeouts = timeouts,
         body = body,
         httpMethod = httpMethod,
         targetFileName = targetFileName,
@@ -190,6 +194,7 @@ class MosaicRepositoryImpl(
     override suspend fun downloadFile(
         url: String,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema?,
         body: Any?,
         httpMethod: HttpMethod,
         targetFileName: String,
@@ -200,6 +205,7 @@ class MosaicRepositoryImpl(
     ) = network.downloadFile(
         url = url,
         headers = headers,
+        timeouts = timeouts,
         body = body,
         httpMethod = httpMethod,
         targetFileName = targetFileName,
@@ -212,6 +218,7 @@ class MosaicRepositoryImpl(
     override suspend fun uploadFile(
         url: String?,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema?,
         httpMethod: HttpMethod,
         contentType: String?,
         platformFile: PlatformFile,
@@ -219,6 +226,7 @@ class MosaicRepositoryImpl(
     ) = network.uploadFile(
         url = url,
         headers = headers,
+        timeouts = timeouts,
         httpMethod = httpMethod,
         contentType = contentType,
         platformFile = platformFile,

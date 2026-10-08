@@ -3,6 +3,7 @@ package dev.catbit.mosaic.server.builder.event.builders.networking
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
@@ -17,7 +18,8 @@ internal class DownloadFileEventBuilder(
     private val body: AnySerializable?,
     private val headers: Map<String, String>?,
     private val targetFileName: String,
-    private val mimeType: String?
+    private val mimeType: String?,
+    private val timeouts: TimeoutsSchema?,
 ) : EventSchemaBuilder<DownloadFileEventSchema>() {
 
     override fun build() = DownloadFileEventSchema(
@@ -29,7 +31,8 @@ internal class DownloadFileEventBuilder(
         body = body,
         headers = headers,
         targetFileName = targetFileName,
-        mimeType = mimeType
+        mimeType = mimeType,
+        timeouts = timeouts,
     )
 }
 
@@ -52,6 +55,7 @@ internal class DownloadFileEventBuilder(
  * @param headers Request headers. Defaults to none.
  * @param targetFileName Name the downloaded file is saved under, in the platform's download destination.
  * @param mimeType MIME type describing the downloaded content. Defaults to none.
+ * @param timeouts Request, connect and socket timeout overrides, built with [timeout]. Defaults to none (client defaults).
  */
 fun EventSchemaBuilderScope.DownloadFile(
     id: String = randomId(),
@@ -62,7 +66,8 @@ fun EventSchemaBuilderScope.DownloadFile(
     body: AnySerializable? = null,
     headers: Map<String, String>? = null,
     targetFileName: String,
-    mimeType: String? = null
+    mimeType: String? = null,
+    timeouts: TimeoutsSchema? = null,
 ) {
     addBuilder(
         DownloadFileEventBuilder(
@@ -74,7 +79,8 @@ fun EventSchemaBuilderScope.DownloadFile(
             body = body,
             headers = headers,
             targetFileName = targetFileName,
-            mimeType = mimeType
+            mimeType = mimeType,
+            timeouts = timeouts,
         )
     )
 }

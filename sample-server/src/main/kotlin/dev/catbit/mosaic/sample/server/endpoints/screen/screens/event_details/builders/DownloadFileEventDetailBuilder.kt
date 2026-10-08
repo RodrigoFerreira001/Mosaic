@@ -98,6 +98,7 @@ object DownloadFileEventDetailBuilder : EventDetailBuilder {
                     url = "https://raw.githubusercontent.com/octocat/Hello-World/master/README",
                     method = httpGet(),
                     targetFileName = "hello-world-readme.txt",
+                    timeouts = timeout(requestTimeoutMillis = 5 * 60_000, socketTimeoutMillis = 30_000),
                     mimeType = "text/plain",
                     events = {
                         UpdateTiles(trigger = EventTriggers.onDownloadProgress(), updates = {
@@ -113,6 +114,12 @@ object DownloadFileEventDetailBuilder : EventDetailBuilder {
             ShowroomNote(
                 "The real interaction depends on the device — on Android the download happens silently via a " +
                     "system notification; on iOS it opens a native destination picker."
+            )
+
+            ShowroomNote(
+                "timeouts overrides the client's defaults for this transfer (20s for the whole request by default) — raise " +
+                    "requestTimeoutMillis for large files. On Android this event goes through the system DownloadManager, " +
+                    "which ignores timeouts; on the web only requestTimeoutMillis applies, and without it there is no timeout."
             )
 
             ShowroomRelated(

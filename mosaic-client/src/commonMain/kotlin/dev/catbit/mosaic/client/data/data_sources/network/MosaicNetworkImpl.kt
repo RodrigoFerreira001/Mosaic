@@ -16,7 +16,6 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.timeout
-import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -124,6 +123,7 @@ class MosaicNetworkImpl(
     override suspend fun downloadFileToMemory(
         url: String,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema?,
         body: Any?,
         httpMethod: HttpMethod,
         onProgress: suspend (Float) -> Unit,
@@ -145,6 +145,7 @@ class MosaicNetworkImpl(
                 httpClient = httpClient,
                 url = url,
                 headers = networkParams.headers.orEmpty() + headers.orEmpty(),
+                timeouts = timeouts,
                 body = strBody,
                 httpMethod = httpMethod,
                 queryParameters = networkParams.queryParameters,
@@ -159,6 +160,7 @@ class MosaicNetworkImpl(
     override suspend fun downloadFileToDisk(
         url: String,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema?,
         body: Any?,
         httpMethod: HttpMethod,
         targetFileName: String,
@@ -182,6 +184,7 @@ class MosaicNetworkImpl(
                 fileSystem = fileSystem,
                 url = url,
                 headers = networkParams.headers.orEmpty() + headers.orEmpty(),
+                timeouts = timeouts,
                 body = strBody,
                 httpMethod = httpMethod,
                 queryParameters = networkParams.queryParameters,
@@ -197,6 +200,7 @@ class MosaicNetworkImpl(
     override suspend fun downloadFile(
         url: String,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema?,
         body: Any?,
         httpMethod: HttpMethod,
         targetFileName: String,
@@ -220,6 +224,7 @@ class MosaicNetworkImpl(
                 httpClient = httpClient,
                 url = url,
                 headers = networkParams.headers.orEmpty() + headers.orEmpty(),
+                timeouts = timeouts,
                 body = strBody,
                 httpMethod = httpMethod,
                 queryParameters = networkParams.queryParameters,
@@ -236,6 +241,7 @@ class MosaicNetworkImpl(
     override suspend fun uploadFile(
         url: String?,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema?,
         httpMethod: HttpMethod,
         contentType: String?,
         platformFile: PlatformFile,
@@ -251,6 +257,7 @@ class MosaicNetworkImpl(
             httpClient = httpClient,
             url = targetUrl,
             headers = networkParams.headers.orEmpty() + headers.orEmpty(),
+            timeouts = timeouts,
             httpMethod = httpMethod,
             platformFile = platformFile,
             contentType = contentType,
@@ -264,13 +271,4 @@ class MosaicNetworkImpl(
             timeout { requestTimeoutMillis = connectivityCheckTimeout.inWholeMilliseconds }
         }.status.isSuccess()
     }.getOrDefault(false)
-
-    private fun HttpRequestBuilder.applyTimeouts(timeouts: TimeoutsSchema?) {
-        timeouts ?: return
-        timeout {
-            timeouts.requestTimeoutMillis?.let { requestTimeoutMillis = it }
-            timeouts.connectTimeoutMillis?.let { connectTimeoutMillis = it }
-            timeouts.socketTimeoutMillis?.let { socketTimeoutMillis = it }
-        }
-    }
 }

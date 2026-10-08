@@ -86,6 +86,7 @@ object DownloadFileToMemoryEventDetailBuilder : EventDetailBuilder {
                     trigger = EventTriggers.onClick(),
                     url = "https://api.example.com/warmup",
                     method = httpGet(),
+                    timeouts = timeout(requestTimeoutMillis = 60_000),
                     events = {
                         UpdateTiles(trigger = EventTriggers.onSuccess(), updates = {
                             update("bytes_label", mappedIncomingTileUpdateData("text" to "Warmed up <||> bytes"))
@@ -93,6 +94,11 @@ object DownloadFileToMemoryEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 """
+            )
+
+            ShowroomNote(
+                "timeouts overrides the client's defaults for this transfer (20s for the whole request by default). On the " +
+                    "web only requestTimeoutMillis applies, and without it there is no timeout."
             )
 
             ShowroomRelated(

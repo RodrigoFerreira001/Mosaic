@@ -3,6 +3,7 @@ package dev.catbit.mosaic.server.builder.event.builders.networking
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.DownloadFileToDiskEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
@@ -16,7 +17,8 @@ internal class DownloadFileToDiskEventBuilder(
     private val method: HttpMethod,
     private val body: AnySerializable?,
     private val headers: Map<String, String>?,
-    private val targetFileName: String
+    private val targetFileName: String,
+    private val timeouts: TimeoutsSchema?,
 ) : EventSchemaBuilder<DownloadFileToDiskEventSchema>() {
 
     override fun build() = DownloadFileToDiskEventSchema(
@@ -27,7 +29,8 @@ internal class DownloadFileToDiskEventBuilder(
         method = method,
         body = body,
         headers = headers,
-        targetFileName = targetFileName
+        targetFileName = targetFileName,
+        timeouts = timeouts,
     )
 }
 
@@ -47,6 +50,7 @@ internal class DownloadFileToDiskEventBuilder(
  * @param body Request body. Defaults to none.
  * @param headers Request headers. Defaults to none.
  * @param targetFileName Name the downloaded file is saved under, in the client's own storage.
+ * @param timeouts Request, connect and socket timeout overrides, built with [timeout]. Defaults to none (client defaults).
  */
 fun EventSchemaBuilderScope.DownloadFileToDisk(
     id: String = randomId(),
@@ -56,7 +60,8 @@ fun EventSchemaBuilderScope.DownloadFileToDisk(
     method: HttpMethod,
     body: AnySerializable? = null,
     headers: Map<String, String>? = null,
-    targetFileName: String
+    targetFileName: String,
+    timeouts: TimeoutsSchema? = null,
 ) {
     addBuilder(
         DownloadFileToDiskEventBuilder(
@@ -67,7 +72,8 @@ fun EventSchemaBuilderScope.DownloadFileToDisk(
             method = method,
             body = body,
             headers = headers,
-            targetFileName = targetFileName
+            targetFileName = targetFileName,
+            timeouts = timeouts,
         )
     )
 }

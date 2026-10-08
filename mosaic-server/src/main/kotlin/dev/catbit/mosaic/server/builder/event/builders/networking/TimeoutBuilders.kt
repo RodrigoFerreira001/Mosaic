@@ -3,8 +3,11 @@ package dev.catbit.mosaic.server.builder.event.builders.networking
 import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 
 /**
- * Timeout overrides for `SendNetworkRequest`, `GetScreen` and `RefreshScreen`, all in milliseconds.
- * Any value left `null` keeps the client's default for that timeout.
+ * Timeout overrides for `SendNetworkRequest`, `GetScreen`, `RefreshScreen`, `DownloadFile`,
+ * `DownloadFileToDisk`, `DownloadFileToMemory` and `UploadFile`, all in milliseconds. Any value
+ * left `null` keeps the client's default for that timeout. On the web, downloads and uploads only
+ * honor [requestTimeoutMillis] (and have no timeout without it); on Android, `DownloadFile`
+ * ignores these values.
  *
  * @param requestTimeoutMillis whole call, from sending the request to receiving the full response.
  * @param connectTimeoutMillis time allowed to establish the connection.

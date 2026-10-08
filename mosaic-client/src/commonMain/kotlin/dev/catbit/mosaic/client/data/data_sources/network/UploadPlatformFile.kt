@@ -1,5 +1,6 @@
 package dev.catbit.mosaic.client.data.data_sources.network
 
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.client.HttpClient
 import io.ktor.http.HttpMethod
@@ -20,5 +21,6 @@ internal expect suspend fun uploadPlatformFile(
     platformFile: PlatformFile,
     contentType: String?,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     onProgress: suspend (Float) -> Unit
 ): UploadResult

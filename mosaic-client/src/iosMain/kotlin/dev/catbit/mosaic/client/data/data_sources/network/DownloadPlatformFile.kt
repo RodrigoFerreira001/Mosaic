@@ -3,6 +3,7 @@ package dev.catbit.mosaic.client.data.data_sources.network
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.exceptions.DownloadCancelledException
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.openFileSaver
 import io.github.vinceglb.filekit.write
@@ -31,11 +32,13 @@ internal actual suspend fun downloadPlatformFileToMemory(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend (ByteArray) -> Unit
 ) {
     httpClient.prepareRequest(urlString = url) {
         method = httpMethod
+        applyTimeouts(timeouts)
 
         headers.forEach { (k, v) -> header(k, v) }
         body?.let { setBody(TextContent(it, ContentType.Application.Json)) }
@@ -99,12 +102,14 @@ internal actual suspend fun downloadPlatformFileToDisk(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     targetFileName: String,
     onProgress: suspend (Float) -> Unit,
     onDownloadFinished: suspend () -> Unit
 ) {
     httpClient.prepareRequest(urlString = url) {
         method = httpMethod
+        applyTimeouts(timeouts)
 
         headers.forEach { (k, v) -> header(k, v) }
         body?.let { setBody(TextContent(it, ContentType.Application.Json)) }
@@ -156,6 +161,7 @@ internal actual suspend fun downloadPlatformFileToPublicStorage(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     targetFileName: String,
     mimeType: String?,
     onProgress: suspend (Float) -> Unit,
@@ -168,6 +174,7 @@ internal actual suspend fun downloadPlatformFileToPublicStorage(
         body = body,
         httpMethod = httpMethod,
         queryParameters = queryParameters,
+        timeouts = timeouts,
         onProgress = onProgress
     )
 
@@ -190,6 +197,7 @@ private suspend fun downloadToByteArray(
     body: String?,
     httpMethod: HttpMethod,
     queryParameters: Map<String, Any?>?,
+    timeouts: TimeoutsSchema?,
     onProgress: suspend (Float) -> Unit
 ): ByteArray {
     var result: ByteArray = ByteArray(0)
@@ -200,6 +208,7 @@ private suspend fun downloadToByteArray(
         body = body,
         httpMethod = httpMethod,
         queryParameters = queryParameters,
+        timeouts = timeouts,
         onProgress = onProgress,
         onDownloadFinished = { bytes -> result = bytes }
     )

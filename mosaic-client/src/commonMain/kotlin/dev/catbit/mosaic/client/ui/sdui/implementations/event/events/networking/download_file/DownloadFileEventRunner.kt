@@ -18,6 +18,7 @@ object DownloadFileEventRunner : EventRunner<DownloadFileEventSchema> {
                 DownloadFileUseCase.Params(
                     url = url,
                     headers = headers,
+                    timeouts = timeouts,
                     body = body,
                     httpMethod = method.toKtorHttpMethod(),
                     targetFileName = targetFileName,

@@ -17,6 +17,7 @@ object DownloadFileToDiskEventRunner : EventRunner<DownloadFileToDiskEventSchema
                 DownloadFileToDiskUseCase.Params(
                     url = url,
                     headers = headers,
+                    timeouts = timeouts,
                     body = body,
                     httpMethod = method.toKtorHttpMethod(),
                     targetFileName = targetFileName,

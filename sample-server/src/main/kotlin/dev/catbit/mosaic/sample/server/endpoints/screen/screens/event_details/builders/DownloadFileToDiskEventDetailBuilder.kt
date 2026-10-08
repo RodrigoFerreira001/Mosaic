@@ -113,11 +113,18 @@ object DownloadFileToDiskEventDetailBuilder : EventDetailBuilder {
                     url = "https://api.example.com/assets/manual.pdf",
                     method = httpGet(),
                     targetFileName = "manual.pdf",
+                    timeouts = timeout(requestTimeoutMillis = 5 * 60_000, socketTimeoutMillis = 30_000),
                     events = {
                         UpdateTiles(trigger = EventTriggers.onSuccess(), updates = { /* ... */ })
                     }
                 )
                 """
+            )
+
+            ShowroomNote(
+                "timeouts overrides the client's defaults for this transfer (20s for the whole request by default) — raise " +
+                    "requestTimeoutMillis for large files. On the web only requestTimeoutMillis applies, and without it " +
+                    "there is no timeout."
             )
 
             ShowroomRelated(

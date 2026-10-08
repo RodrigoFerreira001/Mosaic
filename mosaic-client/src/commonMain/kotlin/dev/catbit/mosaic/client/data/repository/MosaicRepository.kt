@@ -45,6 +45,7 @@ interface MosaicRepository {
     suspend fun downloadFileToMemory(
         url: String,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema? = null,
         body: Any?,
         httpMethod: HttpMethod,
         onProgress: suspend (Float) -> Unit = {},
@@ -55,6 +56,7 @@ interface MosaicRepository {
     suspend fun downloadFileToDisk(
         url: String,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema? = null,
         body: Any?,
         httpMethod: HttpMethod,
         targetFileName: String,
@@ -71,6 +73,7 @@ interface MosaicRepository {
     suspend fun downloadFile(
         url: String,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema? = null,
         body: Any?,
         httpMethod: HttpMethod,
         targetFileName: String,
@@ -83,6 +86,7 @@ interface MosaicRepository {
     suspend fun uploadFile(
         url: String?,
         headers: Map<String, String>?,
+        timeouts: TimeoutsSchema? = null,
         httpMethod: HttpMethod,
         contentType: String?,
         platformFile: PlatformFile,

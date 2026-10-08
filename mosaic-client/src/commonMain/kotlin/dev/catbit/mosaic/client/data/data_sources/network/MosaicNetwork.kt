@@ -34,6 +34,7 @@ interface MosaicNetwork {
     suspend fun downloadFileToMemory(
         url: String,
         headers: Map<String, String>? = null,
+        timeouts: TimeoutsSchema? = null,
         body: Any?,
         httpMethod: HttpMethod,
         onProgress: suspend (Float) -> Unit = {},
@@ -45,6 +46,7 @@ interface MosaicNetwork {
     suspend fun downloadFileToDisk(
         url: String,
         headers: Map<String, String>? = null,
+        timeouts: TimeoutsSchema? = null,
         body: Any?,
         httpMethod: HttpMethod,
         targetFileName: String,
@@ -61,6 +63,7 @@ interface MosaicNetwork {
     suspend fun downloadFile(
         url: String,
         headers: Map<String, String>? = null,
+        timeouts: TimeoutsSchema? = null,
         body: Any?,
         httpMethod: HttpMethod,
         targetFileName: String,
@@ -73,6 +76,7 @@ interface MosaicNetwork {
     suspend fun uploadFile(
         url: String?,
         headers: Map<String, String>? = null,
+        timeouts: TimeoutsSchema? = null,
         httpMethod: HttpMethod,
         contentType: String?,
         platformFile: PlatformFile,

@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.domain.upload
 
 import dev.catbit.mosaic.client.data.data_sources.network.UploadResult
 import dev.catbit.mosaic.client.data.repository.MosaicRepository
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.domain.base.UseCase
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.http.HttpMethod
@@ -19,6 +20,7 @@ class UploadFileUseCase(
         repository.uploadFile(
             url = url,
             headers = headers,
+            timeouts = timeouts,
             httpMethod = httpMethod,
             contentType = contentType,
             platformFile = platformFile,
@@ -30,6 +32,7 @@ class UploadFileUseCase(
      * @property url endpoint — nullable so it can instead be staged beforehand via
      * `SetIncomingDataToNetworkParamsHolderUrl` and resolved from `NetworkParametersHolder`.
      * @property headers request headers.
+     * @property timeouts request, connect and socket timeout overrides.
      * @property httpMethod HTTP method.
      * @property contentType content type of the uploaded file.
      * @property platformFile the file to upload.
@@ -38,6 +41,7 @@ class UploadFileUseCase(
     class Params(
         val url: String?,
         val headers: Map<String, String>?,
+        val timeouts: TimeoutsSchema? = null,
         val httpMethod: HttpMethod,
         val contentType: String?,
         val platformFile: PlatformFile,
