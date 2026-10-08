@@ -9,12 +9,14 @@ import dev.catbit.mosaic.client.extensions.safeResult
 import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
 import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
 import dev.catbit.mosaic.core.data.responses.version.VersionResponse
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.serialization.MosaicSerializer
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializer
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.timeout
+import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
@@ -53,13 +55,13 @@ class MosaicNetworkImpl(
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        timeoutMillis: Long?
+        timeouts: TimeoutsSchema?
     ): Result<ScreenResponse> = safeNetworkCall {
         val screenUrl = "$baseUrl/screens/$screenId"
         httpClient.get(urlString = screenUrl) {
             method = httpMethod
 
-            timeoutMillis?.let { timeout { requestTimeoutMillis = it } }
+            applyTimeouts(timeouts)
 
             val networkParams = networkParametersHolder.consume()
 
@@ -90,12 +92,12 @@ class MosaicNetworkImpl(
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        timeoutMillis: Long?
+        timeouts: TimeoutsSchema?
     ) = runCatching {
         httpClient.request(urlString = url) {
             method = httpMethod
 
-            timeoutMillis?.let { timeout { requestTimeoutMillis = it } }
+            applyTimeouts(timeouts)
 
             val networkParams = networkParametersHolder.consume()
 
@@ -262,4 +264,13 @@ class MosaicNetworkImpl(
             timeout { requestTimeoutMillis = connectivityCheckTimeout.inWholeMilliseconds }
         }.status.isSuccess()
     }.getOrDefault(false)
+
+    private fun HttpRequestBuilder.applyTimeouts(timeouts: TimeoutsSchema?) {
+        timeouts ?: return
+        timeout {
+            timeouts.requestTimeoutMillis?.let { requestTimeoutMillis = it }
+            timeouts.connectTimeoutMillis?.let { connectTimeoutMillis = it }
+            timeouts.socketTimeoutMillis?.let { socketTimeoutMillis = it }
+        }
+    }
 }

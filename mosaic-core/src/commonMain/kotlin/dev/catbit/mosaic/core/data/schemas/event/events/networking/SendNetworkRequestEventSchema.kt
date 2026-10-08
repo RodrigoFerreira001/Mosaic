@@ -10,6 +10,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkRespo
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
@@ -17,7 +18,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * Sends an HTTP request to [url] with [method], [headers], [body] and an optional
- * [timeoutMillis], and emits the response downstream. This is the general-purpose way to talk to a
+ * [timeouts], and emits the response downstream. This is the general-purpose way to talk to a
  * backend from inside an event chain.
  *
  * **Response shape:** a JSON content type is parsed into plain maps, lists and primitives;
@@ -59,5 +60,5 @@ data class SendNetworkRequestEventSchema(
     @SerialName("method") val method: HttpMethod,
     @SerialName("body") val body: AnySerializable?,
     @SerialName("headers") val headers: Map<String, String>?,
-    @SerialName("timeoutMillis") val timeoutMillis: Long? = null
+    @SerialName("timeouts") val timeouts: TimeoutsSchema? = null
 ) : EventSchema

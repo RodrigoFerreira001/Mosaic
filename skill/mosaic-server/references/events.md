@@ -420,8 +420,8 @@ Opens the camera through the client's `CameraManager` and emits the captured pho
 | Parameter | Type | Default | What it's for |
 |---|---|---|---|
 | `compression` | `CompressionScheme?` | `null` | `byQuality(percent)` or `byTargetSize(kb)` — when set, re-encodes the capture (treated as `image/png`). `null` emits the original bytes untouched. |
-| `resize` | `ImageResizeOptions?` (`maxLongEdgePx`, `downscaleOnly`, `maintainAspectRatio`) | `null` | Only takes effect alongside a non-null `compression`; default resize options apply when left `null` there. |
-| `outputType` | `OutputType` (`ArrayOfBytes`/`Base64`) | required | Shape of the emitted image — `pictureArrayOfBytes()`/`pictureBase64()`. |
+| `resize` | `ImageResizeOptions?` | `null` | `imageResizeOptions(maxLongEdgePx = 2560, downscaleOnly = true, maintainAspectRatio = true)`. Only takes effect alongside a non-null `compression`; default resize options apply when left `null` there. |
+| `outputType` | `OutputType` (`ArrayOfBytes`/`Base64`) | `pictureArrayOfBytes()` | Shape of the emitted image — `pictureArrayOfBytes()`/`pictureBase64()`. |
 
 **DSL example:**
 ```kotlin
@@ -446,13 +446,14 @@ Opens the platform picker restricted to images and emits the chosen image downst
 |---|---|---|---|
 | `compression` | `CompressionScheme?` | `null` | Same as `TakePicture` — re-encodes when set. |
 | `resize` | `ImageResizeOptions?` | `null` | Same as `TakePicture` — only effective alongside `compression`. |
-| `outputType` | `OutputType` (`ArrayOfBytes`/`Base64`) | required | `galleryArrayOfBytes()`/`galleryBase64()`. |
+| `outputType` | `OutputType` (`ArrayOfBytes`/`Base64`) | `galleryArrayOfBytes()` | `galleryArrayOfBytes()`/`galleryBase64()`. |
 
 **DSL example:**
 ```kotlin
 GetImageFromGallery(
     trigger = EventTriggers.onClick(),
-    resize = ImageResizeOptions(maxLongEdgePx = 1024),
+    compression = byQuality(qualityPercent = 80f),
+    resize = imageResizeOptions(maxLongEdgePx = 1024),
     outputType = galleryArrayOfBytes()
 )
 ```
@@ -586,7 +587,7 @@ Downloads `url` and hands the result to the platform's own download destination 
 | Parameter | Type | Default | What it's for |
 |---|---|---|---|
 | `url` | `String` | required | Endpoint to download from. |
-| `method` | `HttpMethod` | required | HTTP method. |
+| `method` | `HttpMethod` | required | HTTP method — `httpGet()`, `httpPost()`, `httpPut()`, `httpDelete()`, `httpPatch()`, `httpHead()`, `httpOptions()`, `httpTrace()`, `httpQuery()`. |
 | `body` | `AnySerializable?` | `null` | Request body. |
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
 | `targetFileName` | `String` | required | Name the downloaded file is saved under. |
@@ -597,7 +598,7 @@ Downloads `url` and hands the result to the platform's own download destination 
 DownloadFile(
     trigger = EventTriggers.onClick(),
     url = "/api/reports/latest",
-    method = HttpMethod.GET,
+    method = httpGet(),
     targetFileName = "report.pdf",
     mimeType = "application/pdf"
 )
@@ -616,7 +617,7 @@ Downloads `url` into the client's own private file storage under `targetFileName
 | Parameter | Type | Default | What it's for |
 |---|---|---|---|
 | `url` | `String` | required | Endpoint to download from. |
-| `method` | `HttpMethod` | required | HTTP method. |
+| `method` | `HttpMethod` | required | HTTP method — `httpGet()`, `httpPost()`, `httpPut()`, `httpDelete()`, `httpPatch()`, `httpHead()`, `httpOptions()`, `httpTrace()`, `httpQuery()`. |
 | `body` | `AnySerializable?` | `null` | Request body. |
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
 | `targetFileName` | `String` | required | Name the file is saved under, in the app's private storage. |
@@ -626,7 +627,7 @@ Downloads `url` into the client's own private file storage under `targetFileName
 DownloadFileToDisk(
     trigger = EventTriggers.onClick(),
     url = "/api/offline-data",
-    method = HttpMethod.GET,
+    method = httpGet(),
     targetFileName = "offline_cache.json"
 )
 ```
@@ -644,7 +645,7 @@ Downloads `url` without touching the filesystem, keeping the content in memory.
 | Parameter | Type | Default | What it's for |
 |---|---|---|---|
 | `url` | `String` | required | Endpoint to download from. |
-| `method` | `HttpMethod` | required | HTTP method. |
+| `method` | `HttpMethod` | required | HTTP method — `httpGet()`, `httpPost()`, `httpPut()`, `httpDelete()`, `httpPatch()`, `httpHead()`, `httpOptions()`, `httpTrace()`, `httpQuery()`. |
 | `body` | `AnySerializable?` | `null` | Request body. |
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
 
@@ -653,7 +654,7 @@ Downloads `url` without touching the filesystem, keeping the content in memory.
 DownloadFileToMemory(
     trigger = EventTriggers.onClick(),
     url = "/api/thumbnail",
-    method = HttpMethod.GET
+    method = httpGet()
 )
 ```
 
@@ -670,23 +671,23 @@ Sends an HTTP request to `url` and emits the response downstream — the general
 | Parameter | Type | Default | What it's for |
 |---|---|---|---|
 | `url` | `String` | required | Endpoint. |
-| `method` | `HttpMethod` | required | HTTP method. |
+| `method` | `HttpMethod` | required | HTTP method — `httpGet()`, `httpPost()`, `httpPut()`, `httpDelete()`, `httpPatch()`, `httpHead()`, `httpOptions()`, `httpTrace()`, `httpQuery()`. |
 | `body` | `AnySerializable?` | `null` | Request body. |
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
-| `timeoutMillis` | `Long?` | `null` | Request timeout override. |
+| `timeouts` | `TimeoutsSchema?` | `null` | Request, connect and socket timeout overrides, built with `timeout(requestTimeoutMillis, connectTimeoutMillis, socketTimeoutMillis)`; `null` fields keep the client default. |
 
 **DSL example:**
 ```kotlin
 SendNetworkRequest(
     trigger = EventTriggers.onClick(),
     url = "/api/login",
-    method = HttpMethod.POST
+    method = httpPost()
 )
 ```
 
 **Triggers fired:** `OnStart` (before sending) — then exactly one outcome trigger per response: `OnNetworkResponse`/`OnNetworkFailure` (only if this event has a child wired to that **exact** HTTP status code — the first for 2xx, the second for the rest, parsed body as incoming data), otherwise `OnSuccess` (2xx) or `OnFailure` (non-2xx, parsed body as incoming data — or the request itself failed, e.g. timeout/no connectivity, `Throwable` as incoming data, logged).
 
-**Notes:** response body is auto-parsed — JSON content types become plain maps/lists/primitives, everything else stays a raw `ByteArray`; a JSON body that fails to parse yields `null` rather than throwing. `incomingData` not consumed by this event, but its parsed response becomes the next event's `incomingData`.
+**Notes:** response body is auto-parsed — JSON content types become plain maps/lists/primitives, everything else stays a raw `ByteArray`; a JSON body that fails to parse yields `null` rather than throwing. `incomingData` not consumed by this event, but its parsed response becomes the next event's `incomingData`. For slow endpoints set `timeouts = timeout(requestTimeoutMillis = …, socketTimeoutMillis = …)`: the socket timeout also bounds the wait for the response headers, and on Android (OkHttp) it otherwise defaults to the client's global value.
 
 ### `SetIncomingDataToNetworkParamsHolderBody`
 
@@ -757,7 +758,7 @@ Uploads the file carried in the event's `incomingData` to `url`, reporting progr
 | Parameter | Type | Default | What it's for |
 |---|---|---|---|
 | `url` | `String?` | `null` | Endpoint — falls back to `NetworkParametersHolder` (see `SetIncomingDataToNetworkParamsHolderUrl`) when omitted. |
-| `method` | `HttpMethod` | `HttpMethod.PUT` | HTTP method — the only networking event with a non-required default here. |
+| `method` | `HttpMethod` | `httpPut()` | HTTP method — the only networking event with a non-required default here. |
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
 | `contentType` | `String?` | `null` | Content type of the uploaded file. |
 
@@ -1030,10 +1031,10 @@ Fetches the payload of the screen this event lives in and emits it downstream **
 
 | Parameter | Type | Default | What it's for |
 |---|---|---|---|
-| `method` | `HttpMethod` | `HttpMethod.GET` | HTTP method for the fetch. |
+| `method` | `HttpMethod` | `httpGet()` | HTTP method for the fetch. |
 | `body` | `AnySerializable?` | `null` | Request body. |
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
-| `timeoutMillis` | `Long?` | `null` | Request timeout override. |
+| `timeouts` | `TimeoutsSchema?` | `null` | Request, connect and socket timeout overrides, built with `timeout(requestTimeoutMillis, connectTimeoutMillis, socketTimeoutMillis)`; `null` fields keep the client default. |
 
 **DSL example:**
 ```kotlin
@@ -1051,7 +1052,7 @@ GetScreen(
 
 Refetches the screen this event lives in **and applies the result to it** — `GetScreen` + `ChangeScreenState` fused into one step. The screen moves to its initial (loading) state, then to success with the new content or to its failure state.
 
-**Parameters:** identical to `GetScreen` — `method` (default `HttpMethod.GET`), `body`, `headers`, `timeoutMillis`.
+**Parameters:** identical to `GetScreen` — `method` (default `httpGet()`), `body`, `headers`, `timeouts`.
 
 **DSL example:**
 ```kotlin

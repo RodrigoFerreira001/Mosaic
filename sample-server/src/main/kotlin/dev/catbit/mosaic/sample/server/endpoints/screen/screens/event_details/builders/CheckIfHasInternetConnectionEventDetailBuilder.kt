@@ -70,7 +70,7 @@ object CheckIfHasInternetConnectionEventDetailBuilder : EventDetailBuilder {
                 CheckIfHasInternetConnection(
                     trigger = EventTriggers.onDisplay(),
                     events = {
-                        SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/data", method = HttpMethod.GET)
+                        SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/data", method = httpGet())
                         DisplaySnackbar(trigger = EventTriggers.onFailure(), message = "No internet connection")
                     }
                 )

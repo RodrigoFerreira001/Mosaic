@@ -31,7 +31,7 @@ object UploadFileEventDetailBuilder : EventDetailBuilder {
                 UploadFile(
                     trigger = EventTriggers.onSuccess(), // incomingData = PlatformFile, from OpenFilePicker or GetFile
                     url = null, // resolved from the NetworkParamsHolder, set via SetIncomingDataToNetworkParamsHolderUrl
-                    method = HttpMethod.PUT,
+                    method = httpPut(),
                     contentType = "image/jpeg"
                 )
                 """

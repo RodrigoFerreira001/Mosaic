@@ -22,7 +22,7 @@ object GetScreenEventRunner : EventRunner<GetScreenEventSchema> {
                     headers = headers,
                     body = body,
                     httpMethod = method.toKtorHttpMethod(),
-                    timeoutMillis = timeoutMillis
+                    timeouts = timeouts
                 )
             }
         )

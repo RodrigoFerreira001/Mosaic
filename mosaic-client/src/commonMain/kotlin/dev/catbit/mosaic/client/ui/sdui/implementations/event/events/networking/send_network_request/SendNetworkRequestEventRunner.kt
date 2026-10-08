@@ -26,7 +26,7 @@ object SendNetworkRequestEventRunner : EventRunner<SendNetworkRequestEventSchema
                     httpMethod = method.toKtorHttpMethod(),
                     headers = headers,
                     body = body,
-                    timeoutMillis = timeoutMillis,
+                    timeouts = timeouts,
                 )
             )
                 .onSuccess { response ->

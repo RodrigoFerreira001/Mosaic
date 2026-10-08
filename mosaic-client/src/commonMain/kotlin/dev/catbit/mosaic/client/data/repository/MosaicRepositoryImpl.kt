@@ -9,6 +9,7 @@ import dev.catbit.mosaic.client.exceptions.NetworkResponseException
 import dev.catbit.mosaic.client.extensions.safeResult
 import dev.catbit.mosaic.core.data.models.graph.GraphModel
 import dev.catbit.mosaic.core.data.models.screen.ScreenModel
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.extensions.currentDateTime
 import dev.catbit.mosaic.core.extensions.toSafeLocalDateTime
 import io.github.vinceglb.filekit.PlatformFile
@@ -71,7 +72,7 @@ class MosaicRepositoryImpl(
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        timeoutMillis: Long?
+        timeouts: TimeoutsSchema?
     ): Result<ScreenModel> = safeResult {
 
         val stagedNetworkParams = networkParametersHolder.peek()
@@ -94,7 +95,7 @@ class MosaicRepositoryImpl(
                     headers = headers,
                     body = body,
                     httpMethod = httpMethod,
-                    timeoutMillis = timeoutMillis
+                    timeouts = timeouts
                 )
                 when {
                     networkResult.isSuccess -> {
@@ -112,7 +113,7 @@ class MosaicRepositoryImpl(
                 headers = headers,
                 body = body,
                 httpMethod = httpMethod,
-                timeoutMillis = timeoutMillis
+                timeouts = timeouts
             ).getOrThrow().apply {
                 database.setScreen(cacheKey, this)
             }
@@ -139,13 +140,13 @@ class MosaicRepositoryImpl(
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        timeoutMillis: Long?
+        timeouts: TimeoutsSchema?
     ) = network.sendHttpRequest(
         url = url,
         headers = headers,
         body = body,
         httpMethod = httpMethod,
-        timeoutMillis = timeoutMillis,
+        timeouts = timeouts,
     )
 
     override suspend fun downloadFileToMemory(

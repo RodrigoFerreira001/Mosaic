@@ -1,9 +1,10 @@
 package dev.catbit.mosaic.client.data.repository
 
+import dev.catbit.mosaic.client.data.data_sources.network.UploadResult
 import dev.catbit.mosaic.core.data.models.graph.GraphModel
 import dev.catbit.mosaic.core.data.models.screen.ScreenModel
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import io.github.vinceglb.filekit.PlatformFile
-import dev.catbit.mosaic.client.data.data_sources.network.UploadResult
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +31,7 @@ interface MosaicRepository {
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        timeoutMillis: Long? = null
+        timeouts: TimeoutsSchema? = null
     ): Result<ScreenModel>
 
     suspend fun sendHttpRequest(
@@ -38,7 +39,7 @@ interface MosaicRepository {
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        timeoutMillis: Long? = null
+        timeouts: TimeoutsSchema? = null
     ): Result<HttpResponse>
 
     suspend fun downloadFileToMemory(

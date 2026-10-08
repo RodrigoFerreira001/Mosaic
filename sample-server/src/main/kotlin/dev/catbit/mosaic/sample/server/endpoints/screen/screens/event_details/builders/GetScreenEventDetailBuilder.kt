@@ -83,6 +83,11 @@ object GetScreenEventDetailBuilder : EventDetailBuilder {
                 )
                 """
             )
+            ShowroomNote(
+                "For slow screens, pass timeouts = timeout(requestTimeoutMillis = …, socketTimeoutMillis = …) " +
+                    "to override the client's defaults for this fetch only — same contract as SendNetworkRequest; " +
+                    "values left null keep the client default."
+            )
 
             ShowroomRelated(
                 names = listOf("RefreshScreen", "ChangeScreenState", "Navigate"),

@@ -12,6 +12,7 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.Ev
 import dev.catbit.mosaic.server.builder.event.builders.file.SaveFile
 import dev.catbit.mosaic.server.builder.event.builders.image.TakePicture
 import dev.catbit.mosaic.server.builder.event.builders.image.byQuality
+import dev.catbit.mosaic.server.builder.event.builders.image.imageResizeOptions
 import dev.catbit.mosaic.server.builder.event.builders.image.pictureArrayOfBytes
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
@@ -47,6 +48,7 @@ object TakePictureEventDetailBuilder : EventDetailBuilder {
                         TakePicture(
                             trigger = EventTriggers.onClick(),
                             compression = byQuality(70f),
+                            resize = imageResizeOptions(maxLongEdgePx = 1024),
                             outputType = pictureArrayOfBytes(),
                             events = {
                                 SaveFile(
@@ -90,6 +92,7 @@ object TakePictureEventDetailBuilder : EventDetailBuilder {
                 TakePicture(
                     trigger = EventTriggers.onClick(),
                     compression = byQuality(70f),
+                    resize = imageResizeOptions(maxLongEdgePx = 1024),
                     outputType = pictureArrayOfBytes(),
                     events = {
                         SaveFile(trigger = EventTriggers.onSuccess(), fileName = "avatar.webp", overrideIfExists = true)

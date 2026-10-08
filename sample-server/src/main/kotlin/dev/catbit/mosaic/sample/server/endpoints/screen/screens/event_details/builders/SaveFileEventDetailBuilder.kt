@@ -82,7 +82,7 @@ object SaveFileEventDetailBuilder : EventDetailBuilder {
                 DownloadFileToMemory(
                     trigger = EventTriggers.onClick(),
                     url = "/files/report.pdf",
-                    method = HttpMethod.GET,
+                    method = httpGet(),
                     events = {
                         SaveFile(trigger = EventTriggers.onDownloadFinish(), fileName = "report.pdf", overrideIfExists = true)
                     }

@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
-import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
@@ -11,6 +10,7 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder
 import dev.catbit.mosaic.server.builder.event.builders.networking.DownloadFileToMemory
+import dev.catbit.mosaic.server.builder.event.builders.networking.httpGet
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
 import dev.catbit.mosaic.server.builder.event.builders.tiles.mappedIncomingTileUpdateData
@@ -45,7 +45,7 @@ object DownloadFileToMemoryEventDetailBuilder : EventDetailBuilder {
                         DownloadFileToMemory(
                             trigger = EventTriggers.onClick(),
                             url = "https://raw.githubusercontent.com/octocat/Hello-World/master/README",
-                            method = HttpMethod.GET,
+                            method = httpGet(),
                             events = {
                                 UpdateTiles(
                                     trigger = EventTriggers.onStart(),
@@ -85,7 +85,7 @@ object DownloadFileToMemoryEventDetailBuilder : EventDetailBuilder {
                 DownloadFileToMemory(
                     trigger = EventTriggers.onClick(),
                     url = "https://api.example.com/warmup",
-                    method = HttpMethod.GET,
+                    method = httpGet(),
                     events = {
                         UpdateTiles(trigger = EventTriggers.onSuccess(), updates = {
                             update("bytes_label", mappedIncomingTileUpdateData("text" to "Warmed up <||> bytes"))

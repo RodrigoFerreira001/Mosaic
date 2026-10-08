@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
-import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
@@ -13,6 +12,7 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.Ev
 import dev.catbit.mosaic.server.builder.event.builders.data.TransformData
 import dev.catbit.mosaic.server.builder.event.builders.networking.SendNetworkRequest
 import dev.catbit.mosaic.server.builder.event.builders.networking.SetIncomingDataToNetworkParamsHolderHeaders
+import dev.catbit.mosaic.server.builder.event.builders.networking.httpGet
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.incomingTileUpdateData
 import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
@@ -54,7 +54,7 @@ object SetIncomingDataToNetworkParamsHolderHeadersEventDetailBuilder : EventDeta
                                         SendNetworkRequest(
                                             trigger = EventTriggers.onSuccess(),
                                             url = "https://httpbin.org/headers",
-                                            method = HttpMethod.GET,
+                                            method = httpGet(),
                                             events = {
                                                 TransformData(
                                                     trigger = EventTriggers.onSuccess(),
@@ -100,7 +100,7 @@ object SetIncomingDataToNetworkParamsHolderHeadersEventDetailBuilder : EventDeta
                 }, events = {
                     TransformData(trigger = EventTriggers.onSuccess(), template = mapOf("Cookie" to "<||>"), events = {
                         SetIncomingDataToNetworkParamsHolderHeaders(trigger = EventTriggers.onSuccess(), events = {
-                            SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/protected", method = HttpMethod.GET)
+                            SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/protected", method = httpGet())
                         })
                     })
                 })

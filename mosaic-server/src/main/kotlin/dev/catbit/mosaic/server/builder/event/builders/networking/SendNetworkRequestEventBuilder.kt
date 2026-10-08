@@ -3,6 +3,7 @@ package dev.catbit.mosaic.server.builder.event.builders.networking
 import dev.catbit.mosaic.core.data.schemas.event.events.networking.SendNetworkRequestEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.extensions.randomId
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilder
@@ -16,7 +17,7 @@ internal class SendNetworkRequestEventBuilder(
     private val method: HttpMethod,
     private val body: AnySerializable?,
     private val headers: Map<String, String>?,
-    private val timeoutMillis: Long?,
+    private val timeouts: TimeoutsSchema?,
 ) : EventSchemaBuilder<SendNetworkRequestEventSchema>() {
 
     override fun build() = SendNetworkRequestEventSchema(
@@ -27,13 +28,13 @@ internal class SendNetworkRequestEventBuilder(
         method = method,
         body = body,
         headers = headers,
-        timeoutMillis = timeoutMillis,
+        timeouts = timeouts,
     )
 }
 
 /**
  * Sends an HTTP request to [url] with [method], [headers], [body] and an optional
- * [timeoutMillis], and emits the response downstream — the general-purpose way to talk to a
+ * [timeouts], and emits the response downstream — the general-purpose way to talk to a
  * backend from inside an event chain. A JSON response is parsed into plain maps, lists and
  * primitives (a JSON body that fails to parse yields `null`); anything else is passed through as
  * a raw `ByteArray`. Does not consume `incomingData`. Dispatches `onStart` before the request is
@@ -48,10 +49,10 @@ internal class SendNetworkRequestEventBuilder(
  * @param trigger Trigger that fires this event, built via `EventTriggers`.
  * @param events Child events chained after this one, wired to its triggers (`onStart`, `onNetworkResponse`, `onNetworkFailure`, `onSuccess`, `onFailure`).
  * @param url URL requested.
- * @param method HTTP method used for the request.
+ * @param method HTTP method used for the request, built with [httpGet], [httpPost], [httpPut], [httpDelete], [httpPatch] etc.
  * @param body Request body. Defaults to none.
  * @param headers Request headers. Defaults to none.
- * @param timeoutMillis Request timeout, in milliseconds. Defaults to none (client default).
+ * @param timeouts Request, connect and socket timeout overrides, built with [timeout]. Defaults to none (client defaults).
  */
 fun EventSchemaBuilderScope.SendNetworkRequest(
     id: String = randomId(),
@@ -61,7 +62,7 @@ fun EventSchemaBuilderScope.SendNetworkRequest(
     method: HttpMethod,
     body: AnySerializable? = null,
     headers: Map<String, String>? = null,
-    timeoutMillis: Long? = null,
+    timeouts: TimeoutsSchema? = null,
 ) {
     addBuilder(
         SendNetworkRequestEventBuilder(
@@ -72,7 +73,7 @@ fun EventSchemaBuilderScope.SendNetworkRequest(
             method = method,
             body = body,
             headers = headers,
-            timeoutMillis = timeoutMillis,
+            timeouts = timeouts,
         )
     )
 }

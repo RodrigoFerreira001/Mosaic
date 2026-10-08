@@ -23,7 +23,7 @@ object RefreshScreenEventRunner : EventRunner<RefreshScreenEventSchema> {
                     headers = headers,
                     body = body,
                     httpMethod = method.toKtorHttpMethod(),
-                    timeoutMillis = timeoutMillis
+                    timeouts = timeouts
                 )
             }
         )

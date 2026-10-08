@@ -1,6 +1,7 @@
 package dev.catbit.mosaic.client.domain.send_request
 
 import dev.catbit.mosaic.client.data.repository.MosaicRepository
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.domain.base.UseCase
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
@@ -20,7 +21,7 @@ class SendNetworkRequestUseCase(
             headers = headers,
             body = body,
             httpMethod = httpMethod,
-            timeoutMillis = timeoutMillis
+            timeouts = timeouts
         )
     }
 
@@ -29,13 +30,13 @@ class SendNetworkRequestUseCase(
      * @property headers request headers.
      * @property body request body.
      * @property httpMethod HTTP method.
-     * @property timeoutMillis request timeout override.
+     * @property timeouts request, connect and socket timeout overrides.
      */
     data class Params(
         val url: String,
         val headers: Map<String, String>? = null,
         val body: Any?,
         val httpMethod: HttpMethod,
-        val timeoutMillis: Long? = null
+        val timeouts: TimeoutsSchema? = null
     )
 }

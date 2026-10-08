@@ -3,6 +3,7 @@ package dev.catbit.mosaic.client.data.data_sources.network
 import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
 import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
 import dev.catbit.mosaic.core.data.responses.version.VersionResponse
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
@@ -19,7 +20,7 @@ interface MosaicNetwork {
         headers: Map<String, String>?,
         body: Any?,
         httpMethod: HttpMethod,
-        timeoutMillis: Long? = null
+        timeouts: TimeoutsSchema? = null
     ): Result<ScreenResponse>
 
     suspend fun sendHttpRequest(
@@ -27,7 +28,7 @@ interface MosaicNetwork {
         headers: Map<String, String>? = null,
         body: Any?,
         httpMethod: HttpMethod,
-        timeoutMillis: Long? = null
+        timeouts: TimeoutsSchema? = null
     ): Result<HttpResponse>
 
     suspend fun downloadFileToMemory(

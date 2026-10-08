@@ -79,7 +79,7 @@ object OpenFilePickerEventDetailBuilder : EventDetailBuilder {
                     trigger = EventTriggers.onClick(),
                     fileType = imageFileType(),
                     events = {
-                        UploadFile(trigger = EventTriggers.onSuccess(), url = "/api/upload/avatar", method = HttpMethod.POST)
+                        UploadFile(trigger = EventTriggers.onSuccess(), url = "/api/upload/avatar", method = httpPost())
                     }
                 )
                 """

@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
-import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
@@ -12,6 +11,8 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder
 import dev.catbit.mosaic.server.builder.event.builders.data.TransformData
 import dev.catbit.mosaic.server.builder.event.builders.networking.SendNetworkRequest
+import dev.catbit.mosaic.server.builder.event.builders.networking.httpGet
+import dev.catbit.mosaic.server.builder.event.builders.networking.timeout
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.incomingTileUpdateData
 import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
@@ -46,7 +47,8 @@ object SendNetworkRequestEventDetailBuilder : EventDetailBuilder {
                         SendNetworkRequest(
                             trigger = EventTriggers.onClick(),
                             url = "https://jsonplaceholder.typicode.com/todos/1",
-                            method = HttpMethod.GET,
+                            method = httpGet(),
+                            timeouts = timeout(requestTimeoutMillis = 15_000, socketTimeoutMillis = 15_000),
                             events = {
                                 UpdateTiles(
                                     trigger = EventTriggers.onStart(),
@@ -88,7 +90,8 @@ object SendNetworkRequestEventDetailBuilder : EventDetailBuilder {
                 SendNetworkRequest(
                     trigger = EventTriggers.onClick(),
                     url = "https://jsonplaceholder.typicode.com/todos/1",
-                    method = HttpMethod.GET,
+                    method = httpGet(),
+                    timeouts = timeout(requestTimeoutMillis = 15_000, socketTimeoutMillis = 15_000),
                     events = {
                         UpdateTiles(
                             trigger = EventTriggers.onSuccess(),
@@ -107,6 +110,13 @@ object SendNetworkRequestEventDetailBuilder : EventDetailBuilder {
                 "onNetworkResponse(code)/onNetworkFailure(code) replace onSuccess/onFailure for that " +
                     "specific HTTP status when declared as a child. onFailure never fires for codes with a " +
                     "matching onNetworkFailure(code)."
+            )
+
+            ShowroomNote(
+                "timeouts overrides the client's defaults for this request only, through " +
+                    "timeout(requestTimeoutMillis, connectTimeoutMillis, socketTimeoutMillis) — any value left " +
+                    "null keeps the client default. The socket timeout also bounds the wait for the response " +
+                    "headers, so raise it together with the request timeout for slow endpoints."
             )
 
             ShowroomRelated(

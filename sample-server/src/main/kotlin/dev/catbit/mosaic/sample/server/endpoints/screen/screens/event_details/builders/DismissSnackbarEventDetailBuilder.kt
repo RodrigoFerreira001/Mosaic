@@ -64,7 +64,7 @@ object DismissSnackbarEventDetailBuilder : EventDetailBuilder {
                 SendNetworkRequest(
                     trigger = EventTriggers.onClick(),
                     url = "/api/upload",
-                    method = HttpMethod.POST,
+                    method = httpPost(),
                     events = {
                         DisplaySnackbar(trigger = EventTriggers.onStart(), message = "Uploading...", duration = snackbarIndefiniteDuration())
                         DismissSnackbar(trigger = EventTriggers.onSuccess())

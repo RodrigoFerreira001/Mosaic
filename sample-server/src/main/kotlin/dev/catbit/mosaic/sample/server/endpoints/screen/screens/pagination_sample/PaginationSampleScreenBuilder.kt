@@ -2,7 +2,6 @@ package dev.catbit.mosaic.sample.server.endpoints.screen.screens.pagination_samp
 
 import dev.catbit.mosaic.core.data.responses.screen.ScreenResponse
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
-import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.sample.server.endpoints.pagination.paginationUrl
 import dev.catbit.mosaic.sample.server.endpoints.screen.ScreenBuilder
 import dev.catbit.mosaic.server.builder.color.color
@@ -12,6 +11,7 @@ import dev.catbit.mosaic.server.builder.event.builders.event.TriggerEvent
 import dev.catbit.mosaic.server.builder.event.builders.event.UpdateEvents
 import dev.catbit.mosaic.server.builder.event.builders.navigation.NavigateUp
 import dev.catbit.mosaic.server.builder.event.builders.networking.SendNetworkRequest
+import dev.catbit.mosaic.server.builder.event.builders.networking.httpGet
 import dev.catbit.mosaic.server.builder.event.builders.tiles.AddTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.RemoveTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.WipeTiles
@@ -121,7 +121,7 @@ object PaginationSampleScreenBuilder : ScreenBuilder {
                                 id = PAGINATION_EVENT_ID,
                                 trigger = EventTriggers.onScrollThresholdReached(),
                                 url = paginationUrl(mode = "success", page = 1),
-                                method = HttpMethod.GET,
+                                method = httpGet(),
                                 events = {
                                     // Defensively clears a stale error tile left over from a previous
                                     // failed attempt under the same id — RemoveTiles targeting a tile

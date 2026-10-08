@@ -43,7 +43,7 @@ internal class DownloadFileToDiskEventBuilder(
  * @param trigger Trigger that fires this event, built via `EventTriggers`.
  * @param events Child events chained after this one, wired to its triggers (`onStart`, `onDownloadProgress`, `onDownloadFinish`, `onDownloadFailure`, `onSuccess`, `onFailure`).
  * @param url URL to download.
- * @param method HTTP method used for the request.
+ * @param method HTTP method used for the request, built with [httpGet], [httpPost], [httpPut], [httpDelete], [httpPatch] etc.
  * @param body Request body. Defaults to none.
  * @param headers Request headers. Defaults to none.
  * @param targetFileName Name the downloaded file is saved under, in the client's own storage.

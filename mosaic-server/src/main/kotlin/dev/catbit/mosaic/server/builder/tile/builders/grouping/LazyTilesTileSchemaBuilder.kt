@@ -7,6 +7,7 @@ import dev.catbit.mosaic.core.extensions.randomId
 import kotlinx.collections.immutable.toImmutableList
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.event.builders.networking.httpGet
 import dev.catbit.mosaic.server.builder.style.StyleSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilder
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
@@ -57,7 +58,7 @@ internal class LazyTilesTileSchemaBuilder(
  * @param visibility Whether the tile is shown, hidden but occupies space, or removed from layout. Defaults to visible.
  * @param searchableTerms Terms used by an ancestor's search/filter to decide whether this tile matches. Defaults to none.
  * @param url URL requested to fetch the JSON array of tile schemas to render.
- * @param method HTTP method used for the request. Defaults to GET.
+ * @param method HTTP method used for the request, built with [httpGet], [httpPost], [httpPut], [httpDelete], [httpPatch] etc. Defaults to GET.
  * @param body Request body sent with the request. Defaults to none.
  * @param headers Request headers sent with the request. Defaults to none.
  * @param failureTiles Tiles rendered when the request or response decoding fails. Defaults to none.
@@ -70,7 +71,7 @@ fun TileSchemaBuilderScope.LazyTiles(
     visibility: TileSchema.Visibility = visible(),
     searchableTerms: List<String>? = null,
     url: String,
-    method: HttpMethod = HttpMethod.GET,
+    method: HttpMethod = httpGet(),
     body: AnySerializable? = null,
     headers: Map<String, String>? = null,
     failureTiles: TileSchemaBuilderScope.() -> Unit = {},

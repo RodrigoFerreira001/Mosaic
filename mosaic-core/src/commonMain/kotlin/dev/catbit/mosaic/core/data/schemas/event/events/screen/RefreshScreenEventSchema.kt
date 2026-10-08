@@ -8,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
@@ -19,7 +20,7 @@ import kotlinx.serialization.Serializable
  * unlike `GetScreen`, no extra event is needed to install what came back.
  *
  * The request targets the screen's own id; [method] (default `GET`), [body], [headers] and
- * [timeoutMillis] shape it.
+ * [timeouts] shape it.
  *
  * **incomingData consumed:** not used.
  *
@@ -50,5 +51,5 @@ data class RefreshScreenEventSchema(
     @SerialName("method") val method: HttpMethod = HttpMethod.GET,
     @SerialName("body") val body: AnySerializable?,
     @SerialName("headers") val headers: Map<String, String>?,
-    @SerialName("timeoutMillis") val timeoutMillis: Long? = null
+    @SerialName("timeouts") val timeouts: TimeoutsSchema? = null
 ) : EventSchema

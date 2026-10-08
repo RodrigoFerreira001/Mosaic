@@ -9,6 +9,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnNetworkFailu
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.serialization.serializers.AnySerializable
 import dev.catbit.mosaic.core.serialization.serializers.SerializableImmutableList
 import kotlinx.serialization.SerialName
@@ -20,7 +21,7 @@ import kotlinx.serialization.Serializable
  * installed — that split is what makes custom loading and error flows possible.
  *
  * The request targets the screen's own id; [method] (default `GET`), [body], [headers] and
- * [timeoutMillis] shape it.
+ * [timeouts] shape it.
  *
  * **incomingData consumed:** not used.
  *
@@ -52,5 +53,5 @@ data class GetScreenEventSchema(
     @SerialName("method") val method: HttpMethod = HttpMethod.GET,
     @SerialName("body") val body: AnySerializable?,
     @SerialName("headers") val headers: Map<String, String>?,
-    @SerialName("timeoutMillis") val timeoutMillis: Long? = null
+    @SerialName("timeouts") val timeouts: TimeoutsSchema? = null
 ) : EventSchema

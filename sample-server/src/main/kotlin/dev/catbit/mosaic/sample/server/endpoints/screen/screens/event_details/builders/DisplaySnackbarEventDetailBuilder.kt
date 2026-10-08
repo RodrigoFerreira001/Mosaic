@@ -97,7 +97,7 @@ object DisplaySnackbarEventDetailBuilder : EventDetailBuilder {
                     duration = snackbarLongDuration(),
                     actionLabel = "Retry",
                     events = {
-                        SendNetworkRequest(trigger = EventTriggers.onSnackbarAction(), url = "/api/retry", method = HttpMethod.POST)
+                        SendNetworkRequest(trigger = EventTriggers.onSnackbarAction(), url = "/api/retry", method = httpPost())
                     }
                 )
                 """

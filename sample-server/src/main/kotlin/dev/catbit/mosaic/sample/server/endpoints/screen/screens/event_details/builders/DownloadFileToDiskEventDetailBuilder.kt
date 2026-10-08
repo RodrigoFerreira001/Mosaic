@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
-import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
@@ -13,6 +12,7 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.Ev
 import dev.catbit.mosaic.server.builder.event.builders.file.GetFile
 import dev.catbit.mosaic.server.builder.event.builders.file.arrayOfBytes
 import dev.catbit.mosaic.server.builder.event.builders.networking.DownloadFileToDisk
+import dev.catbit.mosaic.server.builder.event.builders.networking.httpGet
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
@@ -48,7 +48,7 @@ object DownloadFileToDiskEventDetailBuilder : EventDetailBuilder {
                         DownloadFileToDisk(
                             trigger = EventTriggers.onClick(),
                             url = "https://raw.githubusercontent.com/octocat/Hello-World/master/README",
-                            method = HttpMethod.GET,
+                            method = httpGet(),
                             targetFileName = TARGET_FILE_NAME,
                             events = {
                                 UpdateTiles(
@@ -111,7 +111,7 @@ object DownloadFileToDiskEventDetailBuilder : EventDetailBuilder {
                 DownloadFileToDisk(
                     trigger = EventTriggers.onClick(),
                     url = "https://api.example.com/assets/manual.pdf",
-                    method = HttpMethod.GET,
+                    method = httpGet(),
                     targetFileName = "manual.pdf",
                     events = {
                         UpdateTiles(trigger = EventTriggers.onSuccess(), updates = { /* ... */ })

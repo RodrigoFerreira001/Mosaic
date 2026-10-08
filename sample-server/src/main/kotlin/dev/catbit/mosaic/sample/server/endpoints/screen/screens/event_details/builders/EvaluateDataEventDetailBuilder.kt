@@ -96,7 +96,7 @@ object EvaluateDataEventDetailBuilder : EventDetailBuilder {
                     expression = incomingData().valueAtKey("email").matchesRegex("^[\\w.+]+@[\\w]+\\.[a-z]{2,}$")
                         and incomingData().valueAtKey("password").isLengthBiggerThanOrEquals(8),
                     events = {
-                        SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/auth/login", method = HttpMethod.POST)
+                        SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/auth/login", method = httpPost())
                         DisplaySnackbar(trigger = EventTriggers.onFailure(), message = "Invalid email or password too short")
                     }
                 )

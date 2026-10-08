@@ -84,7 +84,7 @@ Button(
         SendNetworkRequest(
             trigger = EventTriggers.onClick(),
             url = "/api/login",
-            method = HttpMethod.POST
+            method = httpPost()
         )
     }
 )
@@ -903,7 +903,7 @@ Renders a `Column` whose content is fetched from the network at display time —
 | Parameter | Type | Default | What it's for |
 |---|---|---|---|
 | `url` | `String` | required | Endpoint fetched to load the real content. |
-| `method` | `HttpMethod` | `HttpMethod.GET` | HTTP method used for the fetch. |
+| `method` | `HttpMethod` | `httpGet()` | HTTP method used for the fetch. |
 | `body` | `AnySerializable?` | `null` | Request body. |
 | `headers` | `Map<String, String>?` | `null` | Request headers. |
 | `failureTiles` | `List<TileSchema>` | `{}` (empty) | Rendered when the fetch or decode fails. |

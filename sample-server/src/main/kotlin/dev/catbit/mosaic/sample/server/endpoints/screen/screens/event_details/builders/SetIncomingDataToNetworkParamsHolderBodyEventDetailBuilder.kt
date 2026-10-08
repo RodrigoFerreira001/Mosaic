@@ -1,7 +1,6 @@
 package dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders
 
 import dev.catbit.mosaic.core.data.schemas.event.trigger.EventTriggers
-import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomCode
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomDemoCard
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomHero
@@ -16,6 +15,7 @@ import dev.catbit.mosaic.server.builder.event.builders.data.GetData
 import dev.catbit.mosaic.server.builder.event.builders.data.TransformData
 import dev.catbit.mosaic.server.builder.event.builders.networking.SendNetworkRequest
 import dev.catbit.mosaic.server.builder.event.builders.networking.SetIncomingDataToNetworkParamsHolderBody
+import dev.catbit.mosaic.server.builder.event.builders.networking.httpPost
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.incomingTileUpdateData
 import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
@@ -68,7 +68,7 @@ object SetIncomingDataToNetworkParamsHolderBodyEventDetailBuilder : EventDetailB
                                         SendNetworkRequest(
                                             trigger = EventTriggers.onSuccess(),
                                             url = "https://jsonplaceholder.typicode.com/posts",
-                                            method = HttpMethod.POST,
+                                            method = httpPost(),
                                             events = {
                                                 TransformData(
                                                     trigger = EventTriggers.onSuccess(),
@@ -106,7 +106,7 @@ object SetIncomingDataToNetworkParamsHolderBodyEventDetailBuilder : EventDetailB
                 """
                 GetData(trigger = EventTriggers.onClick(), readings = { reading(screenSegmentedData("form"), fullAccessMode()) }, events = {
                     SetIncomingDataToNetworkParamsHolderBody(trigger = EventTriggers.onSuccess(), events = {
-                        SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/create", method = HttpMethod.POST)
+                        SendNetworkRequest(trigger = EventTriggers.onSuccess(), url = "/api/create", method = httpPost())
                     })
                 })
                 """

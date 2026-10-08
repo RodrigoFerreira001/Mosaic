@@ -263,6 +263,9 @@ internal class MosaicModules(
                 httpClient = get<HttpClient>().config {
                     install(HttpTimeout) {
                         requestTimeoutMillis = 20.seconds.inWholeMilliseconds
+                        // Aligned with the request timeout so engines with a shorter implicit socket
+                        // timeout (OkHttp: 10s) don't cut slow responses before it.
+                        socketTimeoutMillis = 20.seconds.inWholeMilliseconds
                     }
                     install(ContentNegotiation) {
                         json(get<MosaicSerializer>().json)

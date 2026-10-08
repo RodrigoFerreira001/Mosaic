@@ -277,7 +277,7 @@ private fun TileSchemaBuilderScope.PaginationSection() {
                             id = "PAGINATION_EVENT",
                             trigger = EventTriggers.onScrollThresholdReached(),
                             url = "https://.../pagination?page=1",
-                            method = HttpMethod.GET,
+                            method = httpGet(),
                             events = {
                                 AddTiles(trigger = EventTriggers.onStart(), groupingTileId = "PAGINATED_LIST") { /* loading row */ }
                                 ProcessData(trigger = EventTriggers.onSuccess(), processWith = "EVENT_RUNNER")

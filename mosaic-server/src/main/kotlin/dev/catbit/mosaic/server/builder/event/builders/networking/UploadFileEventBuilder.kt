@@ -47,7 +47,7 @@ internal class UploadFileEventBuilder(
  * @param trigger Trigger that fires this event, built via `EventTriggers`.
  * @param events Child events chained after this one, wired to its triggers (`onStart`, `onUploadProgress`, `onNetworkResponse`, `onNetworkFailure`, `onSuccess`, `onFailure`).
  * @param url URL the file is uploaded to. Defaults to none (dispatches `onFailure` if left unset by the time the event runs — set via `SetIncomingDataToNetworkParamsHolderUrl` instead if omitted here).
- * @param method HTTP method used for the request. Defaults to PUT.
+ * @param method HTTP method used for the request, built with [httpGet], [httpPost], [httpPut], [httpDelete], [httpPatch] etc. Defaults to PUT.
  * @param headers Request headers. Defaults to none.
  * @param contentType Content type of the uploaded file. Defaults to none.
  */
@@ -56,7 +56,7 @@ fun EventSchemaBuilderScope.UploadFile(
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
     url: String? = null,
-    method: HttpMethod = HttpMethod.PUT,
+    method: HttpMethod = httpPut(),
     headers: Map<String, String>? = null,
     contentType: String? = null,
 ) {

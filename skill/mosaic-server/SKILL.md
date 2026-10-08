@@ -83,8 +83,9 @@ import dev.catbit.mosaic.server.builder.event.builders.system.BroadcastToSystem
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
 import dev.catbit.mosaic.server.builder.event.EventSchemaBuilderScope
 
-// HTTP
+// HTTP — the type for composition signatures; values via httpGet(), httpPost(), ...
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
+import dev.catbit.mosaic.server.builder.event.builders.networking.*
 ```
 
 ---
@@ -400,6 +401,17 @@ initialState()    successState(data = null)    failureState()
 // Navigate options
 poppingUpTo(destination = "home", inclusive = false)
 
+// HTTP methods (dev.catbit.mosaic.server.builder.event.builders.networking)
+httpGet()   httpPost()   httpPut()   httpDelete()   httpPatch()
+httpHead()  httpOptions()  httpTrace()  httpQuery()
+
+// Per-request timeouts for SendNetworkRequest / GetScreen / RefreshScreen (same package) — null keeps the client default
+timeout(requestTimeoutMillis = 60_000, connectTimeoutMillis = null, socketTimeoutMillis = 60_000)
+
+// Image compression/resize for TakePicture / GetImageFromGallery (dev.catbit.mosaic.server.builder.event.builders.image)
+byQuality(qualityPercent = 80f)   byTargetSize(targetSizeKb = 200)
+imageResizeOptions(maxLongEdgePx = 1024, downscaleOnly = true, maintainAspectRatio = true)
+
 // EvaluateData (logical expression helpers)
 incomingData()                              // entry point: read incomingData
 dataSourceData(source, accessMode)          // entry point: read from a data source
@@ -519,7 +531,7 @@ Button(id = "btn_login", text = "Login") {
                         SendNetworkRequest(
                             trigger = EventTriggers.onSuccess(),
                             url = "/api/auth/login",
-                            method = HttpMethod.POST,
+                            method = httpPost(),
                             events = {
                                 Navigate(
                                     trigger = EventTriggers.onSuccess(),
@@ -727,7 +739,7 @@ Column(id = "root") {
 SendNetworkRequest(
     trigger = EventTriggers.onClick(),
     url = "/api/environments",
-    method = HttpMethod.GET,
+    method = httpGet(),
     headers = mapOf("Accept" to "application/json"),
     events = {
         UpdateTiles(
@@ -836,7 +848,7 @@ LazyColumn(
             id = "fetch_next_page",                  // stable id — UpdateEvents targets it by this
             trigger = EventTriggers.onScrollThresholdReached(),
             url = "/api/results?page=1",              // page 1 only — every later page comes from UpdateEvents below
-            method = HttpMethod.GET,
+            method = httpGet(),
             events = {
                 AddTiles(trigger = EventTriggers.onStart(), groupingTileId = "results_list") {
                     Row(id = "loading") { CircularProgressIndicator() }
@@ -954,7 +966,7 @@ tiles = {
                 id = "env_${env.id}",
                 name = env.name,
                 onEditClick = { Navigate(trigger = EventTriggers.inline(), destination = "edit_env", navigatorId = "main") },
-                onDeleteClick = { SendNetworkRequest(trigger = EventTriggers.inline(), url = "/api/env/${env.id}", method = HttpMethod.DELETE) }
+                onDeleteClick = { SendNetworkRequest(trigger = EventTriggers.inline(), url = "/api/env/${env.id}", method = httpDelete()) }
             )
         }
     }
@@ -974,7 +986,7 @@ fun EventSchemaBuilderScope.GetJson(
     SendNetworkRequest(
         trigger = trigger,
         url = url,
-        method = HttpMethod.GET,
+        method = httpGet(),
         headers = mapOf("Accept" to "application/json"),
         events = events
     )

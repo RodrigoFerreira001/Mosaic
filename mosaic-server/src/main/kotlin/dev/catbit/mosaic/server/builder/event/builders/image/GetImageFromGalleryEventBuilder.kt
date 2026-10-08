@@ -40,7 +40,7 @@ internal class GetImageFromGalleryEventBuilder(
  * @param id Unique identifier of this event. Defaults to a random id.
  * @param trigger Trigger that fires this event, built via `EventTriggers`.
  * @param compression Re-encoding applied to the picked image, built with [byQuality] or [byTargetSize]. Defaults to none (original bytes, [resize] has no effect).
- * @param resize Resize applied alongside [compression]; only takes effect when [compression] is non-null. Defaults to none (compressor's own defaults).
+ * @param resize Resize applied alongside [compression], built with [imageResizeOptions]; only takes effect when [compression] is non-null. Defaults to none (compressor's own defaults).
  * @param outputType Shape of the image delivered as `incomingData` — [galleryArrayOfBytes] or [galleryBase64]. Defaults to raw bytes.
  * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onCancelled`, `onFailure`).
  */

@@ -37,7 +37,7 @@ object SetIncomingDataToNetworkParamsHolderUrlEventDetailBuilder : EventDetailBu
                 // incomingData = backend response with {"uploadUrl": "https://storage.googleapis.com/..."}
                 TransformData(trigger = EventTriggers.onSuccess(), template = "<|uploadUrl|>", events = {
                     SetIncomingDataToNetworkParamsHolderUrl(trigger = EventTriggers.onSuccess(), events = {
-                        UploadFile(trigger = EventTriggers.onSuccess(), method = HttpMethod.PUT, contentType = "video/mp4")
+                        UploadFile(trigger = EventTriggers.onSuccess(), method = httpPut(), contentType = "video/mp4")
                     })
                 })
                 """

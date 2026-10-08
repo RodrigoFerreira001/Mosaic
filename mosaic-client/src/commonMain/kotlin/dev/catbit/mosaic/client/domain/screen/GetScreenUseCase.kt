@@ -2,6 +2,7 @@ package dev.catbit.mosaic.client.domain.screen
 
 import dev.catbit.mosaic.client.data.repository.MosaicRepository
 import dev.catbit.mosaic.core.data.models.screen.ScreenModel
+import dev.catbit.mosaic.core.data.schemas.network.TimeoutsSchema
 import dev.catbit.mosaic.core.domain.base.UseCase
 import io.ktor.http.HttpMethod
 
@@ -21,7 +22,7 @@ class GetScreenUseCase(
             headers = headers,
             body = body,
             httpMethod = httpMethod,
-            timeoutMillis = timeoutMillis
+            timeouts = timeouts
         )
     }
 
@@ -30,13 +31,13 @@ class GetScreenUseCase(
      * @property headers request headers.
      * @property body request body.
      * @property httpMethod HTTP method.
-     * @property timeoutMillis request timeout override.
+     * @property timeouts request, connect and socket timeout overrides.
      */
     data class Params(
         val screenId: String,
         val headers: Map<String, String>?,
         val body: Any?,
         val httpMethod: HttpMethod,
-        val timeoutMillis: Long? = null,
+        val timeouts: TimeoutsSchema? = null,
     )
 }
