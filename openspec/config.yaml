@@ -1,0 +1,44 @@
+schema: spec-driven
+
+context: |
+  Language: English
+  All artifacts must be written in English.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English.
+
+  Project: Mosaic, a Server-Driven UI (SDUI) framework built with Kotlin Multiplatform.
+  The backend describes screens as typed trees of Tiles (UI) and Events (logic), serialized to JSON;
+  the client renders them with Compose Multiplatform at runtime.
+  Modules: mosaic-core (Schemas + MosaicSerializer), mosaic-server (type-safe DSL builders),
+  mosaic-client (Definition/Renderer/Holder/HolderBuilder/Runner), sample-server (Ktor + showroom),
+  sample-client (Android + Desktop).
+  Stack: Kotlin 2.x, Compose Multiplatform, Ktor, kotlinx.serialization, Koin, Coroutines, Room, Coil 3, Navigation 3.
+  Core pattern: Schema -> Builder -> Renderer/Runner. Source of truth for rules is AGENTS.md;
+  architecture map is .claude/context/architecture.md.
+
+rules:
+  proposal:
+    - State which modules are affected (mosaic-core, mosaic-server, mosaic-client, sample-server, sample-client)
+    - Always state what is out of scope
+    - If a Tile or Event is created, changed or removed, list the Rule 8 sync targets as impacted
+  specs:
+    - Describe observable behavior of Tiles and Events (parameters, triggers fired, edge cases), not implementation details
+    - Never invent fields or behavior; derive them from the real schema and builder
+  design:
+    - Mirror existing implementations (ButtonTile*, ColumnTile*, TriggerEventEvent*) instead of inventing new structures
+    - Non-obvious scenarios (nested builder scopes, extra holder state, sealed subtypes) must be flagged for developer approval
+  tasks:
+    - Every task touching a Tile or Event must include a final group that syncs the schema KDoc, the catalog
+      (.claude/context/tiles-catalog.md or events-catalog.md), the relevant skill (skill/mosaic*) and the sample-server showroom detail page
+    - New Schemas must include registration in MosaicSerializer; new Definitions must include registration in MosaicModules.kt
+    - New EventRunner/TileRenderer placeholders use TODO("[Name]... not yet implemented") and must be marked as pending in the catalog
+    - Do not add code comments (//) unless explicitly requested
+    - Never include gradle/build/compile commands as tasks; the developer runs builds manually
+
+operations:
+  apply:
+    guidance:
+      - Read AGENTS.md and the existing reference implementation before writing code
+      - Do not run gradlew, build or compile commands
+  archive:
+    guidance:
+      - Confirm Rule 8 sync (KDoc, catalog, skill, showroom) is done before archiving
