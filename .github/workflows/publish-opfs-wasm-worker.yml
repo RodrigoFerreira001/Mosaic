@@ -19,9 +19,9 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       # Trusted Publishing (OIDC) needs a recent npm CLI — the one bundled with
-      # Node 20 predates OIDC support, so it's upgraded explicitly here.
+      # Node 20 predates OIDC support, so it's upgraded explicitly here. Pinned to 11: npm@latest now requires Node >= 22.22.
       - name: Update npm
-        run: npm install -g npm@latest
+        run: npm install -g npm@11
 
       - name: Publish @catbit.dev/opfs-wasm-worker
         run: npm publish --access public
