@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v4
 
       # Requires the GCP_SA_KEY secret: a service account JSON key with the Cloud Run Admin,
-      # Artifact Registry Writer, Service Account User and Firebase Hosting Admin roles on the
+      # Artifact Registry Writer, Service Account User, Firebase Hosting Admin and Service Usage Consumer roles on the
       # mosaicsampleserver project, plus a pre-created Artifact Registry repo (see AR_REPO above —
       # the writer role can push to it but can't create a new one).
       - name: Authenticate to Google Cloud

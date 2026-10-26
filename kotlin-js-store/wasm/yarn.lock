@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@catbit.dev/opfs-wasm-worker@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@catbit.dev/opfs-wasm-worker/-/opfs-wasm-worker-1.0.0.tgz#b6e90bd69bfd637e543507622edbdc1c981f154b"
-  integrity sha512-FGl6x2AS2yoV8wHorCgGl6GPrWr3H0FF29CGJgth8VSwxZjWsG6kBdkpMF4iUnOb4ir62QlwWHiGEF8qsyfNpg==
+"@catbit.dev/opfs-wasm-worker@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@catbit.dev/opfs-wasm-worker/-/opfs-wasm-worker-1.1.0.tgz#e7b0e006308c91b3b32576285965263fe665e0d5"
+  integrity sha512-YkYnS8N1xIlWgcrhT5R+48rT0/QgceirgWsPLW7fHSV/CVt2X4sZeZcsRnWli+WNE7z/FMTLGKkV+izSK9WJJw==
 
 "@catbit.dev/sqlite-wasm-worker@1.0.0":
   version "1.0.0"
