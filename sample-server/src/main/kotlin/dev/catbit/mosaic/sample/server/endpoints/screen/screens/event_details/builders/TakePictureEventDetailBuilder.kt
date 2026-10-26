@@ -81,7 +81,7 @@ object TakePictureEventDetailBuilder : EventDetailBuilder {
                     }
                 )
                 ShowroomNote(
-                    "Use the GetFile and DeleteFile events to read or delete the mosaic_demo_photo.webp file " +
+                    "Use the GetFile and DeleteFiles events to read or delete the mosaic_demo_photo.webp file " +
                         "saved here."
                 )
             }

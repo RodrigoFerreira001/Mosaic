@@ -7,7 +7,7 @@ import io.ktor.http.HttpMethod
 
 /**
  * Downloads a file into the client's own private file storage — backs `DownloadFileToDisk`, whose
- * result is afterward reachable via [GetFileUseCase]/[GetFilePlatformFileUseCase]/[DeleteFileUseCase].
+ * result is afterward reachable via [GetFileUseCase]/[GetFilePlatformFileUseCase]/[DeleteFilesUseCase].
  * Reachable via `get<DownloadFileToDiskUseCase>()`.
  */
 class DownloadFileToDiskUseCase(

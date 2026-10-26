@@ -80,7 +80,7 @@ object GetFileEventDetailBuilder : EventDetailBuilder {
             )
 
             ShowroomRelated(
-                names = listOf("SaveFile", "DeleteFile", "DownloadFileToDisk"),
+                names = listOf("SaveFile", "DeleteFiles", "DownloadFileToDisk"),
                 destination = "eventDetails"
             )
         }

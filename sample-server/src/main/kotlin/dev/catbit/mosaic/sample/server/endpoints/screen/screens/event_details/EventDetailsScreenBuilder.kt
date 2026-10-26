@@ -10,7 +10,8 @@ import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.bu
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.CheckForReceivedDataEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.CheckIfHasInternetConnectionEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.CheckIfTileContainsChildrenEventDetailBuilder
-import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DeleteFileEventDetailBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DeleteFilesEventDetailBuilder
+import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.ListFilesEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DismissBottomSheetEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DisplayBottomSheetEventDetailBuilder
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.builders.DismissModalBottomSheetEventDetailBuilder
@@ -130,7 +131,8 @@ private val eventDetailBuilderManager = EventDetailBuilderManager(
         SetIncomingDataToNetworkParamsHolderQueryParametersEventDetailBuilder,
         SaveFileEventDetailBuilder,
         GetFileEventDetailBuilder,
-        DeleteFileEventDetailBuilder,
+        DeleteFilesEventDetailBuilder,
+        ListFilesEventDetailBuilder,
         OpenFilePickerEventDetailBuilder,
         TakePictureEventDetailBuilder,
         GetImageFromGalleryEventDetailBuilder,

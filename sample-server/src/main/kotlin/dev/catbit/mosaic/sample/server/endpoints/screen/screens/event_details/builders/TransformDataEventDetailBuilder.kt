@@ -10,9 +10,14 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder
 import dev.catbit.mosaic.server.builder.event.builders.data.TransformData
+import dev.catbit.mosaic.server.builder.event.builders.file.ListFiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.incomingTileUpdateData
+import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
+import dev.catbit.mosaic.server.builder.event.builders.tiles.mappedIncomingTileUpdateData
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
+import dev.catbit.mosaic.server.builder.tile.builders.buttons.outlinedButton
 import dev.catbit.mosaic.server.builder.tile.builders.inputs.TextField
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 import dev.catbit.mosaic.server.builder.typography.typographyTitleMedium
@@ -71,6 +76,56 @@ object TransformDataEventDetailBuilder : EventDetailBuilder {
                 )
             }
 
+            ShowroomDemoCard(title = "applyPerItem: map each stored file name") {
+                SimpleText(
+                    id = "transform_data_per_item_result",
+                    text = "Tap the button to list the app's storage and map each file name with the template."
+                )
+                Button(
+                    text = "List files and map each one",
+                    buttonType = outlinedButton(),
+                    events = {
+                        ListFiles(
+                            trigger = EventTriggers.onClick(),
+                            directory = "",
+                            events = {
+                                TransformData(
+                                    trigger = EventTriggers.onSuccess(),
+                                    template = mapOf("label" to "file: <||>"),
+                                    applyPerItem = true,
+                                    events = {
+                                        UpdateTiles(
+                                            trigger = EventTriggers.onSuccess(),
+                                            updates = {
+                                                update(
+                                                    tileId = "transform_data_per_item_result",
+                                                    updateData = mappedIncomingTileUpdateData("text" to "<//>")
+                                                )
+                                            }
+                                        )
+                                    }
+                                )
+                                UpdateTiles(
+                                    trigger = EventTriggers.onEmptyDir(),
+                                    updates = {
+                                        update(
+                                            "transform_data_per_item_result",
+                                            inlineTileUpdateData("text" to "The storage is empty — save a file first (SaveFile, DownloadFileToDisk)")
+                                        )
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
+                ShowroomNote(
+                    "ListFiles delivers a list of paths; with applyPerItem = true the template runs once per " +
+                        "path (<||> is the path itself) and incomingData becomes the list of results — here " +
+                        "[{label=file: a.txt}, ...], printed with <//>. Without the flag the template would run " +
+                        "once against the whole list."
+                )
+            }
+
             ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
@@ -86,8 +141,31 @@ object TransformDataEventDetailBuilder : EventDetailBuilder {
                 """
             )
 
+            ShowroomNote(
+                "applyPerItem = true changes what happens when incomingData is a list: instead of applying " +
+                    "the template once to the whole list, it is applied to each item and the result is the list " +
+                    "of outcomes — inside the template, <||> is the item itself and <|name|> a field of it. " +
+                    "An incomingData that is not a list ignores the flag. See the ListFiles page for a live " +
+                    "ListFiles → TransformData → ProcessData cleanup flow."
+            )
+            ShowroomCode(
+                """
+                // incomingData = ["a.glb", "b.glb"]  →  [DeleteFiles(a.glb), DeleteFiles(b.glb)] as JSON
+                TransformData(
+                    trigger = EventTriggers.onSuccess(),
+                    applyPerItem = true,
+                    eventTemplate = {
+                        DeleteFiles(trigger = EventTriggers.inline(), target = singleFile("<||>"))
+                    },
+                    events = {
+                        ProcessData(trigger = EventTriggers.onSuccess(), processWith = "EVENT_RUNNER")
+                    }
+                )
+                """
+            )
+
             ShowroomRelated(
-                names = listOf("EvaluateData", "GetData", "UpdateTiles"),
+                names = listOf("EvaluateData", "GetData", "UpdateTiles", "ProcessData", "ListFiles"),
                 destination = "eventDetails"
             )
         }

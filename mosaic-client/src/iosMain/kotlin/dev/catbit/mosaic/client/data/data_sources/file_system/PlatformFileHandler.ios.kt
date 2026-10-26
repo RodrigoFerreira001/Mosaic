@@ -7,6 +7,7 @@ import io.github.vinceglb.filekit.delete
 import io.github.vinceglb.filekit.exists
 import io.github.vinceglb.filekit.filesDir
 import io.github.vinceglb.filekit.parent
+import io.github.vinceglb.filekit.path
 import io.github.vinceglb.filekit.readBytes
 import io.github.vinceglb.filekit.sink
 import io.github.vinceglb.filekit.source
@@ -14,6 +15,8 @@ import io.github.vinceglb.filekit.write
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.io.buffered
+import kotlinx.io.files.Path
+import kotlinx.io.files.SystemFileSystem
 
 actual object PlatformFileHandler {
 
@@ -42,6 +45,15 @@ actual object PlatformFileHandler {
     actual suspend fun getFilePlatformFile(fileName: String): PlatformFile? {
         val file = PlatformFile(FileKit.filesDir, fileName)
         return file.takeIf { it.exists() }
+    }
+
+    actual suspend fun listFiles(directory: String): List<String>? {
+        val root = Path(FileKit.filesDir.path)
+        val target = Path(root, directory)
+        if (SystemFileSystem.metadataOrNull(target)?.isDirectory != true) return null
+        return SystemFileSystem.list(target)
+            .filter { SystemFileSystem.metadataOrNull(it)?.isRegularFile == true }
+            .map { it.toString().removePrefix(root.toString()).replace('\\', '/').trimStart('/') }
     }
 
     actual suspend fun deleteFile(fileName: String) {

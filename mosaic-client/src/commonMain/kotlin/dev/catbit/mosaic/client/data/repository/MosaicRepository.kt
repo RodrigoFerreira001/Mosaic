@@ -173,6 +173,10 @@ interface MosaicRepository {
         fileName: String
     ): Result<Unit>
 
+    suspend fun listFiles(
+        directory: String
+    ): Result<List<String>>
+
     suspend fun fileExists(
         fileName: String
     ): Result<Boolean>

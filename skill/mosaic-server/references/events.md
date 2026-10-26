@@ -165,6 +165,7 @@ Reshapes `incomingData` into a new value by applying `template` through the clie
 |---|---|---|---|
 | `template` | `AnySerializable` | required (1st overload) | Template applied to `incomingData` — string, map or list, with `<\|path\|>`/`</path/>` placeholders. |
 | `eventTemplate` | block | `{}` (2nd overload) | Alternate form — see Notes. |
+| `applyPerItem` | `Boolean` | `false` | When `true` and `incomingData` is a list, applies the template to each item separately (placeholders resolve against the item: `<||>` is the item, `<|name|>` a field of it) and delivers the list of results. An `incomingData` that isn't a list ignores the flag; an empty list yields an empty list. |
 
 **DSL example:**
 ```kotlin
@@ -176,7 +177,7 @@ TransformData(
 
 **Triggers fired:** `OnSuccess` (template applied, transformed value as incoming data), `OnFailure` (applying the template threw — `Throwable` as incoming data, error logged).
 
-**Notes:** `incomingData` is the input the template is applied to — required for the placeholders to resolve against anything. There are two DSL overloads: one taking a literal `template` value, another taking `eventTemplate` (an `EventSchemaBuilderScope` block) — used when the template itself needs to be built from nested event-builder helpers rather than a plain literal.
+**Notes:** `incomingData` is the input the template is applied to — required for the placeholders to resolve against anything. There are two DSL overloads: one taking a literal `template` value, another taking `eventTemplate` (an `EventSchemaBuilderScope` block) — used when the template itself needs to be built from nested event-builder helpers rather than a plain literal. **`applyPerItem`:** turns one template into a list of results — e.g. a list of file paths into a list of `DeleteFiles` events (`eventTemplate = { DeleteFiles(trigger = EventTriggers.inline(), target = singleFile("<||>")) }`) that `ProcessData(processWith = "EVENT_RUNNER")` then runs.
 
 ### `UpdateData`
 
@@ -316,24 +317,26 @@ UpdateEvents(
 
 ## File system
 
-### `DeleteFile`
+### `DeleteFiles`
 
-Deletes the file stored under `fileName` in the client's own file storage.
+Deletes the file or files selected by `target` from the client's own file storage.
 
 **Parameters:**
 
 | Parameter | Type | Default | What it's for |
 |---|---|---|---|
-| `fileName` | `String` | required | File to delete. |
+| `target` | `DeleteTarget` | required | Which files to delete — `singleFile(fileName)` for one, `multipleFiles(fileNames)` for a list. |
 
 **DSL example:**
 ```kotlin
-DeleteFile(trigger = EventTriggers.onClick(), fileName = "draft.json")
+DeleteFiles(trigger = EventTriggers.onClick(), target = singleFile("draft.json"))
+
+DeleteFiles(trigger = EventTriggers.onClick(), target = multipleFiles(listOf("a.glb", "b.glb")))
 ```
 
-**Triggers fired:** `OnSuccess` (deleted, no data forwarded), `OnFailure` (deletion failed — `Throwable` as incoming data, logged).
+**Triggers fired:** `OnSuccess` (every deletion completed, no data forwarded), `OnFailure` (at least one deletion failed — fired once, after all were attempted; the first `Throwable` as incoming data, every error logged).
 
-**Notes:** `incomingData` not consumed.
+**Notes:** `incomingData` not consumed. With `multipleFiles` every file is attempted even after one fails. To delete a list only known at runtime (e.g. the result of `ListFiles`), build one `DeleteFiles` per item with `TransformData(applyPerItem = true)` and run them with `ProcessData(processWith = "EVENT_RUNNER")` — see `ListFiles`.
 
 ### `GetFile`
 
@@ -358,6 +361,31 @@ GetFile(
 **Triggers fired:** `OnSuccess` (content in the chosen shape as incoming data), `OnFailure` (read failed, no file exists under `fileName` — `NoSuchElementException` — or `MapObject` decoding failed; `Throwable` as incoming data, logged).
 
 **Notes:** `incomingData` not consumed.
+
+### `ListFiles`
+
+Lists the files directly inside `directory` in the client's own file storage. Not recursive: subdirectories and the files inside them are skipped.
+
+**Parameters:**
+
+| Parameter | Type | Default | What it's for |
+|---|---|---|---|
+| `directory` | `String` | required | Directory to list, relative to the storage root. |
+
+**DSL example:**
+```kotlin
+ListFiles(
+    trigger = EventTriggers.onClick(),
+    directory = "models",
+    events = {
+        DeleteFiles(trigger = EventTriggers.onSuccess(), target = multipleFiles(listOf("models/old.glb")))
+    }
+)
+```
+
+**Triggers fired:** `OnSuccess` (the directory holds files — `List<String>` of paths as incoming data), `OnEmptyDir` (the directory exists but holds no files — no data), `OnFailure` (the directory doesn't exist — `DirNotFoundException` — or listing failed; `Throwable` as incoming data, logged).
+
+**Notes:** `incomingData` not consumed. Returned paths are relative to the storage root, so they can be passed directly to `GetFile`/`DeleteFiles` as file names. Typical use: after `DownloadFileToDisk` fires `OnInsufficientDiskSpace`, list the cached files to let the user pick what to clear. To delete all of them at once: `ListFiles` → `TransformData(applyPerItem = true, eventTemplate = { DeleteFiles(trigger = EventTriggers.inline(), target = singleFile("<||>")) })` → `ProcessData(processWith = "EVENT_RUNNER")`.
 
 ### `OpenFilePicker`
 
@@ -611,7 +639,7 @@ DownloadFile(
 
 ### `DownloadFileToDisk`
 
-Downloads `url` into the client's own private file storage under `targetFileName` — `GetFile`/`DeleteFile` can reach it afterwards.
+Downloads `url` into the client's own private file storage under `targetFileName` — `GetFile`/`DeleteFiles` can reach it afterwards.
 
 **Parameters:**
 
@@ -634,9 +662,9 @@ DownloadFileToDisk(
 )
 ```
 
-**Triggers fired:** `OnStart`, `OnDownloadProgress` (progress as incoming data), then `OnDownloadFinish` + `OnSuccess` (both carrying `targetFileName`) or `OnDownloadFailure` + `OnFailure` (both carrying the `Throwable`, logged). No `OnCancelled` — private storage writes aren't interactively cancellable.
+**Triggers fired:** `OnStart`, `OnDownloadProgress` (progress as incoming data), then `OnDownloadFinish` + `OnSuccess` (both carrying `targetFileName`) or `OnDownloadFailure` + `OnFailure` (both carrying the `Throwable`, logged) — except when the device ran out of storage, where only `OnInsufficientDiskSpace` fires (carrying the `Throwable`, logged). No `OnCancelled` — private storage writes aren't interactively cancellable.
 
-**Notes:** `incomingData` not consumed. **Timeouts:** same as `UploadFile` — set `timeouts` for large files; on the web only `requestTimeoutMillis` applies, and without it the transfer has no timeout.
+**Notes:** `incomingData` not consumed. **Timeouts:** same as `UploadFile` — set `timeouts` for large files; on the web only `requestTimeoutMillis` applies, and without it the transfer has no timeout. **Disk full:** `OnInsufficientDiskSpace` replaces `OnDownloadFailure`/`OnFailure` for that failure and the partially written file is deleted first; the failure is detected by matching the platform's error message, so an unrecognized message falls back to the regular failure triggers.
 
 ### `DownloadFileToMemory`
 

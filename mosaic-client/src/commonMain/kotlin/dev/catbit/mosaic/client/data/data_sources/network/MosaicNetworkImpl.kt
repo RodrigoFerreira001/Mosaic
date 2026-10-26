@@ -2,8 +2,10 @@ package dev.catbit.mosaic.client.data.data_sources.network
 
 import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.exceptions.GetRequestWithBodyException
+import dev.catbit.mosaic.client.exceptions.InsufficientDiskSpaceException
 import dev.catbit.mosaic.client.exceptions.MissingUploadUrlException
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
+import dev.catbit.mosaic.client.extensions.isInsufficientDiskSpace
 import dev.catbit.mosaic.client.extensions.safeNetworkCall
 import dev.catbit.mosaic.client.extensions.safeResult
 import dev.catbit.mosaic.core.data.responses.graph.GraphResponse
@@ -193,7 +195,7 @@ class MosaicNetworkImpl(
                 onDownloadFinished = onDownloadFinished
             )
         } catch (e: Throwable) {
-            onDownloadFailure(e)
+            onDownloadFailure(if (e.isInsufficientDiskSpace()) InsufficientDiskSpaceException(e) else e)
         }
     }
 

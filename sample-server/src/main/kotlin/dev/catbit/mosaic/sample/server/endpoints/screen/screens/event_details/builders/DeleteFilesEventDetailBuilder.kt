@@ -9,7 +9,9 @@ import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomRelated
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomScaffold
 import dev.catbit.mosaic.sample.server.dsl.tiles.showroom.ShowroomSectionTitle
 import dev.catbit.mosaic.sample.server.endpoints.screen.screens.event_details.EventDetailBuilder
-import dev.catbit.mosaic.server.builder.event.builders.file.DeleteFile
+import dev.catbit.mosaic.server.builder.event.builders.file.DeleteFiles
+import dev.catbit.mosaic.server.builder.event.builders.file.multipleFiles
+import dev.catbit.mosaic.server.builder.event.builders.file.singleFile
 import dev.catbit.mosaic.server.builder.event.builders.tiles.UpdateTiles
 import dev.catbit.mosaic.server.builder.event.builders.tiles.inlineTileUpdateData
 import dev.catbit.mosaic.server.builder.tile.TileSchemaBuilderScope
@@ -17,16 +19,19 @@ import dev.catbit.mosaic.server.builder.tile.builders.buttons.Button
 import dev.catbit.mosaic.server.builder.tile.builders.buttons.outlinedButton
 import dev.catbit.mosaic.server.builder.tile.builders.text.SimpleText
 
-object DeleteFileEventDetailBuilder : EventDetailBuilder {
+object DeleteFilesEventDetailBuilder : EventDetailBuilder {
 
-    override fun canBuild(eventName: String) = eventName == "DeleteFile"
+    override fun canBuild(eventName: String) = eventName == "DeleteFiles"
 
     override fun TileSchemaBuilderScope.buildDetail(eventName: String) {
         ShowroomScaffold {
             ShowroomHero(
-                description = "Deletes a locally stored file, identified by name — the cleanup counterpart of " +
-                    "SaveFile. Use it to clean up local files after a successful upload, or when the app's " +
-                    "cache is cleared manually. Deleting a file that doesn't exist fires onFailure."
+                description = "Deletes one or several locally stored files, identified by name — the cleanup " +
+                    "counterpart of SaveFile. target picks the files: singleFile(name) for one, " +
+                    "multipleFiles(names) for a list, where every file is attempted even if one fails and " +
+                    "onFailure fires once at the end. Use it to clean up local files after a successful " +
+                    "upload, when the app's cache is cleared manually, or to free space after " +
+                    "onInsufficientDiskSpace."
             )
 
             ShowroomSectionTitle("Interactive demo")
@@ -39,9 +44,9 @@ object DeleteFileEventDetailBuilder : EventDetailBuilder {
                     text = "Delete mosaic_demo_photo.webp",
                     buttonType = outlinedButton(),
                     events = {
-                        DeleteFile(
+                        DeleteFiles(
                             trigger = EventTriggers.onClick(),
-                            fileName = "mosaic_demo_photo.webp",
+                            target = singleFile("mosaic_demo_photo.webp"),
                             events = {
                                 UpdateTiles(
                                     trigger = EventTriggers.onSuccess(),
@@ -62,6 +67,30 @@ object DeleteFileEventDetailBuilder : EventDetailBuilder {
                         )
                     }
                 )
+                Button(
+                    text = "Delete two files at once (multipleFiles)",
+                    buttonType = outlinedButton(),
+                    events = {
+                        DeleteFiles(
+                            trigger = EventTriggers.onClick(),
+                            target = multipleFiles(listOf("mosaic_demo_photo.webp", "mosaic_demo_downloaded.txt")),
+                            events = {
+                                UpdateTiles(
+                                    trigger = EventTriggers.onSuccess(),
+                                    updates = {
+                                        update("delete_file_status", inlineTileUpdateData("text" to "Deleted both files ✓"))
+                                    }
+                                )
+                                UpdateTiles(
+                                    trigger = EventTriggers.onFailure(),
+                                    updates = {
+                                        update("delete_file_status", inlineTileUpdateData("text" to "onFailure · at least one deletion failed"))
+                                    }
+                                )
+                            }
+                        )
+                    }
+                )
                 ShowroomNote(
                     "After deleting, try the GetFile event to confirm: the read will fail because the file no " +
                         "longer exists."
@@ -71,15 +100,20 @@ object DeleteFileEventDetailBuilder : EventDetailBuilder {
             ShowroomSectionTitle("Code sample")
             ShowroomCode(
                 """
-                DeleteFile(
+                DeleteFiles(
                     trigger = EventTriggers.onSuccess(),
-                    fileName = "avatar.jpg",
+                    target = singleFile("avatar.jpg"),
+                )
+
+                DeleteFiles(
+                    trigger = EventTriggers.onSuccess(),
+                    target = multipleFiles(listOf("a.glb", "b.glb")),
                 )
                 """
             )
 
             ShowroomRelated(
-                names = listOf("SaveFile", "GetFile"),
+                names = listOf("SaveFile", "GetFile", "ListFiles"),
                 destination = "eventDetails"
             )
         }

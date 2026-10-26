@@ -18,6 +18,10 @@ class MosaicFileSystemImpl : MosaicFileSystem {
         fileName: String
     ): PlatformFile? = PlatformFileHandler.getFilePlatformFile(fileName)
 
+    override suspend fun listFiles(
+        directory: String
+    ): List<String>? = PlatformFileHandler.listFiles(directory)
+
     override suspend fun deleteFile(
         fileName: String
     ) = PlatformFileHandler.deleteFile(fileName)

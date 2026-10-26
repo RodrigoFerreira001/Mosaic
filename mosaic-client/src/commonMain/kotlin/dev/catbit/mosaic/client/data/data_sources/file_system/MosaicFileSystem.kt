@@ -10,6 +10,7 @@ interface MosaicFileSystem {
     )
     suspend fun getFile(fileName: String): ByteArray?
     suspend fun getFilePlatformFile(fileName: String): PlatformFile?
+    suspend fun listFiles(directory: String): List<String>?
     suspend fun deleteFile(fileName: String)
     suspend fun fileExists(fileName: String): Boolean
     suspend fun saveFileStreaming(fileName: String, data: Flow<ByteArray>)

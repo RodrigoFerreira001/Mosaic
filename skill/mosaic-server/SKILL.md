@@ -620,6 +620,19 @@ Placeholder rules — two delimiters, same path syntax:
 - Single-placeholder template with `<|...|>` → native type preserved; with `</.../>` → always String; placeholder mixed with surrounding text (either delimiter) → coerced to String
 - A placeholder that resolves to a missing key, wrong-typed navigation, or out-of-range index throws — and a placeholder resolving to `null` **inside mixed text** also throws (only a bare `</value/>` on its own renders the literal string `"null"`).
 
+**Per-item mapping (`applyPerItem = true`):** when `incomingData` is a list, the template is applied to **each item** (placeholders resolve against the item — `<||>` is the item, `<|name|>` a field of it) and `incomingData` becomes the list of results; a non-list `incomingData` ignores the flag. Combined with `ProcessData(processWith = "EVENT_RUNNER")` it turns a runtime list into a batch of events — e.g. clearing the files `ListFiles` returned:
+
+```kotlin
+ListFiles(trigger = EventTriggers.onClick(), directory = "models", events = {
+    TransformData(
+        trigger = EventTriggers.onSuccess(),
+        applyPerItem = true,
+        eventTemplate = { DeleteFiles(trigger = EventTriggers.inline(), target = singleFile("<||>")) },
+        events = { ProcessData(trigger = EventTriggers.onSuccess(), processWith = "EVENT_RUNNER") }
+    )
+})
+```
+
 ---
 
 ## 7. Data Flow

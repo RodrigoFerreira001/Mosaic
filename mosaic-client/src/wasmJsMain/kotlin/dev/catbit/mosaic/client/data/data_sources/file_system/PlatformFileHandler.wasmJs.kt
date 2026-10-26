@@ -5,6 +5,8 @@ package dev.catbit.mosaic.client.data.data_sources.file_system
 import io.github.vinceglb.filekit.BrowserFile
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.WebFile
+import kotlin.js.JsArray
+import kotlin.js.JsString
 import kotlin.js.Promise
 import kotlinx.coroutines.await
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +43,14 @@ actual object PlatformFileHandler {
             if (isNotFound(result)) return@runCatching null
             val browserFile = getBrowserFileFromResult(result)?.unsafeCast<BrowserFile>() ?: return@runCatching null
             PlatformFile(WebFile.FileWrapper(file = browserFile, path = null, parent = null))
+        }.getOrNull()
+
+    actual suspend fun listFiles(directory: String): List<String>? =
+        runCatching {
+            val result = clientList(client, directory).await<JsAny?>() ?: return@runCatching null
+            if (isNotFound(result)) return@runCatching null
+            val files = getFilesFromResult(result)
+            List(files.length) { index -> files[index].toString() }
         }.getOrNull()
 
     actual suspend fun deleteFile(fileName: String) {
@@ -138,6 +148,7 @@ actual object PlatformFileHandler {
         getFile: (fileName) => call('getFile', { fileName }),
         exists: (fileName) => call('exists', { fileName }),
         delete: (fileName) => call('delete', { fileName }),
+        list: (directory) => call('list', { directory }),
     };
 }""")
 private external fun createOpfsClient(): JsAny
@@ -168,6 +179,12 @@ private external fun clientExists(client: JsAny, fileName: String): Promise<JsAn
 
 @JsFun("(client, fileName) => client.delete(fileName)")
 private external fun clientDelete(client: JsAny, fileName: String): Promise<JsAny?>
+
+@JsFun("(client, directory) => client.list(directory)")
+private external fun clientList(client: JsAny, directory: String): Promise<JsAny?>
+
+@JsFun("(result) => result?.files ?? []")
+private external fun getFilesFromResult(result: JsAny): JsArray<JsString>
 
 @JsFun("(result) => result?.buffer ?? null")
 private external fun getBufferFromResult(result: JsAny): JsAny?

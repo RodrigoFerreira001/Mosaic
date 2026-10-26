@@ -185,7 +185,7 @@ kotlin {
             implementation(libs.androidx.sqlite.web)
             implementation(npm("@catbit.dev/sqlite-wasm-worker", "1.0.0"))
             // OPFS file handler (dedicated Web Worker) — same as above, published on npm.
-            implementation(npm("@catbit.dev/opfs-wasm-worker", "1.0.0"))
+            implementation(npm("@catbit.dev/opfs-wasm-worker", "1.1.0"))
         }
     }
 

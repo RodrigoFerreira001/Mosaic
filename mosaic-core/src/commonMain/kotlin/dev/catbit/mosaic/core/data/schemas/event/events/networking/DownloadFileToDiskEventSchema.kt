@@ -8,6 +8,7 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFail
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnInsufficientDiskSpaceEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnStartEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnSuccessEventTrigger
 import dev.catbit.mosaic.core.data.schemas.network.HttpMethod
@@ -19,7 +20,7 @@ import kotlinx.serialization.Serializable
 
 /**
  * Downloads [url] into the client's own file storage under [targetFileName], where `GetFile` and
- * `DeleteFile` can reach it afterwards. [method], [headers] and [body] shape the request;
+ * `DeleteFiles` can reach it afterwards. [method], [headers] and [body] shape the request;
  * [timeouts] overrides the client's timeouts for this transfer. On the web only
  * `requestTimeoutMillis` applies, and without it the transfer has no timeout.
  *
@@ -33,6 +34,11 @@ import kotlinx.serialization.Serializable
  *   both carrying [targetFileName] as incomingData.
  * - `OnDownloadFailureEventTrigger` then `OnFailureEventTrigger` — when the download failed, both
  *   carrying the `Throwable`; the error is logged.
+ * - `OnInsufficientDiskSpaceEventTrigger` — when the download failed because the device ran out of
+ *   storage; it fires **instead of** `OnDownloadFailureEventTrigger` and `OnFailureEventTrigger`,
+ *   carrying the `Throwable` (an `InsufficientDiskSpaceException`) as incomingData, and the error is
+ *   logged. The partially written file is deleted first. The out-of-space detection matches the
+ *   platform error message, so an unrecognized message falls back to the regular failure triggers.
  */
 @Immutable
 @Triggers(
@@ -43,6 +49,7 @@ import kotlinx.serialization.Serializable
         OnDownloadFailureEventTrigger::class,
         OnSuccessEventTrigger::class,
         OnFailureEventTrigger::class,
+        OnInsufficientDiskSpaceEventTrigger::class,
     ]
 )
 @Serializable

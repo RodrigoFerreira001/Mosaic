@@ -5,6 +5,7 @@ import dev.catbit.mosaic.client.data.data_sources.file_system.MosaicFileSystem
 import dev.catbit.mosaic.client.data.data_sources.network.MosaicNetwork
 import dev.catbit.mosaic.client.data.data_sources.network.NetworkParametersHolder
 import dev.catbit.mosaic.client.exceptions.DataNotFoundException
+import dev.catbit.mosaic.client.exceptions.DirNotFoundException
 import dev.catbit.mosaic.client.exceptions.NetworkResponseException
 import dev.catbit.mosaic.client.extensions.safeResult
 import dev.catbit.mosaic.core.data.models.graph.GraphModel
@@ -368,6 +369,12 @@ class MosaicRepositoryImpl(
         fileName: String
     ): Result<Unit> = safeResult {
         fileSystem.deleteFile(fileName)
+    }
+
+    override suspend fun listFiles(
+        directory: String
+    ): Result<List<String>> = safeResult {
+        fileSystem.listFiles(directory) ?: throw DirNotFoundException(directory)
     }
 
     override suspend fun fileExists(

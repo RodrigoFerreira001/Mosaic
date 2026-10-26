@@ -72,7 +72,7 @@ object SaveFileEventDetailBuilder : EventDetailBuilder {
                 ShowroomNote(
                     "SaveFile alone doesn't make sense without a byte source earlier in the chain — that's " +
                         "why this demo uses GetImageFromGallery to produce the ByteArray that SaveFile " +
-                        "consumes. See GetFile and DeleteFile to read or remove the file saved here."
+                        "consumes. See GetFile and DeleteFiles to read or remove the file saved here."
                 )
             }
 
@@ -91,7 +91,7 @@ object SaveFileEventDetailBuilder : EventDetailBuilder {
             )
 
             ShowroomRelated(
-                names = listOf("GetFile", "DeleteFile", "GetImageFromGallery"),
+                names = listOf("GetFile", "DeleteFiles", "GetImageFromGallery"),
                 destination = "eventDetails"
             )
         }

@@ -1,15 +1,15 @@
-package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.delete_file
+package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.delete_files
 
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.BuilderScope
 import dev.catbit.mosaic.client.ui.sdui.foundation.tiles.holder.event.EventHolderBuilder
-import dev.catbit.mosaic.core.data.schemas.event.events.file.DeleteFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.file.DeleteFilesEventSchema
 
-object DeleteFileEventHolderBuilder : EventHolderBuilder<DeleteFileEventSchema, DeleteFileEventHolder> {
+object DeleteFilesEventHolderBuilder : EventHolderBuilder<DeleteFilesEventSchema, DeleteFilesEventHolder> {
 
     override fun BuilderScope.build(
-        eventSchema: DeleteFileEventSchema
+        eventSchema: DeleteFilesEventSchema
     ) = with(eventSchema) {
-        DeleteFileEventHolder(
+        DeleteFilesEventHolder(
             id = id,
             event = eventSchema,
             trigger = trigger,

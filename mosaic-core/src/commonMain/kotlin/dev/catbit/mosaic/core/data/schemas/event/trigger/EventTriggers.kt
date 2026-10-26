@@ -20,6 +20,8 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDisplayEvent
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnEmptyDirEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnInsufficientDiskSpaceEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnHeightBreakpointNotSatisfiedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnHeightBreakpointSatisfiedEventTrigger
@@ -103,6 +105,8 @@ object EventTriggers {
     fun onDownloadFailure() = OnDownloadFailureEventTrigger
     fun onDownloadFinish() = OnDownloadFinishEventTrigger
     fun onDownloadProgress() = OnDownloadProgressEventTrigger
+    fun onEmptyDir() = OnEmptyDirEventTrigger
+    fun onInsufficientDiskSpace() = OnInsufficientDiskSpaceEventTrigger
     fun onDataReceived() = OnDataReceivedEventTrigger
     fun onDatePickerOpen() = OnDatePickerOpenEventTrigger
     fun onDatePickerClose() = OnDatePickerCloseEventTrigger

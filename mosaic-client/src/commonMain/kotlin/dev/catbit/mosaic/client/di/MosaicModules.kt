@@ -30,7 +30,8 @@ import dev.catbit.mosaic.client.domain.data.segmented.WipeSegmentedDataUseCase
 import dev.catbit.mosaic.client.domain.download.DownloadFileToDiskUseCase
 import dev.catbit.mosaic.client.domain.download.DownloadFileToMemoryUseCase
 import dev.catbit.mosaic.client.domain.download.DownloadFileUseCase
-import dev.catbit.mosaic.client.domain.file.DeleteFileUseCase
+import dev.catbit.mosaic.client.domain.file.DeleteFilesUseCase
+import dev.catbit.mosaic.client.domain.file.ListFilesUseCase
 import dev.catbit.mosaic.client.domain.file.GetFilePlatformFileUseCase
 import dev.catbit.mosaic.client.domain.file.GetFileStreamingUseCase
 import dev.catbit.mosaic.client.domain.file.GetFileUseCase
@@ -76,7 +77,8 @@ import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.run_c
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.run_events.RunEventsEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.trigger_event.TriggerEventEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.event.update_events.UpdateEventsEventDefinition
-import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.delete_file.DeleteFileEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.delete_files.DeleteFilesEventDefinition
+import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.list_files.ListFilesEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.get_file.GetFileEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.open_file_picker.OpenFilePickerEventDefinition
 import dev.catbit.mosaic.client.ui.sdui.implementations.event.events.file.save_file.SaveFileEventDefinition
@@ -419,7 +421,8 @@ internal class MosaicModules(
         factory { GetFileUseCase(get()) }
         factory { GetFileStreamingUseCase(get()) }
         factory { GetFilePlatformFileUseCase(get()) }
-        factory { DeleteFileUseCase(get()) }
+        factory { DeleteFilesUseCase(get()) }
+        factory { ListFilesUseCase(get()) }
         factory { GetAllPlainDataUseCase(get()) }
         factory { GetPlainDataUseCase(get()) }
         factory { GetPlainDataByIdsUseCase(get()) }
@@ -544,7 +547,8 @@ internal class MosaicModules(
         CheckIfHasInternetConnectionEventDefinition,
         OpenExternalLinkEventDefinition,
         DropCachesEventDefinition,
-        DeleteFileEventDefinition,
+        DeleteFilesEventDefinition,
+        ListFilesEventDefinition,
         GetFileEventDefinition,
         OpenFilePickerEventDefinition,
         SaveFileEventDefinition,

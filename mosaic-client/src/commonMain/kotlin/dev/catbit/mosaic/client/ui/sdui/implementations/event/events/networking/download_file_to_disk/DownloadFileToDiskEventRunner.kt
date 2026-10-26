@@ -1,6 +1,8 @@
 package dev.catbit.mosaic.client.ui.sdui.implementations.event.events.networking.download_file_to_disk
 
 import dev.catbit.mosaic.client.domain.download.DownloadFileToDiskUseCase
+import dev.catbit.mosaic.client.domain.file.DeleteFilesUseCase
+import dev.catbit.mosaic.client.exceptions.InsufficientDiskSpaceException
 import dev.catbit.mosaic.client.extensions.toKtorHttpMethod
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunner
 import dev.catbit.mosaic.client.ui.sdui.foundation.events.EventRunningScope
@@ -38,14 +40,22 @@ object DownloadFileToDiskEventRunner : EventRunner<DownloadFileToDiskEventSchema
                         )
                     },
                     onDownloadFailure = { failure ->
-                        onTrigger(
-                            eventTrigger = EventTriggers.onDownloadFailure(),
-                            data = failure
-                        )
-                        onTrigger(
-                            eventTrigger = EventTriggers.onFailure(),
-                            data = failure
-                        )
+                        if (failure is InsufficientDiskSpaceException) {
+                            runCatching { get<DeleteFilesUseCase>()(DeleteFilesUseCase.Params(listOf(targetFileName))) }
+                            onTrigger(
+                                eventTrigger = EventTriggers.onInsufficientDiskSpace(),
+                                data = failure
+                            )
+                        } else {
+                            onTrigger(
+                                eventTrigger = EventTriggers.onDownloadFailure(),
+                                data = failure
+                            )
+                            onTrigger(
+                                eventTrigger = EventTriggers.onFailure(),
+                                data = failure
+                            )
+                        }
                         logError(
                             tag = "DownloadFileToDiskEventRunner",
                             throwable = failure

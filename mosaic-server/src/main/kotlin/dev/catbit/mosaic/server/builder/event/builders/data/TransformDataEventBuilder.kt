@@ -11,14 +11,16 @@ internal class TransformDataEventBuilder(
     private val id: String,
     private val trigger: EventTrigger,
     private val events: EventSchemaBuilderScope.() -> Unit = {},
-    private val template: AnySerializable
+    private val template: AnySerializable,
+    private val applyPerItem: Boolean = false
 ) : EventSchemaBuilder<TransformDataEventSchema>() {
 
     override fun build() = TransformDataEventSchema(
         id = id,
         trigger = trigger,
         events = EventSchemaBuilderScope().apply(events).build(),
-        template = template
+        template = template,
+        applyPerItem = applyPerItem
     )
 }
 
@@ -36,19 +38,22 @@ internal class TransformDataEventBuilder(
  * @param trigger Trigger that fires this event, built via `EventTriggers`.
  * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
  * @param template Literal template value (string, map, list, etc) whose placeholders are resolved against `incomingData`.
+ * @param applyPerItem When `true` and `incomingData` is a list, applies [template] to each item separately (placeholders resolve against the item) and delivers the list of results; ignored when `incomingData` isn't a list. Defaults to `false`.
  */
 fun EventSchemaBuilderScope.TransformData(
     id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
-    template: AnySerializable
+    template: AnySerializable,
+    applyPerItem: Boolean = false
 ) {
     addBuilder(
         TransformDataEventBuilder(
             id = id,
             trigger = trigger,
             events = events,
-            template = template
+            template = template,
+            applyPerItem = applyPerItem
         )
     )
 }
@@ -63,12 +68,14 @@ fun EventSchemaBuilderScope.TransformData(
  * @param trigger Trigger that fires this event, built via `EventTriggers`.
  * @param events Child events chained after this one, wired to its triggers (`onSuccess`, `onFailure`).
  * @param eventTemplate Block building the template value; a single declared value is unwrapped, several are kept as a list. Defaults to empty.
+ * @param applyPerItem When `true` and `incomingData` is a list, applies the template to each item separately (placeholders resolve against the item) and delivers the list of results; ignored when `incomingData` isn't a list. Defaults to `false`.
  */
 fun EventSchemaBuilderScope.TransformData(
     id: String = randomId(),
     trigger: EventTrigger,
     events: EventSchemaBuilderScope.() -> Unit = {},
-    eventTemplate: EventSchemaBuilderScope.() -> Unit = {}
+    eventTemplate: EventSchemaBuilderScope.() -> Unit = {},
+    applyPerItem: Boolean = false
 ) {
     addBuilder(
         TransformDataEventBuilder(
@@ -81,7 +88,8 @@ fun EventSchemaBuilderScope.TransformData(
                     .build()
 
                 if (template.size == 1) template.first() else template
-            }
+            },
+            applyPerItem = applyPerItem
         )
     )
 }

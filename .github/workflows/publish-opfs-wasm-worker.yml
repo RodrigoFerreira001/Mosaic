@@ -1,4 +1,4 @@
-name: Publish npm workers
+name: Publish opfs-wasm-worker
 
 on:
   workflow_dispatch:
@@ -26,7 +26,3 @@ jobs:
       - name: Publish @catbit.dev/opfs-wasm-worker
         run: npm publish --access public
         working-directory: mosaic-client/opfsWorker
-
-      - name: Publish @catbit.dev/sqlite-wasm-worker
-        run: npm publish --access public
-        working-directory: mosaic-client/sqliteWasmWorker

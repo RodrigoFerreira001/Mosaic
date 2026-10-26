@@ -1,6 +1,6 @@
 {
   "name": "@catbit.dev/opfs-wasm-worker",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "OPFS-backed dedicated Web Worker used by Mosaic's wasmJs file system implementation.",
   "license": "Apache-2.0",
   "repository": {

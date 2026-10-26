@@ -13,6 +13,9 @@ expect object PlatformFileHandler {
 
     /** Returns a [PlatformFile] reference to the file, or null if it doesn't exist. */
     suspend fun getFilePlatformFile(fileName: String): PlatformFile?
+
+    /** Paths of the files directly inside [directory] (subdirectories are skipped), relative to the storage root, or null if the directory doesn't exist. */
+    suspend fun listFiles(directory: String): List<String>?
     suspend fun deleteFile(fileName: String)
     suspend fun fileExists(fileName: String): Boolean
 

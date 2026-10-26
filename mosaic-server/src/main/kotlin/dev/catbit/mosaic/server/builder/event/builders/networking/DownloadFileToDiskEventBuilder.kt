@@ -36,15 +36,17 @@ internal class DownloadFileToDiskEventBuilder(
 
 /**
  * Downloads [url] into the client's own file storage under [targetFileName], where `GetFile` and
- * `DeleteFile` can reach it afterwards. [method], [headers] and [body] shape the request. Does
+ * `DeleteFiles` can reach it afterwards. [method], [headers] and [body] shape the request. Does
  * not consume `incomingData`. Dispatches `onStart` before the download begins;
  * `onDownloadProgress` repeatedly while downloading (carrying the progress); `onDownloadFinish`
  * then `onSuccess` (both carrying [targetFileName]) when the download completed;
- * `onDownloadFailure` then `onFailure` (both carrying the `Throwable`, logged) when it failed.
+ * `onDownloadFailure` then `onFailure` (both carrying the `Throwable`, logged) when it failed —
+ * unless it failed for lack of device storage, in which case only `onInsufficientDiskSpace` fires
+ * (carrying the `Throwable`, logged) and the partially written file is deleted.
  *
  * @param id Unique identifier of this event. Defaults to a random id.
  * @param trigger Trigger that fires this event, built via `EventTriggers`.
- * @param events Child events chained after this one, wired to its triggers (`onStart`, `onDownloadProgress`, `onDownloadFinish`, `onDownloadFailure`, `onSuccess`, `onFailure`).
+ * @param events Child events chained after this one, wired to its triggers (`onStart`, `onDownloadProgress`, `onDownloadFinish`, `onDownloadFailure`, `onSuccess`, `onFailure`, `onInsufficientDiskSpace`).
  * @param url URL to download.
  * @param method HTTP method used for the request, built with [httpGet], [httpPost], [httpPut], [httpDelete], [httpPatch] etc.
  * @param body Request body. Defaults to none.

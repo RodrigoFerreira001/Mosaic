@@ -31,7 +31,7 @@ object DownloadFileToDiskEventDetailBuilder : EventDetailBuilder {
             ShowroomHero(
                 description = "Downloads a URL directly into the app's own private storage under targetFileName " +
                     "— not the device's public Downloads folder (that's DownloadFile), the app's private sandbox, " +
-                    "readable and deletable afterwards with GetFile/DeleteFile. Use it for content the app needs " +
+                    "readable and deletable afterwards with GetFile/DeleteFiles. Use it for content the app needs " +
                     "to keep around privately: a cached asset, an offline copy of a document, a downloaded " +
                     "attachment the app itself will open later."
             )
@@ -69,6 +69,12 @@ object DownloadFileToDiskEventDetailBuilder : EventDetailBuilder {
                                         update("download_to_disk_status", inlineTileUpdateData("text" to "onFailure · request failed"))
                                     }
                                 )
+                                UpdateTiles(
+                                    trigger = EventTriggers.onInsufficientDiskSpace(),
+                                    updates = {
+                                        update("download_to_disk_status", inlineTileUpdateData("text" to "onInsufficientDiskSpace · not enough free storage — partial file removed"))
+                                    }
+                                )
                             }
                         )
                     }
@@ -101,7 +107,7 @@ object DownloadFileToDiskEventDetailBuilder : EventDetailBuilder {
                 ShowroomNote(
                     "Unlike DownloadFile (the public-Downloads-folder event), this one never involves the OS's " +
                         "download manager or a native picker — it's a plain private write, same storage GetFile/" +
-                        "DeleteFile/SaveFile already operate on."
+                        "DeleteFiles/SaveFile already operate on."
                 )
             }
 
@@ -116,6 +122,8 @@ object DownloadFileToDiskEventDetailBuilder : EventDetailBuilder {
                     timeouts = timeout(requestTimeoutMillis = 5 * 60_000, socketTimeoutMillis = 30_000),
                     events = {
                         UpdateTiles(trigger = EventTriggers.onSuccess(), updates = { /* ... */ })
+                        // offer to clear local files, e.g. with ListFiles + DeleteFiles
+                        UpdateTiles(trigger = EventTriggers.onInsufficientDiskSpace(), updates = { /* ... */ })
                     }
                 )
                 """
@@ -127,8 +135,15 @@ object DownloadFileToDiskEventDetailBuilder : EventDetailBuilder {
                     "there is no timeout."
             )
 
+            ShowroomNote(
+                "When the download fails because the device ran out of storage, onInsufficientDiskSpace fires " +
+                    "instead of onDownloadFailure and onFailure, after the partially written file is removed. " +
+                    "Detection relies on the platform's error message; an unrecognized message falls back to " +
+                    "the regular failure triggers. Chain ListFiles and DeleteFiles from it to let the user free space."
+            )
+
             ShowroomRelated(
-                names = listOf("DownloadFile", "DownloadFileToMemory", "GetFile", "DeleteFile"),
+                names = listOf("DownloadFile", "DownloadFileToMemory", "GetFile", "DeleteFiles", "ListFiles"),
                 destination = "eventDetails"
             )
         }

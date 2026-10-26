@@ -16,8 +16,9 @@ import dev.catbit.mosaic.core.data.schemas.event.events.event.RunCancellableEven
 import dev.catbit.mosaic.core.data.schemas.event.events.event.RunEventsEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.event.TriggerEventEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.event.UpdateEventsEventSchema
-import dev.catbit.mosaic.core.data.schemas.event.events.file.DeleteFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.file.DeleteFilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.file.GetFileEventSchema
+import dev.catbit.mosaic.core.data.schemas.event.events.file.ListFilesEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.file.OpenFilePickerEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.file.SaveFileEventSchema
 import dev.catbit.mosaic.core.data.schemas.event.events.image.CompressionScheme
@@ -90,6 +91,8 @@ import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDateSelected
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFailureEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadFinishEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDownloadProgressEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnEmptyDirEventTrigger
+import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnInsufficientDiskSpaceEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListCloseEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListItemSelectedEventTrigger
 import dev.catbit.mosaic.core.data.schemas.event.trigger.triggers.OnDropdownListOpenEventTrigger
@@ -943,6 +946,17 @@ class MosaicSerializer(
                 )
             }
 
+            polymorphic(DeleteFilesEventSchema.DeleteTarget::class) {
+                subclass(
+                    DeleteFilesEventSchema.DeleteTarget.Single::class,
+                    DeleteFilesEventSchema.DeleteTarget.Single.serializer()
+                )
+                subclass(
+                    DeleteFilesEventSchema.DeleteTarget.Multiple::class,
+                    DeleteFilesEventSchema.DeleteTarget.Multiple.serializer()
+                )
+            }
+
             polymorphic(OpenFilePickerEventSchema.FileType::class) {
                 subclass(
                     OpenFilePickerEventSchema.FileType.Image::class,
@@ -1105,6 +1119,8 @@ class MosaicSerializer(
             OnDownloadFailureEventTrigger::class to OnDownloadFailureEventTrigger.serializer(),
             OnDownloadFinishEventTrigger::class to OnDownloadFinishEventTrigger.serializer(),
             OnDownloadProgressEventTrigger::class to OnDownloadProgressEventTrigger.serializer(),
+            OnEmptyDirEventTrigger::class to OnEmptyDirEventTrigger.serializer(),
+            OnInsufficientDiskSpaceEventTrigger::class to OnInsufficientDiskSpaceEventTrigger.serializer(),
             OnFailureEventTrigger::class to OnFailureEventTrigger.serializer(),
             OnHeightBreakpointSatisfiedEventTrigger::class to OnHeightBreakpointSatisfiedEventTrigger.serializer(),
             OnHeightBreakpointNotSatisfiedEventTrigger::class to OnHeightBreakpointNotSatisfiedEventTrigger.serializer(),
@@ -1230,8 +1246,9 @@ class MosaicSerializer(
             CancelEventsEventSchema::class to CancelEventsEventSchema.serializer(),
             TriggerEventEventSchema::class to TriggerEventEventSchema.serializer(),
             UpdateEventsEventSchema::class to UpdateEventsEventSchema.serializer(),
-            DeleteFileEventSchema::class to DeleteFileEventSchema.serializer(),
+            DeleteFilesEventSchema::class to DeleteFilesEventSchema.serializer(),
             GetFileEventSchema::class to GetFileEventSchema.serializer(),
+            ListFilesEventSchema::class to ListFilesEventSchema.serializer(),
             OpenFilePickerEventSchema::class to OpenFilePickerEventSchema.serializer(),
             SaveFileEventSchema::class to SaveFileEventSchema.serializer(),
             TakePictureEventSchema::class to TakePictureEventSchema.serializer(),

@@ -28,6 +28,12 @@ async function removeEntry(fileName) {
     await dir.removeEntry(segments[segments.length - 1]);
 }
 
+// Keeps the error's name (e.g. "QuotaExceededError") — the Kotlin side classifies "disk full" by it,
+// and `error.message` alone doesn't carry it.
+function describeError(error) {
+    return `${error.name}: ${error.message}`;
+}
+
 async function writeOpenRequest(id, data) {
     try {
         const fileHandle = await resolveFileHandle(data.fileName, true);
@@ -38,7 +44,7 @@ async function writeOpenRequest(id, data) {
         openWrites.set(handleId, { syncHandle, offset: 0 });
         postMessage({ id, data: { handleId } });
     } catch (error) {
-        postMessage({ id, error: error.message });
+        postMessage({ id, error: describeError(error) });
     }
 }
 
@@ -54,7 +60,7 @@ function writeChunkRequest(id, data) {
         entry.offset += bytes.length;
         postMessage({ id, data: {} });
     } catch (error) {
-        postMessage({ id, error: error.message });
+        postMessage({ id, error: describeError(error) });
     }
 }
 
@@ -148,6 +154,27 @@ async function deleteRequest(id, data) {
     }
 }
 
+async function listRequest(id, data) {
+    try {
+        const segments = data.directory.split('/').filter((segment) => segment.length > 0);
+        let dir = await navigator.storage.getDirectory();
+        for (const segment of segments) {
+            dir = await dir.getDirectoryHandle(segment);
+        }
+        const prefix = segments.length > 0 ? `${segments.join('/')}/` : '';
+        const files = [];
+        for await (const [name, handle] of dir.entries()) {
+            if (handle.kind === 'file') {
+                files.push(`${prefix}${name}`);
+            }
+        }
+        postMessage({ id, data: { files } });
+    } catch (error) {
+        // Diretório não encontrado — resolve como ausente, não como erro
+        postMessage({ id, data: { notFound: true } });
+    }
+}
+
 const commandMap = {
     'writeOpen': writeOpenRequest,
     'writeChunk': writeChunkRequest,
@@ -158,6 +185,7 @@ const commandMap = {
     'getFile': getFileRequest,
     'exists': existsRequest,
     'delete': deleteRequest,
+    'list': listRequest,
 };
 
 onmessage = (e) => {
